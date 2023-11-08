@@ -81,7 +81,7 @@
                         </div>
                         <div class="mb-3 col-md-4 not_memorial_show">
                             <label for="pet_name" class="form-label">寵物名稱<span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="pet_name" name="pet_name" >
+                            <input type="text" class="form-control" id="pet_name" name="pet_name" required >
                         </div>
                         <div class="mb-3 col-md-4 not_final_show not_memorial_show">
                             <label for="kg" class="form-label">公斤數<span class="text-danger">*</span></label>
