@@ -92,14 +92,14 @@ Route::group(['prefix' => '/'], function () {
     Route::get('dashboard', [DashboardController::class, 'loginSuccess'])->name('index');
     Route::post('/dashboard', [DashboardController::class, 'store'])->name('index.worktime');
     Route::get('dashboard_info', [DashboardController::class, 'index'])->name('dashboard.info');
-    
+
     /*用戶管理*/
     Route::get('users', [UserController::class, 'index'])->name('users');
     Route::get('user/create', [UserController::class, 'create'])->name('user.create');
     Route::post('user/create', [UserController::class, 'store'])->name('user.create.data');
     Route::get('user/edit/{id}', [UserController::class, 'show'])->name('user.edit');
     Route::post('user/edit/{id}', [UserController::class, 'update'])->name('user.edit.data');
-    
+
     //用戶出勤
     Route::get('user/work/{id}', [WorkController::class, 'user_work'])->name('user.work.index');
     Route::get('user/work/edit/{id}', [WorkController::class, 'showuserwork'])->name('user.work.edit');
@@ -147,7 +147,7 @@ Route::group(['prefix' => '/'], function () {
     Route::post('leave_day/del/{id}', [LeaveDayController::class, 'destroy'])->name('leave_day.del.data');
     Route::get('leave_day/check/{id}', [LeaveDayController::class, 'check'])->name('leave_day.check');
     Route::post('leave_day/check/{id}', [LeaveDayController::class, 'check_data'])->name('leave_day.check.data');
-    
+
     /*客戶管理 */
     Route::get('customers', [CustomerController::class, 'index'])->name('customer');
     Route::get('customer_data', [CustomerController::class, 'customer_data'])->name('customer.data');
@@ -347,7 +347,7 @@ Route::group(['prefix' => '/'], function () {
 
     /*人事管理*/
     Route::get('personnels', [PersonnelController::class, 'index'])->name('personnels');
-    
+
     /*例假日總覽 */
     Route::get('personnel/holidays', [PersonnelController::class, 'holidays'])->name('personnel.holidays');
     Route::get('personnel/holiday/create', [PersonnelController::class, 'holiday_create'])->name('personnel.holidays.create');
@@ -359,7 +359,7 @@ Route::group(['prefix' => '/'], function () {
     Route::post('/vacation/create', [VacationController::class, 'store'])->name('vacation.create.data');
     Route::get('/vacation/edit/{id}', [VacationController::class, 'show'])->name('vacation.edit');
     Route::post('/vacation/edit/{id}', [VacationController::class, 'update'])->name('vacation.edit.data');
-    
+
     /*法會類別管理*/
     Route::get('/puja/type', [PujaTypeController::class, 'index'])->name('puja.types');
     Route::get('/puja/type/create', [PujaTypeController::class, 'create'])->name('puja.type.create');
@@ -423,7 +423,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/rpg/rpg17', [Rpg17Controller::class, 'rpg17'])->name('rpg17');
     Route::get('/rpg/rpg17/{month}/{prom_id}/detail', [Rpg17Controller::class, 'detail'])->name('rpg17.detail');
     Route::get('/rpg/rpg18', [Rpg18Controller::class, 'rpg18'])->name('rpg18');
-
+1;
 
     Route::get('image', function()
     {
