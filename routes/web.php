@@ -423,7 +423,6 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/rpg/rpg17', [Rpg17Controller::class, 'rpg17'])->name('rpg17');
     Route::get('/rpg/rpg17/{month}/{prom_id}/detail', [Rpg17Controller::class, 'detail'])->name('rpg17.detail');
     Route::get('/rpg/rpg18', [Rpg18Controller::class, 'rpg18'])->name('rpg18');
-1;
 
     Route::get('image', function()
     {
