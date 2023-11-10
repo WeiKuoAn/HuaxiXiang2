@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ["page_title"=> "舊法會查詢"])
+@extends('layouts.vertical', ["page_title"=> "套組法會查詢"])
 
 @section('content')
 <!-- Start Content-->
@@ -12,10 +12,10 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="javascript: void(0);">報表管理</a></li>
-                        <li class="breadcrumb-item active">舊法會查詢</li>
+                        <li class="breadcrumb-item active">套組法會查詢</li>
                     </ol>
                 </div>
-                <h4 class="page-title">舊法會查詢</h4>
+                <h4 class="page-title">套組法會查詢</h4>
             </div>
         </div>
     </div>

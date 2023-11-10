@@ -93,7 +93,7 @@ class PujaDataController extends Controller
             $pet_name = $request->pet_name;
             if($pet_name){
                 $pet_name = $request->pet_name.'%';
-                $datas = $datas::where('pet_name', 'like' ,$pet_name);
+                $datas = $datas->where('pet_name', 'like' ,$pet_name);
             }
 
             $puja_id = $request->puja_id;
