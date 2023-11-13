@@ -612,7 +612,7 @@
             var cols = '';
             cols += '<td class="text-center"><button type="button" class="ibtnDel_prom demo-delete-row btn btn-danger btn-sm btn-icon"><i class="fa fa-times"></i></button></td>';
             cols += '<td>';
-            cols += '<select id="select_prom_'+$rowCount+'" alt="'+$rowCount+'" class="mobile form-select" name="select_proms[]" onclick="chgItems(this)">';
+            cols += '<select id="select_prom_'+$rowCount+'" alt="'+$rowCount+'" class="mobile form-select" name="select_proms[]" onchange="chgItems(this)">';
             cols += '<option value="" selected>請選擇...</option>';
             cols += '<option value="A">安葬處理</option>';
             cols += '<option value="B">後續處理</option>';
