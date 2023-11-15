@@ -27,7 +27,7 @@
                 <div class="card-body">
                     <div class="row justify-content-between">
                         <div class="col-auto">
-                            <form class="d-flex flex-wrap align-items-center" id="myForm" action="{{ route('rpg07') }}" method="GET">
+                            <form class="d-flex flex-wrap align-items-center" id="myForm" action="{{ route('rpg06') }}" method="GET">
                                 <label for="status-select" class="me-2">日期區間</label>
                                 <div class="me-2">
                                     <input type="date" class="form-control my-1 my-lg-0" id="after_date" name="after_date" value="{{ $request->after_date }}">
@@ -41,11 +41,11 @@
                                 </div>
                             </form>
                         </div>
-                        <div class="col-auto">
+                        {{-- <div class="col-auto">
                             <div class="text-lg-end my-1 my-lg-0">
                                 <a href="{{ route('rpg07.export',request()->input()) }}" class="btn btn-danger waves-effect waves-light">匯出</a>
                             </div>
-                        </div><!-- end col-->
+                        </div><!-- end col--> --}}
                     </div> <!-- end row -->
                 </div>
             </div> <!-- end card -->

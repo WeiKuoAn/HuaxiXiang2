@@ -125,7 +125,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">通訊地址<span class="text-danger">*</span></label>
+                        <label class="form-label">戶籍地址<span class="text-danger">*</span></label>
                         <input type="text" class="form-control" name="census_address" value="{{ $user->census_address }}">
                     </div>
 

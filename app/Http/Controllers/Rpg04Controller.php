@@ -27,17 +27,22 @@ class Rpg04Controller extends Controller
 
         $products = Product::where('status','up');
 
-        if ($type != "null") {
-            if(isset($type)){
+        if(isset($type)){
+            if ($type != "null") {
                 $products = $products->where('type',$type);
+            }else{
+                $products = $products;
             }
         }
         
-        if ($category_id != "null") {
-            if($category_id){
-                $products = $products->where('category_id',$category_id)->get();
+        if(isset($category_id)){
+            if ($category_id != "null") {
+                $products = $products->where('category_id',$category_id);
+            }else{
+                $products = $products;
             }
         }
+        
         $products = $products->get();
         
         $categorys = Category::where('status','up')->get();
@@ -59,22 +64,24 @@ class Rpg04Controller extends Controller
                 $product_datas = $product_datas->where('sale_data.sale_date','<=',$before_date);
             }
 
-            if ($category_id != "null") {
-                if($category_id){
+            if(isset($category_id)){
+                if ($category_id != "null") {
                     $product_datas = $product_datas->where('product.category_id',$category_id);
                 }else{
                     $product_datas = $product_datas;
                 }
             }
 
-            $type = $request->type;
-            if($type){
-                $product_datas = $product_datas->where('product.type','=',$type);
-            }else{
-                $product_datas = $product_datas->where('product.type','=','normal');
+            if(isset($type)){
+                if ($type != "null") {
+                    $product_datas = $product_datas->where('product.type','=',$type);
+                }else{
+                    $product_datas = $product_datas;
+                }
             }
             
             $product_datas = $product_datas->whereNotNull('sale_gdpaper.gdpaper_id')->get();
+            // dd($product_datas);
 
             if($after_date && $before_date){
                 $periods = CarbonPeriod::create( $request->after_date,  $request->before_date);

@@ -55,6 +55,7 @@ class Rpg16Controller extends Controller
                                                                 ->whereNotNull('sale_prom.prom_id')
                                                                 ->where('sale_data.sale_date','>=',$month['start_date'])->where('sale_data.sale_date','<=',$month['end_date'])
                                                                 ->where('sale_prom.prom_id',$prom->id)
+                                                                ->where('sale_data.status','9')
                                                                 ->count();
                                                                 
             }
@@ -113,6 +114,7 @@ class Rpg16Controller extends Controller
                     ->where('sale_prom.prom_id',$prom_id)
                     ->whereNotNull('sale_prom.prom_id')
                     ->where('sale_prom.prom_type','B')
+                    ->where('sale_data.status','9')
                     ->get();
                     // dd($datas);
 

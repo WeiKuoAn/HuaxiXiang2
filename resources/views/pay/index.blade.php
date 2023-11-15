@@ -112,7 +112,7 @@
                                         @else
                                             <th>審核</th>
                                         @endif
-                                        @if($request->status!= null || $request->status == '1')
+                                        @if($request->status != '0')
                                             <th width="10%">動作</th>
                                         @endif
                                     </tr>
