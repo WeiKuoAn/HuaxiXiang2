@@ -87,7 +87,7 @@ class PayDataController extends Controller
                     $sum_pay  = $sum_pay;
                 }
             }else{
-                if(count($items) > 0)
+                if(isset($pay_after_date) || isset($pay_before_date))
                 {
                     foreach($items as $item)
                     {
