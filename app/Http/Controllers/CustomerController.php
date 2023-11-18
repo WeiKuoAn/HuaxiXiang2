@@ -107,7 +107,7 @@ class CustomerController extends Controller
     {
         $customer = Customer::where('id', $id)->first();
         if ($request) {
-            $sales = Sale::where('customer_id',  $id)->where('status', 9);
+            $sales = Sale::where('customer_id',  $id)->whereIn('status', [9,100]);
 
             $after_date = $request->after_date;
             if ($after_date) {
