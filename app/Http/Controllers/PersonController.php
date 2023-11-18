@@ -236,7 +236,7 @@ class PersonController extends Controller
                     $sales = Sale::where('user_id', Auth::user()->id)->whereIn('status', [1, 2]);
                 }
                 if ($status == 'check') {
-                    $sales = Sale::where('user_id', Auth::user()->id)->where('status', 9);
+                    $sales = Sale::where('user_id', Auth::user()->id)->whereIn('status', [9,100]);
                 }
                 $after_date = $request->after_date;
                 if ($after_date) {
