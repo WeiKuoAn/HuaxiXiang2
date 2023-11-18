@@ -294,7 +294,7 @@ class CustomerController extends Controller
 
     public function sales($id)
     {
-        $sales = Sale::where('status','9')->where('customer_id',$id)->orderby('sale_date','desc')->get();
+        $sales = Sale::whereIn('status',['9','100'])->where('customer_id',$id)->orderby('sale_date','desc')->get();
         $customer = Customer::where('id',$id)->first();
         return view('customer.sales')->with('sales', $sales)->with('customer',$customer);
     }
