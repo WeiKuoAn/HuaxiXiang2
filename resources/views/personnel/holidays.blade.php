@@ -69,13 +69,14 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($datas as $data)
+                                @foreach($datas as $user_id=>$data)
+                                {{-- {{ dd($datas) }} --}}
                                 <tr align="center">
                                     <td>{{ $data['name'] }}</td>
                                     @foreach ($months as $key=>$month)
                                         <td>
                                             @if(isset($data['holidays'][$key]))
-                                                {{ $data['holidays'][$key] }}天
+                                                <a href="{{ route('personnel.holidays.edit',[$user_id,$data['year'],$key]) }}">{{ $data['holidays'][$key] }}</a>天
                                             @else
                                             @endif
                                         </td>

@@ -90,12 +90,13 @@ class PersonnelController extends Controller
             $year = Carbon::now()->year;//取得當年
         }
         $years = range(Carbon::now()->year,2022);
-        $users = User::where('status','0')->get();
+        $users = User::where('status','0')->whereIn('job_id',[3,4,5])->orderby('job_id')->get();
         $year_holiday = Vacation::where('year',$year)->first();//取放假天數
         $datas = [];
 
         foreach ($users as $user) {
             $datas[$user->id]['name'] = $user->name;
+            $datas[$user->id]['year'] = $year;
             $user_holidays = UserHoliday::where('year', $year)->where('user_id', $user->id)->get();
             if(isset($year_holiday)){
                 $datas[$user->id]['last_day'] = intval($year_holiday->day);
@@ -120,6 +121,7 @@ class PersonnelController extends Controller
                 }
             }
         }
+        
         return view('personnel.holidays')->with('months',$months)->with('years',$years)->with('request',$request)->with('datas',$datas);
     }
 
@@ -127,7 +129,7 @@ class PersonnelController extends Controller
     {
         $year = Carbon::now()->year;//取得當年
         $this_month = Carbon::now()->month;
-        $users = User::where('status','0')->get();
+        $users = User::where('status','0')->whereIn('job_id',[3,4,5])->orderby('job_id')->get();
         $months = [
             '01'=> [ 'name'=>'一月'],
             '02'=> [ 'name'=>'二月'],
@@ -174,6 +176,27 @@ class PersonnelController extends Controller
         }
 
         
+        return redirect()->route('personnel.holidays');
+    }
+
+    public function holiday_edit(Request $request  ,$user_id , $year, $month )
+    {
+        $year = $year;
+        $month = $month;
+        $user = User::where('id',$user_id)->first();
+        $data = UserHoliday::where('year',$year)->where('month',$month)->where('user_id',$user_id)->first();
+        dd($data);
+        return view('personnel.holiday_edit')->with('year',$year)
+                                               ->with('month',$month)
+                                               ->with('data',$data)
+                                               ->with('user',$user);
+    }
+
+    public function holiday_update(Request $request  ,$user_id , $year, $month )
+    {
+        $data = UserHoliday::where('year',$year)->where('month',$month)->where('user_id',$user_id)->first();
+        $data->holiday = $request->holiday;
+        $data->save();
         return redirect()->route('personnel.holidays');
     }
 
