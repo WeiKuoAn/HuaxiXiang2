@@ -185,7 +185,7 @@ class PersonnelController extends Controller
         $month = $month;
         $user = User::where('id',$user_id)->first();
         $data = UserHoliday::where('year',$year)->where('month',$month)->where('user_id',$user_id)->first();
-        dd($data);
+        // dd($data);
         return view('personnel.holiday_edit')->with('year',$year)
                                                ->with('month',$month)
                                                ->with('data',$data)
