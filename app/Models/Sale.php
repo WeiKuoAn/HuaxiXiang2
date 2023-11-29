@@ -89,7 +89,7 @@ class Sale extends Model
 
     public function pay_method()
     {
-        $pay_method = ['A'=>'現金','B'=>'匯款','B'=>'現金與匯款'];
+        $pay_method = ['A'=>'現金','B'=>'匯款','C'=>'現金與匯款'];
         return $pay_method[$this->pay_method];
     }
 
