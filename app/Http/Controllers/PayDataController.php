@@ -89,11 +89,14 @@ class PayDataController extends Controller
             }else{
                 if(isset($pay_after_date) || isset($pay_before_date) || isset($pay))
                 {
-                    foreach($items as $item)
+                    if(count($items) > 0)
                     {
-                        $pay_data_ids[] = $item->pay_data_id;
+                        foreach($items as $item)
+                        {
+                            $pay_data_ids[] = $item->pay_data_id;
+                        }
+                        $datas =  $datas->orWhereIn('id', $pay_data_ids);
                     }
-                    $datas =  $datas->orWhereIn('id', $pay_data_ids);
                 }
             }
             

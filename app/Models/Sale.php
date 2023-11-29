@@ -87,6 +87,12 @@ class Sale extends Model
         return $pay_type[$this->pay_id];
     }
 
+    public function pay_method()
+    {
+        $pay_method = ['A'=>'現金','B'=>'匯款','B'=>'現金與匯款'];
+        return $pay_method[$this->pay_method];
+    }
+
     public function gdpaper_total()
     {
         $sales = Sale::where('id', $this->id)->get();

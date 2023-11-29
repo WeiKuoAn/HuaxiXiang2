@@ -40,6 +40,7 @@
                                         <th>金紙</th>
                                         <th>後續處理A</th>
                                         <th>後續處理B</th>
+                                        <th>付款類別</th>
                                         <th>付款方式</th>
                                         <th>實收價格</th>
                                         <th>動作</th>
@@ -120,6 +121,11 @@
                                         <td>
                                             @if (isset($sale->pay_id))
                                                 {{ $sale->pay_type() }}
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if (isset($sale->pay_method))
+                                                {{ $sale->pay_method() }}
                                             @endif
                                         </td>
                                         <td>{{ number_format($sale->pay_price) }}</td>
