@@ -354,6 +354,7 @@ Route::group(['prefix' => '/'], function () {
     Route::post('personnel/holiday/create', [PersonnelController::class, 'holiday_store'])->name('personnel.holidays.create.data');
     Route::get('personnel/holiday/edit/{user_id}/{year}/{month}', [PersonnelController::class, 'holiday_edit'])->name('personnel.holidays.edit');
     Route::post('personnel/holiday/edit/{user_id}/{year}/{month}', [PersonnelController::class, 'holiday_update'])->name('personnel.holidays.edit.data');
+    Route::get('personnel/other_holidays', [PersonnelController::class, 'other_holidays'])->name('personnel.other_holidays');
 
     /*年度總休假管理*/
     Route::get('/vacation', [VacationController::class, 'index'])->name('vacations');

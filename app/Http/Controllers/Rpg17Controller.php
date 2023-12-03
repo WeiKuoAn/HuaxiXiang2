@@ -52,8 +52,9 @@ class Rpg17Controller extends Controller
                 $datas[$key]['proms'][$prom->id]['name'] = $prom->name;
                 $datas[$key]['proms'][$prom->id]['count'] = 0;
                 $datas[$key]['proms'][$prom->id]['sale_count'] = DB::table('sale_data')
+                                                                     ->join('before_prom','before_prom.id', '=' , 'sale_data.before_prom_id')
                                                                      ->where('sale_data.sale_date','>=',$month['start_date'])->where('sale_data.sale_date','<=',$month['end_date'])
-                                                                     ->where('sale_data.before_prom_id',$prom->id)
+                                                                     ->where('before_prom.prom_id',$prom->id)
                                                                      ->whereNotNull('sale_data.before_prom_id')
                                                                      ->where('sale_data.status','9')
                                                                      ->count();

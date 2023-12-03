@@ -263,6 +263,9 @@
                             <li>
                                 <a href="{{ route('personnel.holidays') }}"  class="{{ request()->is('personnel.holidays') ? 'active' : '' }}">例休假總覽</a>
                             </li>
+                            <li>
+                                <a href="{{ route('personnel.other_holidays') }}"  class="{{ request()->is('personnel.other_holidays') ? 'active' : '' }}">其他假總覽</a>
+                            </li>
                             {{-- <li>
                                 <a href="{{ route('user.bank') }}"  class="{{ request()->is('user.bank') ? 'active' : '' }}">專員戶頭設定</a>
                             </li> --}}

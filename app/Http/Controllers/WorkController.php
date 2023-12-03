@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contract;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Works;
@@ -58,12 +59,15 @@ class WorkController extends Controller
         $check_sale = Sale::where('status',3)->count();
         $cust_nums = Customer::count();
         $work = Works::where('user_id', Auth::user()->id)->orderBy('id', 'desc')->first();
+
+        $contract_datas = Contract::whereIn('renew',[0,1])->get();
         // dd($work);
         // dd($now);
         if(Auth::user()->status != 1){
             return view('dashboard')->with(['now' => $now, 'work' => $work , 'sale_today'=>$sale_today 
             , 'cust_nums'=>$cust_nums , 'check_sale'=>$check_sale , 'total_today_incomes'=>$total_today_incomes
-            , 'price_month'=>$price_month , 'pay_month'=>$pay_month , 'net_income'=>$net_income , 'gdpaper_month'=>$gdpaper_month]);
+            , 'price_month'=>$price_month , 'pay_month'=>$pay_month , 'net_income'=>$net_income , 'gdpaper_month'=>$gdpaper_month
+            , 'contract_datas'=>$contract_datas]);
         }else{
             return view('auth.login');
         }

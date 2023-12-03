@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Works;
+use App\Models\Contract;
 use App\Models\User;
 use App\Models\Sale;
 use App\Models\IncomeData;
@@ -22,10 +23,14 @@ class DashboardController extends Controller
 
     public function loginSuccess(){
         $now = Carbon::now()->locale('zh-tw');
+        $now_day = Carbon::now()->format("Y-m-d");
+        $two_month_day = Carbon::now()->addMonths(2)->format("Y-m-d");
         // dd(Auth::user());
         if(Auth::user()->status != 1){
             $work = Works::where('user_id', Auth::user()->id)->orderBy('id', 'desc')->first();
-            return view('index')->with('now',$now)->with('work',$work);
+            $contract_datas = Contract::whereIn('renew',[0,1])->where('end_date','>=',$now_day)->where('end_date','<=',$two_month_day)->orderby('end_date','asc')->get();
+            // dd($contract_datas);
+            return view('index')->with('now',$now)->with('work',$work)->with('contract_datas',$contract_datas);
         }else{
             return redirect('/');
         }
