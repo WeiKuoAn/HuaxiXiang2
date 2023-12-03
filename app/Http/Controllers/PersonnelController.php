@@ -315,7 +315,7 @@ class PersonnelController extends Controller
                     // 計算剩餘小時數
                     $remainingHours = $hoursDifference % 8;
                     //剩餘天數
-                    if($datas[$user_id]['leavedays']['special']['hour'] > 8){
+                    if($datas[$user_id]['leavedays']['special']['hour'] > 0){
                         $datas[$user_id]['leavedays']['special']['day'] = $daysBasedOn8Hours . "天，又" . $remainingHours . "小時"; 
                     }else{
                         $datas[$user_id]['leavedays']['special']['day'] = $daysBasedOn8Hours . "天"; 
@@ -342,7 +342,7 @@ class PersonnelController extends Controller
                     // 計算剩餘小時數
                     $remainingHours = $hoursDifference % 8;
                     //剩餘天數
-                    if($datas[$user_id]['leavedays'][$leaveday_type]['hour'] > 8){
+                    if($datas[$user_id]['leavedays'][$leaveday_type]['hour'] > 0){
                         $datas[$user_id]['leavedays'][$leaveday_type]['day'] = $daysBasedOn8Hours . "天，又" . $remainingHours . "小時"; 
                     }else{
                         $datas[$user_id]['leavedays'][$leaveday_type]['day'] = $daysBasedOn8Hours . "天"; 
@@ -355,7 +355,7 @@ class PersonnelController extends Controller
                     $add_daysBasedOn8Hours = intdiv($add_hoursDifference, 8);
                     // 計算剩餘小時數
                     $add_remainingHours = $add_hoursDifference % 8;
-                    if($datas[$user_id]['leavedays'][$leaveday_type]['hour'] > 0){
+                    if($datas[$user_id]['leavedays'][$leaveday_type]['hour'] > 8){
                         $datas[$user_id]['leavedays'][$leaveday_type]['add_day'] = $add_daysBasedOn8Hours . "天，又" . $add_remainingHours . "小時"; 
                     }else{
                         $datas[$user_id]['leavedays'][$leaveday_type]['add_day'] = $add_remainingHours . "小時"; 
