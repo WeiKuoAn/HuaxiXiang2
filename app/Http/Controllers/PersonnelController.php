@@ -253,7 +253,7 @@ class PersonnelController extends Controller
                     // 'prenatalCheckUp'=>['name'=>'產檢假' , 'day'=>'7'] ,
                     // 'paternity'=>['name'=>'陪產假' , 'day'=>'7'] ,
                     // 'fetalProtection'=>['name'=>'安胎假' , 'day'=>'2'],
-                    'familyCare'=>['name'=>'家庭照顧假' , 'day'=>'7' , 'hour'=>'56'],
+                    // 'familyCare'=>['name'=>'家庭照顧假' , 'day'=>'7' , 'hour'=>'56'],
                 ];
 
         foreach ($users as $user) {

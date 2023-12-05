@@ -28,7 +28,7 @@ class DashboardController extends Controller
         // dd(Auth::user());
         if(Auth::user()->status != 1){
             $work = Works::where('user_id', Auth::user()->id)->orderBy('id', 'desc')->first();
-            $contract_datas = Contract::whereIn('renew',[0,1])->where('end_date','>=',$now_day)->where('end_date','<=',$two_month_day)->orderby('end_date','asc')->get();
+            $contract_datas = Contract::whereIn('renew',[0,1])->where('end_date','>=',$now_day)->where('end_date','<=',$two_month_day)->whereNull('close_date')->orderby('end_date','asc')->get();
             // dd($contract_datas);
             return view('index')->with('now',$now)->with('work',$work)->with('contract_datas',$contract_datas);
         }else{

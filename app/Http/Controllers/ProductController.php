@@ -299,7 +299,7 @@ class ProductController extends Controller
         }
         $data->save();
 
-        if($request->type == 'combo')
+        if($request->type == 'combo' || $request->type == 'set')
         {
             $old_combo_datas = ComboProduct::where('product_id',$id)->get();
             if(count($old_combo_datas) > 0){
