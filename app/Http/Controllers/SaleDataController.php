@@ -833,7 +833,7 @@ class SaleDataController extends Controller
             "Expires"             => "0"
         );
         $header = array('日期', $after_date.'~' ,  $before_date);
-        $columns = array('單號', '專員', '日期', '客戶', '寶貝名' , '類別','方案','金紙','金紙總賣價','安葬方式','後續處理','付款方式','實收價格','狀態','備註','轉單','對拆人員');
+        $columns = array('案件單類別','單號', '專員', '日期', '客戶', '寶貝名' , '類別','方案','金紙','金紙總賣價','安葬方式','後續處理','付款方式','實收價格','狀態','備註','轉單','對拆人員');
 
         $callback = function() use($sales, $columns ,$header) {
             
@@ -843,6 +843,11 @@ class SaleDataController extends Controller
             fputcsv($file, $columns);
 
             foreach ($sales as $key=>$sale) {
+                if($sale->type_list == "dispatch"){
+                    $row['案件單類別']  = "派件單";
+                }else{
+                    $row['案件單類別']  = "追思單";
+                }
                 $row['單號']  = $sale->sale_on;
                 $row['專員'] = $sale->user_name->name;
                 $row['日期'] = $sale->sale_date;
@@ -857,6 +862,8 @@ class SaleDataController extends Controller
                 }
                 if((isset($sale->pet_name))){
                     $row['寶貝名'] = $sale->pet_name;
+                }else{
+                    $row['寶貝名'] = '';
                 }
                 if(isset($sale->type)){
                     if(isset($sale->source_type)){
@@ -930,7 +937,7 @@ class SaleDataController extends Controller
                     $row['對拆人員'] = $sale->SaleSplit->user_name->name;
                 }
                 //'付款方式','實收價格','狀態','轉單','對拆人員'
-                fputcsv($file, array($row['單號'], $row['專員'], $row['日期'], $row['客戶'],$row['寶貝名'],$row['類別']
+                fputcsv($file, array( $row['案件單類別'],$row['單號'], $row['專員'], $row['日期'], $row['客戶'],$row['寶貝名'],$row['類別']
                                     ,$row['方案'],$row['金紙'],$row['金紙總價格'],$row['安葬方式'],$row['後續處理'],$row['付款方式']
                                     ,$row['實收價格'],$row['狀態'],$row['備註'],$row['轉單'],$row['對拆人員']));
             }
