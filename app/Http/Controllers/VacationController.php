@@ -11,7 +11,22 @@ class VacationController extends Controller
 {
     public function index()
     {
-        $datas = Vacation::paginate(50);
+        $vacations = Vacation::get();
+        $datas = [];
+        foreach($vacations as $vacation)
+        {
+            $datas[$vacation->year]['year'] = $vacation->year;
+            $datas[$vacation->year]['months'] = Vacation::where('year',$vacation->year)->get();
+            $datas[$vacation->year]['total'] = 0;
+        }
+
+        foreach($datas as $data)
+        {
+            foreach($data['months'] as $month)
+            {
+                $datas[$vacation->year]['total'] += $month->day;
+            }
+        }
         return view('vacation.index')->with('datas',$datas);
     }
 
@@ -23,7 +38,7 @@ class VacationController extends Controller
     public function create()
     {
         $years = range(Carbon::now()->year, 2023);
-        return view('vacation.create')->with('years',$years);
+        return view('vacation.create')->with('years',$years)->with('hint',0);
     }
 
     /**
@@ -34,11 +49,24 @@ class VacationController extends Controller
      */
     public function store(Request $request)
     {
-        $data = new Vacation;
-        $data->year = $request->year;
-        $data->day = $request->day;
-        $data->save();
-        return redirect()->route('vacations');
+        $years = range(Carbon::now()->year, 2023);
+        $vaction = Vacation::where('year',$request->year)->first();
+        if(isset($vaction)){
+            return view('vacation.create')->with('years',$years)->with(['hint' => '1']);
+        }else{
+            if(isset($request->months))
+            {
+                foreach($request->months as $key=>$month)
+                {
+                    $data = new Vacation;
+                    $data->year = $request->year;
+                    $data->month = $month;
+                    $data->day = $request->days[$key];
+                    $data->save();
+                }
+            }
+            return redirect()->route('vacations');
+        }
     }
 
     /**
@@ -47,11 +75,17 @@ class VacationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($year)
     {
         $years = range(Carbon::now()->year, 2023);
-        $data = Vacation::where('id',$id)->first();
-        return view('vacation.edit')->with('data',$data)->with('years',$years);
+        $data = Vacation::where('year',$year)->first();
+        $now_year = $data->year;
+
+        $vacations = Vacation::where('year',$year)->get();
+        return view('vacation.edit')->with('data',$data)
+                                    ->with('years',$years)
+                                    ->with('now_year',$now_year)
+                                    ->with('vacations',$vacations);
     }
 
     /**
@@ -72,12 +106,18 @@ class VacationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $year)
     {
-        $data = Vacation::where('id',$id)->first();
-        $data->year = $request->year;
-        $data->day = $request->day;
-        $data->save();
+        if(isset($request->months))
+        {
+            $datas = Vacation::where('year',$year)->get();
+            foreach($datas as $key=>$data)
+            {
+                $data->day = $request->days[$key];
+                $data->save();
+            }
+        }
+
         return redirect()->route('vacations');
     }
 }

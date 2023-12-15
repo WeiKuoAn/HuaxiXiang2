@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ["page_title"=> "年度總休假設定"])
+@extends('layouts.vertical', ["page_title"=> "每月總休假設定"])
 
 @section('content')
 <!-- Start Content-->
@@ -12,10 +12,10 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="javascript: void(0);">人事管理</a></li>
-                        <li class="breadcrumb-item active">年度總休假設定</li>
+                        <li class="breadcrumb-item active">每月總休假設定</li>
                     </ol>
                 </div>
-                <h4 class="page-title">年度總休假設定</h4>
+                <h4 class="page-title">每月總休假設定</h4>
             </div>
         </div>
     </div>
@@ -42,31 +42,40 @@
                     <div class="table-responsive">
                         <table class="table table-centered table-nowrap table-hover mb-0">
                             <thead class="table-light">
-                                <tr>
-                                    <th>編號</th>
+                                <tr align="center">
                                     <th>年份</th>
+                                    <th>一月</th>
+                                    <th>二月</th>
+                                    <th>三月</th>
+                                    <th>四月</th>
+                                    <th>五月</th>
+                                    <th>六月</th>
+                                    <th>七月</th>
+                                    <th>八月</th>
+                                    <th>九月</th>
+                                    <th>十月</th>
+                                    <th>十一月</th>
+                                    <th>十二月</th>
                                     <th>總休假天數</th>
                                     <th>動作</th>
                                 </tr>
                             </thead>
                             <tbody>
                             @foreach ($datas as $key=>$data)
-                                <tr>
-                                    <td>{{ $data->id }}</td>
-                                    <td>{{ $data->year }}</td>
-                                    <td>{{ $data->day }}天</td>
+                                <tr align="center">
+                                    <td>{{ $data['year'] }}</td>
+                                    @foreach($data['months'] as $month)
+                                        <td>{{ $month->day }}天</td>
+                                    @endforeach
+                                    <td>{{ $data['total'] }}天</td>
                                     <td>
-                                        <a href="{{ route('vacation.edit',$data->id) }}" class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a>
+                                        <a href="{{ route('vacation.edit',$data['year']) }}" class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a>
                                         {{-- <a href="javascript:void(0);" class="action-icon"> <i class="mdi mdi-delete"></i></a> --}}
                                     </td>
                                 </tr>
                             @endforeach
                             </tbody>
                         </table>
-                        <br>
-                        <ul class="pagination pagination-rounded justify-content-end mb-0">
-                            {{ $datas->links('vendor.pagination.bootstrap-4') }}
-                        </ul>
                     </div>
 
                     

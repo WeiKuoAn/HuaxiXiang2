@@ -258,7 +258,7 @@
                                 <a href="{{ route('personnel.leave_days') }}"  class="{{ request()->is('personnel.leave_days') ? 'active' : '' }}">請假核准</a>
                             </li>
                             <li>
-                                <a href="{{ route('vacations') }}"  class="{{ request()->is('vacations') ? 'active' : '' }}">年度總休假設定</a>
+                                <a href="{{ route('vacations') }}"  class="{{ request()->is('vacations') ? 'active' : '' }}">每月總休假設定</a>
                             </li>
                             <li>
                                 <a href="{{ route('personnel.holidays') }}"  class="{{ request()->is('personnel.holidays') ? 'active' : '' }}">例休假總覽</a>

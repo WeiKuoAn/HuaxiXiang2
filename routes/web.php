@@ -48,6 +48,7 @@ use App\Http\Controllers\Rpg15Controller;
 use App\Http\Controllers\Rpg16Controller;
 use App\Http\Controllers\Rpg17Controller;
 use App\Http\Controllers\Rpg18Controller;
+use App\Http\Controllers\Rpg19Controller;
 use App\Http\Controllers\LeaveDayController;
 use App\Http\Controllers\RestockController;
 use Illuminate\Support\Facades\Storage;
@@ -360,8 +361,8 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/vacation', [VacationController::class, 'index'])->name('vacations');
     Route::get('/vacation/create', [VacationController::class, 'create'])->name('vacation.create');
     Route::post('/vacation/create', [VacationController::class, 'store'])->name('vacation.create.data');
-    Route::get('/vacation/edit/{id}', [VacationController::class, 'show'])->name('vacation.edit');
-    Route::post('/vacation/edit/{id}', [VacationController::class, 'update'])->name('vacation.edit.data');
+    Route::get('/vacation/edit/{year}', [VacationController::class, 'show'])->name('vacation.edit');
+    Route::post('/vacation/edit/{year}', [VacationController::class, 'update'])->name('vacation.edit.data');
 
     /*法會類別管理*/
     Route::get('/puja/type', [PujaTypeController::class, 'index'])->name('puja.types');
@@ -426,6 +427,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/rpg/rpg17', [Rpg17Controller::class, 'rpg17'])->name('rpg17');
     Route::get('/rpg/rpg17/{month}/{prom_id}/detail', [Rpg17Controller::class, 'detail'])->name('rpg17.detail');
     Route::get('/rpg/rpg18', [Rpg18Controller::class, 'rpg18'])->name('rpg18');
+    Route::get('/rpg/rpg19', [Rpg19Controller::class, 'rpg19'])->name('rpg19');
 
     Route::get('image', function()
     {

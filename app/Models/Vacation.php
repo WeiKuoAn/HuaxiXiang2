@@ -13,6 +13,7 @@ class Vacation extends Model
 
     protected $fillable = [
         'year',
+        'month',
         'day'
     ];
 }

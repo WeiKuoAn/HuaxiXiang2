@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ["page_title"=> "編輯年度總休假"])
+@extends('layouts.vertical', ["page_title"=> "每月總休假設定"])
 
 @section('css')
 <!-- third party css -->
@@ -20,10 +20,10 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="javascript: void(0);">人事管理</a></li>
-                        <li class="breadcrumb-item active">編輯年度總休假</li>
+                        <li class="breadcrumb-item active">每月總休假設定</li>
                     </ol>
                 </div>
-                <h4 class="page-title">編輯年度總休假</h4>
+                <h4 class="page-title">每月總休假設定</h4>
             </div>
         </div>
     </div>
@@ -33,24 +33,34 @@
         <div class="col-xl-6">
             <div class="card">
                 <div class="card-body">
-                    <form action="{{ route('vacation.edit.data',$data->id) }}" method="POST">
+                    <form action="{{ route('vacation.edit.data',$now_year) }}" method="POST">
                     @csrf
                     <div class="row">
                         <div class="col-xl-12">
                             <div class="mb-3">
                                 <div class="mb-3">
                                    <label class="form-label">年度<span class="text-danger">*</span></label>
-                                   <select class="form-control" data-toggle="select" data-width="100%" name="year">
+                                   <select class="form-control" data-toggle="select" data-width="100%" name="year" disabled>
                                         @foreach($years as $year)
                                         <option value="{{$year}}" @if($data->year == $year) selected @endif>{{$year}}年</option>
                                         @endforeach
                                    </select>
                                </div>
                            </div>
-                            <div class="mb-3">
-                                <label for="project-priority" class="form-label">天數<span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="day" value="{{ $data->day }}" required>
-                            </div>
+                           <div class="mb-3">
+                            <label for="project-priority" class="form-label">月份/天數<span class="text-danger">*</span></label>
+                            @foreach ($vacations as $vacation)
+                                <div class="row mt-2">
+                                    <div class="col-2" style="text-align: center;">
+                                        {{ $vacation->month }}月：
+                                        <input type="hidden" class="form-control" name="months[]" value="{{ $vacation->month }}" >
+                                    </div>
+                                    <div class="col-10">
+                                        <input type="text" class="form-control" name="days[]" value="{{ $vacation->day }}" placeholder="天數">
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                         </div> <!-- end col-->
                         
                     </div>
