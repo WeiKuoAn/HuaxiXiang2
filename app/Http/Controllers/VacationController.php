@@ -12,22 +12,22 @@ class VacationController extends Controller
     public function index()
     {
         $vacations = Vacation::get();
-        $datas = [];
+        $vdatas = [];
         foreach($vacations as $vacation)
         {
-            $datas[$vacation->year]['year'] = $vacation->year;
-            $datas[$vacation->year]['months'] = Vacation::where('year',$vacation->year)->get();
-            $datas[$vacation->year]['total'] = 0;
+            $vdatas[$vacation->year]['year'] = $vacation->year;
+            $vdatas[$vacation->year]['months'] = Vacation::where('year',$vacation->year)->get();
+            $vdatas[$vacation->year]['total'] = 0;
         }
 
-        foreach($datas as $data)
+        foreach($vdatas as $vdata)
         {
-            foreach($data['months'] as $month)
+            foreach($vdata['months'] as $month)
             {
-                $datas[$vacation->year]['total'] += $month->day;
+                $vdatas[$vacation->year]['total'] += $month->day;
             }
         }
-        return view('vacation.index')->with('datas',$datas);
+        return view('vacation.index')->with('vdatas',$vdatas);
     }
 
     /**
@@ -65,7 +65,7 @@ class VacationController extends Controller
                     $data->save();
                 }
             }
-            return redirect()->route('vacations');
+            return redirect()->route('personnel.holidays');
         }
     }
 
@@ -118,6 +118,6 @@ class VacationController extends Controller
             }
         }
 
-        return redirect()->route('vacations');
+        return redirect()->route('personnel.holidays');
     }
 }

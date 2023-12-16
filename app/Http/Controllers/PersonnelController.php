@@ -122,8 +122,26 @@ class PersonnelController extends Controller
                 }
             }
         }
+
+        $vacations = Vacation::where('year',$year)->get();
+        $vdatas = [];
+        foreach($vacations as $vacation)
+        {
+            $vdatas[$vacation->year]['year'] = $vacation->year;
+            $vdatas[$vacation->year]['months'] = Vacation::where('year',$vacation->year)->get();
+            $vdatas[$vacation->year]['total'] = 0;
+        }
+
+        foreach($vdatas as $vdata)
+        {
+            foreach($vdata['months'] as $month)
+            {
+                $vdatas[$vacation->year]['total'] += $month->day;
+            }
+        }
         
-        return view('personnel.holidays')->with('months',$months)->with('years',$years)->with('request',$request)->with('datas',$datas);
+        return view('personnel.holidays')->with('months',$months)->with('years',$years)
+                                         ->with('request',$request)->with('datas',$datas)->with('vdatas',$vdatas);
     }
 
     public function holiday_create()
