@@ -119,6 +119,7 @@
                                         <th>{{ $month['name'] }}</th>
                                     @endforeach
                                     <th>已休假天數</th>
+                                    <th>剩餘休假天數</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -135,6 +136,7 @@
                                         </td>
                                     @endforeach
                                     <td>{{ $data['total_day'] }}天</td>
+                                    <td>{{ $data['last_day'] }}天</td>
                                 </tr>
                                 @endforeach
                             </tbody>

@@ -92,15 +92,33 @@ class PersonnelController extends Controller
         }
         $years = range(Carbon::now()->year,2022);
         $users = User::where('status','0')->whereIn('job_id',[3,4,5])->orderby('job_id')->get();
-        $year_holiday = Vacation::where('year',$year)->first();//取放假天數
+        $year_holiday = Vacation::where('year',$year)->sum('day');//取放假天數
+        // dd($year_holiday);
         $datas = [];
+
+        $vacations = Vacation::where('year',$year)->get();
+        $vdatas = [];
+        foreach($vacations as $vacation)
+        {
+            $vdatas[$vacation->year]['year'] = $vacation->year;
+            $vdatas[$vacation->year]['months'] = Vacation::where('year',$vacation->year)->get();
+            $vdatas[$vacation->year]['total'] = 0;
+        }
+
+        foreach($vdatas as $vdata)
+        {
+            foreach($vdata['months'] as $month)
+            {
+                $vdatas[$vacation->year]['total'] += $month->day;
+            }
+        }
 
         foreach ($users as $user) {
             $datas[$user->id]['name'] = $user->name;
             $datas[$user->id]['year'] = $year;
             $user_holidays = UserHoliday::where('year', $year)->where('user_id', $user->id)->get();
             if(isset($year_holiday)){
-                $datas[$user->id]['last_day'] = intval($year_holiday->day);
+                $datas[$user->id]['last_day'] = intval($year_holiday);
             }else{
                 $datas[$user->id]['last_day'] = 0;
             }
@@ -122,23 +140,8 @@ class PersonnelController extends Controller
                 }
             }
         }
-
-        $vacations = Vacation::where('year',$year)->get();
-        $vdatas = [];
-        foreach($vacations as $vacation)
-        {
-            $vdatas[$vacation->year]['year'] = $vacation->year;
-            $vdatas[$vacation->year]['months'] = Vacation::where('year',$vacation->year)->get();
-            $vdatas[$vacation->year]['total'] = 0;
-        }
-
-        foreach($vdatas as $vdata)
-        {
-            foreach($vdata['months'] as $month)
-            {
-                $vdatas[$vacation->year]['total'] += $month->day;
-            }
-        }
+        // dd($datas);
+        
         
         return view('personnel.holidays')->with('months',$months)->with('years',$years)
                                          ->with('request',$request)->with('datas',$datas)->with('vdatas',$vdatas);
