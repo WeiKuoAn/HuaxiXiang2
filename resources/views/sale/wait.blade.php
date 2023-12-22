@@ -21,6 +21,42 @@
     </div>
     <!-- end page title -->
 
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row justify-content-between">
+                        <form action="{{ route('wait.sales') }}" method="GET">
+                                <div class="col-auto d-flex flex-wrap align-items-center">
+                                        <div class="me-2">
+                                            <label for="after_date" class="form-label">單號日期</label>
+                                            <input type="date" class="form-control" id="after_date" name="after_date" value="{{ $request->after_date }}">
+                                        </div>
+                                        <div class="me-2">
+                                            <label for="before_date" class="form-label">&nbsp;</label>
+                                            <input type="date" class="form-control" id="before_date" name="before_date" value="{{ $request->before_date }}">
+                                        </div>
+                                        <div class="me-2">
+                                            <label for="before_date" class="form-label">業務</label>
+                                            <select id="inputState" class="form-select" name="user" onchange="this.form.submit()">
+                                                <option value="null" @if (isset($request->user) || $request->user == '') selected @endif>請選擇</option>
+                                                @foreach ($users as $user)
+                                                    <option value="{{ $user->id }}" @if ($request->user == $user->id) selected @endif>
+                                                        {{ $user->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="me-3 mt-3">
+                                            <button type="submit" class="btn btn-success waves-effect waves-light me-1"><i class="fe-search me-1"></i>搜尋</button>
+                                        </div>
+                                </div>
+                        </form>
+                        <!-- end col-->
+                    </div> <!-- end row -->
+                </div>
+            </div> <!-- end card -->
+        </div> <!-- end col-->
+    </div>
                 
                     <div class="row">
                         <div class="col-12">

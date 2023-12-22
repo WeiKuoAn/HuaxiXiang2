@@ -239,7 +239,8 @@ class SaleDataController extends Controller
             }
             $sale_on = $request->sale_on;
             if ($sale_on) {
-                $sales = $sales->where('sale_on', $sale_on);
+                $sale_on = '%'.$request->sale_on.'%';
+                $sales = $sales->where('sale_on','like',$sale_on);
             }
             $cust_mobile = $request->cust_mobile;
 
@@ -327,8 +328,30 @@ class SaleDataController extends Controller
 
     public function wait_index(Request $request) //代確認業務單
     {
-        $sales = Sale::where('status', 3)->orderby('sale_date', 'desc')->orderby('user_id','desc')->orderby('sale_on', 'desc')->get();
-        return view('sale.wait')->with('sales', $sales);
+        $sales = Sale::where('status', 3);
+        if ($request) {
+            $after_date = $request->after_date;
+            if ($after_date) {
+                $sales = $sales->where('sale_date', '>=', $after_date);
+            }
+            $before_date = $request->before_date;
+            if ($before_date) {
+                $sales = $sales->where('sale_date', '<=', $before_date);
+            }
+            $user = $request->user;
+            if ($user != "null") {
+                if (isset($user)) {
+                    $sales = $sales->where('user_id', $user);
+                } else {
+                    $sales = $sales;
+                }
+            }
+        }else{
+            $sales = $sales->orderby('sale_date', 'desc')->orderby('user_id','desc')->orderby('sale_on', 'desc');
+        }
+        $sales = $sales->get();
+        $users = User::where('status','0')->whereIn('job_id',[3,5])->get();
+        return view('sale.wait')->with('sales', $sales)->with('request',$request)->with('users', $users);
     }
 
     public function user_sale($id, Request $request) //從用戶管理進去看業務單
@@ -353,7 +376,8 @@ class SaleDataController extends Controller
             }
             $sale_on = $request->sale_on;
             if ($sale_on) {
-                $sales = $sales->where('sale_on', $sale_on);
+                $sale_on = '%'.$request->sale_on.'%';
+                $sales = $sales->where('sale_on','like',$sale_on);
             }
             $cust_mobile = $request->cust_mobile;
             if ($cust_mobile) {
