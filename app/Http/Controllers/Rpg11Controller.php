@@ -31,6 +31,7 @@ class Rpg11Controller extends Controller
             $datas[$year]['total_income'] = intval($datas[$year]['slae_price']) + intval($datas[$year]['puja_price']) + intval($datas[$year]['income_price']);//總收入
             $datas[$year]['total'] = intval($datas[$year]['total_income']) - intval($datas[$year]['pay_price']);
         }
+        // dd($datas);
         foreach($years as $year)
         {
             if(isset($datas[$year-1])){
