@@ -14,6 +14,7 @@ class PujaData extends Model
     protected $fillable = [
         'date',
         'puja_id',
+        'type',
         'customer_id',
         'pay_id',
         'pay_method',
@@ -53,5 +54,11 @@ class PujaData extends Model
     {
         $pay_type = ['A' => '結清', 'B' => '結清', 'C' => '訂金', 'D' => '尾款' , 'E' => '追加'];
         return $pay_type[$this->pay_id];
+    }
+
+    public function type()
+    {
+        $type = ['0' => '一般', '1' => '贈送', '2' => '套組法會'];
+        return $type[$this->type];
     }
 }

@@ -123,7 +123,7 @@
                                 <a href="{{ route('pujas') }}"  class="{{ request()->is('pujas') ? 'active' : '' }}">法會管理</a>
                             </li>
                             <li>
-                                <a href="{{ route('puja_data.create') }}"  class="{{ request()->is('puja_data.create') ? 'active' : '' }}">法會報名</a>
+                                <a href="{{ route('.creatpuja_datae') }}"  class="{{ request()->is('puja_data.create') ? 'active' : '' }}">法會報名</a>
                             </li>
                             <li>
                                 <a href="{{ route('puja_datas') }}"  class="{{ request()->is('puja_datas') ? 'active' : '' }}">法會報名查詢</a>
@@ -340,6 +340,9 @@
                             </li>
                             <li>
                                 <a href="{{ route('rpg16') }}"  class="{{ request()->is('rpg16') ? 'active' : '' }}">後續服務報表</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('rpg14') }}"  class="{{ request()->is('rpg14') ? 'active' : '' }}">來源報表</a>
                             </li>
                             <li>
                                 <a href="{{ route('rpg02') }}"  class="{{ request()->is('rpg02') ? 'active' : '' }}">支出報表</a>

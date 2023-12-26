@@ -42,8 +42,14 @@ class Rpg18Controller extends Controller
         foreach($pujas as $key=>$puja)
         {
             $datas[$puja->id]['name'] = $puja->name;
-            $datas[$puja->id]['count'] = PujaData::where('puja_id',$puja->id)->whereIn('pay_id',['A','C'])->count();
+            $datas[$puja->id]['count'] = PujaData::where('puja_id',$puja->id)->count();
+            $datas[$puja->id]['gift_count'] = PujaData::where('puja_id',$puja->id)->where('type','2')->count();
+            $datas[$puja->id]['suit_count'] = PujaData::where('puja_id',$puja->id)->where('type','3')->count();
             $datas[$puja->id]['puja_datas'] = PujaData::where('puja_id',$puja->id)->get();
+            $datas[$puja->id]['monty_price'] = 0;
+            // //應收金額
+            // $datas[$puja->id]['should_price'] = 0;
+            //實收金額
             $datas[$puja->id]['total_price'] = 0;
         }
 
@@ -51,10 +57,14 @@ class Rpg18Controller extends Controller
         {
             foreach($datas[$puja->id]['puja_datas'] as $puja_data)
             {
-                $datas[$puja->id]['total_price'] += $puja_data->total;
+                $datas[$puja->id]['total_price'] += $puja_data->pay_price;
+                foreach($puja_data->products as $product)
+                {
+                    $datas[$puja->id]['monty_price'] += $product->product_total;
+                }
             }
-            $datas[$puja->id]['apply_price'] = $datas[$puja->id]['count']*$puja->price;
-            $datas[$puja->id]['monty_price'] = $datas[$puja->id]['total_price'] - $datas[$puja->id]['apply_price'];
+            $datas[$puja->id]['apply_price'] = $datas[$puja->id]['total_price'] - $datas[$puja->id]['monty_price'];
+            // $datas[$puja->id]['monty_price'] = $datas[$puja->id]['total_price'] - $datas[$puja->id]['apply_price'];
         }
         
 

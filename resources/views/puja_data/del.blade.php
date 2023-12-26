@@ -52,6 +52,17 @@
                             <label for="date" class="form-label">報名日期<span class="text-danger">*</span></label>
                             <input type="date" class="form-control" id="date" name="date" value="{{ $data->date }}" required>
                         </div>
+
+                        <div class="mb-3 col-md-4">
+                            <label for="type" class="form-label">報名類別<span class="text-danger">*</span></label>
+                            <select id="type" class="form-select" name="type" >
+                                <option value="0" @if($data->type == '0') selected @endif>一般</option>
+                                <option value="1" @if($data->type == '1') selected @endif>贈送</option>
+                                <option value="2" @if($data->type == '2') selected @endif>套組法會</option>
+                            </select>
+                        </div>
+
+                        
                         <div class="mb-3 col-md-4">
                             <label for="puja_id" class="form-label">法會名稱<span class="text-danger">*</span></label>
                             <select id="puja_id" class="form-select" name="puja_id" >

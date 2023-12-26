@@ -53,6 +53,14 @@
                             <input type="date" class="form-control" id="date" name="date" required>
                         </div>
                         <div class="mb-3 col-md-4">
+                            <label for="type" class="form-label">報名類別<span class="text-danger">*</span></label>
+                            <select id="type" class="form-select" name="type" >
+                                <option value="0" selected>一般</option>
+                                <option value="1">贈送</option>
+                                <option value="2">套組法會</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 col-md-4">
                             <label for="puja_id" class="form-label">法會名稱<span class="text-danger">*</span></label>
                             <select id="puja_id" class="form-select" name="puja_id" >
                                 <option value="">請選擇...</option>
@@ -300,6 +308,8 @@
             $("#transfer_price").prop('required', true);
             $("#transfer_number").prop('required', true);
         }else if($(this).val() == 'B'){
+            $("#cash_price_div").hide(300);
+            $("#transfer_price_div").hide(300);
             $("#transfer_number_div").show(300);
             $("#pay_price").prop('required', true);
             $("#cash_price").prop('required', false);

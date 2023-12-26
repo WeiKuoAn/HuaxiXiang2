@@ -91,6 +91,7 @@
                                     <tr>
                                         <tr>
                                             <th>編號</th>
+                                            <th>報名類別</th>
                                             <th>報名日期</th>
                                             <th>法會名稱</th>
                                             <th>顧客名稱</th>
@@ -107,6 +108,7 @@
                                     @foreach ($datas as $key=>$data)
                                         <tr>
                                             <td>{{ $key+1 }}</td>
+                                            <td>{{ $data->type() }}</td>
                                             <td>{{ $data->date }}</td>
                                             <td>{{ $data->puja_name->name }}</td>
                                             <td>
@@ -133,7 +135,7 @@
                                                     {{$data->pay_type()}}
                                                 @endif
                                             </td>
-                                            <td>{{ $data->pay_price }}</td>
+                                            <td>{{ number_format($data->pay_price) }}</td>
                                             <td>{{ $data->comment }}</td>
                                             <td>
                                                 <div class="btn-group dropdown">

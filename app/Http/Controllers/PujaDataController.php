@@ -154,6 +154,7 @@ class PujaDataController extends Controller
         $data->puja_id = $request->puja_id;
         $data->customer_id = $request->cust_name_q;
         $data->pet_name = $request->pet_name;
+        $data->type = $request->type;
         $data->pay_id = $request->pay_id;
         $data->user_id = Auth::user()->id;
         $data->pay_method = $request->pay_method;
@@ -181,7 +182,7 @@ class PujaDataController extends Controller
             }
         }
         
-        return redirect()->route('puja_datas');
+        return redirect()->route('puja_data.create');
     }
 
     /**
@@ -229,6 +230,7 @@ class PujaDataController extends Controller
         $data->puja_id = $request->puja_id;
         $data->customer_id = $request->cust_name_q;
         $data->pet_name = $request->pet_name;
+        $data->type = $request->type;
         $data->pay_id = $request->pay_id;
         $data->user_id = Auth::user()->id;
         $data->pay_method = $request->pay_method;
