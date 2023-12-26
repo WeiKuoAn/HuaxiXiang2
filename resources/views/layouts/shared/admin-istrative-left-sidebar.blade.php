@@ -123,7 +123,7 @@
                                 <a href="{{ route('pujas') }}"  class="{{ request()->is('pujas') ? 'active' : '' }}">法會管理</a>
                             </li>
                             <li>
-                                <a href="{{ route('.creatpuja_datae') }}"  class="{{ request()->is('puja_data.create') ? 'active' : '' }}">法會報名</a>
+                                <a href="{{ route('puja_data.create') }}"  class="{{ request()->is('puja_data.create') ? 'active' : '' }}">法會報名</a>
                             </li>
                             <li>
                                 <a href="{{ route('puja_datas') }}"  class="{{ request()->is('puja_datas') ? 'active' : '' }}">法會報名查詢</a>
