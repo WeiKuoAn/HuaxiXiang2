@@ -469,17 +469,17 @@ class SaleDataController extends Controller
     
          // 获取上一个页面的 URL
          // 从_previous中获取user参数的值
-        $previousUrl = $request->session()->get('_previous.url');
-        $parsedUrl = parse_url($previousUrl);
-        parse_str($parsedUrl['query'], $queryParameters);
+        //$previousUrl = $request->session()->get('_previous.url');
+        //$parsedUrl = parse_url($previousUrl);
+        //parse_str($parsedUrl['query'], $queryParameters);
 
         // 获取user参数的值
-        $user = $queryParameters['user'];
-        $afterDate = $queryParameters['after_date'];
-        $beforeDate = $queryParameters['before_date'];
+        //$user = $queryParameters['user'];
+        //$afterDate = $queryParameters['after_date'];
+        //$beforeDate = $queryParameters['before_date'];
 
         // 存储user参数的值在会话中
-        session(['user' => $user , 'afterDate' => $afterDate ,'beforeDate' => $beforeDate]);
+       // session(['user' => $user , 'afterDate' => $afterDate ,'beforeDate' => $beforeDate]);
 
         return view('sale.check')->with('data', $data)
             ->with('customers', $customers)
@@ -515,14 +515,14 @@ class SaleDataController extends Controller
             $beforeDate = session('beforeDate');
 
             // 构建重定向的URL，将筛选条件添加到URL中
-            if (session()->has('user') || session()->has('after_date') || session()->has('before_date')) {
-                $url = route('wait.sales', ['user' => $user, 'after_date' => $afterDate, 'before_date' => $beforeDate]);
+            //if (session()->has('user') || session()->has('after_date') || session()->has('before_date')) {
+                //$url = route('wait.sales', ['user' => $user, 'after_date' => $afterDate, 'before_date' => $beforeDate]);
                 // 重定向到筛选页面并传递筛选条件
-                return redirect($url);
-            }else{
+                //return redirect($url);
+            //}else{
                 return redirect()->route('wait.sales');
-            }
-            
+            //}
+            //
             
         } else {
             if ($request->user_check == 'usercheck') {
