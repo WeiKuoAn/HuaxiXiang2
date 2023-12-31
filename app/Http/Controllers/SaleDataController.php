@@ -454,8 +454,9 @@ class SaleDataController extends Controller
             ->with('sale_company',$sale_company);
     }
 
-    public function check_show($id)
+    public function check_show(Request $request , $id)
     {
+
         $sources = SaleSource::where('status','up')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
@@ -465,6 +466,21 @@ class SaleDataController extends Controller
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
         $sale_proms = Sale_prom::where('sale_id', $id)->get();
         $sale_company = SaleCompanyCommission::where('sale_id', $id)->first();
+    
+         // 获取上一个页面的 URL
+         // 从_previous中获取user参数的值
+        $previousUrl = $request->session()->get('_previous.url');
+        $parsedUrl = parse_url($previousUrl);
+        parse_str($parsedUrl['query'], $queryParameters);
+
+        // 获取user参数的值
+        $user = $queryParameters['user'];
+        $afterDate = $queryParameters['after_date'];
+        $beforeDate = $queryParameters['before_date'];
+
+        // 存储user参数的值在会话中
+        session(['user' => $user , 'afterDate' => $afterDate ,'beforeDate' => $beforeDate]);
+
         return view('sale.check')->with('data', $data)
             ->with('customers', $customers)
             ->with('plans', $plans)
@@ -494,7 +510,20 @@ class SaleDataController extends Controller
                 $sale->status = '1';
                 $sale->save();
             }
-            return redirect()->route('wait.sales');
+            $user = session('user');
+            $afterDate = session('afterDate');
+            $beforeDate = session('beforeDate');
+
+            // 构建重定向的URL，将筛选条件添加到URL中
+            if (session()->has('user') || session()->has('after_date') || session()->has('before_date')) {
+                $url = route('wait.sales', ['user' => $user, 'after_date' => $afterDate, 'before_date' => $beforeDate]);
+                // 重定向到筛选页面并传递筛选条件
+                return redirect($url);
+            }else{
+                return redirect()->route('wait.sales');
+            }
+            
+            
         } else {
             if ($request->user_check == 'usercheck') {
                 $sale->status = '3';
