@@ -183,7 +183,11 @@
                                         </td>
                                         <td>
                                             @if (isset($sale->plan_id))
+                                                @if(isset($sale->plan_name))
                                                 {{ $sale->plan_name->name }}
+                                                @else
+                                                {{$sale->plan_id}}
+                                                @endif
                                             @endif
                                         </td>
                                         <td>
