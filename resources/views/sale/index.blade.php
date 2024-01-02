@@ -209,7 +209,11 @@
                                         </td>
                                         <td>
                                             @if(isset($sale->before_prom_id))
+                                                @if(isset($sale->PromA_name))
                                                 {{ $sale->PromA_name->name }}-{{ number_format($sale->before_prom_price) }}
+                                                @else
+                                                {{$sale->before_prom_id}}
+                                                @endif
                                             @endif
                                             @foreach ($sale->proms as $prom)
                                                 @if ($prom->prom_type == 'A')
