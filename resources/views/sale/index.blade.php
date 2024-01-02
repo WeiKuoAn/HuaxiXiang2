@@ -189,6 +189,7 @@
                                                 {{$sale->plan_id}}
                                                 @endif
                                             @endif
+                                            {{-- {{ $sale->plan_id }} --}}
                                         </td>
                                         <td>
                                             @if(isset($sale->gdpapers))
@@ -215,6 +216,7 @@
                                                 {{$sale->before_prom_id}}
                                                 @endif
                                             @endif
+                                            {{ $sale->before_prom_id }}
                                             @foreach ($sale->proms as $prom)
                                                 @if ($prom->prom_type == 'A')
                                                     @if(isset($prom->prom_id))
