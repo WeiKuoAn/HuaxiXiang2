@@ -89,6 +89,14 @@
                                         </select>
                                     </div>
                                     <div class="me-3 mt-1">
+                                        <label for="after_date">其他動作</label>
+                                        <select id="inputState" class="form-select" name="other" onchange="this.form.submit()">
+                                            <option value="" @if (!isset($request->other)) selected @endif>請選擇</option>
+                                            <option value="change" @if($request->other == 'change') selected @endif>轉單</option>
+                                            <option value="split" @if($request->other == 'split') selected @endif>對拆</option>
+                                        </select>
+                                    </div>
+                                    <div class="me-3 mt-1">
                                         <label for="after_date">狀態</label>
                                         <select id="inputState" class="form-select" name="status" onchange="this.form.submit()">
                                             <option value="not_check" @if (isset($request->status) || $request->status == 'not_check') selected @endif>未對帳</option>

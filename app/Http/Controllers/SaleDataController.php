@@ -289,6 +289,56 @@ class SaleDataController extends Controller
                     $sales = $sales->where('pay_id', $pay_id);
                 }
             }
+            if(isset($after_date)){
+                $other_after_date = $after_date.' 00:00:00';
+            }
+            if(isset($before_date)){
+                $other_before_date = $before_date.' 11:59:59';
+            }
+            $other = $request->other;
+            if($other == 'change'){
+                if (!isset($sale_change_ids)) {
+                    $sale_change_ids = [];
+                }
+                if(isset($other_after_date)){
+                    $sale_changes = SaleChange::where('updated_at','>=',$other_after_date)->get();
+                }elseif(isset($other_before_date)){
+                    $sale_changes = SaleChange::where('updated_at','<=',$other_before_date)->get();
+                }elseif(isset($other_after_date)&&isset($other_before_date)){
+                    $sale_changes = SaleChange::where('updated_at','>=',$other_after_date)->where('updated_at','<=',$other_before_date)->get();
+                }else{
+                    $sale_changes = SaleChange::get();
+                }
+                foreach($sale_changes as $sale_change)
+                {
+                    $sale_change_ids[] = $sale_change->sale_id;
+                }
+                if (empty($sale_change_ids)) {
+                    $sales = $sales->whereIn('id', $sale_change_ids);
+                }
+                $sales = $sales->whereIn('id', $sale_change_ids);
+            }elseif($other == 'split'){
+                if (!isset($sale_split_ids)) {
+                    $sale_split_ids = [];
+                }
+                if(isset($other_after_date)){
+                    $sale_splits = SaleSplit::where('updated_at','>=',$other_after_date)->get();
+                }elseif(isset($other_before_date)){
+                    $sale_splits = SaleSplit::where('updated_at','<=',$other_before_date)->get();
+                }elseif(isset($other_after_date)&&isset($other_before_date)){
+                    $sale_splits = SaleSplit::where('updated_at','>=',$other_after_date)->where('updated_at','<=',$other_before_date)->get();
+                }else{
+                    $sale_splits = SaleSplit::get();
+                }
+                foreach($sale_splits as $sale_split)
+                {
+                    $sale_split_ids[] = $sale_split->sale_id;
+                }
+                if (empty($sale_split_ids)) {
+                    $sales = $sales->whereIn('id', $sale_split_ids);
+                }
+            }
+
             $price_total = $sales->sum('pay_price');
             $sales = $sales->orderby('sale_date', 'desc')->orderby('user_id','desc')->orderby('sale_on', 'desc')->paginate(50);
 
@@ -469,17 +519,22 @@ class SaleDataController extends Controller
     
          // 获取上一个页面的 URL
          // 从_previous中获取user参数的值
-        //$previousUrl = $request->session()->get('_previous.url');
-        //$parsedUrl = parse_url($previousUrl);
-        //parse_str($parsedUrl['query'], $queryParameters);
+        // dd($request->session());
+        $previousUrl = $request->session()->get('_previous.url');
+        $parsedUrl = parse_url($previousUrl);
 
-        // 获取user参数的值
-        //$user = $queryParameters['user'];
-        //$afterDate = $queryParameters['after_date'];
-        //$beforeDate = $queryParameters['before_date'];
+        if(isset($parsedUrl['query'])){
+            parse_str($parsedUrl['query'], $queryParameters);
 
-        // 存储user参数的值在会话中
-       // session(['user' => $user , 'afterDate' => $afterDate ,'beforeDate' => $beforeDate]);
+            // 获取user参数的值
+            $user = $queryParameters['user'];
+            $afterDate = $queryParameters['after_date'];
+            $beforeDate = $queryParameters['before_date'];
+    
+            // 存储user参数的值在会话中
+           session(['user' => $user , 'afterDate' => $afterDate ,'beforeDate' => $beforeDate]);
+        }
+        
 
         return view('sale.check')->with('data', $data)
             ->with('customers', $customers)
@@ -515,14 +570,13 @@ class SaleDataController extends Controller
             $beforeDate = session('beforeDate');
 
             // 构建重定向的URL，将筛选条件添加到URL中
-            //if (session()->has('user') || session()->has('after_date') || session()->has('before_date')) {
-                //$url = route('wait.sales', ['user' => $user, 'after_date' => $afterDate, 'before_date' => $beforeDate]);
+            if (session()->has('user') || session()->has('after_date') || session()->has('before_date')) {
+                $url = route('wait.sales', ['user' => $user, 'after_date' => $afterDate, 'before_date' => $beforeDate]);
                 // 重定向到筛选页面并传递筛选条件
-                //return redirect($url);
-            //}else{
+                return redirect($url);
+            }else{
                 return redirect()->route('wait.sales');
-            //}
-            //
+            }
             
         } else {
             if ($request->user_check == 'usercheck') {
@@ -584,8 +638,8 @@ class SaleDataController extends Controller
             $change_data->comm = $request->change_comm;
             $change_data->save();
 
-            $data->user_id = $request->change_user_id;
-            $data->save();
+            // $data->user_id = $request->change_user_id;
+            // $data->save();
         }
 
         if($request->check_split == 1){
@@ -855,6 +909,57 @@ class SaleDataController extends Controller
                     $sales = $sales->where('pay_id', $pay_id);
                 }
             }
+            $other = $request->other;
+            if(isset($after_date)){
+                $other_after_date = $after_date.' 00:00:00';
+            }
+            if(isset($before_date)){
+                $other_before_date = $before_date.' 11:59:59';
+            }
+            $other = $request->other;
+            if($other == 'change'){
+                if (!isset($sale_change_ids)) {
+                    $sale_change_ids = [];
+                }
+                if(isset($other_after_date)){
+                    $sale_changes = SaleChange::where('updated_at','>=',$other_after_date)->get();
+                }elseif(isset($other_before_date)){
+                    $sale_changes = SaleChange::where('updated_at','<=',$other_before_date)->get();
+                }elseif(isset($other_after_date)&&isset($other_before_date)){
+                    $sale_changes = SaleChange::where('updated_at','>=',$other_after_date)->where('updated_at','<=',$other_before_date)->get();
+                }else{
+                    $sale_changes = SaleChange::get();
+                }
+                foreach($sale_changes as $sale_change)
+                {
+                    $sale_change_ids[] = $sale_change->sale_id;
+                }
+                if (empty($sale_change_ids)) {
+                    $sales = $sales->whereIn('id', $sale_change_ids);
+                }
+                $sales = $sales->whereIn('id', $sale_change_ids);
+            }elseif($other == 'split'){
+                if (!isset($sale_split_ids)) {
+                    $sale_split_ids = [];
+                }
+                if(isset($other_after_date)){
+                    $sale_splits = SaleSplit::where('updated_at','>=',$other_after_date)->get();
+                }elseif(isset($other_before_date)){
+                    $sale_splits = SaleSplit::where('updated_at','<=',$other_before_date)->get();
+                }elseif(isset($other_after_date)&&isset($other_before_date)){
+                    $sale_splits = SaleSplit::where('updated_at','>=',$other_after_date)->where('updated_at','<=',$other_before_date)->get();
+                }else{
+                    $sale_splits = SaleSplit::get();
+                }
+                foreach($sale_splits as $sale_split)
+                {
+                    $sale_split_ids[] = $sale_split->sale_id;
+                }
+                if (empty($sale_split_ids)) {
+                    $sales = $sales->whereIn('id', $sale_split_ids);
+                }
+            }
+
             $sales = $sales->orderby('sale_date', 'desc')->orderby('user_id','desc')->orderby('sale_on', 'desc')->get();
         }else{
             $after_date='';
@@ -886,7 +991,7 @@ class SaleDataController extends Controller
             "Expires"             => "0"
         );
         $header = array('日期', $after_date.'~' ,  $before_date);
-        $columns = array('案件單類別','單號', '專員', '日期', '客戶', '寶貝名' , '類別','方案','金紙','金紙總賣價','安葬方式','後續處理','付款方式','實收價格','狀態','備註','轉單','對拆人員');
+        $columns = array('案件單類別','單號', '專員', '日期', '客戶', '寶貝名' , '類別','方案','金紙','金紙總賣價','安葬方式','後續處理','付款方式','實收價格','狀態','備註','轉單','轉單後人員','對拆人員');
 
         $callback = function() use($sales, $columns ,$header) {
             
@@ -985,6 +1090,12 @@ class SaleDataController extends Controller
                 }else{
                     $row['轉單'] = '否';
                 }
+                $row['轉單人員'] = '';
+                if(isset($sale->SaleChange)){
+                    $row['轉單人員'] = $sale->SaleChange->change_user_data->name;
+                }else{
+                    $row['轉單人員'] = '';
+                }
                 $row['對拆人員'] = '';
                 if(isset($sale->SaleSplit)){
                     $row['對拆人員'] = $sale->SaleSplit->user_name->name;
@@ -992,7 +1103,7 @@ class SaleDataController extends Controller
                 //'付款方式','實收價格','狀態','轉單','對拆人員'
                 fputcsv($file, array( $row['案件單類別'],$row['單號'], $row['專員'], $row['日期'], $row['客戶'],$row['寶貝名'],$row['類別']
                                     ,$row['方案'],$row['金紙'],$row['金紙總價格'],$row['安葬方式'],$row['後續處理'],$row['付款方式']
-                                    ,$row['實收價格'],$row['狀態'],$row['備註'],$row['轉單'],$row['對拆人員']));
+                                    ,$row['實收價格'],$row['狀態'],$row['備註'],$row['轉單'],$row['轉單人員'],$row['對拆人員']));
             }
 
             fclose($file);

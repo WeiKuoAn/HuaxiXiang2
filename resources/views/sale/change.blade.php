@@ -55,6 +55,9 @@
                                 <label class="form-check-label" for="check_change"><b>轉單</b></label>
                             </div>
                             <div class="mt-2 row" id="change_user_div">
+                                <div class="mb-1">
+                                    <h4>原服務人員：{{ $data->user_data }}</h4>
+                                </div>
                                 <div class="col-auto">
                                     <h4><label class="form-check-label" for="check_change">轉單至</label></h4>
                                 </div>

@@ -62,6 +62,20 @@
                 
                 <li class="menu-title mt-2">Apps</li>
                 <li>
+                    <a href="#sale" data-bs-toggle="collapse">
+                        <i data-feather="codesandbox"></i>
+                        <span> 業務管理 </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sale">
+                        <ul class="nav-second-level">
+                            <li>
+                                <a href="{{ route('wait.sales') }}"  class="{{ request()->is('wait.sales') ? 'active' : '' }}">業務對帳確認</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li>
                     <a href="#pay" data-bs-toggle="collapse">
                         <i data-feather="trending-down"></i>
                         <span> 支出管理 </span>
