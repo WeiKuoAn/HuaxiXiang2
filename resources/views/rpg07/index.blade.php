@@ -106,8 +106,13 @@
                                         </td>
                                         <td align="center">
                                             @if (isset($data->plan_id))
+                                                @if(isset($data->plan_name))
                                                 {{ $data->plan_name->name }}
+                                                @else
+                                                {{$data->plan_id}}
+                                                @endif
                                             @endif
+                                            {{-- {{ $data->plan_id }} --}}
                                         </td>
                                         <td>
                                             @foreach ($data->gdpapers as $gdpaper)
@@ -124,18 +129,22 @@
                                         </td>
                                         <td>
                                             @if(isset($data->before_prom_id))
-                                                {{ $data->PromA_name->name }}
+                                                @if(isset($data->PromA_name))
+                                                {{ $data->PromA_name->name }}-{{ number_format($data->before_prom_price) }}
+                                                @else
+                                                {{$data->before_prom_id}}
                                                 @endif
-                                                @foreach ($data->proms as $prom)
-                                                    @if ($prom->prom_type == 'A')
-                                                        @if(isset($prom->prom_id))
-                                                            {{ $prom->prom_name->name }}<br>
-                                                        @else
-                                                            無
-                                                        @endif
+                                            @endif
+                                            @foreach ($data->proms as $prom)
+                                                @if ($prom->prom_type == 'A')
+                                                    @if(isset($prom->prom_id))
+                                                        {{ $prom->prom_name->name }}-{{ number_format($prom->prom_total) }}<br>
+                                                    @else
+                                                        無
                                                     @endif
-                                                @endforeach
-                                            </td>
+                                                @endif
+                                            @endforeach     
+                                        </td>
                                             <td align="center">
                                                 @foreach ($data->proms as $prom)
                                                     @if ($prom->prom_type == 'B')

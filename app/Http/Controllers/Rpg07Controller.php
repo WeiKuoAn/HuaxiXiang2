@@ -37,7 +37,7 @@ class Rpg07Controller extends Controller
         }else{
             $datas = [];
         }
-        
+        // dd($datas);
         // dd($datas);
         return view('rpg07.index')->with('datas', $datas)
                                   ->with('request', $request);
