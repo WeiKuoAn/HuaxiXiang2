@@ -1032,12 +1032,14 @@ class SaleDataController extends Controller
                 }else{
                     $row['類別'] = '';
                 }
+                $row['方案'] = '';
                 if(isset($sale->plan_id)){
-                    $row['方案'] = $sale->plan_name->name;
+                    if(isset($sale->plan_name)){
+                        $row['方案'] = $sale->plan_name->name;
+                    }
                 }else{
                     $row['方案'] = '';
                 }
-                
                 $row['金紙'] = '';
                 $row['金紙總價格'] = 0;
                 foreach ($sale->gdpapers as $gdpaper){
@@ -1052,7 +1054,10 @@ class SaleDataController extends Controller
                 }
                 $row['安葬方式'] = '';
                 if(isset($sale->before_prom_id)){
-                    $row['安葬方式'] = $sale->PromA_name->name . '-' .$sale->before_prom_price;
+                    if(isset($sale->PromA_name))
+                    {
+                        $row['安葬方式'] = $sale->PromA_name->name . '-' .$sale->before_prom_price;
+                    }
                 }
                 foreach ($sale->proms as $prom){
                     if ($prom->prom_type == 'A'){
@@ -1102,8 +1107,8 @@ class SaleDataController extends Controller
                 }
                 //'付款方式','實收價格','狀態','轉單','對拆人員'
                 fputcsv($file, array( $row['案件單類別'],$row['單號'], $row['專員'], $row['日期'], $row['客戶'],$row['寶貝名'],$row['類別']
-                                    ,$row['方案'],$row['金紙'],$row['金紙總價格'],$row['安葬方式'],$row['後續處理'],$row['付款方式']
-                                    ,$row['實收價格'],$row['狀態'],$row['備註'],$row['轉單'],$row['轉單人員'],$row['對拆人員']));
+                                     ,$row['方案'],$row['金紙'],$row['金紙總價格'],$row['後續處理'],$row['付款方式']
+                                     ,$row['實收價格'],$row['狀態'],$row['備註'],$row['轉單'],$row['轉單人員'],$row['對拆人員']));
             }
 
             fclose($file);

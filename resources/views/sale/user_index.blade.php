@@ -137,7 +137,9 @@
                                         </td>
                                         <td>
                                             @if (isset($sale->plan_id))
-                                                {{ $sale->plan_name->name }}
+                                                @if(isset($sale->plan_name))
+                                                    {{ $sale->plan_name->name }}
+                                                @endif
                                             @endif
                                         </td>
                                         <td>
@@ -159,7 +161,9 @@
                                         </td>
                                         <td>
                                             @if(isset($sale->before_prom_id))
-                                                {{ $sale->PromA_name->name }}-{{ number_format($sale->before_prom_price) }}
+                                                @if(isset($sale->PromA_name))
+                                                    {{ $sale->PromA_name->name }}-{{ number_format($sale->before_prom_price) }}
+                                                @endif
                                             @endif
                                             @foreach ($sale->proms as $prom)
                                                 @if ($prom->prom_type == 'A')
