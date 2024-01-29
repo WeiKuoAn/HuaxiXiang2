@@ -523,16 +523,27 @@ class SaleDataController extends Controller
         $previousUrl = $request->session()->get('_previous.url');
         $parsedUrl = parse_url($previousUrl);
 
+        // 初始化变量
+        $user = null;
+        $afterDate = null;
+        $beforeDate = null;
+
         if(isset($parsedUrl['query'])){
             parse_str($parsedUrl['query'], $queryParameters);
 
-            // 获取user参数的值
-            $user = $queryParameters['user'];
-            $afterDate = $queryParameters['after_date'];
-            $beforeDate = $queryParameters['before_date'];
-    
-            // 存储user参数的值在会话中
-           session(['user' => $user , 'afterDate' => $afterDate ,'beforeDate' => $beforeDate]);
+            // 检查并获取user参数的值
+            if (isset($queryParameters['user'])) {
+                $user = $queryParameters['user'];
+            }
+            if (isset($queryParameters['after_date'])) {
+                $afterDate = $queryParameters['after_date'];
+            }
+            if (isset($queryParameters['before_date'])) {
+                $beforeDate = $queryParameters['before_date'];
+            }
+
+            // 存储参数值在会话中
+            session(['user' => $user, 'afterDate' => $afterDate, 'beforeDate' => $beforeDate]);
         }
         
 

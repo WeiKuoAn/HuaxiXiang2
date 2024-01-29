@@ -102,6 +102,7 @@
                                     <tr>
                                         <th>key單日期</th>
                                         <th>key單單號</th>
+                                        <th>支出日期</th>
                                         <th>支出科目</th>
                                         <th width="20%">發票號碼</th>
                                         <th>支出總價格</th>
@@ -122,6 +123,19 @@
                                     <tr>
                                         <td>{{ $data->pay_date }}</td>
                                         <td>{{ $data->pay_on }}</td>
+                                        <td>
+                                            @if(isset($data->pay_id))
+                                                {{ $data->pay_name->name }}
+                                            @else
+                                                @if(isset($data->pay_items))
+                                                    @foreach ($data->pay_items as $item)
+                                                        @if(isset($item->pay_id))
+                                                        {{ $item->pay_date }}<br>
+                                                        @endif
+                                                    @endforeach
+                                                @endif
+                                            @endif
+                                        </td>
                                         <td>
                                             @if(isset($data->pay_id))
                                                 {{ $data->pay_name->name }}

@@ -70,7 +70,6 @@ class Rpg02Controller extends Controller
         foreach($pay_datas as $pay_data){
             $datas[$pay_data->pay_id]['total_price'] =  array_sum($datas[$pay_data->pay_id]['price']);
         }
-
         foreach($pay_items as $pay_item){
             if($pay_item->pay_id == null)
             {
