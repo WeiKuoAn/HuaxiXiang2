@@ -126,14 +126,14 @@
                                 @endforeach
                             </tbody>
                         </table>
-                        <h3 class="text-end text-danger">
-                            @if($sums_difference['total_difference']>0)
-                                淨利{{ number_format($sums_difference['total_difference']) }}元
-                            @else
-                                虧損{{ number_format($sums_difference['total_difference']) }}元
-                            @endif
-                        </h3>
                     </div>
+                    <h3 class="text-end text-danger">
+                        @if($sums_difference['total_difference']>0)
+                            淨利{{ number_format($sums_difference['total_difference']) }}元
+                        @else
+                            虧損{{ number_format($sums_difference['total_difference']) }}元
+                        @endif
+                    </h3>
                 </div>
             </div>
         </div>

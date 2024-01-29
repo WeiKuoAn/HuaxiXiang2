@@ -51,7 +51,9 @@
                                             <td>{{ $data->pet_name }}</td>
                                             <td>
                                                 @if(isset($data->before_prom_id))
-                                                {{ $data->PromA_name->name }}
+                                                    @if(isset($data->PromA_name))
+                                                        {{ $data->PromA_name->name }}
+                                                    @endif
                                                 @endif
                                                 @foreach ($data->proms as $prom)
                                                     @if ($prom->prom_type == 'A')
