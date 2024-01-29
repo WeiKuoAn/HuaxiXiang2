@@ -71,7 +71,7 @@ class ContractController extends Controller
             {
                 $datas = $datas->whereNull('close_date');
             }else{
-                $datas = $datas->Null('close_date');
+                $datas = $datas->whereNotNull('close_date');
             }
                 
             $datas = $datas->orderby('start_date', 'asc')->paginate(50);
