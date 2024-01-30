@@ -152,6 +152,9 @@
                                 <a href="{{ route('rpg15') }}"  class="{{ request()->is('rpg15') ? 'active' : '' }}">專員各單量統計</a>
                             </li>
                             <li>
+                                <a href="{{ route('rpg21') }}"  class="{{ request()->is('rpg21') ? 'active' : '' }}">專員每月業務金額統計</a>
+                            </li>
+                            <li>
                                 <a href="{{ route('rpg18') }}"  class="{{ request()->is('rpg18') ? 'active' : '' }}">法會收入統計</a>
                             </li>
                         </ul>

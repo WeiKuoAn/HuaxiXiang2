@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ["page_title"=> "專員各單量統計"])
+@extends('layouts.vertical', ["page_title"=> "專員每月業務金額統計"])
 
 @section('content')
 <!-- Start Content-->
@@ -12,10 +12,10 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="javascript: void(0);">報表管理</a></li>
-                        <li class="breadcrumb-item active">專員各單量統計</li>
+                        <li class="breadcrumb-item active">專員每月業務金額統計</li>
                     </ol>
                 </div>
-                <h4 class="page-title">專員各單量統計</h4>
+                <h4 class="page-title">專員每月業務金額統計</h4>
             </div>
         </div>
     </div>
@@ -27,7 +27,7 @@
                 <div class="card-body">
                     <div class="row justify-content-between">
                         <div class="col-auto">
-                            <form class="d-flex flex-wrap align-items-center" action="{{ route('rpg15') }}" method="GET">
+                            <form class="d-flex flex-wrap align-items-center" action="{{ route('rpg21') }}" method="GET">
                                 <div class="me-sm-3">
                                     <select class="form-select my-1 my-lg-0" id="status-select" name="year" onchange="this.form.submit()">
                                         @foreach($years as $year)
@@ -65,6 +65,9 @@
                                         <th>{{ $month['monthName'] }}</th>
                                     @endforeach
                                     <th>總單量</th>
+                                    <th>總金額</th>
+                                    <th>每單平均</th>
+                                    <th>每月總平均</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -73,15 +76,20 @@
                                     <td>{{ $data['name'] }}</td>
                                     @foreach ($months as $key=>$month)
                                         <td>
-                                            <span class=" bg-soft-light p-1" style="line-height: 35px;">個：{{ $data['months'][$key]['plan_1'] }}單</span><br>
-                                            <span class=" bg-soft-light p-1" style="line-height: 35px;">團：{{ $data['months'][$key]['plan_2'] }}單</span><br>
-                                            <span class=" bg-soft-light p-1" style="line-height: 35px;">浪：{{ $data['months'][$key]['plan_3'] }}單</span>
+                                            <span class="bg-soft-light p-1" style="line-height: 35px;">{{ number_format($data['months'][$key]['price']) }}</span><br>
                                         </td>
                                     @endforeach
                                     <td>
-                                        <span class=" bg-soft-warning p-1" style="line-height: 35px;">個：{{ $data['total_1'] }}單</span><br>
-                                        <span class=" bg-soft-info p-1" style="line-height: 35px;">團：{{ $data['total_2'] }}單</span><br>
-                                        <span class=" bg-soft-light p-1" style="line-height: 35px;">浪：{{ $data['total_3'] }}單</span>
+                                        <span class="p-1" style="line-height: 35px;">{{ number_format($data['count']) }}單</span>
+                                    </td>
+                                    <td>
+                                        <span class="p-1" style="line-height: 35px;">{{ number_format($data['total_price']) }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="p-1" style="line-height: 35px;">{{ number_format($data['sale_average']) }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="p-1" style="line-height: 35px;">{{ number_format($data['month_average']) }}</span>
                                     </td>
                                 </tr>
                                 @endforeach
