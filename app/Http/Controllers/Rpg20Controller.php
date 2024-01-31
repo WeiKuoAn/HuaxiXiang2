@@ -26,8 +26,8 @@ class Rpg20Controller extends Controller
             $currentMonthStart = Carbon::now()->firstOfMonth();
             $currentMonthEnd = Carbon::now()->endOfMonth();
         }else{
-            $currentMonthStart = Carbon::createFromDate($current_year , $current_month)->firstOfMonth();
-            $currentMonthEnd = Carbon::createFromDate($current_year , $current_month)->endOfMonth();
+            $currentMonthStart = Carbon::createFromDate($current_year , $current_month,1)->firstOfMonth();
+            $currentMonthEnd = Carbon::createFromDate($current_year , $current_month,1)->endOfMonth();
         }
 
         $current_datas = [];

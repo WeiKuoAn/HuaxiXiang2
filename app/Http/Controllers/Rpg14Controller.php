@@ -18,8 +18,8 @@ class Rpg14Controller extends Controller
             if (isset($request)) {
                 $search_year = $request->year;
                 $search_month = $request->month;
-                $firstDay = Carbon::createFromDate($search_year , $search_month)->firstOfMonth();
-                $lastDay = Carbon::createFromDate($search_year , $search_month)->lastOfMonth();
+                $firstDay = Carbon::createFromDate($search_year , $search_month,1)->firstOfMonth();
+                $lastDay = Carbon::createFromDate($search_year , $search_month,1)->lastOfMonth();
             } else {
                 $firstDay = Carbon::now()->firstOfMonth();
                 $lastDay = Carbon::now()->lastOfMonth();

@@ -15,15 +15,17 @@ class Rpg01Controller extends Controller
     public function rpg01(Request $request)
     {
             $years = range(Carbon::now()->year, 2022);
+
             if (isset($request)) {
                 $search_year = $request->year;
                 $search_month = $request->month;
-                $firstDay = Carbon::createFromDate($search_year , $search_month)->firstOfMonth();
-                $lastDay = Carbon::createFromDate($search_year , $search_month)->lastOfMonth();
+                $firstDay = Carbon::createFromDate($search_year, $search_month, 1)->startOfDay(); // 確保使用月份的第一天
+                $lastDay = Carbon::createFromDate($search_year, $search_month, 1)->endOfMonth()->endOfDay(); // 確保使用月份的最後一天
             } else {
-                $firstDay = Carbon::now()->firstOfMonth();
-                $lastDay = Carbon::now()->lastOfMonth();
+                $firstDay = Carbon::now()->startOfMonth()->startOfDay(); // 確保從月份的第一天開始
+                $lastDay = Carbon::now()->endOfMonth()->endOfDay(); // 確保使用月份的最後一天
             }
+
             $periods = CarbonPeriod::create($firstDay, $lastDay);
             $plans = Plan::where('status', 'up')->orderby('id')->get();
             foreach ($periods as $period) {

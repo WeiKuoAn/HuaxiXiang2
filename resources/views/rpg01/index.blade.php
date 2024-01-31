@@ -41,15 +41,15 @@
                                 <div class="me-sm-3">
                                     <select class="form-select my-1 my-lg-0" id="status-select" name="month" onchange="this.form.submit()">
                                         <option value="" selected >請選擇</option>
-                                        <option value="01" @if($request->month == "01" ) selected  @endif>一月</option>
-                                        <option value="02" @if($request->month == "02" ) selected  @endif>二月</option>
-                                        <option value="03" @if($request->month == "03" ) selected  @endif>三月</option>
-                                        <option value="04" @if($request->month == "04" ) selected  @endif>四月</option>
-                                        <option value="05" @if($request->month == "05" ) selected  @endif>五月</option>
-                                        <option value="06" @if($request->month == "06" ) selected  @endif>六月</option>
-                                        <option value="07" @if($request->month == "07" ) selected  @endif>七月</option>
-                                        <option value="08" @if($request->month == "08" ) selected  @endif>八月</option>
-                                        <option value="09" @if($request->month == "09" ) selected  @endif>九月</option>
+                                        <option value="1" @if($request->month == "1" ) selected  @endif>一月</option>
+                                        <option value="2" @if($request->month == "2" ) selected  @endif>二月</option>
+                                        <option value="3" @if($request->month == "3" ) selected  @endif>三月</option>
+                                        <option value="4" @if($request->month == "4" ) selected  @endif>四月</option>
+                                        <option value="5" @if($request->month == "5" ) selected  @endif>五月</option>
+                                        <option value="6" @if($request->month == "6" ) selected  @endif>六月</option>
+                                        <option value="7" @if($request->month == "7" ) selected  @endif>七月</option>
+                                        <option value="8" @if($request->month == "8" ) selected  @endif>八月</option>
+                                        <option value="9" @if($request->month == "9" ) selected  @endif>九月</option>
                                         <option value="10" @if($request->month == "10" ) selected  @endif>十月</option>
                                         <option value="11" @if($request->month == "11" ) selected  @endif>十一月</option>
                                         <option value="12" @if($request->month == "12" ) selected  @endif>十二月</option>
