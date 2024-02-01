@@ -137,6 +137,9 @@
                                 <a href="{{ route('rpg10') }}"  class="{{ request()->is('rpg10') ? 'active' : '' }}">專員金紙獎金</a>
                             </li>
                             <li>
+                                <a href="{{ route('rpg22') }}"  class="{{ request()->is('rpg22') ? 'active' : '' }}">每月紀念品銷售統計</a>
+                            </li>
+                            <li>
                                 <a href="{{ route('rpg12') }}"  class="{{ request()->is('rpg12') ? 'active' : '' }}">廠商佣金抽成</a>
                             </li>
                             <li>

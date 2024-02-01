@@ -63,48 +63,20 @@ class Rpg22Controller extends Controller
             foreach($months as $key=>$month)
             {
                 $datas[$prom->id]['months'][$key]['monthName'] = $month['monthName']; 
-                $datas[$prom->id]['months'][$key]['prom_price'] = DB::table('sale_data')
+                $datas[$prom->id]['months'][$key]['price'] = DB::table('sale_data')
                                                                 ->join('sale_prom','sale_prom.sale_id', '=' , 'sale_data.id')
                                                                 ->where('sale_prom.prom_id',$prom->id)
                                                                 ->where('sale_data.sale_date', '>=', $month['start'])
                                                                 ->where('sale_data.sale_date', '<=', $month['end'])
                                                                 ->where('sale_data.status', '9')
                                                                 ->sum('sale_prom.prom_total');
-
-                $datas[$prom->id]['months'][$key]['sale_price'] = DB::table('sale_data')
-                                                                     ->join('before_prom','before_prom.id', '=' , 'sale_data.before_prom_id')
-                                                                     ->where('sale_data.sale_date','>=',$month['start'])
-                                                                     ->where('sale_data.sale_date','<=',$month['end'])
-                                                                     ->where('before_prom.prom_id',$prom->id)
-                                                                     ->whereNotNull('sale_data.before_prom_id')
-                                                                     ->where('sale_data.status','9')
-                                                                     ->sum('sale_data.before_prom_price');
-                                                                     
-                $datas[$prom->id]['months'][$key]['prom_count'] = DB::table('sale_data')
+                $datas[$prom->id]['months'][$key]['count'] = DB::table('sale_data')
                                                                 ->join('sale_prom','sale_prom.sale_id', '=' , 'sale_data.id')
                                                                 ->where('sale_prom.prom_id',$prom->id)
                                                                 ->where('sale_data.sale_date', '>=', $month['start'])
                                                                 ->where('sale_data.sale_date', '<=', $month['end'])
                                                                 ->where('sale_data.status', '9')
                                                                 ->count();
-
-                $datas[$prom->id]['months'][$key]['sale_count'] = DB::table('sale_data')
-                                                                     ->join('before_prom','before_prom.id', '=' , 'sale_data.before_prom_id')
-                                                                     ->where('sale_data.sale_date','>=',$month['start'])
-                                                                     ->where('sale_data.sale_date','<=',$month['end'])
-                                                                     ->where('before_prom.prom_id',$prom->id)
-                                                                     ->whereNotNull('sale_data.before_prom_id')
-                                                                     ->where('sale_data.status','9')
-                                                                     ->count();
-            }
-
-            foreach($datas as $key=>$data)
-            {
-                foreach($data['months'] as $month_key=>$month)
-                {
-                    $datas[$key]['months'][$month_key]['count'] = $datas[$key]['months'][$month_key]['sale_count']+$datas[$key]['months'][$month_key]['prom_count'];
-                    $datas[$key]['months'][$month_key]['price'] = $datas[$key]['months'][$month_key]['sale_price']+$datas[$key]['months'][$month_key]['prom_price'];
-                }
             }
         }
 
