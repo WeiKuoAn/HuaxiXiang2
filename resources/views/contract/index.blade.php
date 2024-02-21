@@ -28,27 +28,27 @@
                     <div class="row justify-content-between">
                         <div class="col-auto">
                             <form class="d-flex flex-wrap align-items-center" action="{{ route('contracts') }}" method="GET">
-                                <div class="me-3">
+                                <div class="me-2">
                                     <label for="start_date_start" class="form-label">起始日期</label>
                                     <input type="date" class="form-control" id="start_date_start" name="start_date_start" value="{{ $request->start_date_start }}">
                                 </div>
-                                <div class="me-3">
+                                <div class="me-2">
                                     <label for="start_date" class="form-label">&nbsp;</label>
                                     <input type="date" class="form-control" id="start_date_end" name="start_date_end" value="{{ $request->start_date_end }}">
                                 </div>
-                                <div class="me-3">
+                                <div class="me-2">
                                     <label for="end_date_start" class="form-label">結束日期</label>
                                     <input type="date" class="form-control" id="end_date_start" name="end_date_start" value="{{ $request->end_date_start }}">
                                 </div>
-                                <div class="me-3">
+                                <div class="me-2">
                                     <label for="end_date_end" class="form-label">&nbsp;</label>
                                     <input type="date" class="form-control" id="end_date_end" name="end_date_end" value="{{ $request->end_date_end }}">
                                 </div>
-                                <div class="me-3">
+                                <div class="me-2">
                                     <label for="before_date" class="form-label">顧客姓名</label>
                                     <input type="search" class="form-control my-1 my-lg-0" id="cust_name" name="cust_name">
                                 </div>
-                                <div class="me-sm-3">
+                                <div class="me-sm-2">
                                     <label class="form-label">合約類別</label>
                                     <select class="form-select my-1 my-lg-0" id="status-select" name="type" onchange="this.form.submit()">
                                         <option value="null" selected>請選擇...</option>
@@ -57,7 +57,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="me-sm-3">
+                                <div class="me-sm-2">
                                     <label class="form-label">續約</label>
                                     <select class="form-select my-1 my-lg-0" id="status-select" name="check_renew" onchange="this.form.submit()">
                                         <option value="" selected >請選擇</option>
@@ -65,19 +65,24 @@
                                         <option value="0" @if($request->check_renew == '0') selected @endif>否</option>
                                     </select>
                                 </div>
-                                <div class="me-sm-3">
+                                <div class="me-sm-2">
                                     <label class="form-label">狀態</label>
                                     <select class="form-select my-1 my-lg-0" id="status-select" name="check_close" onchange="this.form.submit()">
                                         <option value="1" @if($request->check_close == '1' || !isset($request->check_close)) selected @endif>未結案</option>
                                         <option value="0" @if($request->check_close == '0') selected @endif>已結案</option>
                                     </select>
                                 </div>
-                                <div class="me-3 mt-3">
+                                <div class="me-2 mt-3">
                                     <button type="submit" class="btn btn-success waves-effect waves-light me-1"><i class="fe-search me-1"></i>搜尋</button>
+                                </div>
+                                <div class="me-2 mt-3">
+                                    <a href="{{ route('contract.export',request()->input()) }}">
+                                        <button type="button" class="btn btn-primary waves-effect waves-light me-1"><i class="fe-download me-1"></i>匯出</button>
+                                    </a>
                                 </div>
                             </form>
                         </div>
-                        <div class="col-auto"  style="margin-top: 25px;">
+                        <div class="col-auto"  style="margin-top: 28px;">
                             <div class="text-lg-end my-1 my-lg-0">
                                 {{-- <button type="button" class="btn btn-success waves-effect waves-light me-1"><i class="mdi mdi-cog"></i></button> --}}
                                 <a href="{{ route('contract.create') }}">
@@ -121,6 +126,7 @@
                                         <span 
                                             @if($data->type == '1') class=" bg-soft-success text-success p-1" 
                                             @elseif($data->type == '2') class=" bg-soft-danger text-danger p-1"
+                                            @elseif($data->type == '4') class=" bg-soft-warning text-warning p-1"
                                             @else class=" bg-soft-blue text-blue p-1"
                                             @endif>
                                             {{ $data->type_data->name }}
@@ -129,7 +135,13 @@
                                     <td>{{ $data->cust_name->name }}</td>
                                     <td>{{ $data->mobile }}</td>
                                     <td>{{ $data->pet_name }}</td>
-                                    <td>第{{ $data->year }}年</td>
+                                    <td>
+                                        @if($data->type == '4')
+                                            {{ $data->year }}天
+                                        @else
+                                            第{{ $data->year }}年
+                                        @endif
+                                    </td>
                                     <td>{{ $data->start_date }}</td>
                                     @if(!isset($request->check_close) || $request->check_close == '1')
                                         <td>{{ $data->end_date }}</td>

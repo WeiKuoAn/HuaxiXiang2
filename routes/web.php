@@ -54,6 +54,7 @@ use App\Http\Controllers\Rpg21Controller;
 use App\Http\Controllers\Rpg22Controller;
 use App\Http\Controllers\LeaveDayController;
 use App\Http\Controllers\RestockController;
+use App\Http\Controllers\LiffController;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Auth;
@@ -401,6 +402,7 @@ Route::group(['prefix' => '/'], function () {
 
     /*合約管理*/
     Route::get('/contract', [ContractController::class, 'index'])->name('contracts');
+    Route::get('/contract/export', [ContractController::class, 'export'])->name('contract.export');
     Route::get('/contract/create', [ContractController::class, 'create'])->name('contract.create');
     Route::post('/contract/create', [ContractController::class, 'store'])->name('contract.create.data');
     Route::get('/contract/edit/{id}', [ContractController::class, 'show'])->name('contract.edit');
@@ -436,6 +438,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/rpg/rpg22', [Rpg22Controller::class, 'rpg22'])->name('rpg22');
     Route::get('/rpg/rpg22/{month}/{prom_id}/detail', [Rpg22Controller::class, 'detail'])->name('rpg22.detail');
 
+    Route::get('/liff', [LiffController::class, 'index'])->name('liff.index');
 
     Route::get('image', function()
     {

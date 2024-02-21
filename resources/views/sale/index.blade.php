@@ -40,7 +40,8 @@
                                         <div class="me-2">
                                             <label for="sale_on" class="form-label">案件單類別</label>
                                             <select id="inputState" class="form-select" name="type_list" onchange="this.form.submit()">
-                                                <option value="dispatch" @if (!isset($request->type_list) || $request->type_list == 'dispatch') selected @endif>派件單</option>
+                                                <option value="null" @if (!isset($request->type_list) || $request->type_list == 'null') selected @endif>不限</option>
+                                                <option value="dispatch" @if ($request->type_list == 'dispatch') selected @endif>派件單</option>
                                                 <option value="memorial" @if ($request->type_list == 'memorial') selected @endif>追思單</option>                                                
                                             </select>
                                         </div>

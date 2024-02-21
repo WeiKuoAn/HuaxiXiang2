@@ -74,7 +74,7 @@ class ContractController extends Controller
                 $datas = $datas->whereNotNull('close_date');
             }
                 
-            $datas = $datas->orderby('start_date', 'asc')->paginate(50);
+            $datas = $datas->orderby('end_date', 'asc')->paginate(50);
 
             $condition = $request->all();
         } else {
@@ -166,5 +166,131 @@ class ContractController extends Controller
     {
         Contract::where('id',$id)->delete();
         return redirect()->route('contracts');
+    }
+
+    public function export(Request $request)
+    {
+        $today = Carbon::now()->format("Y-m-d");
+        $check_renew = $request->check_renew;
+        if(!isset($check_renew)){
+            $datas = Contract::whereIn('renew',[0,1]);
+        }else{
+            $datas = Contract::where('renew',$check_renew);
+        }
+                
+        if ($request) {
+            $start_date_start = $request->start_date_start;
+            if ($start_date_start) {
+                $datas = $datas->where('start_date', '>=', $start_date_start);
+            }
+
+            $start_date_end = $request->start_date_end;
+            if ($start_date_end) {
+                $datas = $datas->where('start_date', '<=', $start_date_end);
+            }
+
+            $end_date_start = $request->end_date_start;
+            if ($end_date_start) {
+                $datas = $datas->where('end_date', '>=', $end_date_start);
+            }
+
+            $end_date_end = $request->end_date_end;
+            if ($end_date_end) {
+                $datas = $datas->where('end_date', '<=', $end_date_end);
+            }
+
+            $cust_name = $request->cust_name;
+            if ($cust_name) {
+                $cust_name = $request->cust_name.'%';
+                $customers = Customer::where('name', 'like' ,$cust_name)->get();
+                foreach($customers as $customer) {
+                    $customer_ids[] = $customer->id;
+                }
+                if(isset($customer_ids)){
+                    $datas = $datas->whereIn('customer_id', $customer_ids);
+                }else{
+                    $datas = $datas;
+                }
+            }
+            $type = $request->type;
+
+            if ($type != "null") {
+                if (isset($type)) {
+                    $datas = $datas->where('type',  $type);
+                }else{
+                    $datas = $datas ;
+                }
+            }
+
+            $colse = $request->check_close;
+            if(!isset($colse) || $colse == '1')
+            {
+                $datas = $datas->whereNull('close_date');
+            }else{
+                $datas = $datas->whereNotNull('close_date');
+            }
+                
+            $datas = $datas->orderby('end_date', 'asc')->get();
+
+            $condition = $request->all();
+        } else {
+            $condition = '';
+            $datas = $datas->orderby('start_date', 'asc')->get();
+        }
+        if(!isset($colse) || $colse == '1'){
+            $fileName = '未結案-合約管理明細' . date("Y-m-d") . '.csv';
+        }else{
+            $fileName = '已結案-合約管理明細' . date("Y-m-d") . '.csv';
+        }
+
+        $headers = array(
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        );
+
+        $header = array('合約起始日期', $start_date_start.'~' ,$start_date_end,'合約結束日期', $end_date_start.'~' ,$end_date_end);
+        $columns = array('編號', '合約類別', '顧客名稱', '電話', '寶貝名稱', '目前簽約年份', '開始日期', '結束日期', '金額', '續約');
+
+        $callback = function() use($datas, $columns,$header,$request) {
+            
+            $file = fopen('php://output', 'w');
+            fputs($file, chr(0xEF).chr(0xBB).chr(0xBF), 3); 
+            fputcsv($file, $header);
+            fputcsv($file, $columns);
+
+            foreach ($datas as $data) {
+                $row['編號'] = $data->number;
+                $row['合約類別'] = $data->type_data->name;
+                $row['顧客名稱'] = $data->cust_name->name;
+                $row['電話'] = $data->mobile;
+                $row['寶貝名稱'] = $data->pet_name;
+                if($data->type == '4'){
+                    $row['目前簽約年份'] = $data->year.'天';
+                }else{
+                    $row['目前簽約年份'] = '第'.$data->year.'年';
+                }
+                $row['開始日期'] = $data->start_date;
+                if(!isset($request->check_close) || $request->check_close == '1'){
+                    $row['結束日期'] = $data->end_date;
+                }else{
+                    $row['結束日期'] = $data->close_date;
+                }
+                $row['金額'] = $data->price;
+                if($data->renew == '1'){
+                    $row['續約'] = '是（'.$data->renew_year.'年）';
+                }else{
+                    $row['續約'] = '';
+                }
+                fputcsv($file, array($row['編號'],$row['合約類別'],$row['顧客名稱'],$row['電話'],$row['寶貝名稱'],$row['目前簽約年份']
+                                    ,$row['開始日期'],$row['結束日期'],$row['金額'],$row['續約']));
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

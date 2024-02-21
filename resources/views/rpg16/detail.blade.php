@@ -32,6 +32,7 @@
                                         <td>日期</td>
                                         <td>客戶名稱</td>
                                         <td>寵物名稱</td>
+                                        <td>服務金額</td>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -50,6 +51,7 @@
                                                 @endif
                                             </td>
                                             <td>{{ $data->pet_name }}</td>
+                                            <td>{{ number_format($data->prom_total) }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
