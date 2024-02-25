@@ -850,11 +850,12 @@ class SaleDataController extends Controller
                 $sales = Sale::where('status', 9);
             }
             $type_list = $request->type_list;
-            if($type_list)
-            {
-                $sales = $sales->where('type_list', $type_list);
-            }else{
-                $sales = $sales; 
+            if ($type_list != "null") {
+                if (isset($type_list)) {
+                    $sales = $sales->where('type_list', $type_list);
+                } else {
+                    $sales = $sales;
+                }
             }
             $after_date = $request->after_date;
             if ($after_date) {
