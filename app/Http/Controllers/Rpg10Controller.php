@@ -88,10 +88,10 @@ class Rpg10Controller extends Controller
                     if($sale_data->gdpaper_total <= 100){
                         $sale_data->comm_price = $sale_data->gdpaper_total * 0;
                     }else{
-                        $sale_data->comm_price = ($sale_data->gdpaper_total - 100) * 0.3;
+                        $sale_data->comm_price = ($sale_data->gdpaper_total - 100) * 0.2;
                     }
                 }else{
-                    $sale_data->comm_price = $sale_data->gdpaper_total * 0.3;
+                    $sale_data->comm_price = $sale_data->gdpaper_total * 0.2;
                 }
                 
             }
