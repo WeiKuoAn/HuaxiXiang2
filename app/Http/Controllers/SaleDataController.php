@@ -639,6 +639,50 @@ class SaleDataController extends Controller
                                   ->with('sale_split',$sale_split);
     }
 
+    public function change_plan_show($id)
+    {
+        $users = User::where('status','0')->get();
+        $sources = SaleSource::where('status','up')->get();
+        $customers = Customer::get();
+        $plans = Plan::where('status', 'up')->get();
+        $products = Product::where('status', 'up')->orderby('seq','asc')->orderby('price','desc')->get();
+        $proms = Prom::where('status', 'up')->orderby('seq','asc')->get();
+        $data = Sale::where('id', $id)->first();
+        $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
+        $sale_proms = Sale_prom::where('sale_id', $id)->get();
+        $sale_company = SaleCompanyCommission::where('sale_id', $id)->first();
+
+        return view('sale.change_plan')->with('data', $data)
+                                  ->with('customers', $customers)
+                                  ->with('plans', $plans)
+                                  ->with('products', $products)
+                                  ->with('proms', $proms)
+                                  ->with('sale_proms', $sale_proms)
+                                  ->with('sale_gdpapers', $sale_gdpapers)
+                                  ->with('sources',$sources)
+                                  ->with('sale_company',$sale_company)
+                                  ->with('users',$users);
+    }
+
+    public function change_plan_update($id,Request $request)
+    {
+        $data = Sale::where('id', $id)->first();
+        $data->plan_id = $request->new_plan_id;
+        $data->save();
+        return redirect()->route('sales',['status' => 'check']);
+
+        // return view('sale.change_plan')->with('data', $data)
+        //                           ->with('customers', $customers)
+        //                           ->with('plans', $plans)
+        //                           ->with('products', $products)
+        //                           ->with('proms', $proms)
+        //                           ->with('sale_proms', $sale_proms)
+        //                           ->with('sale_gdpapers', $sale_gdpapers)
+        //                           ->with('sources',$sources)
+        //                           ->with('sale_company',$sale_company)
+        //                           ->with('users',$users);
+    }
+
     public function change_update(Request $request, $id)
     {
         $data = Sale::where('id', $id)->first();
