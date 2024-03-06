@@ -333,6 +333,22 @@
                     <div class="collapse" id="sidebarMultilevel">
                         <ul class="nav-second-level">
                             <li>
+                                <a href="#sidebarCustomer2" data-bs-toggle="collapse">
+                                    客戶報表 <span class="menu-arrow"></span>
+                                </a>
+                                <div class="collapse" id="sidebarCustomer2">
+                                    <ul class="nav-second-level">
+                                        <li>
+                                            <a href="{{ route('rpg23') }}"  class="{{ request()->is('rpg23') ? 'active' : '' }}">客戶分佈報表</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ route('rpg24') }}"  class="{{ request()->is('rpg24') ? 'active' : '' }}">每月客戶新增數量</a>
+                                        </li>
+                                        
+                                    </ul>
+                                </div>
+                            </li>
+                            <li>
                                 <a href="#sidebarMultilevel2" data-bs-toggle="collapse">
                                     銷售報表 <span class="menu-arrow"></span>
                                 </a>
