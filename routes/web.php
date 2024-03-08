@@ -443,6 +443,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/rpg/rpg22', [Rpg22Controller::class, 'rpg22'])->name('rpg22');
     Route::get('/rpg/rpg22/{month}/{prom_id}/detail', [Rpg22Controller::class, 'detail'])->name('rpg22.detail');
     Route::get('/rpg/rpg23', [Rpg23Controller::class, 'rpg23'])->name('rpg23');
+    Route::get('/rpg/rpg23/detail/{district}', [Rpg23Controller::class, 'detail'])->name('rpg23.detail');
     Route::get('/rpg/rpg24', [Rpg24Controller::class, 'rpg24'])->name('rpg24');
 
     Route::get('/liff', [LiffController::class, 'index'])->name('liff.index');

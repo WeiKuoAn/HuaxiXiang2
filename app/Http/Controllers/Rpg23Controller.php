@@ -28,7 +28,7 @@ class Rpg23Controller extends Controller
                 '新園鄉' => '932', '枋寮鄉' => '940', '枋山鄉' => '941', '春日鄉' => '942', '獅子鄉' => '943', '車城鄉' => '944',
                 '牡丹鄉' => '945', '恆春鎮' => '946', '滿州鄉' => '947'
             ],
-            '臺南市' => [
+            '台南市' => [
                 '中西區' => '700', '東區' => '701', '南區' => '702', '北區' => '704', '安平區' => '708', '安南區' => '709',
                 '永康區' => '710', '歸仁區' => '711', '新化區' => '712', '左鎮區' => '713', '玉井區' => '714', '楠西區' => '715',
                 '南化區' => '716', '仁德區' => '717', '關廟區' => '718', '龍崎區' => '719', '官田區' => '720', '麻豆區' => '721',
@@ -40,13 +40,15 @@ class Rpg23Controller extends Controller
         ];
 
         $datas = [];
-
+        $sums = [];
         $total_count = 0; // 初始化總數為 0
 
         foreach($countys as $county_name => $county) {
+            $sums[$county_name]['count'] =0;
+            $county_count = Customer::where('county', $county_name)->count();
             foreach($county as $district_name => $district) {
                 // 假設使用了模型 Customer 來計算特定區域的客戶數量
-                $count = Customer::where('district', 'like', $district_name)->count();
+                $count = Customer::where('county',$county_name)->where('district',$district_name)->count();
                 $datas[$county_name]['districts'][$district_name]['count'] = $count;
                 // 將當前區域的客戶數量加到總數中
                 $total_count += $count;
@@ -57,8 +59,18 @@ class Rpg23Controller extends Controller
             uasort($county_data['districts'], function ($a, $b) {
                 return $b['count'] - $a['count']; // 降序排序
             });
+            foreach($county_data['districts'] as &$data){
+                $sums[$county_name]['count'] += $data['count'];
+            }
         }
+        // dd($sums);
+        return view('rpg23.index')->with('sums', $sums)->with('datas', $datas)->with('total_count',$total_count);
+    }
+
+    public function detail($district)
+    {
+        $datas = Customer::where('district',$district)->get();
         // dd($datas);
-        return view('rpg23.index')->with('datas', $datas)->with('total_count',$total_count);
+        return view('rpg23.detail')->with('datas', $datas)->with('district',$district);
     }
 }

@@ -26,7 +26,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <h4>{{ $county_name }}</h4>
+                    <h4>{{ $county_name }}（共{{ $sums[$county_name]['count'] }}人）</h4>
                     <div class="table-responsive">
                         <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
                             @foreach($district_datas as $district_count => $districts)
@@ -35,7 +35,9 @@
                                     <tr>
                                         @foreach($chunkedDistricts as $districtname => $district)
                                             <td>{{ $districtname }}</td>
-                                            <td>{{ $district['count'] }}</td>
+                                            <td>
+                                                <a href="{{ route('rpg23.detail',['district'=>$districtname]) }}">{{ $district['count'] }}</a>
+                                            </td>
                                         @endforeach
                                     </tr>
                                 @endforeach
