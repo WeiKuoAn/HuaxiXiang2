@@ -23,7 +23,7 @@ class DashboardController extends Controller
 
     public function loginSuccess(){
         $now = Carbon::now()->locale('zh-tw');
-        $now_day = Carbon::now()->format("Y-m-d");
+        $now_day = Carbon::now()->subMonths(1)->format("Y-m-d");
         $two_month_day = Carbon::now()->addMonths(2)->format("Y-m-d");
         // dd(Auth::user());
         if(Auth::user()->status != 1){

@@ -20,7 +20,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::where('status','0')->orderby('level')->paginate(30);
+        $users = User::where('status','0')->orderby('seq')->orderby('level')->paginate(30);
         return view('user.users')->with('users', $users);
     }
 
@@ -52,6 +52,7 @@ class UserController extends Controller
             'entry_date' => $request->entry_date,
             'job_id'=> $request->job_id,
             'branch_id'=> $request->branch_id,
+            'seq' => $request->seq,
             'level' => '2',
             'state' => '1' //剛開始由管理員新增時
         ]);
@@ -132,6 +133,7 @@ class UserController extends Controller
             $user->birthday = $request->birthday;
             $user->email = $request->email;
             $user->mobile = $request->mobile;
+            $user->seq = $request->seq;
             $user->ic_card = $request->ic_card;
             $user->marriage = $request->marriage;
             $user->address = $request->address;

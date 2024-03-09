@@ -359,7 +359,7 @@ class SaleDataController extends Controller
             $price_total = Sale::where('status', '1')->sum('pay_price');
             $sales = Sale::orderby('sale_date', 'desc')->orderby('user_id','desc')->orderby('sale_on', 'desc')->where('status', '1')->paginate(50);
         }
-        $users = User::where('status','0')->get();
+        $users = User::whereIn('job_id',[1,3,5])->where('status','0')->orderby('seq')->get();
         $sources = SaleSource::where('status','up')->get();
         $plans = Plan::where('status','up')->get();
 

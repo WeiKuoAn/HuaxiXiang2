@@ -49,6 +49,7 @@
                                     <th>入職時間</th>
                                     <th>等級</th>
                                     <th>權限</th>
+                                    <th>排序</th>
                                     <th>動作</th>
                                 </tr>
                             </thead>
@@ -77,6 +78,7 @@
                                                 關閉
                                             @endif
                                         </td>
+                                        <td>{{ $user->seq }}</td>
                                     <td>
                                         <div class="btn-group dropdown">
                                             @if($user->level != '0')

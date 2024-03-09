@@ -48,6 +48,12 @@
                     
                     <form action="{{ route('user.edit.data',$user->id) }}" method="POST">
                     @csrf
+                    <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">排序設定</h5>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">排序設定<span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="seq" value="{{ $user->seq }}">
+                    </div>
                     <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">個人資訊</h5>
                     
                     <div class="mb-3">

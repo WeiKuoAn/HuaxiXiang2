@@ -64,6 +64,11 @@
                                 </div>
                             </div>
                             
+                            <div class="mb-3">
+                                <label for="projectname" class="form-label">排序</label>
+                                <input type="text"  class="form-control" name="seq" value="0">
+                            </div>
+
                         </div> <!-- end col-->
 
                         <div class="col-xl-6">
