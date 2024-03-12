@@ -189,7 +189,6 @@
         $('#row-'+$number).remove();
     }
     
-    
 
     function chgInvoice(obj){
         $number = $(obj).attr("alt");
@@ -207,7 +206,6 @@
             $("#vendor-"+$number).hide(300);
             $(".td_show").hide(300);
         }
-        console.log(invoice_type);
     }
     
     $("#add_row").click(function(){
@@ -255,7 +253,6 @@
 
     $(document).ready(function(){
         rowCount = $('#cart tr').length - 1;
-        console.log(invoice_type);
 
         for(var i = 0; i < rowCount; i++)
         {
@@ -313,7 +310,6 @@
                     $('#vender_number_list_q').html(data);
                 }
                 });
-                console.log($value);
             });
         }
     });

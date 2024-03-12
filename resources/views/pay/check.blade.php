@@ -118,14 +118,10 @@
                                                     </select>
                                                     </td>
                                                     <td>
-                                                        @if(isset($item->invoice_number ))
                                                         <input id="pay_invoice-{{ $key }}" class="invoice mobile form-control" type="text" name="pay_invoice_number[]" placeholder="請輸入發票號碼"  value="{{ $item->invoice_number }}">
-                                                        @endif
-                                                        @if(isset($item->vender_id))
-                                                            <input list="vender_number_list_q" class="mobile form-control" id="vendor-{{ $key }}" name="vender_id[]"  @if(isset($item->vender_data)) value="{{ $item->vender_id }}" @else value="{{ $item->vender_id }}" @endif placeholder="請輸入統編號碼">
-                                                            <datalist id="vender_number_list_q">
-                                                            </datalist>
-                                                        @endif
+                                                        <input list="vender_number_list_q" class="mobile form-control" id="vendor-{{ $key }}" name="vender_id[]"  @if(isset($item->vender_data)) value="{{ $item->vender_id }}" @else value="{{ $item->vender_id }}" @endif placeholder="請輸入統編號碼">
+                                                        <datalist id="vender_number_list_q">
+                                                        </datalist>
                                                     </td>
                                                     <td>
                                                         <input id="pay_text-{{ $key }}" class="mobile form-control" type="text" name="pay_text[]" value="{{ $item->comment }}">
@@ -188,96 +184,27 @@
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/smoothness/jquery-ui.css" />
 {{-- <script src="{{asset('assets/js/pages/foo-tables.init.js')}}"></script> --}}
 
-
-{{-- <script>
-    function del_row(obj){
-        $number = $(obj).attr("alt");
-        $('#row-'+$number).remove();
-    }
-    $(document).ready(function(){
-        $("#add_row").click(function(){
-            $rowCount = $('#cart tr').length - 1;
-            var $lastRow = $("#cart tr:last"); //grab row before the last row
-
-            $newRow = '<tr id="row-'+$rowCount+'">';
-            $newRow += '<td>';    
-            $newRow += '<button class="btn btn-primary del-row" alt="'+$rowCount+'" type="button" name="button" onclick="del_row(this)">刪除</button>';
-            $newRow += '</td>';
-            $newRow += '<td scope="row">';
-            $newRow += '<input id="pay_date-'+$rowCount+'" class="form-control" type="date" name="pay_data_date[]" value="" required>';
-            $newRow += '</td>';
-            $newRow += '<td>';
-            $newRow += '<select id="pay_id-'+$rowCount+'" class="form-select" aria-label="Default select example" name="pay_id[]" required>';
-            @foreach($pays as $pay)
-            $newRow += '<option value="{{ $pay->id }}">{{ $pay->name  }}</option>;'
-            @endforeach
-            $newRow += '</select>';
-            $newRow += '</td>';
-            $newRow += '<td>';
-            $newRow += '<input id="pay_invoice-'+$rowCount+'" class="form-control" type="text" name="pay_invoice_number[]" value="" >';
-            $newRow += '</td>';
-            $newRow += '<td>';
-            $newRow += '<input id="pay_price-'+$rowCount+'" class="form-control" type="text" name="pay_price[]" value="" required>';
-            $newRow += '</td>';
-            $newRow += '<td>';
-            $newRow += '<select id="pay_invoice_type-'+$rowCount+'" class="form-select" aria-label="Default select example" name="pay_invoice_type[]" required>';
-            $newRow += '<option value="" selected>請選擇</option>';
-            $newRow += '<option value="FreeUniform" >免用統一發票</option>';
-            $newRow += '<option value="Uniform" >統一發票</option>';
-            $newRow += '<option value="Other" >其他</option>';
-            $newRow += '</select>';
-            $newRow += '</td>';
-            $newRow += '<td>';                      
-            $newRow += '<input list="vender_number_list_q" class="form-control" id="vendor-'+$rowCount+'" name="vender_id[]" placeholder="請輸入統編號碼">';
-            $newRow += '<datalist id="vender_number_list_q">';
-            $newRow += '</datalist>';
-            $newRow += '</td>';
-            $newRow += '<td>';
-            $newRow += '<input id="pay_text-'+$rowCount+'" class="form-control" type="text" name="pay_text[]" value="">';
-            $newRow += '</td>';
-            $newRow += '</tr>';
-
-            $lastRow.after($newRow); //add in the new row at the end
-        });
-
-        $("#btn_submit").click(function(){
-            rowCount = $('#cart tr').length - 1;
-            total_price = $("#price").val();
-            pay_total = 0;
-            for(var i = 0; i < rowCount; i++)
-            {
-                pay_total += parseInt($('#pay_price-'+i).val(),10);
-
-                // pay_total+= Number($('#pay_price-'+$rowCount).val());
-            }
-            if(total_price != pay_total){
-                alert('金額錯誤！');
-                return false;
-            }
-            console.log(pay_total);
-        });
-
-        $.ajaxSetup({ headers: { 'csrftoken' : '{{ csrf_token() }}' } });
-    });
-</script>
-<script type="text/javascript">
+<script>
     $(document).ready(function(){
         rowCount = $('#cart tr').length - 1;
+
         for(var i = 0; i < rowCount; i++)
         {
-            $('#vendor-'+i).keydown(function() {
-                $value=$(this).val();
-                $.ajax({
-                type : 'get',
-                url : '{{ route('vender.number') }}',
-                data:{'number':$value},
-                success:function(data){
-                    $('#vender_number_list_q').html(data);
-                }
-                });
-                console.log($value);
-            });
+            invoice_type = $("#pay_invoice_type-" + i).val();
+            if(invoice_type == 'FreeUniform'){
+                $("#vendor-"+i).show(300);
+                $("input#pay_invoice-"+i).hide(300);
+                $(".td_show").show(300);
+            }else if(invoice_type == 'Uniform'){
+                $("input#pay_invoice-"+i).show(300);
+                $("#vendor-"+i).show(300);
+                $(".td_show").show(300);
+            }else if(invoice_type == 'Other'){
+                $("input#pay_invoice-"+i).hide(300);
+                $("#vendor-"+i).hide(300);
+                $(".td_show").hide(300);
+            }
         }
     });
-</script> --}}
+</script>
 @endsection
