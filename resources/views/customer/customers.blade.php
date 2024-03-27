@@ -50,11 +50,13 @@
                                 <div class="me-3">
                                     <button type="submit" class="btn btn-success waves-effect waves-light me-1"><i class="fe-search me-1"></i>搜尋</button>
                                 </div>
+                                @if(Auth::user()->job_id != 5)
                                 <div class="me-3">
                                     <a href="{{ route('customer.export',request()->input()) }}">
                                         <button type="button" class="btn btn-primary waves-effect waves-light me-1"><i class="fe-download me-1"></i>匯出</button>
                                     </a>
                                 </div>
+                                @endif
                             </form>
                         </div>
                         <div class="col-auto">
