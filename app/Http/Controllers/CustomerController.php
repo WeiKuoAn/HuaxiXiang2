@@ -298,4 +298,90 @@ class CustomerController extends Controller
         $customer = Customer::where('id',$id)->first();
         return view('customer.sales')->with('sales', $sales)->with('customer',$customer);
     }
+
+    public function export(Request $request)
+    {
+        $customers = Customer::get();
+        $customer_groups = CustGroup::get();
+        if ($request) {
+            $name = $request->name;
+            if (!empty($name)) {
+                $name = '%'.$request->name . '%';
+                $customers = Customer::where('name', 'like', $name)->get();
+            }
+            $mobile = $request->mobile;
+            if (!empty($mobile)) {
+                $mobile = $request->mobile . '%';
+                $customers = Customer::where('mobile', 'like', $mobile)->get();
+            }
+            $pet_name = $request->pet_name;
+            if (!empty($pet_name)) {
+                $pet_name = $request->pet_name . '%';
+                $sales  = Sale::where('pet_name', 'like', $pet_name)->get();
+                if(count($sales) > 0) {
+                    foreach($sales as $sale){
+                        $customer_ids[] = $sale->customer_id;
+                    }
+                }else{
+                    $customer_ids = [];
+                }
+                $customers = Customer::whereIn('id', $customer_ids)->get();
+            }
+            $group_id = $request->group_id;
+            if (!empty($group_id)) {
+                $customers = Customer::where('group_id', 'like', $group_id)->get();
+            }
+
+            if (!empty($name) && !empty($mobile) && !empty($pet_name) && !empty($group_id)) { 
+                $pet_name = $request->pet_name . '%';
+                $sales  = Sale::where('pet_name', 'like', $pet_name)->get();
+                foreach($sales as $sale){
+                    $customer_ids[] = $sale->customer_id;
+                }
+                $customers = Customer::where('name', 'like', $name)->where('mobile', 'like', $mobile)->whereIn('id', $customer_ids)->where('group_id', 'like', $group_id)->get();
+            }
+        }
+        $fileName = '客戶資料匯出' . date("Y-m-d") . '.csv';
+
+        $headers = array(
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        );
+        // $header = array('日期', $after_date.'~' ,  $before_date);
+        $columns = array('編號','姓名', '電話', '寶貝名稱', '地址','群組' ,'新增時間');
+
+        $callback = function() use($customers, $columns) {
+            
+            $file = fopen('php://output', 'w');
+            fputs($file, chr(0xEF).chr(0xBB).chr(0xBF), 3); 
+            fputcsv($file, $columns);
+
+            foreach ($customers as $key=>$customer) {
+                $row['編號']  = $key+1;
+                $row['姓名']  = $customer->name;
+                $row['電話']  = $customer->mobile;
+                $row['寶貝名稱'] = '';
+                if(isset($customer->sale_datas))
+                {
+                    foreach($customer->sale_datas as $sale_data){
+                        $row['寶貝名稱']  .= ($row['寶貝名稱']=='' ? '' : "\r\n").$sale_data->pet_name;
+                    }
+                }
+                $row['群組'] = '';
+                if(isset($customer->group)){
+                    $row['群組'] = $customer->group->name;
+                }
+                $row['地址']  = $customer->county.$customer->district.$customer->address;
+                $row['新增時間'] = date('Y-m-d', strtotime($customer->created_at));
+                fputcsv($file, array($row['編號'],$row['姓名'],$row['電話'],$row['寶貝名稱'],$row['地址'], $row['群組'], $row['新增時間']));
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

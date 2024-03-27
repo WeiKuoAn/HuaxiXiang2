@@ -166,6 +166,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('customer/del/{id}', [CustomerController::class, 'delete'])->name('customer.del');
     Route::post('customer/del/{id}', [CustomerController::class, 'destroy'])->name('customer.del.data');
     Route::get('customer/{id}/sales', [CustomerController::class, 'sales'])->name('customer.sales');
+    Route::get('customers/export', [CustomerController::class, 'export'])->name('customer.export');
 
     /*拜訪管理*/
     Route::get('search_district', [VisitController::class, 'search_district'])->name('search.district');//ajax搜尋區域
