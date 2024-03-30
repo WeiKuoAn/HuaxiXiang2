@@ -1,0 +1,110 @@
+.twzipcode-select {
+    margin-right: .4rem;
+    float: left;
+    display: block;
+    width: 31%;
+    padding: 0.45rem 2.7rem 0.45rem 0.9rem;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #6c757d;
+    background-color: #fff;
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+    background-size: 14px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+.table {
+    --bs-table-color-type: initial;
+    --bs-table-bg-type: initial;
+    --bs-table-color-state: initial;
+    --bs-table-bg-state: initial;
+    --bs-table-color: #545965;
+    --bs-table-bg: #ededed63;
+    --bs-table-border-color: #eff0f2;
+    --bs-table-accent-bg: transparent;
+    --bs-table-striped-color: #545965;
+    --bs-table-striped-bg: #f8f9fa;
+    --bs-table-active-color: #545965;
+    --bs-table-active-bg: rgba(0, 0, 0, .1);
+    --bs-table-hover-color: #545965;
+    --bs-table-hover-bg: #f8f9fa;
+    width: 100%;
+    margin-bottom: 1rem;
+    vertical-align: top;
+    border-color: var(--bs-table-border-color);
+}
+
+.manufactyring-input {
+    --bs-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%233F4452' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    width: 25%;
+    font-size: .925rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #545965;
+    background-color: #fff;
+    background-image: var(--bs-form-select-bg-img), var(--bs-form-select-bg-icon, none);
+    background-repeat: no-repeat;
+    background-position: right .75rem center;
+    background-size: 16px 12px;
+    border: 1px solid #e2e5e8;
+    border-radius: .75rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    appearance: none;
+    margin-left: .8rem;
+}
+
+.main-content {
+    min-height: 100vh;
+    background-color: #F5F5F5;
+}
+
+.twzipcode-hidden{
+    display: none;
+}
+
+.e04{
+    align-items: center;
+}
+
+@media print {
+    .twzipcode-select {
+        --bs-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%233F4452' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        width: 29%;
+        padding: .47rem 1.75rem .47rem .8rem;
+        font-size: .925rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #545965;
+        background-color: #fff;
+        background-image: var(--bs-form-select-bg-img), var(--bs-form-select-bg-icon, none);
+        background-repeat: no-repeat;
+        background-position: right .75rem center;
+        background-size: 16px 12px;
+        border: 1px solid #e2e5e8;
+        border-radius: .75rem;
+        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        appearance: none;
+        margin-left: .8rem;
+    }
+
+    /* 其他針對列印優化的樣式 */
+    .avoid-page-break {
+        page-break-inside: avoid; /* 避免在元素內部斷頁 */
+    }
+
+    table, tr, td, th {
+        page-break-inside: avoid;
+    }
+
+    body, html {
+        margin: 0;
+        padding: 0;
+    }
+}
+
+/**>

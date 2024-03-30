@@ -247,6 +247,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/sales', [SaleDataController::class, 'index'])->name('sales');
     Route::get('/sales/export', [SaleDataController::class, 'export'])->name('sales.export');
     Route::get('/sale/create', [SaleDataController::class, 'create'])->name('sale.create');
+    Route::get('/sale/create/test', [SaleDataController::class, 'test'])->name('sale.test');
     Route::post('/sale/create', [SaleDataController::class, 'store'])->name('sale.data.create');
     Route::get('/sale/edit/{id}', [SaleDataController::class, 'show'])->name('sale.edit');
     Route::post('/sale/edit/{id}', [SaleDataController::class, 'update'])->name('sale.data.edit');

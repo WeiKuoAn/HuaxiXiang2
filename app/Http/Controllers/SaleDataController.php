@@ -117,6 +117,17 @@ class SaleDataController extends Controller
                                   ->with('plans', $plans);
     }
 
+    public function test()
+    {
+        $sources = SaleSource::where('status','up')->get();
+        $plans = Plan::where('status', 'up')->get();
+        $products = Product::where('status', 'up')->orderby('seq','asc')->orderby('price','desc')->get();
+
+        return view('sale.create_test')->with('products', $products)
+                                  ->with('sources', $sources)
+                                  ->with('plans', $plans);
+    }
+
      /**
      * Store a newly created resource in storage.
      *
