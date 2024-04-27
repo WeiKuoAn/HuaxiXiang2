@@ -470,6 +470,8 @@
                 $("#type").prop('required', false);
                 $("#plan_id").prop('required', false);
                 $("#plan_price").prop('required', false);
+                $("#send_div").hide();
+                $("#connector_div").hide();
             }else{
                 $("#final_price").hide(300);
                 $(".not_final_show").show(300);
@@ -478,6 +480,8 @@
                 $("#type").prop('required', true);
                 $("#plan_id").prop('required', true);
                 $("#plan_price").prop('required', true);
+                $("#send_div").show(300);
+                $("#connector_div").show(300);
             }
         }
     });
@@ -494,9 +498,11 @@
             if(type_list == 'memorial'){
                 $("#final_price").hide();
                 $(".not_memorial_show").hide();
+                $("#send_div").hide(300);
+                $("#connector_div").hide(300);
             }
-            $("#send_div").hide(300);
-            $("#connector_div").hide(300);
+            $("#send_div").hide();
+            $("#connector_div").hide();
         }else{
             $("#final_price").hide(300);
             $("#send_div").show(300);
@@ -504,6 +510,8 @@
             if(type_list == 'memorial'){
                 $("#final_price").hide();
                 $(".not_memorial_show").hide();
+                $("#send_div").hide();
+                $("#connector_div").hide();
             }else{
                 $(".not_memorial_show").show();
                 $("#pet_name").prop('required', true);
@@ -511,6 +519,8 @@
                 $("#type").prop('required', true);
                 $("#plan_id").prop('required', true);
                 $("#plan_price").prop('required', true);
+                $("#send_div").show();
+                $("#connector_div").show();
             }
             
         }

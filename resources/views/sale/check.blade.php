@@ -372,7 +372,7 @@
     $(document).ready(function(){
         // Check if $sale_address exists
         connector_address = $('input[name="connector_address"]').val();
-        
+        var saleAddress = <?php echo json_encode(isset($sale_address) ? $sale_address : null); ?>;
         if (connector_address != 0) {
             // If $sale_address exists, initialize twzipcode with preselected values
             $(".twzipcode").twzipcode({

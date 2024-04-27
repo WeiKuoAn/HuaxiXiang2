@@ -425,9 +425,10 @@
     payIdValue = $('select[name="pay_id"]').val();
     payMethod = $('select[name="pay_method"]').val();
     $(document).ready(function(){
+        var saleAddress = <?php echo json_encode(isset($sale_address) ? $sale_address : null); ?>;
         // Check if $sale_address exists
         connector_address = $('input[name="connector_address"]').val();
-        
+        console.log(connector_address);
         if (connector_address != 0) {
             // If $sale_address exists, initialize twzipcode with preselected values
             $(".twzipcode").twzipcode({
@@ -504,13 +505,19 @@
     //案件單類別
     if(type_list == 'memorial'){
         $(".not_memorial_show").hide(300);
-        $("#cust_name_q").prop('required', false);
-        $("#pet_name").prop('required', false);
-        $("#kg").prop('required', false);
-        $("#type").prop('required', false);
-        $("#plan_id").prop('required', false);
+            $("#final_price").hide(300);
+            $("#cust_name_q").prop('required', false);
+            $("#pet_name").prop('required', false);
+            $("#kg").prop('required', false);
+            $("#type").prop('required', false);
+            $("#plan_id").prop('required', false);
+            $("#plan_price").prop('required', false);
+            $("#send_div").hide(300);
+            $("#connector_div").hide(300);
     }else if(type_list == 'dispatch'){
-        $(".not_memorial_show").show(300);
+            $(".not_memorial_show").show(300);
+            $("#send_div").show(300);
+            $("#connector_div").show(300);
             if(payIdValue == 'D' || payIdValue =='E'){
                 $("#final_price").show(300);
                 $(".not_final_show").hide();
@@ -519,6 +526,8 @@
                 $("#type").prop('required', false);
                 $("#plan_id").prop('required', false);
                 $("#plan_price").prop('required', false);
+                $("#send_div").hide();
+                $("#connector_div").hide();
             }else{
                 $("#final_price").hide(300);
                 $(".not_final_show").show(300);
@@ -527,6 +536,8 @@
                 $("#type").prop('required', true);
                 $("#plan_id").prop('required', true);
                 $("#plan_price").prop('required', true);
+                $("#send_div").show();
+                $("#connector_div").show();
             }
     }
 
@@ -573,6 +584,8 @@
             }else{
                 $("#final_price").show(300);
             }
+            $("#send_div").hide();
+            $("#connector_div").hide();
         }else{
             $("#final_price").hide(300);
             $(".not_final_show").show(300);
