@@ -10,6 +10,7 @@ use App\Models\Prom;
 use App\Models\Sale_gdpaper;
 use App\Models\Sale_prom;
 use App\Models\SaleSplit;
+use App\Models\SaleAddress;
 use App\Models\SaleChange;
 use App\Models\Sale;
 use App\Models\User;
@@ -170,10 +171,34 @@ class SaleDataController extends Controller
         {
             $sale->status = '100';
         }
+        if($request->send == 1){
+            $sale->send = $request->send;
+        }else{
+            $sale->send = 0;
+        }
+        
         $sale->save();
 
         $sale_id = Sale::orderby('id', 'desc')->first();
 
+        if($request->connector_address == 1){
+            $SaleAddress = new SaleAddress();
+            $SaleAddress->sale_id = $sale_id->id;
+            $SaleAddress->county = $request->county;
+            $SaleAddress->district = $request->district;
+            $SaleAddress->address = $request->address;
+            $SaleAddress->save();
+        }else{
+            $cust_data = Customer::where('id',$request->cust_name_q)->first();
+            if(isset($cust_data)){
+                $SaleAddress = new SaleAddress();
+                $SaleAddress->sale_id = $sale_id->id;
+                $SaleAddress->county = $cust_data->county;
+                $SaleAddress->district = $cust_data->district;
+                $SaleAddress->address = $cust_data->address;
+                $SaleAddress->save();
+            }
+        }
 
         foreach($request->select_proms as $key=>$select_prom)
         {
@@ -506,6 +531,7 @@ class SaleDataController extends Controller
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
         $sale_proms = Sale_prom::where('sale_id', $id)->get();
         $sale_company = SaleCompanyCommission::where('sale_id', $id)->first();
+        $sale_address = SaleAddress::where('sale_id', $id)->first();
         return view('sale.edit')->with('data', $data)
             ->with('customers', $customers)
             ->with('plans', $plans)
@@ -514,7 +540,8 @@ class SaleDataController extends Controller
             ->with('sale_proms', $sale_proms)
             ->with('sale_gdpapers', $sale_gdpapers)
             ->with('sources',$sources)
-            ->with('sale_company',$sale_company);
+            ->with('sale_company',$sale_company)
+            ->with('sale_address',$sale_address);
     }
 
     public function check_show(Request $request , $id)
@@ -529,7 +556,7 @@ class SaleDataController extends Controller
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
         $sale_proms = Sale_prom::where('sale_id', $id)->get();
         $sale_company = SaleCompanyCommission::where('sale_id', $id)->first();
-    
+        $sale_address = SaleAddress::where('sale_id', $id)->first();
          // 获取上一个页面的 URL
          // 从_previous中获取user参数的值
         // dd($request->session());
@@ -568,7 +595,8 @@ class SaleDataController extends Controller
             ->with('sale_proms', $sale_proms)
             ->with('sale_gdpapers', $sale_gdpapers)
             ->with('sources',$sources)
-            ->with('sale_company',$sale_company);
+            ->with('sale_company',$sale_company)
+            ->with('sale_address',$sale_address);
     }
 
     public function check_update(Request $request, $id)
@@ -774,6 +802,11 @@ class SaleDataController extends Controller
             $sale->transfer_number = null;
             $sale->transfer_channel = null;
         }
+        if($request->send == 1){
+            $sale->send = $request->send;
+        }else{
+            $sale->send = 0;
+        }
         $sale->pay_method = $request->pay_method;
         $sale->total = $request->total;
         $sale->comm = $request->comm;
@@ -781,6 +814,27 @@ class SaleDataController extends Controller
 
         $sale_id = Sale::where('id', $id)->first();
         Sale_prom::where('sale_id', $sale_id->id)->delete();
+        SaleAddress::where('sale_id', $sale_id->id)->delete();
+
+        if($request->connector_address == 1){
+            $SaleAddress = new SaleAddress();
+            $SaleAddress->sale_id = $sale_id->id;
+            $SaleAddress->county = $request->county;
+            $SaleAddress->district = $request->district;
+            $SaleAddress->address = $request->address;
+            $SaleAddress->save();
+        }else{
+            $cust_data = Customer::where('id',$request->cust_name_q)->first();
+            // dd($cust_data);
+            if(isset($cust_data)){
+                $SaleAddress = new SaleAddress();
+                $SaleAddress->sale_id = $sale_id->id;
+                $SaleAddress->county = $cust_data->county;
+                $SaleAddress->district = $cust_data->district;
+                $SaleAddress->address = $cust_data->address;
+                $SaleAddress->save();
+            }
+        }
 
         if(isset($request->select_proms)){
             foreach($request->select_proms as $key=>$select_prom)
@@ -869,6 +923,7 @@ class SaleDataController extends Controller
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
         $sale_proms = Sale_prom::where('sale_id', $id)->get();
         $sale_company = SaleCompanyCommission::where('sale_id', $id)->first();
+        $sale_address = SaleAddress::where('sale_id', $id)->first();
         return view('sale.del')->with('data', $data)
             ->with('customers', $customers)
             ->with('plans', $plans)
@@ -877,7 +932,8 @@ class SaleDataController extends Controller
             ->with('sale_proms', $sale_proms)
             ->with('sale_gdpapers', $sale_gdpapers)
             ->with('sources',$sources)
-            ->with('sale_company',$sale_company);
+            ->with('sale_company',$sale_company)
+            ->with('sale_address',$sale_address);
     }
     public function destroy($id)
     {
@@ -885,11 +941,13 @@ class SaleDataController extends Controller
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id);
         $sale_promBs = Sale_prom::where('sale_id', $id);
         $sale_company = SaleCompanyCommission::where('sale_id', $id);
+        $sale_address = SaleAddress::where('sale_id', $id);
 
         $sale->delete();
         $sale_gdpapers->delete();
         $sale_promBs->delete();
         $sale_company->delete();
+        $sale_address->delete();
         return redirect()->route('sales');
     }
 

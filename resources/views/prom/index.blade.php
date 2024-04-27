@@ -33,6 +33,7 @@
                                         <option value="" selected>不限</option>
                                         <option value="A" @if($request->type == 'A') selected @endif>安葬方式</option>
                                         <option value="B" @if($request->type == 'B') selected @endif>後續處理</option>
+                                        <option value="C" @if($request->type == 'C') selected @endif>其他處理</option>
                                     </select>
                                 </div>
                                 <div class="me-3">
@@ -75,8 +76,10 @@
                                     <td>
                                         @if($data->type == 'A')
                                             安葬方式
-                                        @else
+                                        @elseif($data->type == 'B')
                                             後續處理
+                                        @else
+                                            其他處理
                                         @endif
                                     </td>
                                     <td>{{ $data->name }}</td>

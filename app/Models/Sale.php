@@ -27,6 +27,7 @@ class Sale extends Model
         'pay_id',
         'pay_price',
         'total',
+        'send',
         'comm',
     ];
 

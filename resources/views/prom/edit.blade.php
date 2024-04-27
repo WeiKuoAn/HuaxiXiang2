@@ -42,6 +42,7 @@
                                 <option value="" selected>請選擇...</option>
                                 <option value="A" @if($data->type == 'A') selected @endif>安葬方式</option>
                                 <option value="B" @if($data->type == 'B') selected @endif>後續處理</option>
+                                <option value="C" @if($data->type == 'C') selected @endif>其他處理</option>
                             </select>
                             </select>
                         </div>

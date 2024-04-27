@@ -42,6 +42,7 @@
                                 <option value="" selected>請選擇...</option>
                                 <option value="A">安葬方式</option>
                                 <option value="B" >後續處理</option>
+                                <option value="C" >其他處理</option>
                             </select>
                             </select>
                         </div>

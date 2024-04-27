@@ -26,13 +26,27 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
+                    <form action="{{ route('users') }}" method="GET">
                     <div class="row mb-2">
-                        <div class="col-sm-8">
-                            {{-- <div class="mt-2 mt-sm-0">
-                                <button type="button" class="btn btn-success mb-2 me-1"><i class="fe-search me-1"></i>搜尋</button>
-                            </div> --}}
+
+                        <div class="col-sm-2"> 
+                            <label for="name" class="form-label">用戶姓名</label>
+                            <input type="text" class="form-control" id="name" name="name" value="">
                         </div><!-- end col-->
-                        <div class="col-sm-4 text-sm-end">
+                        <div class="col-sm-1"> 
+                            <label for="project-priority" class="form-label">權限<span class="text-danger">*</span></label>
+                                <select class="form-control" data-toggle="select" data-width="100%" name="status"  onchange="this.form.submit()">
+                                    <option value="0" @if($request->status == '0') selected @endif>開通</option>
+                                    <option value="1" @if($request->status == '1') selected @endif>關閉</option>
+                                </select>
+                        </div><!-- end col-->
+                        <div class="col-sm-2"> 
+                            <div class="mt-4">
+                                <button type="button" class="btn btn-success mb-2 me-1"><i class="fe-search me-1"></i>搜尋</button>
+                            </div>
+                        </div><!-- end col-->
+                        </form>
+                        <div class="col-sm-7 text-sm-end mt-4">
                             <a href="{{ route('user.create') }}">
                                 <button type="button" class="btn btn-danger waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#custom-modal"><i class="mdi mdi-plus-circle me-1"></i>新增用戶</button>
                             </a>

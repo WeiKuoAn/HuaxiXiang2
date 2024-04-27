@@ -5,6 +5,7 @@
 <link href="{{asset('assets/libs/dropzone/dropzone.min.css')}}" rel="stylesheet" type="text/css" />
 <link href="{{asset('assets/libs/quill/quill.min.css')}}" rel="stylesheet" type="text/css" /> --}}
 {{-- <meta name="csrf-token" content="{{ csrf_token() }}"> --}}
+<link href="{{ URL::asset('assets/css/customization.css') }}" id="app-style" rel="stylesheet" type="text/css" />    
 @endsection
 
 @section('content')
@@ -134,6 +135,34 @@
                             <label for="plan_price" class="form-label">方案追加/尾款價格<span class="text-danger">*</span></label>
                             <input type="text" class="form-control total_number"  name="final_price" value="{{ $data->plan_price }}" >
                         </div> --}}
+                        <div class="row">
+                            <div class="mb-1 mt-1">
+                                <div class="form-check" id="send_div">
+                                    <input type="checkbox" class="form-check-input" id="send" name="send" @if(($data->send == 1)) checked value="1"  @endif >
+                                    <label class="form-check-label" for="send"><b>親送</b></label>
+                                </div>
+                            </div>
+                            <div class="mb-1 mt-1" id="connector_div">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="connector_address" name="connector_address" @if(isset($sale_address)) checked value="1" @else  value="0" @endif >
+                                    <label class="form-check-label" for="connector_address"><b>接體地址不為客戶地址</b></label>
+                                </div>
+                                <div class="mt-2 row" id="connector_address_div">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="plan_price" class="form-label">接體縣市<span class="text-danger">*</span></label>
+                                        <div class="twzipcode mb-2">
+                                            <select data-role="county" required></select>
+                                            <select data-role="district"></select>
+                                            <select data-role="zipcode"></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="AddNew-Phone">接體地址<span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="address" required @if(isset($sale_address)) value="{{ $sale_address->address }}" @endif  >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div> <!-- end card -->
@@ -173,6 +202,7 @@
                                                             <option value="" selected>請選擇</option>
                                                             <option value="A" @if($sale_prom->prom_type == 'A') selected @endif>安葬處理</option>
                                                             <option value="B" @if($sale_prom->prom_type == 'B') selected @endif>後續處理</option>
+                                                            <option value="C" @if($sale_prom->prom_type == 'C') selected @endif>其他處理</option>
                                                         </select>
                                                     </td>
                                                     <td>
@@ -204,6 +234,7 @@
                                                             <option value="" selected>請選擇</option>
                                                             <option value="A">安葬處理</option>
                                                             <option value="B">後續處理</option>
+                                                            <option value="C">其他處理</option>
                                                         </select>
                                                     </td>
                                                     <td>
@@ -383,28 +414,95 @@
 
 @endsection
 
+
 @section('script')
 <!-- third party js -->
-<script src="{{asset('assets/libs/select2/select2.min.js')}}"></script>
-<script src="{{asset('assets/libs/dropzone/dropzone.min.js')}}"></script>
-<script src="{{asset('assets/libs/quill/quill.min.js')}}"></script>
-<script src="{{asset('assets/libs/footable/footable.min.js')}}"></script>
+<script src="{{ asset('assets/js/twzipcode-1.4.1-min.js') }}"></script>
+<script src="{{ asset('assets/js/twzipcode.js') }}"></script>
 <!-- third party js ends -->
 
-<!-- demo app -->
-<script src="{{asset('assets/js/pages/form-fileuploads.init.js')}}"></script>
-<script src="{{asset('assets/js/pages/add-product.init.js')}}"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/smoothness/jquery-ui.css" />
-{{-- <script src="{{asset('assets/js/pages/foo-tables.init.js')}}"></script> --}}
-
+<!-- demo app -->   
 
 <script>
     type_list = $('select[name="type_list"]').val();
     payIdValue = $('select[name="pay_id"]').val();
     payMethod = $('select[name="pay_method"]').val();
-    console.log(payMethod);
+    $(document).ready(function(){
+        // Check if $sale_address exists
+        var saleAddress = <?php echo json_encode(isset($sale_address) ? $sale_address : null); ?>;
+        
+        if (saleAddress !== null) {
+            // If $sale_address exists, initialize twzipcode with preselected values
+            $(".twzipcode").twzipcode({
+                css: ["twzipcode-select", "twzipcode-select" , "twzipcode-select"],
+                countyName: "county",
+                districtName: "district",
+                zipcodeName: "zipcode",
+                countySel: saleAddress.county,
+                districtSel: saleAddress.district
+            });
+        } else {
+            // If $sale_address doesn't exist, initialize twzipcode without preselected values
+            $(".twzipcode").twzipcode({
+                css: ["twzipcode-select", "twzipcode-select" , "twzipcode-select"],
+                countyName: "county",
+                districtName: "district",
+                zipcodeName: "zipcode"
+            });
+        }
+    });
+
+
+    //親送
+    send = $('input[name="send"]').val();
+    console.log(send);
+    if(send == 1){
+        $("#connector_div").hide();
+    }else{
+        $("#connector_div").show();
+    }
+    $("#send").on("change", function() {
+        if ($(this).is(':checked')) {
+            $(this).val(1);
+            $("#connector_div").hide(300);
+        }
+        else {
+            $(this).val(0);
+            $("#connector_div").show(300);
+        }
+    });
+    //地址
+    connector_address = $('input[name="connector_address"]').val();
+    if(connector_address == 1){
+        $("#connector_address_div").show();
+
+    }else{
+        $("#connector_address_div").hide();
+    }
+    $("#connector_address").on("change", function() {
+        if ($(this).is(':checked')) {
+            $("#connector_address_div").show(300);
+            $("#send_div").hide(300);
+            $(this).val(1);
+            $('#your-form').submit(function(event){
+                var county = $('select[name="county"]').val();
+                if (county == '') {
+                    alert('接體縣市不得為空！');
+                    event.preventDefault();
+                }
+            });
+            $("#address").prop('required', true);
+        }
+        else {
+            $("#connector_address_div").hide(300);
+            $("#send_div").show(300);
+            $(this).val(0);
+            $('#your-form').off('submit');
+            // Remove pet name required attribute
+            $("#address").prop('required', false);
+        }
+    });
+
 
     //案件單類別
     if(type_list == 'memorial'){
@@ -720,6 +818,7 @@
             cols += '<option value="" selected>請選擇...</option>';
             cols += '<option value="A">安葬處理</option>';
             cols += '<option value="B">後續處理</option>';
+            cols += '<option value="C">其他處理</option>';
             cols += '</select>';
             cols += '</td>';
             cols += '<td>';

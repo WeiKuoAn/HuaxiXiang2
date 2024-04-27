@@ -290,4 +290,107 @@ class PujaDataController extends Controller
 
         return redirect()->route('puja_datas');
     }
+
+    public function export(Request $request)
+    {
+        $datas = PujaData::where('status','1');
+        if ($request) {
+            $after_date = $request->after_date;
+            if ($after_date) {
+                $datas = $datas->where('date', '>=', $after_date);
+            }
+            $before_date = $request->before_date;
+            if ($before_date) {
+                $datas = $datas->where('date', '<=', $before_date);
+            }
+            $cust_name = $request->cust_name;
+            if ($cust_name) {
+                $cust_name = '%'.$request->cust_name.'%';
+                $customers = Customer::where('name', 'like' ,$cust_name)->get();
+                foreach($customers as $customer) {
+                    $customer_ids[] = $customer->id;
+                }
+                if(isset($customer_ids)){
+                    $datas = $datas->whereIn('customer_id', $customer_ids);
+                }else{
+                    $datas = $datas;
+                }
+            }
+
+            $pet_name = $request->pet_name;
+            if($pet_name){
+                $pet_name = $request->pet_name.'%';
+                $datas = $datas->where('pet_name', 'like' ,$pet_name);
+            }
+
+            $puja_id = $request->puja_id;
+
+            if ($puja_id != "null") {
+                if (isset($puja_id)) {
+                    $datas = $datas->where('puja_id',  $puja_id);
+                }else{
+                    $datas = $datas ;
+                }
+            }
+            $datas = $datas->orderby('date', 'desc')->get();
+        }
+
+        $products = Product::where('status', 'up')->orderby('seq','asc')->orderby('price','desc')->get();
+        foreach($products as $product)
+        {
+            $product_name[$product->id] = $product->name;
+        }
+        $fileName = '法會報名匯出' . date("Y-m-d") . '.csv';
+
+        $headers = array(
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        );
+        $columns = array('編號','報名類別', '報名日期', '法會名稱', '顧客名稱'  ,'寶貝名稱','附加商品','付款方式','支付金額','備註');
+
+        $callback = function() use($datas, $product_name ,$columns) {
+            
+            $file = fopen('php://output', 'w');
+            fputs($file, chr(0xEF).chr(0xBB).chr(0xBF), 3); 
+            fputcsv($file, $columns);
+
+            foreach ($datas as $key=>$data) {
+                $row['編號'] = $key+1;
+                $row['報名類別'] = $data->type();
+                $row['報名日期'] = $data->date;
+                $row['法會名稱'] = $data->puja_name->name;
+                if(isset($data->customer_id)){
+                    if(isset($data->cust_name)){
+                        $row['顧客名稱'] = $data->cust_name->name;
+                    }else{
+                        $row['顧客名稱'] = $data->customer_id.'（客戶姓名須重新登入）';
+                    }
+                }
+                $row['寶貝名稱'] = $data->pet_name;
+                $row['附加商品'] = '';
+                if(isset($data->products)){
+                    foreach ($data->products as $data->product){
+                        if(isset($data->product->product_id))
+                        {
+                            $row['附加商品'] .= ($row['附加商品']=='' ? '' : "\r\n"). $product_name[$data->product->product_id].'-'.$data->product->product_num  .'份';
+                        }else{
+                            $row['附加商品'] = '無';
+                        }
+                    }
+                }
+                $row['付款方式'] = $data->pay_type();
+                $row['支付金額'] = number_format($data->pay_price);
+                $row['備註'] =  $data->comment;
+                fputcsv($file, array($row['編號'],$row['報名類別'],$row['報名日期'],$row['法會名稱']
+                                    ,$row['顧客名稱'],$row['寶貝名稱'],$row['附加商品'],$row['付款方式'],$row['支付金額'],$row['備註']));
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

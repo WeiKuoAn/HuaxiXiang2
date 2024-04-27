@@ -4,6 +4,7 @@
 {{-- <link href="{{asset('assets/libs/select2/select2.min.css')}}" rel="stylesheet" type="text/css" />
 <link href="{{asset('assets/libs/dropzone/dropzone.min.css')}}" rel="stylesheet" type="text/css" />
 <link href="{{asset('assets/libs/quill/quill.min.css')}}" rel="stylesheet" type="text/css" /> --}}
+<link href="{{ URL::asset('assets/css/customization.css') }}" id="app-style" rel="stylesheet" type="text/css" />
 {{-- <meta name="csrf-token" content="{{ csrf_token() }}"> --}}
 @endsection
 
@@ -123,6 +124,50 @@
                             <label for="user_id" class="form-label">服務專員<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="user_id" name="user_id" readonly value="{{ Auth::user()->name }}">
                         </div>
+                        {{-- <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="plan_price" class="form-label">接件縣市<span class="text-danger">*</span></label>
+                                <div class="twzipcode mb-2">
+                                    <select data-role="county"></select>
+                                    <select data-role="district"></select>
+                                    <select data-role="zipcode"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="AddNew-Phone">接件地址<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="address"  >
+                            </div>
+                            
+                        </div> --}}
+                        <div class="row">
+                            <div class="mb-1 mt-1">
+                                <div class="form-check" id="send_div">
+                                    <input type="checkbox" class="form-check-input" id="send" name="send" @if(isset($sale_change)) checked value="1"  @endif >
+                                    <label class="form-check-label" for="send"><b>親送</b></label>
+                                </div>
+                            </div>
+                            <div class="mb-1 mt-1" id="connector_div">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="connector_address" name="connector_address" @if(isset($sale_split)) checked value="1" @endif >
+                                    <label class="form-check-label" for="connector_address"><b>接體地址不為客戶地址</b></label>
+                                </div>
+                                <div class="mt-2 row" id="connector_address_div">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="plan_price" class="form-label">接體縣市<span class="text-danger">*</span></label>
+                                        <div class="twzipcode mb-2">
+                                            <select data-role="county" required></select>
+                                            <select data-role="district" required></select>
+                                            <select data-role="zipcode" required></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="AddNew-Phone">接體地址<span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="address" name="address" >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
             </div> <!-- end card -->
@@ -163,6 +208,7 @@
                                                         <option value="" selected>請選擇</option>
                                                         <option value="A">安葬處理</option>
                                                         <option value="B">後續處理</option>
+                                                        <option value="C">其他處理</option>
                                                     </select>
                                                 </td>
                                                 <td>
@@ -318,22 +364,73 @@
 
 @section('script')
 <!-- third party js -->
-<script src="{{asset('assets/libs/select2/select2.min.js')}}"></script>
-<script src="{{asset('assets/libs/dropzone/dropzone.min.js')}}"></script>
-<script src="{{asset('assets/libs/quill/quill.min.js')}}"></script>
-<script src="{{asset('assets/libs/footable/footable.min.js')}}"></script>
+<script src="{{ asset('assets/js/twzipcode-1.4.1-min.js') }}"></script>
+<script src="{{ asset('assets/js/twzipcode.js') }}"></script>
 <!-- third party js ends -->
 
-<!-- demo app -->
-<script src="{{asset('assets/js/pages/form-fileuploads.init.js')}}"></script>
-<script src="{{asset('assets/js/pages/add-product.init.js')}}"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/smoothness/jquery-ui.css" />
-{{-- <script src="{{asset('assets/js/pages/foo-tables.init.js')}}"></script> --}}
+<!-- demo app -->   
 
 
 <script>
+   $(".twzipcode").twzipcode({
+       css: ["twzipcode-select", "twzipcode-select" , "twzipcode-select"], // 自訂 "城市"、"地區" class 名稱 
+       countyName: "county", // 自訂城市 select 標籤的 name 值
+       districtName: "district", // 自訂地區 select 標籤的 name 值
+       zipcodeName: "zipcode", // 自訂地區 select 標籤的 name 值
+    });
+
+
+    //親送
+    send = $('input[name="send"]').val();
+    if(send == 1){
+        $("#connector_address_div").show();
+
+    }else{
+        $("#connector_address_div").hide();
+    }
+    $("#send").on("change", function() {
+        if ($(this).is(':checked')) {
+            $(this).val(1);
+            $("#connector_div").hide(300);
+
+        }
+        else {
+            $(this).val(0);
+            $("#connector_div").show(300);
+        }
+    });
+    //地址
+    connector_address = $('input[name="connector_address"]').val();
+    $("#connector_address").on("change", function() {
+        if ($(this).is(':checked')) {
+            $("#connector_address_div").show(300);
+            $("#send_div").hide(300);
+            $(this).val(1);
+            $('#your-form').submit(function(event){
+                var county = $('select[name="county"]').val();
+                if (county == '') {
+                    alert('接體縣市不得為空！');
+                    event.preventDefault();
+                }
+            });
+            $("#address").prop('required', true);
+        }
+        else {
+            $("#connector_address_div").hide(300);
+            $("#send_div").show(300);
+            $(this).val(0);
+            $('#your-form').off('submit');
+            // Remove pet name required attribute
+            $("#address").prop('required', false);
+        }
+    });
+    if(connector_address == 1){
+        $("#connector_address_div").show();
+    }else{
+        $("#connector_address_div").hide();
+    }
+
+
     $("#final_price").hide();
 
     $("#source_company").hide();
@@ -360,8 +457,12 @@
             $("#type").prop('required', false);
             $("#plan_id").prop('required', false);
             $("#plan_price").prop('required', false);
+            $("#send_div").hide(300);
+            $("#connector_div").hide(300);
         }else if($(this).val() == 'dispatch'){
             $(".not_memorial_show").show(300);
+            $("#send_div").show(300);
+            $("#connector_div").show(300);
             if(payIdValue == 'D' || payIdValue =='E'){
                 // $("#final_price").show(300);
                 $(".not_final_show").hide();
@@ -394,8 +495,12 @@
                 $("#final_price").hide();
                 $(".not_memorial_show").hide();
             }
+            $("#send_div").hide(300);
+            $("#connector_div").hide(300);
         }else{
             $("#final_price").hide(300);
+            $("#send_div").show(300);
+            $("#connector_div").show(300);
             if(type_list == 'memorial'){
                 $("#final_price").hide();
                 $(".not_memorial_show").hide();
@@ -619,6 +724,7 @@
             cols += '<option value="" selected>請選擇...</option>';
             cols += '<option value="A">安葬處理</option>';
             cols += '<option value="B">後續處理</option>';
+            cols += '<option value="C">其他處理</option>';
             cols += '</select>';
             cols += '</td>';
             cols += '<td>';
@@ -633,6 +739,29 @@
             newRow.append(cols);
             $("table.prom-list tbody").append(newRow);
         });
+
+        $("#not_cust_adress").hide();
+        
+        $("#in_preson").on("change", function() {
+                            if ($(this).is(':checked')) {
+                                $("#not_cust_adress").hide(300);
+                                $(this).val(0);
+                            }
+                            else {
+                                $("#not_cust_adress").show(300);
+                                $(this).val(1);
+                            }
+                        });
+                        $("#not_cust_adress").on("change", function() {
+                            if ($(this).is(':checked')) {
+                                $("#connector_afdress_div").show(300);
+                                $(this).val(1);
+                            }
+                            else {
+                                $("#connector_afdress_div").hide(300);
+                                $(this).val(0);
+                            }
+                        });
         $.ajaxSetup({ headers: { 'csrftoken' : '{{ csrf_token() }}' } });
 </script>
 

@@ -18,10 +18,20 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::where('status','0')->orderby('seq')->orderby('level')->paginate(30);
-        return view('user.users')->with('users', $users);
+        if(!isset($request->status) || $request->status == 0){
+            $users = User::where('status','0');
+        }else{
+            $users = User::where('status','1');
+        }
+
+        if($request->name){
+            $users = $users->where('name','like',$request->name.'%');
+        }
+
+        $users =  $users->orderby('seq')->orderby('level')->paginate(30);
+        return view('user.users')->with('users', $users)->with('request',$request);
     }
 
     /**

@@ -384,6 +384,7 @@ Route::group(['prefix' => '/'], function () {
 
     /*法會管理*/
     Route::get('/puja', [PujaController::class, 'index'])->name('pujas');
+
     Route::get('/puja/create', [PujaController::class, 'create'])->name('puja.create');
     Route::post('/puja/create', [PujaController::class, 'store'])->name('puja.create.data');
     Route::get('/puja/edit/{id}', [PujaController::class, 'show'])->name('puja.edit');
@@ -391,6 +392,7 @@ Route::group(['prefix' => '/'], function () {
 
     /*法會報名管理*/
     Route::get('/puja_data', [PujaDataController::class, 'index'])->name('puja_datas');
+    Route::get('/puja_data/export', [PujaDataController::class, 'export'])->name('puja_datas.export');
     Route::get('/puja_data/create', [PujaDataController::class, 'create'])->name('puja_data.create');
     Route::post('/puja_data/create', [PujaDataController::class, 'store'])->name('puja_data.create.data');
     Route::get('/puja_data/edit/{id}', [PujaDataController::class, 'show'])->name('puja_data.edit');
