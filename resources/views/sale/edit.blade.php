@@ -80,12 +80,9 @@
                         </div>
                         <div class="mb-3 col-md-4 not_memorial_show">
                             <label for="customer_id" class="form-label">客戶名稱<span class="text-danger">*</span></label>
-                            <select id="type" class="form-select" name="customer_id" >
-                                <option value="">請選擇...</option>
-                                @foreach ($customers as $customer)
-                                    <option value="{{ $customer->id }}" @if($data->customer_id == $customer->id) selected @endif>{{ $customer->name }}</option>
-                                @endforeach
-                            </select>
+                                <input list="cust_name_list_q" class="form-control" id="cust_name_q" name="cust_name_q" placeholder="請輸入客戶姓名" value="{{ $data->customer_id }}" required>
+                                <datalist id="cust_name_list_q">
+                                </datalist>
                         </div>
                         <div class="mb-3 col-md-4 not_final_show not_memorial_show">
                             <label for="pet_name" class="form-label">寵物名稱<span class="text-danger">*</span></label>
@@ -158,7 +155,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label" for="AddNew-Phone">接體地址<span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="address" required @if(isset($sale_address)) value="{{ $sale_address->address }}" @endif  >
+                                        <input type="text" class="form-control" name="address" @if(isset($sale_address)) value="{{ $sale_address->address }}" @endif  >
                                     </div>
                                 </div>
                             </div>

@@ -775,7 +775,7 @@ class SaleDataController extends Controller
         $sale->type = $request->type;
         // $sale->user_id = Auth::user()->id;
         $sale->sale_date = $request->sale_date;
-        $sale->customer_id = $request->customer_id;
+        $sale->customer_id = $request->cust_name_q;
         $sale->pet_name = $request->pet_name;
         $sale->kg = $request->kg;
         $sale->type = $request->type;
