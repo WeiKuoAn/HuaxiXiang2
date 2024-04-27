@@ -144,7 +144,7 @@
                         </div>
                         <div class="mb-1 mt-1" id="connector_div">
                             <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="connector_address" name="connector_address" @if(isset($sale_address)) checked value="1" @else  value="0" @endif >
+                                <input type="checkbox" class="form-check-input" id="connector_address" name="connector_address" @if(($data->connector_address == 1))  checked value="1" @else  value="0" @endif >
                                 <label class="form-check-label" for="connector_address"><b>接體地址不為客戶地址</b></label>
                             </div>
                             <div class="mt-2 row" id="connector_address_div">
@@ -158,7 +158,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label" for="AddNew-Phone">接體地址<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="address" required @if(isset($sale_address)) value="{{ $sale_address->address }}" @endif  >
+                                    <input type="text" class="form-control" name="address" @if(($data->connector_address == 1)) value="{{ $sale_address->address }}" @endif  >
                                 </div>
                             </div>
                         </div>
@@ -365,9 +365,9 @@
 
     $(document).ready(function(){
         // Check if $sale_address exists
-        var saleAddress = <?php echo json_encode(isset($sale_address) ? $sale_address : null); ?>;
+        connector_address = $('input[name="connector_address"]').val();
         
-        if (saleAddress !== null) {
+        if (connector_address != 0) {
             // If $sale_address exists, initialize twzipcode with preselected values
             $(".twzipcode").twzipcode({
                 css: ["twzipcode-select", "twzipcode-select" , "twzipcode-select"],
@@ -387,6 +387,7 @@
             });
         }
     });
+
 
     //親送
     send = $('input[name="send"]').val();
@@ -426,11 +427,15 @@
                     event.preventDefault();
                 }
             });
+            $("#address").prop('required', true);
         }
         else {
             $("#connector_address_div").hide(300);
             $("#send_div").show(300);
             $(this).val(0);
+            $('#your-form').off('submit');
+            // Remove pet name required attribute
+            $("#address").prop('required', false);
         }
     });
 

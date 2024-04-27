@@ -176,6 +176,11 @@ class SaleDataController extends Controller
         }else{
             $sale->send = 0;
         }
+        if($request->connector_address == 1){
+            $sale->connector_address = $request->connector_address;
+        }else{
+            $sale->connector_address = 0;
+        }
         
         $sale->save();
 
@@ -806,6 +811,11 @@ class SaleDataController extends Controller
             $sale->send = $request->send;
         }else{
             $sale->send = 0;
+        }
+        if($request->connector_address == 1){
+            $sale->connector_address = $request->connector_address;
+        }else{
+            $sale->connector_address = 0;
         }
         $sale->pay_method = $request->pay_method;
         $sale->total = $request->total;

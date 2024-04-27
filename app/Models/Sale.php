@@ -28,6 +28,7 @@ class Sale extends Model
         'pay_price',
         'total',
         'send',
+        'connector_address',
         'comm',
     ];
 
