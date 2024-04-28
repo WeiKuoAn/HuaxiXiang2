@@ -57,7 +57,7 @@ class Rpg18Controller extends Controller
         {
             foreach($datas[$puja->id]['puja_datas'] as $puja_data)
             {
-                if($puja_data->type == 0){
+                if($puja_data->type == 0 || $puja_data->type == 2){
                     $datas[$puja->id]['total_price'] += $puja_data->pay_price;
                 }
                 foreach($puja_data->products as $product)
