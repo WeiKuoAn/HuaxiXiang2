@@ -186,6 +186,7 @@ class SaleDataController extends Controller
 
         $sale_id = Sale::orderby('id', 'desc')->first();
 
+        //要為派件單且支付類別為一次跟訂金
         if($request->connector_address == 1){
             $SaleAddress = new SaleAddress();
             $SaleAddress->sale_id = $sale_id->id;
@@ -194,14 +195,16 @@ class SaleDataController extends Controller
             $SaleAddress->address = $request->address;
             $SaleAddress->save();
         }else{
-            $cust_data = Customer::where('id',$request->cust_name_q)->first();
-            if(isset($cust_data)){
-                $SaleAddress = new SaleAddress();
-                $SaleAddress->sale_id = $sale_id->id;
-                $SaleAddress->county = $cust_data->county;
-                $SaleAddress->district = $cust_data->district;
-                $SaleAddress->address = $cust_data->address;
-                $SaleAddress->save();
+            if($request->type_list == 'dispatch' && $request->pay_id=='A' || $request->pay_id =='C'){
+                $cust_data = Customer::where('id',$request->cust_name_q)->first();
+                if(isset($cust_data)){
+                    $SaleAddress = new SaleAddress();
+                    $SaleAddress->sale_id = $sale_id->id;
+                    $SaleAddress->county = $cust_data->county;
+                    $SaleAddress->district = $cust_data->district;
+                    $SaleAddress->address = $cust_data->address;
+                    $SaleAddress->save();
+                }
             }
         }
 
@@ -834,15 +837,16 @@ class SaleDataController extends Controller
             $SaleAddress->address = $request->address;
             $SaleAddress->save();
         }else{
-            $cust_data = Customer::where('id',$request->cust_name_q)->first();
-            // dd($cust_data);
-            if(isset($cust_data)){
-                $SaleAddress = new SaleAddress();
-                $SaleAddress->sale_id = $sale_id->id;
-                $SaleAddress->county = $cust_data->county;
-                $SaleAddress->district = $cust_data->district;
-                $SaleAddress->address = $cust_data->address;
-                $SaleAddress->save();
+            if($request->type_list == 'dispatch' && $request->pay_id=='A' || $request->pay_id =='C'){
+                $cust_data = Customer::where('id',$request->cust_name_q)->first();
+                if(isset($cust_data)){
+                    $SaleAddress = new SaleAddress();
+                    $SaleAddress->sale_id = $sale_id->id;
+                    $SaleAddress->county = $cust_data->county;
+                    $SaleAddress->district = $cust_data->district;
+                    $SaleAddress->address = $cust_data->address;
+                    $SaleAddress->save();
+                }
             }
         }
 

@@ -204,7 +204,8 @@
                                 <option value="" selected>請選擇</option>
                                 <option value="A">一次付清</option>
                                 <option value="C">訂金</option>
-                                <option value="E">追加</option>
+                                <option value="E">追加報名</option>
+                                <option value="F">追加金紙</option>
                                 <option value="D">尾款</option>
                             </select>
                         </div>

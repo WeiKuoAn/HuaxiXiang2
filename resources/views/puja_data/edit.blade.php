@@ -202,7 +202,8 @@
                                 <option value="" selected>請選擇</option>
                                 <option value="A" @if($data->pay_id == 'A') selected @endif>一次付清</option>
                                 <option value="C" @if($data->pay_id == 'C') selected @endif>訂金</option>
-                                <option value="E" @if($data->pay_id == 'E') selected @endif>追加</option>
+                                <option value="E" @if($data->pay_id == 'E') selected @endif>追加報名</option>
+                                <option value="F" @if($data->pay_id == 'F') selected @endif>追加金紙</option>
                                 <option value="D" @if($data->pay_id == 'D') selected @endif>尾款</option>
                             </select>
                         </div>

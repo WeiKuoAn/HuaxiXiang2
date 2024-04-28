@@ -52,7 +52,7 @@ class PujaData extends Model
 
     public function pay_type()
     {
-        $pay_type = ['A' => '結清', 'B' => '結清', 'C' => '訂金', 'D' => '尾款' , 'E' => '追加'];
+        $pay_type = ['A' => '結清', 'C' => '訂金', 'D' => '尾款' , 'E' => '追加報名' , 'F' => '追加金紙'];
         return $pay_type[$this->pay_id];
     }
 
