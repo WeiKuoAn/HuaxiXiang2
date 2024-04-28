@@ -42,7 +42,7 @@ class Rpg18Controller extends Controller
         foreach($pujas as $key=>$puja)
         {
             $datas[$puja->id]['name'] = $puja->name;
-            $datas[$puja->id]['count'] = PujaData::where('puja_id',$puja->id)->whereIn('pay_id',['A,C,E'])->count();
+            $datas[$puja->id]['count'] = PujaData::where('puja_id',$puja->id)->whereIn('pay_id',['A','C','E'])->count();
             $datas[$puja->id]['gift_count'] = PujaData::where('puja_id',$puja->id)->where('type','1')->count();
             $datas[$puja->id]['suit_count'] = PujaData::where('puja_id',$puja->id)->where('type','2')->count();
             $datas[$puja->id]['puja_datas'] = PujaData::where('puja_id',$puja->id)->get();
