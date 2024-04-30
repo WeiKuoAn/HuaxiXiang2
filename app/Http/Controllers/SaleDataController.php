@@ -906,7 +906,7 @@ class SaleDataController extends Controller
                 $CompanyCommission = new SaleCompanyCommission();
                 $CompanyCommission->sale_date = $request->sale_date;
                 $CompanyCommission->type = $request->type;
-                $CompanyCommission->customer_id = $request->customer_id;
+                $CompanyCommission->customer_id = $request->cust_name_q;
                 $CompanyCommission->sale_id = $sale_id->id;
                 $CompanyCommission->company_id = $request->source_company_name_q;
                 $CompanyCommission->plan_price = $request->plan_price;
