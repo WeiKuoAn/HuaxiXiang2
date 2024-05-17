@@ -69,6 +69,11 @@ class Sale extends Model
         return $this->hasOne('App\Models\Customer', 'id', 'customer_id');
     }
 
+    public function hospital_address_name()
+    {
+        return $this->hasOne('App\Models\Customer', 'id', 'hospital_address');
+    }
+
     public function plan_name()
     {
         return $this->hasOne('App\Models\Plan', 'id', 'plan_id');

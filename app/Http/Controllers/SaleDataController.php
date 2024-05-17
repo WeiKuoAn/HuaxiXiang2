@@ -183,8 +183,6 @@ class SaleDataController extends Controller
         }
         if($request->connector_hospital_address == 1){
             $sale->hospital_address = $request->hospital_address;
-        }else{
-            $sale->hospital_address = 0;
         }
         $sale->save();
 
@@ -843,8 +841,6 @@ class SaleDataController extends Controller
         }
         if($request->connector_hospital_address == 1){
             $sale->hospital_address = $request->hospital_address;
-        }else{
-            $sale->hospital_address = 0;
         }
         $sale->pay_method = $request->pay_method;
         $sale->total = $request->total;

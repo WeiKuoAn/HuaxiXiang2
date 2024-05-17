@@ -161,8 +161,11 @@
                             </div>
                             <div class="mb-1 mt-1" id="connector_hospital_div">
                                 <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="connector_hospital_address" name="connector_hospital_address" @if(($data->hospital_address == 1))  checked value="1" @else  value="0" @endif >
+                                    <input type="checkbox" class="form-check-input" id="connector_hospital_address" name="connector_hospital_address"  @if((isset($data->hospital_address)))  checked value="1" @else  value="0" @endif >
                                     <label class="form-check-label" for="connector_hospital_address"><b>接體地址為醫院</b></label>
+                                    @if(isset($data->hospital_address) && $data->hospital_address != 0)
+                                        【{{ $data->hospital_address_name->name }} 】
+                                    @endif
                                 </div>
                                 <div class="mt-2 row" id="connector_hospital_address_div">
                                     <div class="col-md-4">
@@ -442,7 +445,6 @@
         var saleAddress = <?php echo json_encode(isset($sale_address) ? $sale_address : null); ?>;
         // Check if $sale_address exists
         connector_address = $('input[name="connector_address"]').val();
-        console.log(connector_address);
         if (connector_address != 0) {
             // If $sale_address exists, initialize twzipcode with preselected values
             $(".twzipcode").twzipcode({
@@ -467,7 +469,6 @@
 
     //親送
     send = $('input[name="send"]').val();
-    console.log(send);
     if(send == 1){
         $("#connector_div").hide();
         $("#connector_hospital_div").hide();
@@ -526,14 +527,14 @@
 
     //醫院地址
     connector_hospital_address = $('input[name="connector_hospital_address"]').val();
-    if(connector_hospital_address == 1){
+    console.log(connector_hospital_address);
+    if(connector_hospital_address  ==  1){
         $("#connector_hospital_address_div").show();
         $("#connector_div").hide();
         $("#send_div").hide();
     }else{
         $("#connector_hospital_address_div").hide();
     }
-    connector_hospital_address = $('input[name="connector_hospital_address"]').val();
     $("#connector_hospital_address").on("change", function() {
         if ($(this).is(':checked')) {
             $("#connector_hospital_address_div").show(300);
@@ -884,7 +885,7 @@
             });
         });
 
-        $( ".source_company_name_q" ).keydown(function() {
+        $( ".source_company_name" ).keydown(function() {
             $value=$(this).val();
             $.ajax({
             type : 'get',

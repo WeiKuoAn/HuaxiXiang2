@@ -135,7 +135,7 @@
                         <div class="row">
                             <div class="mb-1 mt-1">
                                 <div class="form-check" id="send_div">
-                                    <input type="checkbox" class="form-check-input" id="send" name="send" @if(($data->send == 1)) checked value="1"  @endif >
+                                    <input type="checkbox" class="form-check-input" id="send" name="send" @if(($data->send == 1)) checked value="1" @else  value="0"  @endif >
                                     <label class="form-check-label" for="send"><b>親送</b></label>
                                 </div>
                             </div>
@@ -161,13 +161,16 @@
                             </div>
                             <div class="mb-1 mt-1" id="connector_hospital_div">
                                 <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="connector_hospital_address" name="connector_hospital_address" @if(($data->hospital_address == 1))  checked value="1" @else  value="0" @endif >
+                                    <input type="checkbox" class="form-check-input" id="connector_hospital_address" name="connector_hospital_address"  @if((isset($data->hospital_address)))  checked value="1" @else  value="0" @endif >
                                     <label class="form-check-label" for="connector_hospital_address"><b>接體地址為醫院</b></label>
+                                    @if(isset($data->hospital_address) && $data->hospital_address != 0)
+                                        【{{ $data->hospital_address_name->name }} 】
+                                    @endif
                                 </div>
                                 <div class="mt-2 row" id="connector_hospital_address_div">
                                     <div class="col-md-4">
                                         <label for="source_company_id" class="form-label">接體地址<span class="text-danger">*</span></label>
-                                        <input  list="source_company_name_list_q" class="form-control source_company_name" id="source_company_name_q" name="hospital_address" placeholder="請輸入醫院、禮儀社、美容院、繁殖場、狗園名稱">
+                                        <input  list="source_company_name_list_q" class="form-control source_company_name" id="source_company_name_q" name="hospital_address" placeholder="請輸入醫院、禮儀社、美容院、繁殖場、狗園名稱" @if(isset($data->hospital_address)) value="{{ $data->hospital_address }}" @endif>
                                         <datalist id="source_company_name_list_q">
                                         </datalist>
                                     </div>
@@ -457,14 +460,14 @@
 
     //醫院地址
     connector_hospital_address = $('input[name="connector_hospital_address"]').val();
-    if(connector_hospital_address == 1){
+    console.log(connector_hospital_address);
+    if(connector_hospital_address  ==  1){
         $("#connector_hospital_address_div").show();
         $("#connector_div").hide();
         $("#send_div").hide();
     }else{
         $("#connector_hospital_address_div").hide();
     }
-    connector_hospital_address = $('input[name="connector_hospital_address"]').val();
     $("#connector_hospital_address").on("change", function() {
         if ($(this).is(':checked')) {
             $("#connector_hospital_address_div").show(300);
@@ -491,7 +494,6 @@
             $("#hospital_address").prop('required', false);
         }
     });
-
 
     //案件單類別
     if(type_list == 'memorial'){
