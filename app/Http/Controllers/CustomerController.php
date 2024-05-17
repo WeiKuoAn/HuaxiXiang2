@@ -55,51 +55,93 @@ class CustomerController extends Controller
 
         $customers = Customer::paginate(30);
         $customer_groups = CustGroup::get();
+
+
+        $county = $request->county;
+        $district = $request->district;
+        //縣市下拉市
+        $data_countys = Customer::whereNotNull('county')->get();
+        foreach($data_countys as $data_county)
+        {
+            $countys[] = $data_county->county;
+        }
+        $countys = array_unique($countys);
+        
+        if(isset($county))
+        {
+            $data_districts = Customer::where('county', $county)->get();
+        }else{
+            $data_districts = [];
+        }
+        $districts = [];
+        foreach($data_districts as $data_district)
+        {
+            $districts[] = $data_district->district;
+        }
+        $districts = array_unique($districts);
+        //結束
         if ($request) {
-            $name = $request->name;
-            if (!empty($name)) {
-                $name = '%'.$request->name . '%';
-                $customers = Customer::where('name', 'like', $name)->paginate(30);
+            $query = Customer::query(); // Start building the query
+        
+            if (!empty($request->name)) {
+                $query->where('name', 'like', '%' . $request->name . '%');
             }
-            $mobile = $request->mobile;
-            if (!empty($mobile)) {
-                $mobile = $request->mobile . '%';
-                $customers = Customer::where('mobile', 'like', $mobile)->paginate(30);
+            if (!empty($request->mobile)) {
+                $query->where('mobile', 'like', $request->mobile . '%');
             }
-            $pet_name = $request->pet_name;
-            if (!empty($pet_name)) {
-                $pet_name = $request->pet_name . '%';
-                $sales  = Sale::where('pet_name', 'like', $pet_name)->get();
-                if(count($sales) > 0) {
-                    foreach($sales as $sale){
-                        $customer_ids[] = $sale->customer_id;
-                    }
-                }else{
-                    $customer_ids = [];
+            if (!empty($request->group_id)) {
+                $query->where('group_id', $request->group_id);
+            }
+        
+            if (!empty($request->pet_name)) {
+                $customer_ids = Sale::where('pet_name', 'like', $request->pet_name . '%')
+                                    ->pluck('customer_id');
+                if ($customer_ids->isNotEmpty()) {
+                    $query->whereIn('id', $customer_ids);
+                } else {
+                    $query->whereNull('id'); // Ensure no results if no sales match
                 }
-                $customers = Customer::whereIn('id', $customer_ids)->paginate(30);
             }
-            $group_id = $request->group_id;
-            if (!empty($group_id)) {
-                $customers = Customer::where('group_id', 'like', $group_id)->paginate(30);
+            
+            if ($county != "null") {
+                if (isset($county)) {
+                    $query = $query->where('county', $county);
+                } else {
+                    $query = $query;
+                }
+            }
+            $district = $request->district;
+            if ($district != "null") {
+                if (isset($district)) {
+                    $query = $query->where('district', $district);
+                } else {
+                    $query = $query;
+                }
             }
 
-            if (!empty($name) && !empty($mobile) && !empty($pet_name) && !empty($group_id)) { 
-                $pet_name = $request->pet_name . '%';
-                $sales  = Sale::where('pet_name', 'like', $pet_name)->get();
-                foreach($sales as $sale){
-                    $customer_ids[] = $sale->customer_id;
+            $address = $request->address;
+            if ($district != '') {
+                $address = '%'.$request->address.'%';
+                if (isset($address)) {
+                    $query = $query->where('address', 'like' ,$address);
+                } else {
+                    $query = $query;
                 }
-                $customers = Customer::where('name', 'like', $name)->where('mobile', 'like', $mobile)->whereIn('id', $customer_ids)->where('group_id', 'like', $group_id)->paginate(30);
             }
+        
+            $customers = $query->paginate(30);
             $condition = $request->all();
         } else {
+            $customers = collect(); // Return an empty collection if no request
             $condition = '';
         }
+        
         return view('customer.customers')->with('customers', $customers)
                                     ->with('request', $request)
                                     ->with('condition', $condition)
-                                    ->with('customer_groups',$customer_groups);
+                                    ->with('customer_groups',$customer_groups)
+                                    ->with('countys',$countys)
+                                    ->with('districts',$districts);
     }
 
 
@@ -304,42 +346,57 @@ class CustomerController extends Controller
         $customers = Customer::get();
         $customer_groups = CustGroup::get();
         if ($request) {
-            $name = $request->name;
-            if (!empty($name)) {
-                $name = '%'.$request->name . '%';
-                $customers = Customer::where('name', 'like', $name)->get();
+            $county = $request->county;
+            $district = $request->district;
+            $query = Customer::query(); // Start building the query
+        
+            if (!empty($request->name)) {
+                $query->where('name', 'like', '%' . $request->name . '%');
             }
-            $mobile = $request->mobile;
-            if (!empty($mobile)) {
-                $mobile = $request->mobile . '%';
-                $customers = Customer::where('mobile', 'like', $mobile)->get();
+            if (!empty($request->mobile)) {
+                $query->where('mobile', 'like', $request->mobile . '%');
             }
-            $pet_name = $request->pet_name;
-            if (!empty($pet_name)) {
-                $pet_name = $request->pet_name . '%';
-                $sales  = Sale::where('pet_name', 'like', $pet_name)->get();
-                if(count($sales) > 0) {
-                    foreach($sales as $sale){
-                        $customer_ids[] = $sale->customer_id;
-                    }
-                }else{
-                    $customer_ids = [];
+            if (!empty($request->group_id)) {
+                $query->where('group_id', $request->group_id);
+            }
+        
+            if (!empty($request->pet_name)) {
+                $customer_ids = Sale::where('pet_name', 'like', $request->pet_name . '%')
+                                    ->pluck('customer_id');
+                if ($customer_ids->isNotEmpty()) {
+                    $query->whereIn('id', $customer_ids);
+                } else {
+                    $query->whereNull('id'); // Ensure no results if no sales match
                 }
-                $customers = Customer::whereIn('id', $customer_ids)->get();
             }
-            $group_id = $request->group_id;
-            if (!empty($group_id)) {
-                $customers = Customer::where('group_id', 'like', $group_id)->get();
+            
+            if ($county != "null") {
+                if (isset($county)) {
+                    $query = $query->where('county', $county);
+                } else {
+                    $query = $query;
+                }
+            }
+            $district = $request->district;
+            if ($district != "null") {
+                if (isset($district)) {
+                    $query = $query->where('district', $district);
+                } else {
+                    $query = $query;
+                }
             }
 
-            if (!empty($name) && !empty($mobile) && !empty($pet_name) && !empty($group_id)) { 
-                $pet_name = $request->pet_name . '%';
-                $sales  = Sale::where('pet_name', 'like', $pet_name)->get();
-                foreach($sales as $sale){
-                    $customer_ids[] = $sale->customer_id;
+            $address = $request->address;
+            if ($district != '') {
+                $address = '%'.$request->address.'%';
+                if (isset($address)) {
+                    $query = $query->where('address', 'like' ,$address);
+                } else {
+                    $query = $query;
                 }
-                $customers = Customer::where('name', 'like', $name)->where('mobile', 'like', $mobile)->whereIn('id', $customer_ids)->where('group_id', 'like', $group_id)->get();
             }
+        
+            $customers = $query->paginate(30);
         }
         $fileName = '客戶資料匯出' . date("Y-m-d") . '.csv';
 

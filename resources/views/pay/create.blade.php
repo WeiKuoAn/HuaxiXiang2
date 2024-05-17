@@ -190,10 +190,13 @@
         var invoice_type = $("#pay_invoice_type-" + $number).val();
         if(invoice_type == 'FreeUniform'){
             $("#vendor-"+$number).show(300);
+            $("#vendor-"+$number).prop('required', true);
             $("#pay_invoice-"+$number).hide(300);
         }else if(invoice_type == 'Uniform'){
             $("#pay_invoice-"+$number).show(300);
             $("#vendor-"+$number).show(300);
+            $("#pay_invoice-"+$number).prop('required', true);
+            $("#vendor-"+$number).prop('required', true);
         }else{
             $("#pay_invoice-"+$number).hide(300);
             $("#vendor-"+$number).hide(300);

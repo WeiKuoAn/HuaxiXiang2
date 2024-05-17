@@ -181,21 +181,41 @@ class SaleDataController extends Controller
         }else{
             $sale->connector_address = 0;
         }
-        
+        if($request->connector_hospital_address == 1){
+            $sale->hospital_address = $request->hospital_address;
+        }else{
+            $sale->hospital_address = 0;
+        }
         $sale->save();
 
         $sale_id = Sale::orderby('id', 'desc')->first();
 
         //要為派件單且支付類別為一次跟訂金
-        if($request->connector_address == 1){
-            $SaleAddress = new SaleAddress();
-            $SaleAddress->sale_id = $sale_id->id;
-            $SaleAddress->county = $request->county;
-            $SaleAddress->district = $request->district;
-            $SaleAddress->address = $request->address;
-            $SaleAddress->save();
-        }else{
-            if($request->type_list == 'dispatch' && $request->pay_id=='A' || $request->pay_id =='C'){
+        if($request->type_list == 'dispatch' && $request->pay_id=='A' || $request->pay_id =='C'){
+            if($request->send == 1){
+                $SaleAddress = new SaleAddress();
+                $SaleAddress->sale_id = $sale_id->id;
+                $SaleAddress->send = '1';
+                $SaleAddress->save();
+            }elseif($request->connector_address == 1){
+                $SaleAddress = new SaleAddress();
+                $SaleAddress->sale_id = $sale_id->id;
+                $SaleAddress->county = $request->county;
+                $SaleAddress->district = $request->district;
+                $SaleAddress->address = $request->address;
+                $SaleAddress->save();
+            }elseif($request->connector_hospital_address == 1){
+                $SaleAddress = new SaleAddress();
+                $SaleAddress->sale_id = $sale_id->id;
+                $SaleAddress->send = '2';
+                $cust_data = Customer::where('id',$request->cust_name_q)->first();
+                    if(isset($cust_data)){
+                        $SaleAddress->county = $cust_data->county;
+                        $SaleAddress->district = $cust_data->district;
+                        $SaleAddress->address = $cust_data->address;
+                    }
+                $SaleAddress->save();
+            }else{
                 $cust_data = Customer::where('id',$request->cust_name_q)->first();
                 if(isset($cust_data)){
                     $SaleAddress = new SaleAddress();
@@ -208,6 +228,7 @@ class SaleDataController extends Controller
             }
         }
 
+       
         foreach($request->select_proms as $key=>$select_prom)
         {
             if(isset($select_prom)){ //不等於空的話
@@ -820,6 +841,11 @@ class SaleDataController extends Controller
         }else{
             $sale->connector_address = 0;
         }
+        if($request->connector_hospital_address == 1){
+            $sale->hospital_address = $request->hospital_address;
+        }else{
+            $sale->hospital_address = 0;
+        }
         $sale->pay_method = $request->pay_method;
         $sale->total = $request->total;
         $sale->comm = $request->comm;
@@ -829,15 +855,32 @@ class SaleDataController extends Controller
         Sale_prom::where('sale_id', $sale_id->id)->delete();
         SaleAddress::where('sale_id', $sale_id->id)->delete();
 
-        if($request->connector_address == 1){
-            $SaleAddress = new SaleAddress();
-            $SaleAddress->sale_id = $sale_id->id;
-            $SaleAddress->county = $request->county;
-            $SaleAddress->district = $request->district;
-            $SaleAddress->address = $request->address;
-            $SaleAddress->save();
-        }else{
-            if($request->type_list == 'dispatch' && $request->pay_id=='A' || $request->pay_id =='C'){
+        //要為派件單且支付類別為一次跟訂金
+        if($request->type_list == 'dispatch' && $request->pay_id=='A' || $request->pay_id =='C'){
+            if($request->send == 1){
+                $SaleAddress = new SaleAddress();
+                $SaleAddress->sale_id = $sale_id->id;
+                $SaleAddress->send = '1';
+                $SaleAddress->save();
+            }elseif($request->connector_address == 1){
+                $SaleAddress = new SaleAddress();
+                $SaleAddress->sale_id = $sale_id->id;
+                $SaleAddress->county = $request->county;
+                $SaleAddress->district = $request->district;
+                $SaleAddress->address = $request->address;
+                $SaleAddress->save();
+            }elseif($request->connector_hospital_address == 1){
+                $SaleAddress = new SaleAddress();
+                $SaleAddress->sale_id = $sale_id->id;
+                $SaleAddress->send = '2';
+                $cust_data = Customer::where('id',$request->cust_name_q)->first();
+                    if(isset($cust_data)){
+                        $SaleAddress->county = $cust_data->county;
+                        $SaleAddress->district = $cust_data->district;
+                        $SaleAddress->address = $cust_data->address;
+                    }
+                $SaleAddress->save();
+            }else{
                 $cust_data = Customer::where('id',$request->cust_name_q)->first();
                 if(isset($cust_data)){
                     $SaleAddress = new SaleAddress();

@@ -1,6 +1,6 @@
 @extends('layouts.vertical', ["page_title"=> "刪除業務Key單"])
 @section('css')
-<link href="{{ URL::asset('assets/css/customization.css') }}" id="app-style" rel="stylesheet" type="text/css" />   
+<link href="{{ URL::asset('assets/css/customization.css') }}" id="app-style" rel="stylesheet" type="text/css" />    
 @endsection
 
 @section('content')
@@ -159,6 +159,20 @@
                                 <div class="col-md-4">
                                     <label class="form-label" for="AddNew-Phone">接體地址<span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="address" @if(($data->connector_address == 1)) value="{{ $sale_address->address }}" @endif  >
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-1 mt-1" id="connector_hospital_div">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="connector_hospital_address" name="connector_hospital_address" @if(($data->hospital_address == 1))  checked value="1" @else  value="0" @endif >
+                                <label class="form-check-label" for="connector_hospital_address"><b>接體地址為醫院</b></label>
+                            </div>
+                            <div class="mt-2 row" id="connector_hospital_address_div">
+                                <div class="col-md-4">
+                                    <label for="source_company_id" class="form-label">接體地址<span class="text-danger">*</span></label>
+                                    <input  list="source_company_name_list_q" class="form-control source_company_name" id="source_company_name_q" name="hospital_address" placeholder="請輸入醫院、禮儀社、美容院、繁殖場、狗園名稱">
+                                    <datalist id="source_company_name_list_q">
+                                    </datalist>
                                 </div>
                             </div>
                         </div>
@@ -364,9 +378,10 @@
     $("#transfer_number_div").hide();
 
     $(document).ready(function(){
+        var saleAddress = <?php echo json_encode(isset($sale_address) ? $sale_address : null); ?>;
         // Check if $sale_address exists
         connector_address = $('input[name="connector_address"]').val();
-        
+        console.log(connector_address);
         if (connector_address != 0) {
             // If $sale_address exists, initialize twzipcode with preselected values
             $(".twzipcode").twzipcode({
@@ -436,6 +451,42 @@
             $('#your-form').off('submit');
             // Remove pet name required attribute
             $("#address").prop('required', false);
+        }
+    });
+    //醫院地址
+    connector_hospital_address = $('input[name="connector_hospital_address"]').val();
+    if(connector_hospital_address == 1){
+        $("#connector_hospital_address_div").show();
+        $("#connector_div").hide();
+        $("#send_div").hide();
+    }else{
+        $("#connector_hospital_address_div").hide();
+    }
+    connector_hospital_address = $('input[name="connector_hospital_address"]').val();
+    $("#connector_hospital_address").on("change", function() {
+        if ($(this).is(':checked')) {
+            $("#connector_hospital_address_div").show(300);
+            $("#connector_div").hide(300);
+            $("#send_div").hide(300);
+            $(this).val(1);
+            $("#hospital_address").prop('required', true);
+            $('#your-form').submit(function(event){
+                var hospital_address = $('input[name="hospital_address"]').val();
+                if (hospital_address == '') {
+                    alert('接體醫院不得為空！');
+                    event.preventDefault();
+                }
+            });
+        }
+        else {
+            $("#connector_hospital_address_div").hide(300);
+            $("#connector_address_div").hide();
+            $("#connector_div").show(300);
+            $("#send_div").show(300);
+            $(this).val(0);
+            $('#your-form').off('submit');
+            // Remove pet name required attribute
+            $("#hospital_address").prop('required', false);
         }
     });
 

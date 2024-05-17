@@ -29,6 +29,7 @@ class Sale extends Model
         'total',
         'send',
         'connector_address',
+        'hospital_address',
         'comm',
     ];
 

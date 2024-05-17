@@ -13,6 +13,7 @@ class SaleAddress extends Model
 
     protected $fillable = [
         'sale_id',
+        'send',
         'county',
         'district',
         'address',

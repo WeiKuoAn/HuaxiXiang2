@@ -110,7 +110,7 @@
                                     @endif
                                 @endif
                             </label>
-                            <input list="source_company_name_list_q" class="form-control" id="source_company_name_q" 
+                            <input list="source_company_name_list_q" class="form-control source_company_name" id="source_company_name_q" 
                                     name="source_company_name_q" placeholder="請輸入醫院、禮儀社、美容院、繁殖場、狗園名稱" @if(isset($sale_company)) value="{{ $sale_company->company_id }}" @endif>
                             <datalist id="source_company_name_list_q">
                             </datalist>
@@ -156,6 +156,20 @@
                                     <div class="col-md-4">
                                         <label class="form-label" for="AddNew-Phone">接體地址<span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" name="address" @if(($data->connector_address == 1)) value="{{ $sale_address->address }}" @endif  >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-1 mt-1" id="connector_hospital_div">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="connector_hospital_address" name="connector_hospital_address" @if(($data->hospital_address == 1))  checked value="1" @else  value="0" @endif >
+                                    <label class="form-check-label" for="connector_hospital_address"><b>接體地址為醫院</b></label>
+                                </div>
+                                <div class="mt-2 row" id="connector_hospital_address_div">
+                                    <div class="col-md-4">
+                                        <label for="source_company_id" class="form-label">接體地址<span class="text-danger">*</span></label>
+                                        <input  list="source_company_name_list_q" class="form-control source_company_name" id="source_company_name_q" name="hospital_address" placeholder="請輸入醫院、禮儀社、美容院、繁殖場、狗園名稱" @if(isset($data->hospital_address)) value="{{ $data->hospital_address }}" @endif>
+                                        <datalist id="source_company_name_list_q">
+                                        </datalist>
                                     </div>
                                 </div>
                             </div>
@@ -456,31 +470,39 @@
     console.log(send);
     if(send == 1){
         $("#connector_div").hide();
+        $("#connector_hospital_div").hide();
     }else{
         $("#connector_div").show();
+        $("#connector_hospital_div").show();
     }
     $("#send").on("change", function() {
         if ($(this).is(':checked')) {
             $(this).val(1);
             $("#connector_div").hide(300);
+            $("#connector_hospital_div").hide();
         }
         else {
             $(this).val(0);
             $("#connector_div").show(300);
+            $("#connector_hospital_div").show(300);
         }
     });
+
     //地址
     connector_address = $('input[name="connector_address"]').val();
     if(connector_address == 1){
-        $("#connector_address_div").show();
-
+        $("#send_div").hide();
+        $("#connector_hospital_div").hide();
+        $("#connector_div").show();
     }else{
-        $("#connector_address_div").hide();
+        $("#send_div").show(300);
+        $("#connector_hospital_div").show(300);
     }
     $("#connector_address").on("change", function() {
         if ($(this).is(':checked')) {
             $("#connector_address_div").show(300);
             $("#send_div").hide(300);
+            $("#connector_hospital_div").hide(300);
             $(this).val(1);
             $('#your-form').submit(function(event){
                 var county = $('select[name="county"]').val();
@@ -494,6 +516,7 @@
         else {
             $("#connector_address_div").hide(300);
             $("#send_div").show(300);
+            $("#connector_hospital_div").show(300);
             $(this).val(0);
             $('#your-form').off('submit');
             // Remove pet name required attribute
@@ -501,20 +524,102 @@
         }
     });
 
+    //醫院地址
+    connector_hospital_address = $('input[name="connector_hospital_address"]').val();
+    if(connector_hospital_address == 1){
+        $("#connector_hospital_address_div").show();
+        $("#connector_div").hide();
+        $("#send_div").hide();
+    }else{
+        $("#connector_hospital_address_div").hide();
+    }
+    connector_hospital_address = $('input[name="connector_hospital_address"]').val();
+    $("#connector_hospital_address").on("change", function() {
+        if ($(this).is(':checked')) {
+            $("#connector_hospital_address_div").show(300);
+            $("#connector_div").hide(300);
+            $("#send_div").hide(300);
+            $(this).val(1);
+            $("#hospital_address").prop('required', true);
+            $('#your-form').submit(function(event){
+                var hospital_address = $('input[name="hospital_address"]').val();
+                if (hospital_address == '') {
+                    alert('接體醫院不得為空！');
+                    event.preventDefault();
+                }
+            });
+        }
+        else {
+            $("#connector_hospital_address_div").hide(300);
+            $("#connector_address_div").hide();
+            $("#connector_div").show(300);
+            $("#send_div").show(300);
+            $(this).val(0);
+            $('#your-form').off('submit');
+            // Remove pet name required attribute
+            $("#hospital_address").prop('required', false);
+        }
+    });
+
+
 
     //案件單類別
     if(type_list == 'memorial'){
         $(".not_memorial_show").hide(300);
-            $("#final_price").hide(300);
+        $("#final_price").hide(300);
+        $("#cust_name_q").prop('required', false);
+        $("#pet_name").prop('required', false);
+        $("#kg").prop('required', false);
+        $("#type").prop('required', false);
+        $("#plan_id").prop('required', false);
+        $("#plan_price").prop('required', false);
+        $("#send_div").hide(300);
+        $("#connector_div").hide(300);
+        if(payIdValue == 'A' || payIdValue =='C'){
+            $(".not_memorial_show").hide(300);
+        }
+    }else if(type_list == 'dispatch'){
+            $(".not_memorial_show").show(300);
+            // $("#send_div").show(300);
+            // $("#connector_div").show(300);
+            if(payIdValue == 'D' || payIdValue =='E'){
+                $("#final_price").show(300);
+                $(".not_final_show").hide();
+                $("#pet_name").prop('required', false);
+                $("#kg").prop('required', false);
+                $("#type").prop('required', false);
+                $("#plan_id").prop('required', false);
+                $("#plan_price").prop('required', false);
+                $("#send_div").hide();
+                $("#connector_div").hide();
+            }else{
+                $("#final_price").hide(300);
+                $(".not_final_show").show(300);
+                $("#pet_name").prop('required', true);
+                $("#kg").prop('required', true);
+                $("#type").prop('required', true);
+                $("#plan_id").prop('required', true);
+                $("#plan_price").prop('required', true);
+                // $("#send_div").show();
+                // $("#connector_div").show();
+            }
+    }
+
+    $('select[name="type_list"]').on('change', function() {
+        if($(this).val() == 'memorial'){
+            $(".not_memorial_show").hide(300);
             $("#cust_name_q").prop('required', false);
             $("#pet_name").prop('required', false);
             $("#kg").prop('required', false);
             $("#type").prop('required', false);
             $("#plan_id").prop('required', false);
-            $("#plan_price").prop('required', false);
-            $("#send_div").hide(300);
-            $("#connector_div").hide(300);
-    }else if(type_list == 'dispatch'){
+            $("#send_div").hide();
+            $("#connector_div").hide();
+            if(payIdValue == 'A' || payIdValue =='C'){
+                $("#send_div").hide();
+                $("#connector_div").hide();
+            }
+        }else if($(this).val() == 'dispatch'){
             $(".not_memorial_show").show(300);
             $("#send_div").show(300);
             $("#connector_div").show(300);
@@ -536,37 +641,8 @@
                 $("#type").prop('required', true);
                 $("#plan_id").prop('required', true);
                 $("#plan_price").prop('required', true);
-                $("#send_div").show();
-                $("#connector_div").show();
-            }
-    }
-
-    $('select[name="type_list"]').on('change', function() {
-        if($(this).val() == 'memorial'){
-            $(".not_memorial_show").hide(300);
-            $("#cust_name_q").prop('required', false);
-            $("#pet_name").prop('required', false);
-            $("#kg").prop('required', false);
-            $("#type").prop('required', false);
-            $("#plan_id").prop('required', false);
-        }else if($(this).val() == 'dispatch'){
-            $(".not_memorial_show").show(300);
-            if(payIdValue == 'D' || payIdValue =='E'){
-                $("#final_price").show(300);
-                $(".not_final_show").hide();
-                $("#pet_name").prop('required', false);
-                $("#kg").prop('required', false);
-                $("#type").prop('required', false);
-                $("#plan_id").prop('required', false);
-                $("#plan_price").prop('required', false);
-            }else{
-                $("#final_price").hide(300);
-                $(".not_final_show").show(300);
-                $("#pet_name").prop('required', true);
-                $("#kg").prop('required', true);
-                $("#type").prop('required', true);
-                $("#plan_id").prop('required', true);
-                $("#plan_price").prop('required', true);
+                $("#send_div").hide();
+                $("#connector_div").hide();
             }
         }
     });
@@ -594,6 +670,8 @@
             $("#type").prop('required', true);
             $("#plan_id").prop('required', true);
             $("#plan_price").prop('required', true);
+            $("#send_div").show(300);
+            $("#connector_div").show(300);
         }
     });
 
@@ -806,7 +884,7 @@
             });
         });
 
-        $( "#source_company_name_q" ).keydown(function() {
+        $( ".source_company_name_q" ).keydown(function() {
             $value=$(this).val();
             $.ajax({
             type : 'get',
