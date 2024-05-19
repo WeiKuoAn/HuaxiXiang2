@@ -61,7 +61,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="project-priority" class="form-label">備註<span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="comment" value="{{ $data->comment }}" required>
+                                <input type="text" class="form-control" name="comment" value="{{ $data->comment }}">
                             </div>
                         </div> <!-- end col-->
                     </div>
