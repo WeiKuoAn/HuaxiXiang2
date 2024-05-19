@@ -19,6 +19,7 @@ use App\Models\CustGroup;
 use App\Models\LeaveDayCheck;
 use App\Models\SaleCompanyCommission;
 use App\Models\GdpaperInventoryData;
+use App\Models\Leaves;
 use App\Models\GdpaperInventoryItem;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Redis;
@@ -310,6 +311,7 @@ class PersonController extends Controller
 
      public function leave_index(Request $request)
      {
+        $leaves= Leaves::where('status',0)->orderby('seq')->get();
         $datas = LeaveDay::orderby('created_at','desc')->where('user_id',Auth::user()->id)->orderby('created_at');
         if($request)
         {
@@ -355,14 +357,15 @@ class PersonController extends Controller
         }
 
         $condition = $condition = $request->all();
-        return view('person.leave_days')->with('datas', $datas)->with('request', $request)->with('condition',$condition);
+        return view('person.leave_days')->with('datas', $datas)->with('request', $request)->with('condition',$condition)->with('leaves',$leaves);
      }
 
      public function leave_check_show($id)
      {
          $data = LeaveDay::where('id', $id)->first();
          $items = LeaveDayCheck::where('leave_day_id',$data->id)->get();
-         return view('person.leave_check')->with('data', $data)->with('items',$items);
+         $leaves= Leaves::where('status',0)->orderby('seq')->get();
+         return view('person.leave_check')->with('data', $data)->with('items',$items)->with('leaves',$leaves);
      }
 
     public function leave_check_update($id ,Request $request)

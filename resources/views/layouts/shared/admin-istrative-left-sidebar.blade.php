@@ -252,6 +252,9 @@
                     <div class="collapse" id="holiday">
                         <ul class="nav-second-level">
                             <li>
+                                <a href="{{ route('personnel.leaves') }}"  class="{{ request()->is('personnel.leaves') ? 'active' : '' }}">假別列表</a>
+                            </li>
+                            <li>
                                 <a href="{{ route('personnels') }}"  class="{{ request()->is('personnels') ? 'active' : '' }}">人事列表</a>
                             </li>
                             <li>

@@ -60,19 +60,9 @@
                                 <label for="project-priority" class="form-label">假別<span class="text-danger">*</span></label>
                                 <select class="form-control" data-toggle="select" data-width="100%" name="leave_day" required>
                                     <option value="" selected>請選擇</option>
-                                    <option value="special">特休</option>
-                                    <option value="marriage">婚假</option>
-                                    <option value="sick">病假</option>
-                                    <option value="personal">事假</option>
-                                    <option value="bereavement">喪假</option>
-                                    <option value="work-related">工傷假</option>
-                                    <option value="public">公假</option>
-                                    <option value="menstrual">生理假</option>
-                                    <option value="maternity">產假</option>
-                                    <option value="prenatalCheckUp">產檢假</option>
-                                    <option value="paternity">陪產假</option>
-                                    <option value="fetalProtection">安胎假</option>
-                                    <option value="familyCare">家庭照顧假</option>
+                                    @foreach($leaves as $leave)
+                                        <option value="{{ $leave->id }}">{{ $leave->name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>

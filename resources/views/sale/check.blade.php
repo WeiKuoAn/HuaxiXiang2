@@ -207,6 +207,7 @@
                                                         <option value="" selected>請選擇</option>
                                                         <option value="A" @if($sale_prom->prom_type == 'A') selected @endif>安葬處理</option>
                                                         <option value="B" @if($sale_prom->prom_type == 'B') selected @endif>後續處理</option>
+                                                        <option value="C" @if($sale_prom->prom_type == 'C') selected @endif>其他處理</option>
                                                     </select>
                                                 </td>
                                                 <td>

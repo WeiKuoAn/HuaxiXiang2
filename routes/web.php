@@ -57,6 +57,8 @@ use App\Http\Controllers\Rpg24Controller;
 use App\Http\Controllers\LeaveDayController;
 use App\Http\Controllers\RestockController;
 use App\Http\Controllers\LiffController;
+use App\Http\Controllers\LeaveController;
+use App\Http\Controllers\LeaveSettingController;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Auth;
@@ -154,6 +156,18 @@ Route::group(['prefix' => '/'], function () {
     Route::post('leave_day/del/{id}', [LeaveDayController::class, 'destroy'])->name('leave_day.del.data');
     Route::get('leave_day/check/{id}', [LeaveDayController::class, 'check'])->name('leave_day.check');
     Route::post('leave_day/check/{id}', [LeaveDayController::class, 'check_data'])->name('leave_day.check.data');
+
+    //假別管理
+    Route::get('personnel/leaves', [LeaveController::class, 'index'])->name('personnel.leaves');
+    Route::get('personnel/leaves/create', [LeaveController::class, 'create'])->name('personnel.leaves.create');
+    Route::post('personnel/leaves/create', [LeaveController::class, 'store'])->name('personnel.leaves.create.data');
+    Route::get('personnel/leaves/edit/{id}', [LeaveController::class, 'edit'])->name('personnel.leaves.edit');
+    Route::post('personnel/leaves/edit/{id}', [LeaveController::class, 'update'])->name('personnel.leaves.edit.data');
+    Route::get('personnel/leaveSetting/create', [LeaveSettingController::class, 'create'])->name('personnel.leavesitting.create');
+    Route::post('personnel/leaveSetting/store', [LeaveSettingController::class, 'store'])->name('personnel.leavesitting.create.data');
+    Route::get('personnel/leaveSetting/edit/{id}', [LeaveSettingController::class, 'edit'])->name('personnel.leavesitting.edit');
+    Route::post('personnel/leaveSetting/edit/{id}', [LeaveSettingController::class, 'update'])->name('personnel.leavesitting.edit.data');
+    
 
     /*客戶管理 */
     Route::get('customers', [CustomerController::class, 'index'])->name('customer');

@@ -252,6 +252,9 @@
                     <div class="collapse" id="holiday">
                         <ul class="nav-second-level">
                             <li>
+                                <a href="{{ route('personnel.leaves') }}"  class="{{ request()->is('personnel.leaves') ? 'active' : '' }}">假別列表</a>
+                            </li>
+                            <li>
                                 <a href="{{ route('personnels') }}"  class="{{ request()->is('personnels') ? 'active' : '' }}">人事列表</a>
                             </li>
                             <li>
@@ -263,6 +266,9 @@
                             <li>
                                 <a href="{{ route('personnel.holidays') }}"  class="{{ request()->is('personnel.holidays') ? 'active' : '' }}">例休假總覽</a>
                             </li>
+                            {{-- <li>
+                                <a href="{{ route('personnel.other_holidays') }}"  class="{{ request()->is('personnel.other_holidays') ? 'active' : '' }}">特休總覽</a>
+                            </li> --}}
                             <li>
                                 <a href="{{ route('personnel.other_holidays') }}"  class="{{ request()->is('personnel.other_holidays') ? 'active' : '' }}">其他假總覽</a>
                             </li>

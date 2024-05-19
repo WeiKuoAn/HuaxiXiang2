@@ -6,15 +6,19 @@ use Illuminate\Http\Request;
 use App\Models\LeaveDay;
 use App\Models\Job;
 use App\Models\LeaveDayCheck;
+use App\Models\Leaves;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 
+//個別價單控制
 class LeaveDayController extends Controller
 {
     public function index(Request $request)
     {
+        $leaves= Leaves::where('status',0)->orderby('seq')->get();
         if(Auth::user()->job_id == 1 || Auth::user()->job_id ==2 || Auth::user()->job_id ==7){
             $datas = LeaveDay::orderby('created_at','desc');
         }else{
@@ -63,13 +67,14 @@ class LeaveDayController extends Controller
             $datas = $datas->paginate(50);
             $condition = '';
         }
-        return view('leaveday.index')->with('datas', $datas)->with('request', $request)->with('condition',$condition);
+        return view('leaveday.index')->with('datas', $datas)->with('request', $request)->with('condition',$condition)->with('leaves',$leaves);
     }
 
     public function create()
     {
         $users = User::where('status','0')->get();
-        return view('leaveday.create')->with('users', $users);
+        $leaves= Leaves::where('status',0)->orderby('seq')->get();
+        return view('leaveday.create')->with('users', $users)->with('leaves',$leaves);
     }
 
     public function store(Request $request)
@@ -131,8 +136,8 @@ class LeaveDayController extends Controller
     public function show($id)
     {
         $data = LeaveDay::where('id', $id)->first();
-
-        return view('leaveday.edit')->with('data', $data);
+        $leaves= Leaves::where('status',0)->orderby('seq')->get();
+        return view('leaveday.edit')->with('data', $data)->with('leaves',$leaves);
     }
 
     public function update($id ,Request $request)
@@ -161,7 +166,8 @@ class LeaveDayController extends Controller
     {
         $data = LeaveDay::where('id', $id)->first();
         $items = LeaveDayCheck::where('leave_day_id',$data->id)->get();
-        return view('leaveday.check')->with('data', $data)->with('items', $items);
+        $leaves= Leaves::where('status',0)->orderby('seq')->get();
+        return view('leaveday.check')->with('data', $data)->with('items', $items)->with('leaves',$leaves);
     }
 
     public function check_data($id ,Request $request)//主管確認
@@ -201,8 +207,8 @@ class LeaveDayController extends Controller
     public function delete($id)
     {
         $data = LeaveDay::where('id', $id)->first();
-
-        return view('leaveday.del')->with('data', $data);
+        $leaves= Leaves::where('status',0)->orderby('seq')->get();
+        return view('leaveday.del')->with('data', $data)->with('leaves',$leaves);
     }
 
     public function destroy($id, Request $request)
