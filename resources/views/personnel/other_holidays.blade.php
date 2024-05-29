@@ -72,7 +72,9 @@
                                     <tr>
                                         <td>{{ $date['name'] }}</td>
                                         <td align="center">{{ $data['leavedays'][$date_type]['add_day'] }}</td>
-                                        <td align="center">{{ $data['leavedays'][$date_type]['day'] }}</td>
+                                        <td align="center" @if($data['leavedays'][$date_type]['day'] == "0天，又0小時" || $data['leavedays'][$date_type]['day'] == "0天") style="color: red" @endif >
+                                            {{ $data['leavedays'][$date_type]['day'] }}
+                                        </td>
                                         @if($date['name'] == '特休')
                                             <td align="center">{{ $date['user_day'][$user_id]['day'] }}天</td>
                                         @else

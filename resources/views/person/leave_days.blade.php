@@ -21,6 +21,7 @@
     </div>
     <!-- end page title -->
 
+
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -79,7 +80,6 @@
             </div> <!-- end card -->
         </div> <!-- end col-->
     </div>
-
 
     <div class="row">
         <div class="col-12">

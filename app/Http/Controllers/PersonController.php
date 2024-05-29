@@ -23,6 +23,7 @@ use App\Models\Leaves;
 use App\Models\GdpaperInventoryItem;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\DB;
 
 class PersonController extends Controller
 {
@@ -311,6 +312,7 @@ class PersonController extends Controller
 
      public function leave_index(Request $request)
      {
+
         $leaves= Leaves::where('status',0)->orderby('seq')->get();
         $datas = LeaveDay::orderby('created_at','desc')->where('user_id',Auth::user()->id)->orderby('created_at');
         if($request)
@@ -357,6 +359,10 @@ class PersonController extends Controller
         }
 
         $condition = $condition = $request->all();
+
+
+        
+        // dd($leave_datas);
         return view('person.leave_days')->with('datas', $datas)->with('request', $request)->with('condition',$condition)->with('leaves',$leaves);
      }
 
@@ -389,6 +395,146 @@ class PersonController extends Controller
         return redirect()->route('person.leave_days');
     }
 
+    public function last_leave_days()
+    {
+        //計算假別天數
+        $year = Carbon::now()->year;//取得當年
+        $now_year = Carbon::now()->year;//取當年計算特休的年度
+        $user = User::where('id',Auth::user()->id)->first();
+        $leave_datas = [];
+        $leaves= DB::table('leaves')
+                    ->join('leave_setting','leave_setting.leave_id', '=' , 'leaves.id')
+                    ->where('leaves.status',0)
+                    ->where('leave_setting.year' , '=' , $year)
+                    ->select('leaves.*' , 'leave_setting.approved_days as day')
+                    ->get();
+        $dates = [];
+        foreach($leaves as $leave){
+            $dates[$leave->id]['name'] = $leave->name;
+            $dates[$leave->id]['day'] = $leave->day;
+            $dates[$leave->id]['hour'] = intval($leave->day) * 8;
+        }
+
+        //每人的特休天數
+        $dates['1']['user_day'][$user->id]['day'] = $this->specil_vacation($user->entry_date);
+        $dates['1']['user_day'][$user->id]['hour'] = intval($this->specil_vacation($user->entry_date))*8;
+
+        $leave_datas[$user->id]['name'] = $user->name;
+        $leave_datas[$user->id]['year'] = $year;
+        foreach($dates as $leave_day=>$date)
+        {
+            if($leave_day == 1){
+                $leave_datas[$user->id]['leavedays'][$leave_day]['datas'] = LeaveDay::where('state','9')->where('start_datetime','>=','2020-01-01 00:00:00')->where('end_datetime','<=',$now_year.'-12-31 11:59:59')->where('leave_day',$leave_day)->where('user_id', $user->id)->get();
+            }else{
+                $leave_datas[$user->id]['leavedays'][$leave_day]['datas'] = LeaveDay::where('state','9')->where('start_datetime','>=',$year.'-01-01 00:00:00')->where('end_datetime','<=',$year.'-12-31 11:59:59')->where('leave_day',$leave_day)->where('user_id', $user->id)->get();
+            }
+            $leave_datas[$user->id]['leavedays'][$leave_day]['hour'] = 0;
+            //剩餘天數
+            $leave_datas[$user->id]['leavedays'][$leave_day]['day'] = 0; 
+            //累積天數
+            $leave_datas[$user->id]['leavedays'][$leave_day]['add_day'] = 0; 
+        }
+        
+        foreach ($leave_datas as &$data) {
+            foreach($data['leavedays'] as &$leave_days)
+            {
+                if(count($leave_days['datas']) >= 0)
+                {
+                    foreach($leave_days['datas'] as $key=>$leave_data)
+                    {
+                        // dd($leave_data->unit);
+                        if($leave_data->unit == "day"){
+                            $leave_days['hour'] += intval($leave_data->total)*8;
+                        }else{
+                            $leave_days['hour'] += intval($leave_data->total);
+                        }
+                    }
+                }
+            }
+        }
+
+        // dd($leave_datas);
+
+        // 創建一個基準時間點的 Carbon 實例（例如：現在）
+        $baseTime = Carbon::now();
+
+        foreach($leave_datas as $user_id=>&$data)
+        {
+            foreach($data['leavedays'] as $leaveday_type=>&$leave_days)
+            {
+                if($leaveday_type == '1'){
+                    //如果是特休，要重新寫條鍵;
+                    if ($dates['1']['user_day'][$user_id]['hour'] < $leave_datas[$user_id]['leavedays']['1']['hour']) {
+                        // Set hours to 0 if requested hours are less
+                        $timeAfterHours = $baseTime->copy(); // No hours added
+                        $add_timeAfterHours = $baseTime->copy(); // No hours added for cumulative calculation
+                    } else {
+                        //如果是特休，要重新寫條鍵;
+                        $timeAfterHours = $baseTime->copy()->addHours($dates['1']['user_day'][$user_id]['hour'] - $leave_datas[$user_id]['leavedays']['1']['hour']);
+                        //累積天數
+                        $add_timeAfterHours = $baseTime->copy()->addHours($leave_datas[$user_id]['leavedays']['1']['hour']);
+                    }
+                    // 計算天數差異
+                    $hoursDifference = $timeAfterHours->diffInHours($baseTime);
+                    $daysBasedOn8Hours = intdiv($hoursDifference, 8);
+                    // 計算剩餘小時數
+                    $remainingHours = $hoursDifference % 8;
+                    //剩餘天數
+                    if($leave_datas[$user_id]['leavedays']['1']['hour'] > 0){
+                        $leave_datas[$user_id]['leavedays']['1']['day'] = $daysBasedOn8Hours . "天，又" . $remainingHours . "小時"; 
+                    }else{
+                        $leave_datas[$user_id]['leavedays']['1']['day'] = $daysBasedOn8Hours . "天"; 
+                    }
+
+                    //累積天數
+                    $add_timeAfterHours = $baseTime->copy()->addHours($leave_datas[$user_id]['leavedays']['1']['hour']);
+                    // 計算天數差異
+                    $add_hoursDifference = $add_timeAfterHours->diffInHours($baseTime);
+                    $add_daysBasedOn8Hours = intdiv($add_hoursDifference, 8);
+                    // 計算剩餘小時數
+                    $add_remainingHours = $add_hoursDifference % 8;
+                    if($leave_datas[$user_id]['leavedays']['1']['hour'] > 0){
+                        $leave_datas[$user_id]['leavedays']['1']['add_day'] = $add_daysBasedOn8Hours . "天，又" . $add_remainingHours . "小時"; 
+                    }else{
+                        $leave_datas[$user_id]['leavedays']['1']['add_day'] = $add_remainingHours . "小時"; 
+                    }
+                }else{
+                    if($dates[$leaveday_type]['hour'] < $leave_datas[$user_id]['leavedays'][$leaveday_type]['hour']){
+                        $timeAfterHours = $baseTime->copy();
+                    }else{
+                        $timeAfterHours = $baseTime->copy()->addHours($dates[$leaveday_type]['hour'] - $leave_datas[$user_id]['leavedays'][$leaveday_type]['hour']);
+                    }
+                    // 計算天數差異
+                    $hoursDifference = $timeAfterHours->diffInHours($baseTime);
+                    $daysBasedOn8Hours = intdiv($hoursDifference, 8);
+                    // 計算剩餘小時數
+                    $remainingHours = $hoursDifference % 8;
+                    //剩餘天數
+                    if($leave_datas[$user_id]['leavedays'][$leaveday_type]['hour'] > 0){
+                        $leave_datas[$user_id]['leavedays'][$leaveday_type]['day'] = $daysBasedOn8Hours . "天，又" . $remainingHours . "小時"; 
+                    }else{
+                        $leave_datas[$user_id]['leavedays'][$leaveday_type]['day'] = $daysBasedOn8Hours . "天"; 
+                    }
+
+                    //累積天數
+                    $add_timeAfterHours = $baseTime->copy()->addHours($leave_datas[$user_id]['leavedays'][$leaveday_type]['hour']);
+                    // 計算天數差異
+                    $add_hoursDifference = $add_timeAfterHours->diffInHours($baseTime);
+                    $add_daysBasedOn8Hours = intdiv($add_hoursDifference, 8);
+                    // 計算剩餘小時數
+                    $add_remainingHours = $add_hoursDifference % 8;
+                    if($leave_datas[$user_id]['leavedays'][$leaveday_type]['hour'] > 8){
+                        $leave_datas[$user_id]['leavedays'][$leaveday_type]['add_day'] = $add_daysBasedOn8Hours . "天，又" . $add_remainingHours . "小時"; 
+                    }else{
+                        $leave_datas[$user_id]['leavedays'][$leaveday_type]['add_day'] = $add_remainingHours . "小時"; 
+                    }
+                }
+            }
+        }
+
+        return view('person.last_leave_days')->with('dates',$dates)->with('leave_datas', $leave_datas);
+    }
+
 
     //員工盤點
     public function person_inventory(Request $request)
@@ -415,6 +561,70 @@ class PersonController extends Controller
           $datas = $datas->get();
         }
         return view('person.inventorys')->with('datas',$datas)->with('request',$request);
+    }
+
+    private function specil_vacation($user_entry_date)
+    {
+        if($user_entry_date!=null){
+            $today = date('Y-m-d', strtotime(Carbon::now()->locale('zh-tw')));
+            $startDate = Carbon::parse($user_entry_date); // 將起始日期字串轉換為 Carbon 日期物件
+            $endDate = Carbon::parse($today); // 將結束日期字串轉換為 Carbon 日期物件
+            $diffDays = $startDate->diffInDays($endDate);// 計算年數差距
+            $diffYears = $diffDays / 365;
+            $diffYears = round($diffYears,2);
+        }else{
+            $diffYears = 0;
+        }
+
+        $specil_day = '';
+        //特休條件
+        if($diffYears < 0.5){ //小於半年
+            $specil_day = 0;
+        }elseif($diffYears >= 0.5 && $diffYears < 1){ //大於半年小於一年
+            $specil_day = 3;
+        }elseif($diffYears >= 1 && $diffYears < 2){//大於一年小於兩年
+            $specil_day = 7;
+        }elseif($diffYears >= 2 && $diffYears < 4){//大於一年小於兩年
+            $specil_day = 14;
+        }elseif($diffYears >= 4 && $diffYears < 10){//大於四年小於十年
+            $specil_day = 15;
+        }elseif($diffYears >= 10 && $diffYears < 11){//大於十年小於十一年
+            $specil_day = 16;
+        }elseif($diffYears >= 11 && $diffYears < 12){//大於十一年小於十二年
+            $specil_day = 17;
+        }elseif($diffYears >= 12 && $diffYears < 13){//大於十二年小於十三年
+            $specil_day = 18;
+        }elseif($diffYears >= 13 && $diffYears < 14){//大於十三年小於十四年
+            $specil_day = 19;
+        }elseif($diffYears >= 14 && $diffYears < 15){//大於十四年小於十五年
+            $specil_day = 20;
+        }elseif($diffYears >= 15 && $diffYears < 16){//大於十五年小於十六年
+            $specil_day = 21;
+        }elseif($diffYears >= 16 && $diffYears < 17){//大於十六年小於十七年
+            $specil_day = 22;
+        }elseif($diffYears >= 17 && $diffYears < 18){//大於十七年小於十八年
+            $specil_day = 23;
+        }elseif($diffYears >= 18 && $diffYears < 19){//大於十八年小於十九年
+            $specil_day = 24;
+        }elseif($diffYears >= 19 && $diffYears < 20){//大於十九年小於二十年
+            $specil_day = 25;
+        }elseif($diffYears >= 20 && $diffYears < 21){//大於二十年小於二一年
+            $specil_day = 26;
+        }elseif($diffYears >= 21 && $diffYears < 22){//大於二一年小於二二年
+            $specil_day = 27;
+        }elseif($diffYears >= 22 && $diffYears < 23){//大於二二年小於二三年
+            $specil_day = 28;
+        }elseif($diffYears >= 23 && $diffYears < 24){//大於二三年小於二四年
+            $specil_day = 29;
+        }elseif($diffYears >= 24 && $diffYears < 25){//大於二四年小於二伍年
+            $specil_day = 30;
+        }elseif($diffYears >= 25){//大於二伍年
+            $specil_day = 30;
+        }
+
+
+        // dd($today);
+        return $specil_day;
     }
 
 }

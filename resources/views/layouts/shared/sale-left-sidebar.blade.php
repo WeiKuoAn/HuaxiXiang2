@@ -53,6 +53,7 @@
                     </a>
                 </li>
 
+
                 <li class="menu-title mt-2">Apps</li>
 
                 <li>
@@ -165,6 +166,9 @@
                     </a>
                     <div class="collapse" id="person">
                         <ul class="nav-second-level">
+                            <li>
+                                <a href="{{ route('person.last_leave_days') }}"  class="{{ request()->is('person.last_leave_days') ? 'active' : '' }}">剩餘假總覽</a>
+                            </li>
                             <li>
                                 <a href="{{ route('person.pays') }}"  class="{{ request()->is('person.pays') ? 'active' : '' }}">個人支出</a>
                             </li>

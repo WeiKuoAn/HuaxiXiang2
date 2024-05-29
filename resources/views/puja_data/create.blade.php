@@ -361,6 +361,7 @@
             url : '{{ route('gdpaper.search') }}',
             data:{'gdpaper_id':$("#gdpaper_id_"+row_id).val()},
             success:function(data){
+                $("#gdpaper_num_"+row_id).val(1);
                 if($("#gdpaper_num_"+row_id).val()){
                     var gdpaper_num = $("#gdpaper_num_"+row_id).val();
                     $("#gdpaper_total_"+row_id).val(gdpaper_num*data);

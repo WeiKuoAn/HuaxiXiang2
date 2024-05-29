@@ -112,10 +112,13 @@ class SaleDataController extends Controller
         $sources = SaleSource::where('status','up')->get();
         $plans = Plan::where('status', 'up')->get();
         $products = Product::where('status', 'up')->orderby('seq','asc')->orderby('price','desc')->get();
-
+        $customers = Customer::orderby('created_at','desc')->get();
+        $source_companys = Customer::whereIn('group_id',[2,3,4,5,6,7])->get();
         return view('sale.create')->with('products', $products)
                                   ->with('sources', $sources)
-                                  ->with('plans', $plans);
+                                  ->with('plans', $plans)
+                                  ->with('customers',$customers)
+                                  ->with('source_companys',$source_companys);
     }
 
     public function test()
@@ -137,6 +140,7 @@ class SaleDataController extends Controller
      */
     public function store(Request $request)
     {
+        // 使用正則表達式匹配No.後的數字(客戶)
         $sale = new Sale();
         $sale->sale_on = $request->sale_on;
         $sale->user_id = Auth::user()->id;
@@ -147,6 +151,7 @@ class SaleDataController extends Controller
         $sale->kg = $request->kg;
         $sale->type = $request->type;
         if($request->type_list == 'memorial'){
+            //如果是追思單就客戶為空
             $sale->plan_id = '4';
         }else{
             $sale->plan_id = $request->plan_id;
@@ -255,7 +260,6 @@ class SaleDataController extends Controller
                 $gdpaper->save();
             }
         }
-
         //如果存在來源公司名稱的話就存入
         if(isset($request->source_company_name_q)){
             $CompanyCommission = new SaleCompanyCommission();
@@ -559,6 +563,7 @@ class SaleDataController extends Controller
         $sale_proms = Sale_prom::where('sale_id', $id)->get();
         $sale_company = SaleCompanyCommission::where('sale_id', $id)->first();
         $sale_address = SaleAddress::where('sale_id', $id)->first();
+        $source_companys = Customer::whereIn('group_id',[2,3,4,5,6,7])->get();
         return view('sale.edit')->with('data', $data)
             ->with('customers', $customers)
             ->with('plans', $plans)
@@ -568,12 +573,14 @@ class SaleDataController extends Controller
             ->with('sale_gdpapers', $sale_gdpapers)
             ->with('sources',$sources)
             ->with('sale_company',$sale_company)
-            ->with('sale_address',$sale_address);
+            ->with('sale_address',$sale_address)
+            ->with('source_companys',$source_companys);
     }
 
     public function check_show(Request $request , $id)
     {
 
+        $source_companys = Customer::whereIn('group_id',[2,3,4,5,6,7])->get();
         $sources = SaleSource::where('status','up')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
@@ -623,7 +630,8 @@ class SaleDataController extends Controller
             ->with('sale_gdpapers', $sale_gdpapers)
             ->with('sources',$sources)
             ->with('sale_company',$sale_company)
-            ->with('sale_address',$sale_address);
+            ->with('sale_address',$sale_address)
+            ->with('source_companys',$source_companys);
     }
 
     public function check_update(Request $request, $id)

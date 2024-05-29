@@ -120,7 +120,7 @@ class CustomerController extends Controller
             }
 
             $address = $request->address;
-            if ($district != '') {
+            if ($district != "null") {
                 $address = '%'.$request->address.'%';
                 if (isset($address)) {
                     $query = $query->where('address', 'like' ,$address);

@@ -496,8 +496,9 @@
         $("#connector_hospital_div").hide();
         $("#connector_div").show();
     }else{
-        $("#send_div").show(300);
-        $("#connector_hospital_div").show(300);
+        $("#send_div").show();
+        // $("#connector_hospital_div").show();
+        $("#connector_address_div").hide();
     }
     $("#connector_address").on("change", function() {
         if ($(this).is(':checked')) {

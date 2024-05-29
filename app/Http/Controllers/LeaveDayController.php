@@ -174,27 +174,33 @@ class LeaveDayController extends Controller
     {
 
         if($request->btn_submit == 'check'){
-            $data = LeaveDay::where('id', $id)->first();
-            $data->state = 9;
-            $data->save();
-            
-            $leave_data = LeaveDay::orderby('id','desc')->first();
+            $user = User::where('id',Auth::user()->id)->first();
+            $job = Job::where('id',$user->job_id)->first();
+            // dd($job);
+            if(isset($job->director_id)){
+                $data = LeaveDay::where('id', $id)->first();
+                $data->director_id = $job->director_id;
+                $data->state = 2;
+                $data->save();
+            }else{
+                $data = LeaveDay::where('id', $id)->first();
+                $data->state = 9;
+                $data->save();
+            }
             $item = new LeaveDayCheck;
-            $item->leave_day_id = $leave_data->id;
+            $item->leave_day_id = $id;
             $item->check_day = Carbon::now()->locale('zh-tw')->format('Y-m-d');;
             $item->check_user_id = Auth::user()->id;
             $item->created_at = Carbon::now()->locale('zh-tw');
             $item->state = 9;
             $item->save();
-
         }elseif($request->btn_submit == 'not_check'){
             $data = LeaveDay::where('id', $id)->first();
             $data->state = 1;
             $data->save();
             
-            $leave_data = LeaveDay::orderby('id','desc')->first();
             $item = new LeaveDayCheck;
-            $item->leave_day_id = $leave_data->id;
+            $item->leave_day_id = $id;
             $item->check_day = Carbon::now()->locale('zh-tw')->format('Y-m-d');;
             $item->check_user_id = Auth::user()->id;
             $item->created_at = Carbon::now()->locale('zh-tw');
@@ -225,6 +231,7 @@ class LeaveDayController extends Controller
 
     public function user_index($id , Request $request)
     {
+        $leaves= Leaves::where('status',)->orderby('seq')->get();
         $datas = LeaveDay::orderby('created_at','desc')->where('user_id',$id);
         $user = User::where('id',$id)->first();
 
@@ -234,7 +241,7 @@ class LeaveDayController extends Controller
             if($state){
                 $datas = $datas->where('state',$state);
             }else{
-                $datas = $datas->where('state',2);
+                $datas = $datas->where('state',1);
             }
             $start_date_start = $request->start_date_start;
             if($start_date_start){
@@ -270,7 +277,7 @@ class LeaveDayController extends Controller
             $datas = $datas->paginate(50);
             $condition = '';
         }
-        return view('leaveday.user_index')->with('user',$user)->with('datas', $datas)->with('request', $request)->with('condition',$condition);
+        return view('leaveday.user_index')->with('user',$user)->with('datas', $datas)->with('request', $request)->with('condition',$condition)->with('leaves',$leaves);
     }
 
 }

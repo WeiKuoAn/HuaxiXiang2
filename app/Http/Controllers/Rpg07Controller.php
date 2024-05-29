@@ -86,7 +86,7 @@ class Rpg07Controller extends Controller
             "Expires"             => "0"
         );
         $header = array('日期', $after_date.'~' ,  $before_date);
-        $columns = array('No', '日期', '客戶', '寶貝名', '公斤數' , '方案','金紙','備註','評論（送資材袋）','完成準備');
+        $columns = array('No', '日期', '客戶', '寶貝名', '公斤數' , '火化費' , '方案','金紙','備註','評論（送資材袋）','完成準備');
 
         $callback = function() use($datas, $columns ,$header) {
             
@@ -101,6 +101,7 @@ class Rpg07Controller extends Controller
                 $row['客戶'] = $data->cust_name->name;
                 $row['寶貝名'] = $data->pet_name;
                 $row['公斤數'] = $data->kg;
+                $row['火化費'] = $data->plan_price;
                 $row['方案'] = $data->plan_name->name;
                 $row['金紙'] = '';
                 foreach ($data->gdpapers as $gdpaper){
@@ -112,7 +113,7 @@ class Rpg07Controller extends Controller
                     }
                 }
                 $row['備註'] = $data->comm;
-                fputcsv($file, array($row['No'], $row['日期'], $row['客戶'], $row['寶貝名'], $row['公斤數'], $row['方案'],$row['金紙'],$row['備註']));
+                fputcsv($file, array($row['No'], $row['日期'], $row['客戶'], $row['寶貝名'], $row['公斤數'], $row['火化費'], $row['方案'],$row['金紙'],$row['備註']));
             }
 
             fclose($file);

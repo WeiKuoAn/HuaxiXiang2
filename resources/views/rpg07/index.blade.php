@@ -64,6 +64,7 @@
                                     <th >客戶</th>
                                     <th >寶貝名</th>
                                     <th >公斤數</th>
+                                    <th >火化費</th>
                                     <th >類別</th>
                                     <th >方案</th>
                                     <th >金紙</th>
@@ -100,6 +101,9 @@
                                             {{ $data->kg }}
                                         </td>
                                         <td align="center">
+                                            {{ number_format($data->plan_price) }}
+                                        </td>
+                                        <td align="center">
                                             @if (isset($data->type))
                                                 {{ $data->source_type->name }}
                                             @endif
@@ -109,7 +113,7 @@
                                                 @if(isset($data->plan_name))
                                                 {{ $data->plan_name->name }}
                                                 @else
-                                                {{$data->plan_id}}
+                                                {{ $data->plan_id }}
                                                 @endif
                                             @endif
                                             {{-- {{ $data->plan_id }} --}}

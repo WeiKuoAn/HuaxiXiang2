@@ -144,6 +144,7 @@ Route::group(['prefix' => '/'], function () {
     Route::post('person/leave_day/check/{id}', [PersonController::class, 'leave_check_update'])->name('person.leave_day.check.data');
     Route::get('/person_inventory', [PersonController::class, 'person_inventory'])->name('person.inventory');
     Route::get('person/sale_statistics', [PersonController::class, 'sale_statistics'])->name('preson.sale_statistics');
+    Route::get('person/last_leave_days', [PersonController::class, 'last_leave_days'])->name('person.last_leave_days');
 
     /*請假管理 */
     Route::get('personnel/leave_days', [LeaveDayController::class, 'index'])->name('personnel.leave_days');

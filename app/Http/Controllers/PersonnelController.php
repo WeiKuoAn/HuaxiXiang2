@@ -261,6 +261,7 @@ class PersonnelController extends Controller
         }else{
             $year = Carbon::now()->year;//取得當年
         }
+        $now_year = Carbon::now()->year;//取當年計算特休的年度
         $years = range(Carbon::now()->year,2022);
         $users = User::where('status','0')->whereIn('job_id',[3,4,5])->orderby('job_id')->get();
         $datas = [];
@@ -283,15 +284,16 @@ class PersonnelController extends Controller
             $dates['1']['user_day'][$user->id]['hour'] = intval($this->specil_vacation($user->entry_date))*8;
         }
 
-    // dd($dates);
-
-        
         foreach ($users as $user) {
             $datas[$user->id]['name'] = $user->name;
             $datas[$user->id]['year'] = $year;
             foreach($dates as $leave_day=>$date)
             {
-                $datas[$user->id]['leavedays'][$leave_day]['datas'] = LeaveDay::where('start_datetime','>=',$year.'-01-01 00:00:00')->where('end_datetime','<=',$year.'-12-31 11:59:59')->where('leave_day',$leave_day)->where('user_id', $user->id)->get();
+                if($leave_day == 1){
+                    $datas[$user->id]['leavedays'][$leave_day]['datas'] = LeaveDay::where('state','9')->where('start_datetime','>=','2020-01-01 00:00:00')->where('end_datetime','<=',$now_year.'-12-31 11:59:59')->where('leave_day',$leave_day)->where('user_id', $user->id)->get();
+                }else{
+                    $datas[$user->id]['leavedays'][$leave_day]['datas'] = LeaveDay::where('state','9')->where('start_datetime','>=',$year.'-01-01 00:00:00')->where('end_datetime','<=',$year.'-12-31 11:59:59')->where('leave_day',$leave_day)->where('user_id', $user->id)->get();
+                }
                 $datas[$user->id]['leavedays'][$leave_day]['hour'] = 0;
                 //剩餘天數
                 $datas[$user->id]['leavedays'][$leave_day]['day'] = 0; 
@@ -329,7 +331,16 @@ class PersonnelController extends Controller
             {
                 if($leaveday_type == '1'){
                     //如果是特休，要重新寫條鍵;
-                    $timeAfterHours = $baseTime->copy()->addHours($dates['1']['user_day'][$user_id]['hour'] - $datas[$user_id]['leavedays']['1']['hour']);
+                    if ($dates['1']['user_day'][$user_id]['hour'] < $datas[$user_id]['leavedays']['1']['hour']) {
+                        // Set hours to 0 if requested hours are less
+                        $timeAfterHours = $baseTime->copy(); // No hours added
+                        $add_timeAfterHours = $baseTime->copy(); // No hours added for cumulative calculation
+                    } else {
+                        //如果是特休，要重新寫條鍵;
+                        $timeAfterHours = $baseTime->copy()->addHours($dates['1']['user_day'][$user_id]['hour'] - $datas[$user_id]['leavedays']['1']['hour']);
+                        //累積天數
+                        $add_timeAfterHours = $baseTime->copy()->addHours($datas[$user_id]['leavedays']['1']['hour']);
+                    }
                     // 計算天數差異
                     $hoursDifference = $timeAfterHours->diffInHours($baseTime);
                     $daysBasedOn8Hours = intdiv($hoursDifference, 8);
@@ -355,8 +366,11 @@ class PersonnelController extends Controller
                         $datas[$user_id]['leavedays']['1']['add_day'] = $add_remainingHours . "小時"; 
                     }
                 }else{
-                    //如果是不特休，要重新寫條鍵;
-                    $timeAfterHours = $baseTime->copy()->addHours($dates[$leaveday_type]['hour'] - $datas[$user_id]['leavedays'][$leaveday_type]['hour']);
+                    if($dates[$leaveday_type]['hour'] < $datas[$user_id]['leavedays'][$leaveday_type]['hour']){
+                        $timeAfterHours = $baseTime->copy();
+                    }else{
+                        $timeAfterHours = $baseTime->copy()->addHours($dates[$leaveday_type]['hour'] - $datas[$user_id]['leavedays'][$leaveday_type]['hour']);
+                    }
                     // 計算天數差異
                     $hoursDifference = $timeAfterHours->diffInHours($baseTime);
                     $daysBasedOn8Hours = intdiv($hoursDifference, 8);
@@ -384,7 +398,7 @@ class PersonnelController extends Controller
                 }
             }
         }
-
+        // dd($datas);
         return view('personnel.other_holidays')->with('months',$months)->with('years',$years)->with('request',$request)->with('datas',$datas)->with('dates',$dates);
     }
 
