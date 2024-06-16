@@ -62,6 +62,7 @@
                                    <input type="text" class="form-control" value="{{ Auth::user()->name }}" readonly required>
                                </div>
                             </div>
+                            
                         </div> <!-- end col-->
                         
                     </div>

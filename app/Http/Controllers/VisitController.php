@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use App\Models\Customer;
 use App\Models\Visit;
+use App\Models\CustomerBank;
 use Facade\FlareClient\View;
 use Illuminate\Support\Facades\Auth;
 use Whoops\Run;
@@ -300,6 +301,10 @@ class VisitController extends Controller
             $customer->county = $request->county;
             $customer->district = $request->district;
             $customer->address = $request->address;
+            if(!empty($request->bank_id) || !empty($request->bank_number)){
+                $customer->bank_id = $request->bank_id;
+                $customer->bank_number = $request->bank_number;
+            }
         }else{
             if(isset($data)){
                 return view('visit.company_create')->with(['hint' => '1','company_type'=>$request->company_type]);
@@ -313,6 +318,10 @@ class VisitController extends Controller
                     $customer->county = $request->county;
                     $customer->district = $request->district;
                     $customer->address = $request->address;
+                    if(!empty($request->bank_id) || !empty($request->bank_number)){
+                        $customer->bank_id = $request->bank_id;
+                        $customer->bank_number = $request->bank_number;
+                    }
                 }
                 
             }
@@ -376,6 +385,8 @@ class VisitController extends Controller
         $data->district = $request->district;
         $data->address = $request->address;
         $data->group_id = $request->group_id;
+        $data->bank_id = $request->bank_id;
+        $data->bank_number = $request->bank_number;
         $data->save();
 
         if($hospital_type){

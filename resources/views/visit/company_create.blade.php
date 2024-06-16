@@ -73,6 +73,23 @@
                                     <input type="text" class="form-control" name="address" placeholder="輸入地址" required>
                                 </div>
                            </div>
+                           <div class="row">
+                            <div class="col-lg-4">
+                                <!-- Date View -->
+                                <div class="mb-3">
+                                    <label class="form-label">匯款帳戶<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" value="" placeholder="銀行代碼" name="bank_id">
+                                </div>
+                            </div>
+    
+                            <div class="col-lg-8">
+                                <!-- Date View -->
+                                <div class="mb-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <input type="text" class="form-control"name="bank_number" value="" placeholder="帳戶號碼">
+                                </div>
+                            </div>
+                        </div>
                            <div class="mb-3 mt-3">
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="not_mobile" name="not_mobile">

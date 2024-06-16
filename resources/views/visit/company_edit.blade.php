@@ -70,7 +70,22 @@
                                     <input type="text" class="form-control" name="address" placeholder="輸入地址" value="{{ $data->address }}" required>
                                 </div>
                            </div>
-
+                           <div class="row">
+                            <div class="col-lg-4">
+                                <!-- Date View -->
+                                <div class="mb-3">
+                                    <label class="form-label">匯款帳戶<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" value="{{ $data->bank_id }}" placeholder="銀行代碼" name="bank_id">
+                                </div>
+                            </div>
+    
+                            <div class="col-lg-8">
+                                <!-- Date View -->
+                                <div class="mb-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <input type="text" class="form-control"name="bank_number" value="{{ $data->bank_number }}" placeholder="帳戶號碼">
+                                </div>
+                            </div>
                            <div class="row">
                             <label class="form-label">舊地址<span class="text-danger">*</span></label>
                             <div class="mb-3 mt-1">

@@ -18,7 +18,9 @@ class Customer extends Model
         'district',
         'address',
         'created_up',
-        'group_id'
+        'group_id',
+        'bank_id',
+        'bank_number'
     ];
     public function group()
     {
