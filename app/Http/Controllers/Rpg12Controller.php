@@ -80,7 +80,7 @@ class Rpg12Controller extends Controller
                                                                                             ->where('sale_company_commission.sale_date','<=',$lastDay)
                                                                                             ->where('sale_data.status','=','9')
                                                                                             ->select('sale_company_commission.*','customer.*','sale_source.name as source_name'
-                                                                                                    ,'sale_data.status as status','plan.name as plan_name')
+                                                                                                    ,'sale_data.status as status','plan.name as plan_name','sale_data.pet_name')
                                                                                             ->orderBy('sale_company_commission.sale_date','desc')
                                                                                             ->get();
             $datas[$sale_company->type]['companys'][$sale_company->company_id]['count'] = DB::table('sale_company_commission')

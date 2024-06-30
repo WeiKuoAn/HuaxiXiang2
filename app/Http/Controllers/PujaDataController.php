@@ -137,8 +137,9 @@ class PujaDataController extends Controller
     public function create()
     {
         $products = Product::where('status', 'up')->orderby('seq','asc')->orderby('price','desc')->get();
+        $customers = Customer::orderby('created_at','desc')->get();
         $pujas = Puja::orderby('id','desc')->get();
-        return view('puja_data.create')->with('pujas',$pujas)->with('products',$products);
+        return view('puja_data.create')->with('pujas',$pujas)->with('products',$products)->with('customers',$customers);
     }
 
     /**

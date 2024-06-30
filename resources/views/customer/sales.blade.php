@@ -33,18 +33,20 @@
                                         <th>日期</th>
                                         {{-- <th>客戶</th> --}}
                                         <th>寶貝名</th>
-                                        <th>類別</th>
+                                        {{-- <th>類別</th> --}}
                                         <th>方案</th>
                                         <th>金紙</th>
                                         <th>安葬方式</th>
                                         <th>後續處理</th>
+                                        <th>其他處理</th>
                                         <th>付款方式</th>
-                                        <th>實收價格</th>
+                                        {{-- <th>實收價格</th> --}}
                                         {{-- @if($request->status == 'check')
                                             <th>轉單</th>
                                             <th>對拆</th>
                                         @endif
                                         <th>動作</th> --}}
+                                        <th>備註</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -69,7 +71,7 @@
                                                 {{ $sale->pet_name }}
                                             @endif
                                         </td>
-                                        <td>
+                                        {{-- <td>
                                             @if (isset($sale->type))
                                                 @if(isset($sale->source_type))
                                                     {{ $sale->source_type->name }}
@@ -77,7 +79,7 @@
                                                     {{$sale->type}}
                                                 @endif
                                             @endif
-                                        </td>
+                                        </td> --}}
                                         <td>
                                             @if (isset($sale->plan_id))
                                                 @if(isset($sale->plan_name))
@@ -130,11 +132,22 @@
                                             @endforeach
                                         </td>
                                         <td>
+                                            @foreach ($sale->proms as $prom)
+                                                @if ($prom->prom_type == 'C')
+                                                    @if(isset($prom->prom_id))
+                                                        {{ $prom->prom_name->name }}-{{ number_format($prom->prom_total) }}<br>
+                                                    @endif
+                                                @else
+                                                    無
+                                                @endif
+                                            @endforeach
+                                        </td>
+                                        <td>
                                             @if (isset($sale->pay_id))
                                                 {{ $sale->pay_type() }}
                                             @endif
                                         </td>
-                                        <td>{{ number_format($sale->pay_price) }}</td>
+                                        {{-- <td>{{ number_format($sale->pay_price) }}</td> --}}
                     
                                         {{-- <td> --}}
                                             {{-- @if ($sale->status != '9')
@@ -168,6 +181,7 @@
                                                 </div>
                                             @endif --}}
                                         {{-- </td> --}}
+                                        <td>{{ $sale->comm }}</td>
                                     </tr>
                                 @endforeach
                                 </tbody>

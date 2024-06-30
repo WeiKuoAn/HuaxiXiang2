@@ -39,13 +39,18 @@
                                 <div class="me-3">
                                     <button type="submit" onclick="CheckSearch(event)" class="btn btn-success waves-effect waves-light me-1"><i class="fe-search me-1"></i>搜尋</button>
                                 </div>
+                                <div class="me-3">
+                                    <a href="{{ route('rpg07.export',request()->input()) }}" onclick="CheckForm(event)" class="btn btn-danger waves-effect waves-light">匯出</a>
+                                </div>
                             </form>
                         </div>
-                        <div class="col-auto">
-                            <div class="text-lg-end my-1 my-lg-0">
-                                <a href="{{ route('rpg07.export',request()->input()) }}" onclick="CheckForm(event)" class="btn btn-danger waves-effect waves-light">匯出</a>
-                            </div>
-                        </div><!-- end col-->
+                        @if(Auth::user()->level != 2)
+                            <div class="col-auto">
+                                <div class="text-lg-end my-1 my-lg-0">
+                                    <h3><span class="text-danger">共計{{ number_format($total_price) }}元</span></h3>
+                                </div>
+                            </div><!-- end col-->
+                        @endif
                     </div> <!-- end row -->
                 </div>
             </div> <!-- end card -->

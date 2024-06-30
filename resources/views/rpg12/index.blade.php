@@ -74,6 +74,7 @@
                                     <th>No</th>
                                     <th>日期</th>
                                     <th>客戶名稱</th>
+                                    <th>寶貝名</th>
                                     <th>方案</th>
                                     <th>方案價格</th>
                                     <th>佣金</th>
@@ -89,6 +90,7 @@
                                             <td align="center">{{ $key+1 }}</td>
                                             <td align="center">{{ $item->sale_date }}</td>
                                             <td align="center">{{ $item->name }}</td>
+                                            <td align="center">{{ $item->pet_name }}</td>
                                             <td align="center">{{ $item->plan_name }}</td>
                                             <td align="right">{{ number_format($item->plan_price) }}</td>
                                             <td align="right">{{ number_format($item->commission) }}</td>

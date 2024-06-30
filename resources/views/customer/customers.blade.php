@@ -142,7 +142,7 @@
                                                     <a class="dropdown-item" href="{{ route('customer.detail',$customer->id) }}"><i class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i>查看</a>
                                                     <a class="dropdown-item" href="{{ route('customer.sales',$customer->id) }}"><i class="mdi mdi-clipboard-text-search me-2 font-18 text-muted vertical-middle"></i>業務紀錄</a>
                                                     <a class="dropdown-item" href="{{ route('customer.edit',$customer->id) }}"><i class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
-                                                    @if (Auth::user()->level != 2)
+                                                    @if (Auth::user()->level != 2 || Auth::user()->job_id == 3)
                                                     <a class="dropdown-item" href="{{ route('customer.del',$customer->id) }}"><i class="mdi mdi-delete me-2 text-muted font-18 vertical-middle"></i>刪除</a>
                                                     @endif
                                                 </div>

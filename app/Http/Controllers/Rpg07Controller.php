@@ -38,8 +38,15 @@ class Rpg07Controller extends Controller
             $datas = [];
         }
         // dd($datas);
+        $total_price = 0;
+        foreach ($datas as $data)
+        {
+            $total_price+=$data->pay_price;
+        }
+        // dd($datas);
         // dd($datas);
         return view('rpg07.index')->with('datas', $datas)
+                                  ->with('total_price',$total_price)
                                   ->with('request', $request);
     }
 
