@@ -41,7 +41,7 @@ class Rpg07Controller extends Controller
         $total_price = 0;
         foreach ($datas as $data)
         {
-            $total_price+=$data->pay_price;
+            $total_price+=$data->plan_price;
         }
         // dd($datas);
         // dd($datas);

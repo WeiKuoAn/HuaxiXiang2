@@ -154,6 +154,9 @@
                             <li>
                                 <a href="{{ route('preson.sale_statistics') }}"  class="{{ request()->is('preson.sale_statistics') ? 'active' : '' }}">專員各單量統計</a>
                             </li>
+                            <li>
+                                <a href="{{ route('rpg07') }}"  class="{{ request()->is('rpg07') ? 'active' : '' }}">團火查詢</a>
+                            </li>
                         </ul>
                     </div>
                 </li>

@@ -442,8 +442,8 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/rpg/rpg05', [Rpg05Controller::class, 'rpg05'])->name('rpg05');
     Route::get('/rpg/rpg06', [Rpg06Controller::class, 'rpg06'])->name('rpg06');//舊法會查詢
     Route::get('/rpg/rpg06/export', [Rpg06Controller::class, 'export'])->name('rpg06.export');//舊法會查詢
-    Route::get('/rpg/rpg07', [Rpg07Controller::class, 'rpg07'])->name('rpg07');
-    Route::get('/rpg/rpg07/export', [Rpg07Controller::class, 'export'])->name('rpg07.export');
+    Route::get('/rpg/group', [Rpg07Controller::class, 'rpg07'])->name('rpg07');
+    Route::get('/rpg/group/export', [Rpg07Controller::class, 'export'])->name('rpg07.export');
     Route::get('/rpg/rpg09', [Rpg09Controller::class, 'rpg09'])->name('rpg09');
     Route::get('/rpg/rpg10', [Rpg10Controller::class, 'rpg10'])->name('rpg10');
     Route::get('/rpg/rpg11', [Rpg11Controller::class, 'rpg11'])->name('rpg11');
