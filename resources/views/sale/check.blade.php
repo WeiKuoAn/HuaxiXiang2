@@ -101,9 +101,12 @@
                         <div class="mb-3 col-md-4" id="source_company">
                             <label for="source_company_id" class="form-label">來源公司名稱<span class="text-danger">*</span></label>
                             <select class="form-control" data-toggle="select2" data-width="100%" name="source_company_name_q" id="source_company_name_q">
-                                <option value="">請選擇...</option>
                                 @foreach($source_companys as $source_company)
-                                    <option value="{{ $source_company->id }}" @if( $sale_company->company_id == $source_company->id) selected @endif>（{{$source_company->group->name}}）{{ $source_company->name }}（{{ $source_company->mobile }}）</option>
+                                    @if(isset($sale_company))
+                                        <option value="{{ $source_company->id }}" @if( $sale_company->company_id == $source_company->id) selected @endif>（{{$source_company->group->name}}）{{ $source_company->name }}（{{ $source_company->mobile }}）</option>
+                                    @else
+                                        <option value="">無</option>
+                                    @endif
                                 @endforeach
                             </select>
                         </div>
