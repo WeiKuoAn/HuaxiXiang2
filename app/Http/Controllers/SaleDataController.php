@@ -943,7 +943,7 @@ class SaleDataController extends Controller
             {
                 $sale_company->sale_date = $request->sale_date;
                 $sale_company->type = $request->type;
-                $sale_company->customer_id = $request->customer_id;
+                $sale_company->customer_id = $request->cust_name_q;
                 $sale_company->sale_id = $sale_id->id;
                 $sale_company->company_id = $request->source_company_name_q;
                 $sale_company->plan_price = $request->plan_price;
