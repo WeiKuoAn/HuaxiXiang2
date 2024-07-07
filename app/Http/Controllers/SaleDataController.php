@@ -642,6 +642,7 @@ class SaleDataController extends Controller
         if (Auth::user()->level != 2) {
             if ($request->admin_check == 'check') {
                 $sale->status = '9';
+                $sale->check_user_id = Auth::user()->id;
                 $sale->save();
             }
             if ($request->admin_check == 'not_check') {
@@ -975,6 +976,7 @@ class SaleDataController extends Controller
 
     public function delete($id)
     {
+        $source_companys = Customer::whereIn('group_id',[2,3,4,5,6,7])->get();
         $sources = SaleSource::where('status','up')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
@@ -994,7 +996,8 @@ class SaleDataController extends Controller
             ->with('sale_gdpapers', $sale_gdpapers)
             ->with('sources',$sources)
             ->with('sale_company',$sale_company)
-            ->with('sale_address',$sale_address);
+            ->with('sale_address',$sale_address)
+            ->with('source_companys',$source_companys);
     }
     public function destroy($id)
     {

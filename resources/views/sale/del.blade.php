@@ -167,15 +167,21 @@
                                 <input type="checkbox" class="form-check-input" id="connector_hospital_address" name="connector_hospital_address"  @if((isset($data->hospital_address)))  checked value="1" @else  value="0" @endif >
                                 <label class="form-check-label" for="connector_hospital_address"><b>接體地址為醫院</b></label>
                                 @if(isset($data->hospital_address) && $data->hospital_address != 0)
-                                    【{{ $data->hospital_address_name->name }} 】
+                                    @if(isset($data->hospital_address_name))
+                                        【{{ $data->hospital_address_name->name }} 】
+                                    @else
+                                        <span style="color: red;">（接體地址輸入錯誤）</span>
+                                    @endif
                                 @endif
                             </div>
                             <div class="mt-2 row" id="connector_hospital_address_div">
                                 <div class="col-md-4">
-                                    <label for="source_company_id" class="form-label">接體地址<span class="text-danger">*</span></label>
-                                    <input  list="source_company_name_list_q" class="form-control source_company_name" id="source_company_name_q" name="hospital_address" placeholder="請輸入醫院、禮儀社、美容院、繁殖場、狗園名稱" @if(isset($data->hospital_address)) value="{{ $data->hospital_address }}" @endif>
-                                    <datalist id="source_company_name_list_q">
-                                    </datalist>
+                                    <select class="form-control" data-toggle="select2" data-width="100%" name="hospital_address" id="hospital_address">
+                                        <option value="">請選擇...</option>
+                                        @foreach($source_companys as $source_company)
+                                            <option value="{{ $source_company->id }}" @if($source_company->id == $data->hospital_address) selected @endif>（{{$source_company->group->name}}）{{ $source_company->name }}（{{ $source_company->mobile }}）</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                         </div>

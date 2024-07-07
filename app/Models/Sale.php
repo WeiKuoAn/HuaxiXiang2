@@ -31,6 +31,7 @@ class Sale extends Model
         'connector_address',
         'hospital_address',
         'comm',
+        'check_user_id'
     ];
 
     public function status()
