@@ -159,12 +159,19 @@
                                         <td>{{ $sale->sale_date }}</td>
                                         <td>
                                             @if (isset($sale->customer_id))
-                                                @if(isset($sale->cust_name))
-                                                    {{ $sale->cust_name->name }}
+                                                @if(isset($sale->cust_name->name))
+                                                    {{ $sale->cust_name->name }}-追思
                                                 @else
                                                     {{ $sale->customer_id }}<b style="color: red;">（客戶姓名須重新登入）</b>
                                                 @endif
                                             @elseif($sale->type_list == 'memorial')
+                                                @if (isset($sale->customer_id))
+                                                    @if(isset($sale->cust_name))
+                                                        {{ $sale->cust_name->name }}
+                                                    @else
+                                                        {{ $sale->customer_id }}<b style="color: red;">（客戶姓名須重新登入）</b>
+                                                    @endif
+                                                @endif
                                                 追思
                                             @endif
                                         </td>
