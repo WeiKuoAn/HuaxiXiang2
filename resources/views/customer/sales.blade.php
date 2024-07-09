@@ -46,7 +46,7 @@
                                             <th>對拆</th>
                                         @endif
                                         <th>動作</th> --}}
-                                        <th>備註</th>
+                                        <th width="25%">備註</th>
                                     </tr>
                                 </thead>
                                 <tbody>

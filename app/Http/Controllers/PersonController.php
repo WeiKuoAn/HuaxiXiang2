@@ -404,6 +404,7 @@ class PersonController extends Controller
         $leave_datas = [];
         $leaves= DB::table('leaves')
                     ->join('leave_setting','leave_setting.leave_id', '=' , 'leaves.id')
+                    ->whereIn('leaves.id',[1])
                     ->where('leaves.status',0)
                     ->where('leave_setting.year' , '=' , $year)
                     ->select('leaves.*' , 'leave_setting.approved_days as day')
@@ -414,6 +415,7 @@ class PersonController extends Controller
             $dates[$leave->id]['day'] = $leave->day;
             $dates[$leave->id]['hour'] = intval($leave->day) * 8;
         }
+        // dd($leaves);
 
         //每人的特休天數
         $dates['1']['user_day'][$user->id]['day'] = $this->specil_vacation($user->entry_date);

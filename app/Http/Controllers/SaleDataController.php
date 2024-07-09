@@ -1191,7 +1191,8 @@ class SaleDataController extends Controller
             "Expires"             => "0"
         );
         $header = array('日期', $after_date.'~' ,  $before_date);
-        $columns = array('案件單類別','單號', '專員', '日期', '客戶', '寶貝名' , '類別','原方案','金紙','金紙總賣價','安葬方式','後續處理','其他處理','付款方式','實收價格','狀態','備註','轉單','轉單後人員','對拆人員','更改後方案','確認對帳人員','確認對帳時間');
+        $columns = array('案件單類別','單號', '專員', '日期', '客戶', '寶貝名' , '類別','原方案','金紙','金紙總賣價','安葬方式','後續處理','其他處理','付款方式','實收價格','狀態','備註','更改後方案','確認對帳人員','確認對帳時間');
+        // ,'轉單','轉單後人員','對拆人員',
 
         $callback = function() use($sales, $columns ,$header) {
             
@@ -1299,26 +1300,26 @@ class SaleDataController extends Controller
                 }else{
                     $row['備註'] = '';
                 }
-                $row['轉單'] = '';
-                if(isset($sale->SaleChange)){
-                    $row['轉單'] = '是';
-                }else{
-                    $row['轉單'] = '否';
-                }
-                $row['轉單人員'] = '';
-                if(isset($sale->SaleChange)){
-                    $row['轉單人員'] = $sale->SaleChange->change_user_data->name;
-                }else{
-                    $row['轉單人員'] = '';
-                }
-                $row['對拆人員'] = '';
-                if(isset($sale->SaleSplit)){
-                    $row['對拆人員'] = $sale->SaleSplit->user_name->name;
-                }
-                $row['對拆人員'] = '';
-                if(isset($sale->SaleSplit)){
-                    $row['對拆人員'] = $sale->SaleSplit->user_name->name;
-                }
+                // $row['轉單'] = '';
+                // if(isset($sale->SaleChange)){
+                //     $row['轉單'] = '是';
+                // }else{
+                //     $row['轉單'] = '否';
+                // }
+                // $row['轉單人員'] = '';
+                // if(isset($sale->SaleChange)){
+                //     $row['轉單人員'] = $sale->SaleChange->change_user_data->name;
+                // }else{
+                //     $row['轉單人員'] = '';
+                // }
+                // $row['對拆人員'] = '';
+                // if(isset($sale->SaleSplit)){
+                //     $row['對拆人員'] = $sale->SaleSplit->user_name->name;
+                // }
+                // $row['對拆人員'] = '';
+                // if(isset($sale->SaleSplit)){
+                //     $row['對拆人員'] = $sale->SaleSplit->user_name->name;
+                // }
                 $row['更改後方案'] = '';
                 if(isset($sale->change_plan)){
                     $row['更改後方案'] = '由「'.$sale->change_plan->old_plan_data->name.'」改為'.'「'.$sale->change_plan->new_plan_data->name.'」';
@@ -1334,7 +1335,8 @@ class SaleDataController extends Controller
                 //'付款方式','實收價格','狀態','轉單','對拆人員'
                 fputcsv($file, array( $row['案件單類別'],$row['單號'], $row['專員'], $row['日期'], $row['客戶'],$row['寶貝名'],$row['類別']
                                      ,$row['方案'],$row['金紙'],$row['金紙總價格'],$row['安葬方式'],$row['後續處理'],$row['其他處理'],$row['付款方式']
-                                     ,$row['實收價格'],$row['狀態'],$row['備註'],$row['轉單'],$row['轉單人員'],$row['對拆人員'],$row['更改後方案'],$row['確認對帳人員'],$row['確認對帳時間']));
+                                     ,$row['實收價格'],$row['狀態'],$row['備註'],$row['更改後方案'],$row['確認對帳人員'],$row['確認對帳時間']));
+                                    //  ,$row['轉單'],$row['轉單人員'],$row['對拆人員']
             }
 
             fclose($file);
