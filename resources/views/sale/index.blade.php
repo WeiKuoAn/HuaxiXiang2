@@ -158,13 +158,7 @@
                                         <td>{{ $sale->user_name->name }}</td>
                                         <td>{{ $sale->sale_date }}</td>
                                         <td>
-                                            @if (isset($sale->customer_id))
-                                                @if(isset($sale->cust_name->name))
-                                                    {{ $sale->cust_name->name }}-追思
-                                                @else
-                                                    {{ $sale->customer_id }}<b style="color: red;">（客戶姓名須重新登入）</b>
-                                                @endif
-                                            @elseif($sale->type_list == 'memorial')
+                                            @if ($sale->type_list == 'dispatch')
                                                 @if (isset($sale->customer_id))
                                                     @if(isset($sale->cust_name))
                                                         {{ $sale->cust_name->name }}
@@ -172,7 +166,16 @@
                                                         {{ $sale->customer_id }}<b style="color: red;">（客戶姓名須重新登入）</b>
                                                     @endif
                                                 @endif
-                                                追思
+                                            @elseif($sale->type_list == 'memorial')
+                                                @if (isset($sale->customer_id))
+                                                    @if(isset($sale->cust_name))
+                                                        {{ $sale->cust_name->name }}-追思
+                                                    @else
+                                                        {{ $sale->customer_id }}<b style="color: red;">（客戶姓名須重新登入）</b>
+                                                    @endif
+                                                @else
+                                                    追思
+                                                @endif
                                             @endif
                                         </td>
                                         <td>

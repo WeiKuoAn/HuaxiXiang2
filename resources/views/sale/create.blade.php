@@ -72,7 +72,7 @@
                             <label for="sale_date" class="form-label">日期<span class="text-danger">*</span></label>
                             <input type="date" class="form-control" id="sale_date" name="sale_date" required>
                         </div>
-                        <div class="mb-3 col-md-4 not_memorial_show">
+                        <div class="mb-3 col-md-4">
                             <label for="customer_id" class="form-label">客戶名稱<span class="text-danger">*</span></label>
                             <select class="form-control" data-toggle="select2" data-width="100%" name="cust_name_q" id="cust_name_q" required>
                                 <option value="">請選擇...</option>
@@ -84,7 +84,7 @@
                             <datalist id="cust_name_list_q">
                             </datalist> --}}
                         </div>
-                        <div class="mb-3 col-md-4 not_memorial_show">
+                        <div class="mb-3 col-md-4">
                             <label for="pet_name" class="form-label">寵物名稱<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="pet_name" name="pet_name" required >
                         </div>
