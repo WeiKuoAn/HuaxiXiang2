@@ -18,6 +18,7 @@ use App\Models\SaleSource;
 use App\Models\Product;
 use App\Models\CustGroup;
 use App\Models\SaleCompanyCommission;
+use App\Models\SalePlan;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -647,10 +648,12 @@ class SaleDataController extends Controller
             }
             if ($request->admin_check == 'not_check') {
                 $sale->status = '1';
+                $sale->check_user_id = null;
                 $sale->save();
             }
             if ($request->admin_check == 'reset') {
                 $sale->status = '1';
+                $sale->check_user_id = null;
                 $sale->save();
             }
             $user = session('user');
@@ -744,6 +747,12 @@ class SaleDataController extends Controller
         $data = Sale::where('id', $id)->first();
         $data->plan_id = $request->new_plan_id;
         $data->save();
+
+        $sale_plan = new SalePlan;
+        $sale_plan->sale_id = $data->id;
+        $sale_plan->plan_id = $request->old_plan_id;
+        $sale_plan->new_plan_id = $request->new_plan_id;
+        $sale_plan->save();
         return redirect()->route('sales',['status' => 'check']);
 
         // return view('sale.change_plan')->with('data', $data)
@@ -808,7 +817,7 @@ class SaleDataController extends Controller
     {
         $sale = Sale::where('id', $id)->first();
         $sale->sale_on = $request->sale_on;
-        $sale->type = $request->type;
+        $sale->type_list = $request->type_list;
         // $sale->user_id = Auth::user()->id;
         $sale->sale_date = $request->sale_date;
         $sale->customer_id = $request->cust_name_q;
@@ -1182,7 +1191,7 @@ class SaleDataController extends Controller
             "Expires"             => "0"
         );
         $header = array('日期', $after_date.'~' ,  $before_date);
-        $columns = array('案件單類別','單號', '專員', '日期', '客戶', '寶貝名' , '類別','方案','金紙','金紙總賣價','安葬方式','後續處理','付款方式','實收價格','狀態','備註','轉單','轉單後人員','對拆人員');
+        $columns = array('案件單類別','單號', '專員', '日期', '客戶', '寶貝名' , '類別','原方案','金紙','金紙總賣價','安葬方式','後續處理','其他處理','付款方式','實收價格','狀態','備註','轉單','轉單後人員','對拆人員','更改後方案','確認對帳人員','確認對帳時間');
 
         $callback = function() use($sales, $columns ,$header) {
             
@@ -1269,6 +1278,16 @@ class SaleDataController extends Controller
                         }
                     }
                 }
+                $row['其他處理'] = '';
+                foreach ($sale->proms as $prom){
+                    if ($prom->prom_type == 'C'){
+                        if(isset($prom->prom_id)){
+                            $row['其他處理'] .= ($row['其他處理']=='' ? '' : "\r\n").$prom->prom_name->name .'-'.number_format($prom->prom_total);
+                        }else{
+                            $row['其他處理'] = '無';
+                        }
+                    }
+                }
                 if (isset($sale->pay_id)){
                     $row['付款方式'] = $sale->pay_type();
                 }
@@ -1296,10 +1315,26 @@ class SaleDataController extends Controller
                 if(isset($sale->SaleSplit)){
                     $row['對拆人員'] = $sale->SaleSplit->user_name->name;
                 }
+                $row['對拆人員'] = '';
+                if(isset($sale->SaleSplit)){
+                    $row['對拆人員'] = $sale->SaleSplit->user_name->name;
+                }
+                $row['更改後方案'] = '';
+                if(isset($sale->change_plan)){
+                    $row['更改後方案'] = '由「'.$sale->change_plan->old_plan_data->name.'」改為'.'「'.$sale->change_plan->new_plan_data->name.'」';
+                }
+                $row['確認對帳人員'] = '';
+                if(isset($sale->check_user_id)){
+                    $row['確認對帳人員'] = $sale->check_user_name->name;
+                }
+                $row['確認對帳時間'] = '';
+                if(isset($sale->check_user_id)){
+                    $row['確認對帳時間'] = $sale->updated_at;
+                }
                 //'付款方式','實收價格','狀態','轉單','對拆人員'
                 fputcsv($file, array( $row['案件單類別'],$row['單號'], $row['專員'], $row['日期'], $row['客戶'],$row['寶貝名'],$row['類別']
-                                     ,$row['方案'],$row['金紙'],$row['金紙總價格'],$row['安葬方式'],$row['後續處理'],$row['付款方式']
-                                     ,$row['實收價格'],$row['狀態'],$row['備註'],$row['轉單'],$row['轉單人員'],$row['對拆人員']));
+                                     ,$row['方案'],$row['金紙'],$row['金紙總價格'],$row['安葬方式'],$row['後續處理'],$row['其他處理'],$row['付款方式']
+                                     ,$row['實收價格'],$row['狀態'],$row['備註'],$row['轉單'],$row['轉單人員'],$row['對拆人員'],$row['更改後方案'],$row['確認對帳人員'],$row['確認對帳時間']));
             }
 
             fclose($file);

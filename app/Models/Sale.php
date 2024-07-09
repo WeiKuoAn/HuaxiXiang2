@@ -45,6 +45,11 @@ class Sale extends Model
         return $this->hasOne('App\Models\SaleChange', 'sale_id', 'id')->orderBy('id', 'desc');
     }
 
+    public function SalePlan()
+    {
+        return $this->hasOne('App\Models\SalePlan', 'sale_id', 'id')->orderBy('id', 'desc');
+    }
+
     public function SaleSplit()
     {
         return $this->hasOne('App\Models\SaleSplit', 'sale_id', 'id')->orderBy('id', 'desc');
@@ -65,6 +70,11 @@ class Sale extends Model
         return $this->hasOne('App\Models\User', 'id', 'user_id');
     }
 
+    public function check_user_name()
+    {
+        return $this->hasOne('App\Models\User', 'id', 'check_user_id');
+    }
+
     public function cust_name()
     {
         return $this->hasOne('App\Models\Customer', 'id', 'customer_id');
@@ -78,6 +88,11 @@ class Sale extends Model
     public function plan_name()
     {
         return $this->hasOne('App\Models\Plan', 'id', 'plan_id');
+    }
+
+    public function change_plan()
+    {
+        return $this->hasOne('App\Models\SalePlan', 'sale_id', 'id');
     }
 
     public function promA_name()
