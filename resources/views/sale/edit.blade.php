@@ -224,7 +224,7 @@
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        <select id="select_prom_{{$key}}" alt="{{ $key }}" class="mobile form-select" name="select_proms[]" onchange="chgItems(this)">
+                                                        <select id="select_prom_{{$key}}" alt="{{ $key }}" data-key="{{$key}}" class="mobile form-select" name="select_proms[]" onchange="chgItems(this)">
                                                             <option value="" selected>請選擇</option>
                                                             <option value="A" @if($sale_prom->prom_type == 'A') selected @endif>安葬處理</option>
                                                             <option value="B" @if($sale_prom->prom_type == 'B') selected @endif>後續處理</option>
@@ -232,7 +232,7 @@
                                                         </select>
                                                     </td>
                                                     <td>
-                                                        <select id="prom_{{$key}}" class="mobile form-select" name="prom[]" >
+                                                        <select id="prom_{{$key}}" class="mobile form-select" name="prom[]" onchange="chgPromItems(this)">
                                                             @foreach($proms as $prom)
                                                                 <option value="{{ $prom->id }}" @if($sale_prom->prom_id == $prom->id) selected @endif >{{ $prom->name }}</option>
                                                             @endforeach
@@ -805,6 +805,48 @@
         });
     }
 
+    $('select[name="prom[]"]').on('mousedown', function(event) {
+        var selectElement = $(this);
+        var isLoaded = selectElement.data('loaded');
+
+        // 阻止原生的下拉行为，直到数据加载完成
+        if (!isLoaded) {
+            event.preventDefault(); // 阻止下拉菜单自动展开
+
+            var currentSelectedValue = selectElement.val();
+            var promType = selectElement.closest('td').prev('td').find('select').val();
+
+            $.ajax({
+                url: '{{ route('prom.search') }}',
+                method: 'GET',
+                data: { 'select_prom': promType },
+                success: function(response) {
+                    selectElement.html(response).find('option').each(function() {
+                        if ($(this).val() === currentSelectedValue) {
+                            $(this).prop('selected', true);
+                        }
+                    });
+
+                    selectElement.data('loaded', true);
+
+                    // 数据加载后重新触发 focus 事件，这次允许下拉展开
+                    selectElement.off('focus').trigger('focus');
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching prom options:', error);
+                }
+            });
+        }
+    });
+
+
+
+
+
+
+
+
+
     function chgNums(obj){
         $("#row_id").val($("#"+ obj.id).attr('alt'));
         row_id = $("#row_id").val();
@@ -892,9 +934,6 @@
         $("#total").val(total);
         $("#total_text").html(total);
     }
-
-   
-
 
     $( "#cust_name_q" ).keydown(function() {
             $value=$(this).val();
