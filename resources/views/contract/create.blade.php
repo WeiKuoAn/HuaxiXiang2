@@ -2,9 +2,9 @@
 
 @section('css')
 <!-- third party css -->
-<link href="{{asset('assets/libs/dropzone/dropzone.min.css')}}" rel="stylesheet" type="text/css" />
 <link href="{{asset('assets/libs/select2/select2.min.css')}}" rel="stylesheet" type="text/css" />
-<link href="{{asset('assets/libs/flatpickr/flatpickr.min.css')}}" rel="stylesheet" type="text/css" />
+<link href="{{ URL::asset('assets/css/customization.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <!-- third party css end -->
 @endsection
 
@@ -53,11 +53,14 @@
                                 <input type="text" class="form-control" id="number" name="number"  required>
                            </div>
                            <div class="mb-3">
-                                <label for="customer_id" class="form-label">客戶名稱<span class="text-danger">*</span></label>
-                                <input list="cust_name_list_q" class="form-control" id="cust_name_q" name="cust_name_q" placeholder="請輸入客戶姓名" required>
-                                <datalist id="cust_name_list_q">
-                                </datalist>
-                           </div>
+                            <label for="customer_id" class="form-label">客戶名稱<span class="text-danger">*</span></label>
+                            <select class="form-control" data-toggle="select2" data-width="100%" name="cust_name_q" id="cust_name_q" required>
+                                <option value="">請選擇...</option>
+                                @foreach($customers as $customer)
+                                    <option value="{{ $customer->id }}">No.{{ $customer->id }} {{ $customer->name }}（{{ $customer->mobile }}）</option>
+                                @endforeach
+                            </select>
+                        </div>
                            <div class="mb-3">
                                 <label for="mobile" class="form-label">客戶電話<span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="mobile" name="mobile"  required>
@@ -71,12 +74,12 @@
                                 <input type="text" class="form-control" id="year" name="year"  required>
                            </div>
                            <div class="mb-3">
-                                <label for="start_date" class="form-label">開始日期<span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="start_date" name="start_date"  required>
+                                <label for="start_date" class="form-label ">開始日期<span class="text-danger">*</span></label>
+                                <input type="text" class="date form-control change_cal_date" id="start_date" name="start_date"  required>
                            </div>
                            <div class="mb-3">
-                                <label for="end_date" class="form-label">結束日期<span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="end_date" name="end_date"  required>
+                                <label for="end_date" class="form-label ">結束日期<span class="text-danger">*</span></label>
+                                <input type="text" class="date form-control change_cal_date" id="end_date" name="end_date"  required>
                            </div>
                            <div class="mb-3">
                                 <label for="price" class="form-label">金額<span class="text-danger">*</span></label>
@@ -121,16 +124,16 @@
 
 @section('script')
 <!-- third party js -->
-
-<script src="{{ asset('assets/js/twzipcode-1.4.1-min.js') }}"></script>
-<script src="{{ asset('assets/js/twzipcode.js') }}"></script>
-<script src="{{asset('assets/libs/dropzone/dropzone.min.js')}}"></script>
+<script src="{{asset('assets/libs/selectize/selectize.min.js')}}"></script>
+<script src="{{asset('assets/libs/mohithg-switchery/mohithg-switchery.min.js')}}"></script>
+<script src="{{asset('assets/libs/multiselect/multiselect.min.js')}}"></script>
 <script src="{{asset('assets/libs/select2/select2.min.js')}}"></script>
-<script src="{{asset('assets/libs/flatpickr/flatpickr.min.js')}}"></script>
+<script src="{{asset('assets/libs/jquery-mockjax/jquery-mockjax.min.js')}}"></script>
+<script src="{{asset('assets/libs/devbridge-autocomplete/devbridge-autocomplete.min.js')}}"></script>
 <!-- third party js ends -->
-
-<!-- demo app -->
-<script src="{{asset('assets/js/pages/create-project.init.js')}}"></script>
+<script src="{{asset('assets/js/pages/form-advanced.init.js')}}"></script>
+{{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 <script>
     $("#renew_div").hide();
     $('#renew').change(function() {
@@ -145,8 +148,9 @@
         }
     });
 
-    $( "#cust_name_q" ).keydown(function() {
+    $( "#cust_name_q" ).change(function() {
         $value=$(this).val();
+        console.log($value);
         $.ajax({
             type : 'get',
             url : '{{ route('customer.search') }}',
@@ -169,6 +173,10 @@
         // console.log($value);
     });
 
+    $('input.date').datepicker({
+            dateFormat: 'yy/mm/dd' // Set the date format
+        });
+
     $('#start_date').change(function() {
         var startDate = new Date($(this).val());
         startDate.setFullYear(startDate.getFullYear() + 1);
@@ -179,8 +187,33 @@
         var endDate = ("0" + startDate.getDate()).slice(-2);
 
         var endDateString = `${endYear}-${endMonth}-${endDate}`;
-        $('#end_date').val(endDateString);
+        let endDateStringformattedDate = convertToROC(endDateString);
+        $('#end_date').val(endDateStringformattedDate);
     });
+
+    $(".change_cal_date").on("change keyup", function() {
+            let inputValue = $(this).val(); // Get the input date value
+            let formattedDate = convertToROC(inputValue); // Convert the date format
+            $(this).val(formattedDate); // Update the input field value
+        });
+
+        function convertToROC(dateString) {
+            dateString = dateString.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+            if (dateString.length === 8) {
+                // Format is YYYYMMDD
+                let year = parseInt(dateString.substr(0, 4)) - 1911;
+                let month = dateString.substr(4, 2);
+                let day = dateString.substr(6, 2);
+                return `${year}/${month}/${day}`;
+            } else if (dateString.length === 7) {
+                // Format is YYYMMDD assuming it's already ROC year
+                let year = parseInt(dateString.substr(0, 3));
+                let month = dateString.substr(3, 2);
+                let day = dateString.substr(5, 2);
+                return `${year}/${month}/${day}`;
+            }
+            return dateString; // Return original string if it does not match expected lengths
+        }
 </script>
 <!-- end demo js-->
 @endsection

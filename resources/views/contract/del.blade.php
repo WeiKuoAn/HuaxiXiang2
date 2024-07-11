@@ -2,9 +2,9 @@
 
 @section('css')
 <!-- third party css -->
-<link href="{{asset('assets/libs/dropzone/dropzone.min.css')}}" rel="stylesheet" type="text/css" />
 <link href="{{asset('assets/libs/select2/select2.min.css')}}" rel="stylesheet" type="text/css" />
-<link href="{{asset('assets/libs/flatpickr/flatpickr.min.css')}}" rel="stylesheet" type="text/css" />
+<link href="{{ URL::asset('assets/css/customization.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <!-- third party css end -->
 @endsection
 
@@ -54,34 +54,33 @@
                            </div>
                            <div class="mb-3">
                                 <label for="customer_id" class="form-label">客戶名稱<span class="text-danger">*</span></label>
-                                <input list="cust_name_list_q" class="form-control" id="cust_name_q" name="cust_name_q" placeholder="請輸入客戶姓名" value="{{ $data->customer_id }}" required>
-                                <datalist id="cust_name_list_q">
-                                </datalist>
+                                <select class="form-control" data-toggle="select2" data-width="100%" name="cust_name_q" id="cust_name_q" required>
+                                    <option value="">請選擇...</option>
+                                    @foreach($customers as $customer)
+                                        <option value="{{ $customer->id }}" @if($data->customer_id == $customer->id) selected @endif>No.{{ $customer->id }} {{ $customer->name }}（{{ $customer->mobile }}）</option>
+                                    @endforeach
+                                </select>
                            </div>
                            <div class="mb-3">
                                 <label for="mobile" class="form-label">客戶電話<span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="mobile" name="mobile"  value="{{ $data->mobile }}" required>
                            </div>
                            <div class="mb-3">
-                                <label for="pet_name" class="form-label">寶貝名稱<span class="text-danger">*</span></label>
-                                <select id="pet_name" class="mobile form-select" name="pet_name"  required>
-                                    @foreach($sales as $sale)
-                                    <option value="{{ $sale->pet_name }}" @if($data->pet_name == $sale->pet_name) selected @endif>{{ $sale->pet_name }}</option>
-                                    @endforeach
-                                </select>
-                           </div>
+                            <label for="pet_name" class="form-label">寶貝名稱<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="pet_name" name="pet_name" value="{{ $data->pet_name }}"  required>
+                       </div>
                            <div class="mb-3">
                                 <label for="year" class="form-label">第幾年<span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="year" name="year" value="{{ $data->year }}"  required>
                            </div>
                            <div class="mb-3">
-                                <label for="start_date" class="form-label">開始日期<span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="start_date" name="start_date"  value="{{ $data->start_date }}" required>
-                           </div>
-                           <div class="mb-3">
-                                <label for="end_date" class="form-label">結束日期<span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="end_date" name="end_date"  value="{{ $data->end_date }}" required>
-                           </div>
+                            <label for="start_date" class="form-label">開始日期<span class="text-danger">*</span></label>
+                            <input type="text" class="date form-control change_cal_date" id="start_date" name="start_date"  value="{{ $data->getRocStartDateAttribute() }}" required>
+                       </div>
+                       <div class="mb-3">
+                            <label for="end_date" class="form-label">結束日期<span class="text-danger">*</span></label>
+                            <input type="text" class="date form-control change_cal_date" id="end_date" name="end_date"  value="{{ $data->getRocEndDateAttribute() }}" required>
+                       </div>
                            <div class="mb-3">
                                 <label for="price" class="form-label">金額<span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="price" name="price"  value="{{ $data->price }}" required>
@@ -123,16 +122,16 @@
 
 @section('script')
 <!-- third party js -->
-
-<script src="{{ asset('assets/js/twzipcode-1.4.1-min.js') }}"></script>
-<script src="{{ asset('assets/js/twzipcode.js') }}"></script>
-<script src="{{asset('assets/libs/dropzone/dropzone.min.js')}}"></script>
+<script src="{{asset('assets/libs/selectize/selectize.min.js')}}"></script>
+<script src="{{asset('assets/libs/mohithg-switchery/mohithg-switchery.min.js')}}"></script>
+<script src="{{asset('assets/libs/multiselect/multiselect.min.js')}}"></script>
 <script src="{{asset('assets/libs/select2/select2.min.js')}}"></script>
-<script src="{{asset('assets/libs/flatpickr/flatpickr.min.js')}}"></script>
+<script src="{{asset('assets/libs/jquery-mockjax/jquery-mockjax.min.js')}}"></script>
+<script src="{{asset('assets/libs/devbridge-autocomplete/devbridge-autocomplete.min.js')}}"></script>
 <!-- third party js ends -->
-
-<!-- demo app -->
-<script src="{{asset('assets/js/pages/create-project.init.js')}}"></script>
+<script src="{{asset('assets/js/pages/form-advanced.init.js')}}"></script>
+{{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 <script>
     $("#renew_div").hide();
     $('#renew').change(function() {

@@ -104,13 +104,15 @@ class ContractController extends Controller
         return view('contract.index')->with('datas',$datas)
                                      ->with('contract_types',$contract_types)
                                      ->with('request',$request)
-                                     ->with('condition',$condition);
+                                     ->with('condition',$condition)
+                                     ;
     }
 
     public function create()
     {
+        $customers = Customer::orderby('created_at','desc')->get();
         $contract_types = ContractType::where('status','up')->get();
-        return view('contract.create')->with('contract_types',$contract_types);
+        return view('contract.create')->with('contract_types',$contract_types)->with('customers',$customers);
     }
 
     public function store(Request $request)
@@ -124,8 +126,8 @@ class ContractController extends Controller
         $data->mobile = $request->mobile;
         $data->year = $request->year;
         $data->price = $request->price;
-        $data->start_date = $request->start_date;
-        $data->end_date = $request->end_date;
+        $data->start_date = $this->convertROCtoGregorian($request->start_date);
+        $data->end_date = $this->convertROCtoGregorian($request->end_date);
         if(isset($request->renew)){
             $data->renew = $request->renew;
         }else{
@@ -140,10 +142,11 @@ class ContractController extends Controller
 
     public function show($id)
     {
+        $customers = Customer::orderby('created_at','desc')->get();
         $contract_types = ContractType::where('status','up')->get();
         $data = Contract::where('id',$id)->first();
         $sales = Sale::where('customer_id', $data->customer_id)->distinct('pet_name')->whereNotNull('pet_name')->get();
-        return view('contract.edit')->with('data',$data)->with('contract_types',$contract_types)->with('sales',$sales);
+        return view('contract.edit')->with('data',$data)->with('contract_types',$contract_types)->with('sales',$sales)->with('customers',$customers);
     }
 
     public function update(Request $request, $id)
@@ -156,8 +159,8 @@ class ContractController extends Controller
         $data->mobile = $request->mobile;
         $data->year = $request->year;
         $data->price = $request->price;
-        $data->start_date = $request->start_date;
-        $data->end_date = $request->end_date;
+        $data->start_date =  $this->convertROCtoGregorian($request->start_date);
+        $data->end_date =  $this->convertROCtoGregorian($request->end_date);
 
         if(isset($request->renew)){
             $data->renew = $request->renew;
@@ -166,7 +169,7 @@ class ContractController extends Controller
             $data->renew = 0;
             $data->renew_year = null;
         }
-        $data->close_date = $request->close_date;
+        $data->close_date =  $this->convertROCtoGregorian($request->close_date);
         $data->comment = $request->comment;
         $data->user_id = Auth::user()->id;
         $data->save();
@@ -175,10 +178,11 @@ class ContractController extends Controller
 
     public function delete($id)
     {
+        $customers = Customer::orderby('created_at','desc')->get();
         $contract_types = ContractType::where('status','up')->get();
         $data = Contract::where('id',$id)->first();
         $sales = Sale::where('customer_id', $data->customer_id)->distinct('pet_name')->whereNotNull('pet_name')->get();
-        return view('contract.del')->with('data',$data)->with('contract_types',$contract_types)->with('sales',$sales);
+        return view('contract.del')->with('data',$data)->with('contract_types',$contract_types)->with('sales',$sales)->with('customers',$customers);
     }
 
     public function destroy(Request $request, $id)

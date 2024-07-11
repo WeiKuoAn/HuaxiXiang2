@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use DateTime;
+
 
 class Contract extends Model
 {
@@ -40,4 +42,31 @@ class Contract extends Model
     {
         return $this->hasOne('App\Models\User', 'id', 'user_id');
     }
+
+    public function getRocStartDateAttribute()
+    {
+        return $this->convertToROC($this->start_date);
+    }
+    public function getRocEndDateAttribute()
+    {
+        return $this->convertToROC($this->end_date);
+    }
+    public function getRocCloseDateAttribute()
+    {
+        return $this->convertToROC($this->close_date);
+    }
+
+    // 私有的轉換函數
+    private function convertToROC($dateString) {
+        if (!$dateString) {
+            return '';
+        }
+        $date = new DateTime($dateString);
+        $year = (int)$date->format('Y') - 1911;
+        $month = $date->format('m');
+        $day = $date->format('d');
+        return "{$year}/{$month}/{$day}";
+    }
+
+
 }
