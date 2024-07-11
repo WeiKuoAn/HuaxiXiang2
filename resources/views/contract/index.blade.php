@@ -1,6 +1,9 @@
 @extends('layouts.vertical', ["page_title"=> "合約列表"])
 
 @section('content')
+@section('css')
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+@endsection
 <!-- Start Content-->
 <div class="container-fluid">
 
@@ -26,27 +29,30 @@
             <div class="card">
                 <div class="card-body">
                     <div class="row justify-content-between">
-                        <div class="col-auto">
                             <form class="d-flex flex-wrap align-items-center" action="{{ route('contracts') }}" method="GET">
-                                <div class="me-2">
+                                <div class="me-1 col-1">
                                     <label for="start_date_start" class="form-label">起始日期</label>
-                                    <input type="date" class="form-control" id="start_date_start" name="start_date_start" value="{{ $request->start_date_start }}">
+                                    <input  type="text" class="form-control date change_cal_date" id="start_date_start" name="start_date_start" value="{{ $request->start_date_start }}">
                                 </div>
-                                <div class="me-2">
-                                    <label for="start_date" class="form-label">&nbsp;</label>
-                                    <input type="date" class="form-control" id="start_date_end" name="start_date_end" value="{{ $request->start_date_end }}">
+                                <div class="me-2 col-1">
+                                    <label for="start_date" class="form-label ">&nbsp;</label>
+                                    <input type="text" class="form-control date change_cal_date" id="start_date_end" name="start_date_end" value="{{ $request->start_date_end }}">
                                 </div>
-                                <div class="me-2">
+                                <div class="me-2 col-1">
                                     <label for="end_date_start" class="form-label">結束日期</label>
-                                    <input type="date" class="form-control" id="end_date_start" name="end_date_start" value="{{ $request->end_date_start }}">
+                                    <input type="text" class="form-control date change_cal_date" id="end_date_start" name="end_date_start" value="{{ $request->end_date_start }}">
                                 </div>
-                                <div class="me-2">
+                                <div class="me-2 col-1">
                                     <label for="end_date_end" class="form-label">&nbsp;</label>
-                                    <input type="date" class="form-control" id="end_date_end" name="end_date_end" value="{{ $request->end_date_end }}">
+                                    <input type="text" class="form-control date change_cal_date" id="end_date_end" name="end_date_end" value="{{ $request->end_date_end }}">
                                 </div>
-                                <div class="me-2">
+                                <div class="me-2 col-1">
                                     <label for="before_date" class="form-label">顧客姓名</label>
-                                    <input type="search" class="form-control my-1 my-lg-0" id="cust_name" name="cust_name">
+                                    <input type="search" class="form-control my-1 my-lg-0" id="cust_name" name="cust_name" value="{{ $request->cust_name }}">
+                                </div>
+                                <div class="me-2 col-1">
+                                    <label for="before_date" class="form-label">寶貝姓名</label>
+                                    <input type="search" class="form-control my-1 my-lg-0" id="pet_name" name="pet_name" value="{{ $request->pet_name }}">
                                 </div>
                                 <div class="me-sm-2">
                                     <label class="form-label">合約類別</label>
@@ -80,16 +86,16 @@
                                         <button type="button" class="btn btn-primary waves-effect waves-light me-1"><i class="fe-download me-1"></i>匯出</button>
                                     </a>
                                 </div>
+                                <div class="col-auto"  style="margin-top: 28px;">
+                                    <div class="text-lg-end my-1 my-lg-0">
+                                        {{-- <button type="button" class="btn btn-success waves-effect waves-light me-1"><i class="mdi mdi-cog"></i></button> --}}
+                                        <a href="{{ route('contract.create') }}">
+                                            <button type="button" class="btn btn-danger waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#custom-modal"><i class="mdi mdi-plus-circle me-1"></i>新增合約</button>
+                                        </a>
+                                    </div>
+                                </div><!-- end col-->
                             </form>
-                        </div>
-                        <div class="col-auto"  style="margin-top: 28px;">
-                            <div class="text-lg-end my-1 my-lg-0">
-                                {{-- <button type="button" class="btn btn-success waves-effect waves-light me-1"><i class="mdi mdi-cog"></i></button> --}}
-                                <a href="{{ route('contract.create') }}">
-                                    <button type="button" class="btn btn-danger waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#custom-modal"><i class="mdi mdi-plus-circle me-1"></i>新增合約</button>
-                                </a>
-                            </div>
-                        </div><!-- end col-->
+                        
                     </div> <!-- end row -->
                 </div>
             </div> <!-- end card -->
@@ -142,11 +148,11 @@
                                             第{{ $data->year }}年
                                         @endif
                                     </td>
-                                    <td>{{ $data->start_date }}</td>
+                                    <td>{{ $data->getRocStartDateAttribute() }}</td>
                                     @if(!isset($request->check_close) || $request->check_close == '1')
-                                        <td>{{ $data->end_date }}</td>
+                                        <td>{{ $data->getRocEndDateAttribute() }}</td>
                                     @else
-                                        <td>{{ $data->close_date }}</td>
+                                        <td>{{ $data->getRocCloseDateAttribute() }}</td>
                                     @endif
                                     <td>{{ number_format($data->price) }}</td>
                                     <td>
@@ -182,4 +188,48 @@
     <!-- end row -->
 
 </div> <!-- container -->
+@endsection
+@section('script')
+<script src="{{asset('assets/libs/selectize/selectize.min.js')}}"></script>
+<script src="{{asset('assets/libs/mohithg-switchery/mohithg-switchery.min.js')}}"></script>
+<script src="{{asset('assets/libs/multiselect/multiselect.min.js')}}"></script>
+<script src="{{asset('assets/libs/select2/select2.min.js')}}"></script>
+<script src="{{asset('assets/libs/jquery-mockjax/jquery-mockjax.min.js')}}"></script>
+<script src="{{asset('assets/libs/devbridge-autocomplete/devbridge-autocomplete.min.js')}}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+{{-- <script src="{{asset('assets/libs/bootstrap-touchspin/bootstrap-touchspin.min.js')}}"></script>
+<script src="{{asset('assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js')}}"></script> --}}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('input.date').datepicker({
+            dateFormat: 'yy/mm/dd' // Set the date format
+        });
+
+        $(".change_cal_date").on("change keyup", function() {
+            let inputValue = $(this).val(); // Get the input date value
+            let formattedDate = convertToROC(inputValue); // Convert the date format
+            $(this).val(formattedDate); // Update the input field value
+        });
+
+        function convertToROC(dateString) {
+            dateString = dateString.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+            if (dateString.length === 8) {
+                // Format is YYYYMMDD
+                let year = parseInt(dateString.substr(0, 4)) - 1911;
+                let month = dateString.substr(4, 2);
+                let day = dateString.substr(6, 2);
+                return `${year}/${month}/${day}`;
+            } else if (dateString.length === 7) {
+                // Format is YYYMMDD assuming it's already ROC year
+                let year = parseInt(dateString.substr(0, 3));
+                let month = dateString.substr(3, 2);
+                let day = dateString.substr(5, 2);
+                return `${year}/${month}/${day}`;
+            }
+            return dateString; // Return original string if it does not match expected lengths
+        }
+    });
+</script>
 @endsection

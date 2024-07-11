@@ -25,22 +25,26 @@ class ContractController extends Controller
         if ($request) {
             $start_date_start = $request->start_date_start;
             if ($start_date_start) {
-                $datas = $datas->where('start_date', '>=', $start_date_start);
+                $gregorianStartDate = $this->convertROCtoGregorian($start_date_start);
+                $datas = $datas->where('start_date', '>=', $gregorianStartDate);
             }
 
             $start_date_end = $request->start_date_end;
             if ($start_date_end) {
-                $datas = $datas->where('start_date', '<=', $start_date_end);
+                $gregorianStartDateEnd = $this->convertROCtoGregorian($start_date_end);
+                $datas = $datas->where('start_date', '<=', $gregorianStartDateEnd);
             }
 
             $end_date_start = $request->end_date_start;
             if ($end_date_start) {
-                $datas = $datas->where('end_date', '>=', $end_date_start);
+                $gregorianEndDate = $this->convertROCtoGregorian($end_date_start);
+                $datas = $datas->where('end_date', '>=', $gregorianEndDate);
             }
 
             $end_date_end = $request->end_date_end;
             if ($end_date_end) {
-                $datas = $datas->where('end_date', '<=', $end_date_end);
+                $gregorianEndDateEnd = $this->convertROCtoGregorian($end_date_end);
+                $datas = $datas->where('end_date', '<=', $gregorianEndDateEnd);
             }
 
             $cust_name = $request->cust_name;
@@ -56,6 +60,13 @@ class ContractController extends Controller
                     $datas = $datas;
                 }
             }
+
+            $pet_name = $request->pet_name;
+            if ($pet_name) {
+                $pet_name = $request->pet_name.'%';
+                $datas = $datas->where('pet_name','like' ,$pet_name);
+            }
+
             $type = $request->type;
 
             if ($type != "null") {
@@ -81,6 +92,14 @@ class ContractController extends Controller
             $condition = '';
             $datas = $datas->orderby('start_date', 'asc')->paginate(50);
         }
+
+        foreach($datas as $data)
+        {
+            $data->Roc_start_date = 1;
+        }
+
+        // dd($datas);
+
         $contract_types = ContractType::where('status','up')->get();
         return view('contract.index')->with('datas',$datas)
                                      ->with('contract_types',$contract_types)
@@ -181,22 +200,26 @@ class ContractController extends Controller
         if ($request) {
             $start_date_start = $request->start_date_start;
             if ($start_date_start) {
-                $datas = $datas->where('start_date', '>=', $start_date_start);
+                $gregorianStartDate = $this->convertROCtoGregorian($start_date_start);
+                $datas = $datas->where('start_date', '>=', $gregorianStartDate);
             }
 
             $start_date_end = $request->start_date_end;
             if ($start_date_end) {
-                $datas = $datas->where('start_date', '<=', $start_date_end);
+                $gregorianStartDateEnd = $this->convertROCtoGregorian($start_date_end);
+                $datas = $datas->where('start_date', '<=', $gregorianStartDateEnd);
             }
 
             $end_date_start = $request->end_date_start;
             if ($end_date_start) {
-                $datas = $datas->where('end_date', '>=', $end_date_start);
+                $gregorianEndDate = $this->convertROCtoGregorian($end_date_start);
+                $datas = $datas->where('end_date', '>=', $gregorianEndDate);
             }
 
             $end_date_end = $request->end_date_end;
             if ($end_date_end) {
-                $datas = $datas->where('end_date', '<=', $end_date_end);
+                $gregorianEndDateEnd = $this->convertROCtoGregorian($end_date_end);
+                $datas = $datas->where('end_date', '<=', $gregorianEndDateEnd);
             }
 
             $cust_name = $request->cust_name;
@@ -212,6 +235,13 @@ class ContractController extends Controller
                     $datas = $datas;
                 }
             }
+
+            $pet_name = $request->pet_name;
+            if ($pet_name) {
+                $pet_name = $request->pet_name.'%';
+                $datas = $datas->where('pet_name','like' ,$pet_name);
+            }
+
             $type = $request->type;
 
             if ($type != "null") {
@@ -272,11 +302,11 @@ class ContractController extends Controller
                 }else{
                     $row['目前簽約年份'] = '第'.$data->year.'年';
                 }
-                $row['開始日期'] = $data->start_date;
+                $row['開始日期'] = $data->getRocStartDateAttribute();
                 if(!isset($request->check_close) || $request->check_close == '1'){
-                    $row['結束日期'] = $data->end_date;
+                    $row['結束日期'] = $data->getRocEndDateAttribute();
                 }else{
-                    $row['結束日期'] = $data->close_date;
+                    $row['結束日期'] = $data->getRocCloseDateAttribute();
                 }
                 $row['金額'] = $data->price;
                 if($data->renew == '1'){
@@ -293,4 +323,21 @@ class ContractController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+
+    function convertROCtoGregorian($rocDate) {
+        // Split the date into parts
+        $parts = explode('/', $rocDate);
+        if (count($parts) != 3) {
+            return null; // Or handle the error as appropriate
+        }
+    
+        // Convert ROC year to Gregorian by adding 1911
+        $year = intval($parts[0]) + 1911;
+        $month = $parts[1];
+        $day = $parts[2];
+    
+        // Format to "YYYY-MM-DD"
+        return sprintf('%04d-%02d-%02d', $year, $month, $day);
+    }
+    
 }
