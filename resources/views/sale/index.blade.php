@@ -271,6 +271,7 @@
                                                 @endif
                                             </td>
                                         @endif
+                                        
                                         <td>
                                             {{-- @if ($sale->status != '9')
                                                 <a href="{{ route('edit-sale', $sale->id) }}"><button type="button"
@@ -283,26 +284,39 @@
                                                 <a href="{{ route('check-sale', $sale->id) }}"><button type="button"
                                                         class="btn btn-danger btn-sm">查看</button></a>
                                             @endif --}}
-                                            @if ($sale->status != '9')
-                                                <div class="btn-group dropdown">
-                                                    <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-outline-secondary waves-effect" data-bs-toggle="dropdown" aria-expanded="false">動作 <i class="mdi mdi-arrow-down-drop-circle"></i></a>
-                                                    <div class="dropdown-menu dropdown-menu-end">
-                                                        <a class="dropdown-item" href="{{ route('sale.edit',$sale->id) }}"><i class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
-                                                        {{-- <a class="dropdown-item" href="#"><i class="mdi mdi-delete me-2 text-muted font-18 vertical-middle"></i>刪除</a> --}}
-                                                        <a class="dropdown-item" href="{{ route('sale.del',$sale->id) }}"><i class="mdi mdi-delete me-2 font-18 text-muted vertical-middle"></i>刪除</a>
-                                                        <a class="dropdown-item" href="{{ route('sale.check',$sale->id) }}"><i class="mdi mdi-send me-2 font-18 text-muted vertical-middle"></i>送出對帳</a>
+                                            @if(Auth::user()->level != 2)
+                                                @if ($sale->status != '9')
+                                                    <div class="btn-group dropdown">
+                                                        <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-outline-secondary waves-effect" data-bs-toggle="dropdown" aria-expanded="false">動作 <i class="mdi mdi-arrow-down-drop-circle"></i></a>
+                                                        <div class="dropdown-menu dropdown-menu-end">
+                                                            <a class="dropdown-item" href="{{ route('sale.edit',$sale->id) }}"><i class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
+                                                            {{-- <a class="dropdown-item" href="#"><i class="mdi mdi-delete me-2 text-muted font-18 vertical-middle"></i>刪除</a> --}}
+                                                            <a class="dropdown-item" href="{{ route('sale.del',$sale->id) }}"><i class="mdi mdi-delete me-2 font-18 text-muted vertical-middle"></i>刪除</a>
+                                                            <a class="dropdown-item" href="{{ route('sale.check',$sale->id) }}"><i class="mdi mdi-send me-2 font-18 text-muted vertical-middle"></i>送出對帳</a>
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                @else
+                                                    <div class="btn-group dropdown">
+                                                        <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-outline-secondary waves-effect" data-bs-toggle="dropdown" aria-expanded="false">動作 <i class="mdi mdi-arrow-down-drop-circle"></i></a>
+                                                        <div class="dropdown-menu dropdown-menu-end">
+                                                            <a class="dropdown-item" href="{{ route('sale.check',$sale->id) }}"><i class="mdi mdi-eye me-2 font-18 text-muted vertical-middle"></i>查看</a>
+                                                            <a class="dropdown-item" href="{{ route('sale.change_plan',$sale->id) }}"><i class="mdi mdi-vanish me-2 text-muted font-18 vertical-middle"></i>修改方案</a>
+                                                            {{-- <a class="dropdown-item" href="{{ route('sale.change',$sale->id) }}"><i class="mdi mdi-autorenew me-2 text-muted font-18 vertical-middle"></i>轉單/對拆</a>
+                                                            <a class="dropdown-item" href="{{ route('sale.change.record',$sale->id) }}"><i class="mdi mdi-cash me-2 text-muted font-18 vertical-middle"></i>轉單/對拆紀錄</a> --}}
+                                                        </div>
+                                                    </div>
+                                                @endif
                                             @else
-                                                <div class="btn-group dropdown">
-                                                    <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-outline-secondary waves-effect" data-bs-toggle="dropdown" aria-expanded="false">動作 <i class="mdi mdi-arrow-down-drop-circle"></i></a>
-                                                    <div class="dropdown-menu dropdown-menu-end">
-                                                        <a class="dropdown-item" href="{{ route('sale.check',$sale->id) }}"><i class="mdi mdi-eye me-2 font-18 text-muted vertical-middle"></i>查看</a>
-                                                        <a class="dropdown-item" href="{{ route('sale.change_plan',$sale->id) }}"><i class="mdi mdi-vanish me-2 text-muted font-18 vertical-middle"></i>修改方案</a>
-                                                        {{-- <a class="dropdown-item" href="{{ route('sale.change',$sale->id) }}"><i class="mdi mdi-autorenew me-2 text-muted font-18 vertical-middle"></i>轉單/對拆</a>
-                                                        <a class="dropdown-item" href="{{ route('sale.change.record',$sale->id) }}"><i class="mdi mdi-cash me-2 text-muted font-18 vertical-middle"></i>轉單/對拆紀錄</a> --}}
+                                                @if ($sale->status == '9')
+                                                    <div class="btn-group dropdown">
+                                                        <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-outline-secondary waves-effect" data-bs-toggle="dropdown" aria-expanded="false">動作 <i class="mdi mdi-arrow-down-drop-circle"></i></a>
+                                                        <div class="dropdown-menu dropdown-menu-end">
+                                                            <a class="dropdown-item" href="{{ route('sale.check',$sale->id) }}"><i class="mdi mdi-eye me-2 font-18 text-muted vertical-middle"></i>查看</a>
+                                                            {{-- <a class="dropdown-item" href="{{ route('sale.change',$sale->id) }}"><i class="mdi mdi-autorenew me-2 text-muted font-18 vertical-middle"></i>轉單/對拆</a>
+                                                            <a class="dropdown-item" href="{{ route('sale.change.record',$sale->id) }}"><i class="mdi mdi-cash me-2 text-muted font-18 vertical-middle"></i>轉單/對拆紀錄</a> --}}
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                @endif
                                             @endif
                                         </td>
                                     </tr>

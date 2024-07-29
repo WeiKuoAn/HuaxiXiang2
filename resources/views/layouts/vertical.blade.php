@@ -25,6 +25,8 @@
                 @include('layouts.topbar/sale-topbar')
             @elseif(Auth::user()->job_id == 6)<!-- 股東(6) -->
                 @include('layouts.topbar/shareholder-topbar')
+            @elseif(Auth::user()->job_id == 9)<!-- 純對帳帳號(9) -->
+                @include('layouts.topbar/check-topbar')
             @else
                 @include('layouts.topbar/sale-topbar')
             @endif
@@ -43,6 +45,8 @@
                 @include('layouts.shared/sale-left-sidebar')
             @elseif(Auth::user()->job_id == 6)<!-- 股東(6) -->
                 @include('layouts.shared/shareholder-left-sidebar')
+            @elseif(Auth::user()->job_id == 9)<!-- 純對帳帳號(9) -->
+                @include('layouts.shared/admin-check-left-sidebar')
             @else
                 @include('layouts.shared/sale-left-sidebar')
             @endif

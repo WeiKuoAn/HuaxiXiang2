@@ -159,6 +159,7 @@ class UserController extends Controller
                 $user->state = 0; //用戶只能修改第一次,第一次修改後 只能透過人資去修改，所以狀態是0
             }
             $user->status = $request->status;
+            $user->level = $request->level;
             $user->save();
         }
         return redirect()->route('user.edit',$id);
