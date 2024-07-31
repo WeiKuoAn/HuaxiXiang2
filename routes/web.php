@@ -54,6 +54,7 @@ use App\Http\Controllers\Rpg21Controller;
 use App\Http\Controllers\Rpg22Controller;
 use App\Http\Controllers\Rpg23Controller;
 use App\Http\Controllers\Rpg24Controller;
+use App\Http\Controllers\Rpg25Controller;
 use App\Http\Controllers\LeaveDayController;
 use App\Http\Controllers\RestockController;
 use App\Http\Controllers\LiffController;
@@ -268,6 +269,7 @@ Route::group(['prefix' => '/'], function () {
     Route::post('/sale/edit/{id}', [SaleDataController::class, 'update'])->name('sale.data.edit');
     Route::get('/sale/del/{id}', [SaleDataController::class, 'delete'])->name('sale.del');
     Route::post('/sale/del/{id}', [SaleDataController::class, 'destroy'])->name('sale.data.del');
+    Route::get('/sale/history/{id}', [SaleDataController::class, 'history'])->name('sale.history');
     //業務確認對帳
     Route::get('/sale/check/{id}', [SaleDataController::class, 'check_show'])->name('sale.check');
     Route::post('/sale/check/{id}', [SaleDataController::class, 'check_update'])->name('sale.data.check');
@@ -465,6 +467,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/rpg/rpg23', [Rpg23Controller::class, 'rpg23'])->name('rpg23');
     Route::get('/rpg/rpg23/detail/{district}', [Rpg23Controller::class, 'detail'])->name('rpg23.detail');
     Route::get('/rpg/rpg24', [Rpg24Controller::class, 'rpg24'])->name('rpg24');
+    Route::get('/rpg/rpg25', [Rpg25Controller::class, 'rpg25'])->name('rpg25');
 
     Route::get('/liff', [LiffController::class, 'index'])->name('liff.index');
 

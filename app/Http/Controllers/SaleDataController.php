@@ -13,6 +13,7 @@ use App\Models\SaleSplit;
 use App\Models\SaleAddress;
 use App\Models\SaleChange;
 use App\Models\Sale;
+use App\Models\SaleHistory;
 use App\Models\User;
 use App\Models\SaleSource;
 use App\Models\Product;
@@ -273,6 +274,13 @@ class SaleDataController extends Controller
             $CompanyCommission->commission = $request->plan_price/2;
             $CompanyCommission->save();
         }
+
+        //業務單軌跡-新增
+        $sale_history = new SaleHistory();
+        $sale_history->sale_id = $sale_id->id;
+        $sale_history->user_id = Auth::user()->id;
+        $sale_history->state = 'create';
+        $sale_history->save();
         
         return redirect()->route('sale.create');
         
@@ -645,16 +653,37 @@ class SaleDataController extends Controller
                 $sale->status = '9';
                 $sale->check_user_id = Auth::user()->id;
                 $sale->save();
+
+                //業務單軌跡-確認對帳
+                $sale_history = new SaleHistory();
+                $sale_history->sale_id = $id;
+                $sale_history->user_id = Auth::user()->id;
+                $sale_history->state = 'check';
+                $sale_history->save();
             }
             if ($request->admin_check == 'not_check') {
                 $sale->status = '1';
                 $sale->check_user_id = null;
                 $sale->save();
+
+                //業務單軌跡-撤回對帳
+                $sale_history = new SaleHistory();
+                $sale_history->sale_id = $id;
+                $sale_history->user_id = Auth::user()->id;
+                $sale_history->state = 'not_check';
+                $sale_history->save();
             }
             if ($request->admin_check == 'reset') {
                 $sale->status = '1';
                 $sale->check_user_id = null;
                 $sale->save();
+
+                //業務單軌跡-已對帳還原未對帳
+                $sale_history = new SaleHistory();
+                $sale_history->sale_id = $id;
+                $sale_history->user_id = Auth::user()->id;
+                $sale_history->state = 'reset';
+                $sale_history->save();
             }
             $user = session('user');
             $afterDate = session('afterDate');
@@ -673,6 +702,13 @@ class SaleDataController extends Controller
             if ($request->user_check == 'usercheck') {
                 $sale->status = '3';
                 $sale->save();
+
+                //業務單軌跡-專員送出對帳
+                $sale_history = new SaleHistory();
+                $sale_history->sale_id = $id;
+                $sale_history->user_id = Auth::user()->id;
+                $sale_history->state = 'usercheck';
+                $sale_history->save();
             }
             return redirect()->route('person.sales');
         }
@@ -753,6 +789,14 @@ class SaleDataController extends Controller
         $sale_plan->plan_id = $request->old_plan_id;
         $sale_plan->new_plan_id = $request->new_plan_id;
         $sale_plan->save();
+
+        //業務單軌跡-更新方案
+        $sale_history = new SaleHistory();
+        $sale_history->sale_id = $id;
+        $sale_history->user_id = Auth::user()->id;
+        $sale_history->state = 'update_plan';
+        $sale_history->save();
+
         return redirect()->route('sales',['status' => 'check']);
 
         // return view('sale.change_plan')->with('data', $data)
@@ -972,6 +1016,12 @@ class SaleDataController extends Controller
             }
         }
         
+        //業務單軌跡-更新
+        $sale_history = new SaleHistory();
+        $sale_history->sale_id = $sale_id->id;
+        $sale_history->user_id = Auth::user()->id;
+        $sale_history->state = 'update';
+        $sale_history->save();
 
         return redirect()->route('sales');
     }
@@ -1343,5 +1393,12 @@ class SaleDataController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    public function history($id)
+    {
+        $sale = Sale::where('id', $id)->first();
+        $datas = SaleHistory::where('sale_id',$id)->get();
+        return view('sale.history')->with('sale', $sale)->with('datas', $datas);
     }
 }
