@@ -76,7 +76,7 @@
                                         <tr>
                                             <td>{{ $prom['name'] }}</td>
                                             @foreach($datas as $key=>$data)
-                                                <td><a href="{{ route('rpg16.detail',['year'=>$request->year,'month'=>$key,'prom_id'=>$prom->id]) }}">{{ $data['proms'][$prom->id]['count'] }} </a></td>
+                                                <td><a href="{{ route('rpg25.detail',['year'=>$request->year,'month'=>$key,'prom_id'=>$prom->id]) }}">{{ $data['proms'][$prom->id]['count'] }} </a></td>
                                             @endforeach
                                             <td>{{ $sums[$prom->id] }}</td>
                                         </tr>

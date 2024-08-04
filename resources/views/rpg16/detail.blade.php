@@ -25,6 +25,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
+                    <div class="table-responsive ">
                             <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
                                 <thead>
                                     <tr align="center">
@@ -67,6 +68,7 @@
                         </div>
                     </div>
                 </div>
+            </div>
                 </div>
             </div>
 

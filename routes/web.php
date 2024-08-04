@@ -468,6 +468,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/rpg/rpg23/detail/{district}', [Rpg23Controller::class, 'detail'])->name('rpg23.detail');
     Route::get('/rpg/rpg24', [Rpg24Controller::class, 'rpg24'])->name('rpg24');
     Route::get('/rpg/rpg25', [Rpg25Controller::class, 'rpg25'])->name('rpg25');
+    Route::get('/rpg/rpg25/{month}/{prom_id}/detail', [Rpg25Controller::class, 'detail'])->name('rpg25.detail');
 
     Route::get('/liff', [LiffController::class, 'index'])->name('liff.index');
 

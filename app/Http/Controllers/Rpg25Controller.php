@@ -55,6 +55,7 @@ class Rpg25Controller extends Controller
                                                                 ->whereNotNull('sale_prom.prom_id')
                                                                 ->where('sale_data.sale_date','>=',$month['start_date'])->where('sale_data.sale_date','<=',$month['end_date'])
                                                                 ->where('sale_prom.prom_id',$prom->id)
+                                                                ->where('sale_prom.prom_id',$prom->id)
                                                                 ->where('sale_data.status','9')
                                                                 ->count();
                                                                 
@@ -112,8 +113,8 @@ class Rpg25Controller extends Controller
         $datas = Sale::join('sale_prom','sale_prom.sale_id', '=' , 'sale_data.id')
                     ->where('sale_data.sale_date','>=',$startOfMonth->toDateString())->where('sale_data.sale_date','<=',$endOfMonth->toDateString())
                     ->where('sale_prom.prom_id',$prom_id)
+                    // ->where('sale_prom.prom_type','C')
                     ->whereNotNull('sale_prom.prom_id')
-                    ->where('sale_prom.prom_type','C')
                     ->where('sale_data.status','9')
                     ->get();
                     // dd($datas);
