@@ -24,7 +24,7 @@ class Rpg07Controller extends Controller
     public function rpg07(Request $request)
     {
         if ($request->input() != null) {
-            $datas = Sale::whereIn('plan_id',[2,3])->where('status',9);
+            $datas = Sale::whereIn('plan_id',[2,3])->whereIn('status',[3,9]);
             $after_date = $request->after_date;
             if ($after_date) {
                 $datas = $datas->where('sale_date', '>=', $after_date);

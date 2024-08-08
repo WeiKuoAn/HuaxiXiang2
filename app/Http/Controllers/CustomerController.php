@@ -94,7 +94,7 @@ class CustomerController extends Controller
             }
         
             if (!empty($request->pet_name)) {
-                $customer_ids = Sale::where('pet_name', 'like', $request->pet_name . '%')
+                $customer_ids = Sale::where('pet_name', 'like', '%' . $request->pet_name . '%')
                                     ->pluck('customer_id');
                 if ($customer_ids->isNotEmpty()) {
                     $query->whereIn('id', $customer_ids);
