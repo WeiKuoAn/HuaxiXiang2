@@ -20,9 +20,9 @@ class LeaveDayController extends Controller
     {
         $leaves= Leaves::where('status',0)->orderby('seq')->get();
         if(Auth::user()->job_id == 1 || Auth::user()->job_id ==2 || Auth::user()->job_id ==7){
-            $datas = LeaveDay::orderby('created_at','desc');
+            $datas = LeaveDay::orderby('start_datetime','desc')->orderby('created_at','desc');
         }else{
-            $datas = LeaveDay::orderby('created_at','desc')->where('director_id',Auth::user()->job_id);
+            $datas = LeaveDay::orderby('start_datetime','desc')->orderby('created_at','desc')->where('director_id',Auth::user()->job_id);
         }
         
         if($request)
