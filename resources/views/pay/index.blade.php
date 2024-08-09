@@ -167,7 +167,10 @@
                                                 <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-outline-secondary waves-effect" data-bs-toggle="dropdown" aria-expanded="false">動作 <i class="mdi mdi-arrow-down-drop-circle"></i></a>
                                                 <div class="dropdown-menu dropdown-menu-end">
                                                     <a class="dropdown-item" href="{{ route('pay.edit',$data->id) }}"><i class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
+                                                    <a class="dropdown-item" href="{{ route('pay.history',$data->id) }}"><i class="mdi mdi-eye me-2 font-18 text-muted vertical-middle"></i>支出軌跡</a>
+                                                    @if(Auth::user()->job_id == 1 || Auth::user()->job_id == 2)
                                                     <a class="dropdown-item" href="{{ route('pay.del',$data->id) }}"><i class="mdi mdi-delete me-2 text-muted font-18 vertical-middle"></i>刪除</a>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </td>

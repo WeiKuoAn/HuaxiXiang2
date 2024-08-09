@@ -79,6 +79,27 @@
                 </li>
 
                 <li>
+                    <a href="#pay" data-bs-toggle="collapse">
+                        <i data-feather="trending-down"></i>
+                        <span> 支出管理 </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="pay">
+                        <ul class="nav-second-level">
+                            <li>
+                                <a href="{{ route('pay.sujects') }}"  class="{{ request()->is('pay.sujects') ? 'active' : '' }}">支出科目</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('pays') }}"  class="{{ request()->is('pays') ? 'active' : '' }}">支出管理</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('pay.create') }}"  class="{{ request()->is('pay.create') ? 'active' : '' }}">支出Key單</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li>
                     <a href="#sale" data-bs-toggle="collapse">
                         <i data-feather="codesandbox"></i>
                         <span> 業務管理 </span>

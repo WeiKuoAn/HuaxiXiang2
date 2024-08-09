@@ -10,67 +10,128 @@ use App\Models\Job;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Pagination\LengthAwarePaginator;
 
-class PayDataControllerCopy1 extends Controller
+class PayDataController extends Controller
 {
     public function index(Request $request)
     {
         $pays = Pay::orderby('seq','asc')->get();
         $users = User::where('status','0')->get();
-        // dd($request->all());
-        $url = $request->url();
-        // dd($url)
         if($request){
             $status = $request->status;
             if ($status) {
-                $pay_datas = PayData::where('status',  $status);
+                $datas = PayData::where('status',  $status);
+                $items = PayItem::where('status',  $status);
+                $sum_pay = PayData::where('status', $status);
             }else{
-                $pay_datas = PayData::where('status', 0);
+                $datas = PayData::where('status', 0);
+                $items = PayItem::where('status',  0);
+                $sum_pay = PayData::where('status', 0);
             }
-            $pay_datas = $pay_datas->orderby('pay_date','desc')->get();
-            $condition = $request->input();
+
+            // item支出日期
+            $pay_after_date = $request->pay_after_date;
+            if ($pay_after_date) {
+                $items =  $items->where('pay_date', '>=', $pay_after_date);
+            }
+            $pay_before_date = $request->pay_before_date;
+            if ($pay_before_date) {
+                $items =  $items->where('pay_date', '<=', $pay_before_date);
+            }
+            if($pay_after_date && $pay_before_date){
+                $items =  $items->where('pay_date', '>=', $pay_after_date)->where('pay_date', '<=', $pay_before_date);
+            }
+
+            
+
+            // key單日期
+            $after_date = $request->after_date;
+            if ($after_date) {
+                $datas =  $datas->where('pay_date', '>=', $after_date);
+                $sum_pay  = $sum_pay->where('pay_date', '>=', $after_date);
+            }
+            $before_date = $request->before_date;
+            if ($before_date) {
+                $datas =  $datas->where('pay_date', '<=', $before_date);
+                $sum_pay  = $sum_pay->where('pay_date', '<=', $before_date);
+            }
+            if($after_date && $before_date){
+                $datas =  $datas->where('pay_date', '>=', $after_date)->where('pay_date', '<=', $before_date);
+                $sum_pay  = $sum_pay->where('pay_date', '>=', $after_date)->where('pay_date', '<=', $before_date);
+            }
+
+            $pay = $request->pay;
+            // dd($pay);
+            if ($pay != "null") {
+                if (isset($pay)) {
+                    $items = $items->where('pay_id',$pay);
+                    $datas =  $datas->where('pay_id', $pay);
+                    $sum_pay  = $sum_pay->where('pay_id', $pay);
+                } else {
+                    // $datas = $datas;
+                    $sum_pay  = $sum_pay;
+                    $items = $items;
+                }
+            }
+
+            
+            // dd($items);
+            
+            $user = $request->user;
+            // dd($user);
+            if ($user != "null") {
+                if (isset($user)) {
+                    $datas =  $datas->where('user_id', $user);
+                    $sum_pay  = $sum_pay->where('user_id', $user);
+                    $item_id = 1; // Item的ID
+
+                    $items = $items->with('pay_data')->where('user_id', 1)->get();
+                    dd($items);
+                    if(isset($pay_after_date) || isset($pay_before_date) || isset($pay))
+                    {
+                        if(count($items) >= 0)
+                        {
+                            foreach($items as $item)
+                            {
+                                $pay_data_ids[] = $item->pay_data_id;
+                            }
+                            dd($pay_data_ids);
+                            $datas = $datas->where(function ($query) use ($pay_data_ids, $user) {
+                                $query->whereIn('id', $pay_data_ids)
+                                      ->where('user_id', $user);
+                            });
+                        }
+                    }
+                } else {
+                    $datas = $datas;
+                    $sum_pay  = $sum_pay;
+                }
+            }else{
+                if(isset($pay_after_date) || isset($pay_before_date) || isset($pay))
+                {
+                    $items = $items->get();
+                    if(count($items) > 0)
+                    {
+                        foreach($items as $item)
+                        {
+                            $pay_data_ids[] = $item->pay_data_id;
+                        }
+                        $datas =  $datas->orWhereIn('id', $pay_data_ids);
+                    }
+                }
+            }
+            
+            $sum_pay  = $sum_pay->sum('price');
+            $datas = $datas->orderby('pay_date','desc')->paginate(50);
+            $condition = $request->all();
         }else{
-            $pay_datas = PayData::orderby('pay_date','desc')->get();
+            $datas = PayData::orderby('pay_date','desc')->paginate(50);
             $sum_pay  = PayData::sum('price');
-            $condition = [];
+            $condition = '';
         }
-
-        $datas = [];
-        foreach($pay_datas as $key=>$pay_data)
-        {
-            $datas[$key]['id'] = $pay_data->id;
-            $datas[$key]['pay_date'] = $pay_data->pay_date;
-            $datas[$key]['pay_on'] =$pay_data->pay_on;
-            // $pay = Pay::where('id',$)
-            $datas[$key]['pay_items'] = PayItem::where('pay_data_id',$pay_data->id)->get();
-            $datas[$key]['invoice_number'] = $pay_data->invoice_number;
-            $datas[$key]['price'] = $pay_data->price;
-            $datas[$key]['comment'] = $pay_data->comment;
-            $datas[$key]['user_name'] = User::where('id',$pay_data->user_id)->pluck('name')->first();
-            $datas[$key]['status'] = $pay_data->status;
-        }
-
-        foreach($datas as $key=>$data)
-        {
-            foreach($data['pay_items'] as $item_key=>$pay_item)
-            {
-                $datas[$key]['pay_name'] = Pay::where('id',$pay_item->pay_id)->pluck('name')->first();
-            }
-        }
-
         // dd($datas);
-        $page = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 50; // 每頁的紀錄數
-        $currentItems = array_slice($datas, ($page - 1) * $perPage, $perPage); // 當前頁的項目
-        $datas = new LengthAwarePaginator($currentItems, count($datas), $perPage, $page);
-
-        // 設定基礎URL
-        $datas->setPath(url('/pay'));
-
-        // dd($request);
-
-        return view('pay.index')->with('datas',$datas)->with('request',$request)->with('pays',$pays)->with('users',$users)->with('condition',$condition)->with('status',$status);
+        return view('pay.index')->with('datas',$datas)->with('request',$request)->with('pays',$pays)->with('users',$users)->with('condition',$condition)
+                                   ->with('sum_pay',$sum_pay);
     }
 
     public function create(){
@@ -209,6 +270,7 @@ class PayDataControllerCopy1 extends Controller
         $pay->save();
         // dd($request->pay_invoice_number);
         PayItem::where('pay_data_id', $id)->delete();
+        $user = User::where('id',Auth::user()->id)->first();
         if(isset($request->pay_data_date)){
             foreach($request->pay_data_date as $key=>$data){
                 $Pay_Item = new PayItem();
@@ -226,6 +288,11 @@ class PayDataControllerCopy1 extends Controller
                     $Pay_Item->vender_id = $request->vender_id[$key];
                 }else{
                     $Pay_Item->vender_id = null;
+                }
+                if($user->job_id == '1' || $user->job_id == '2' || $user->job_id == '4'){
+                    $Pay_Item->status = 1;
+                }else{
+                    $Pay_Item->status = 0;
                 }
                 $Pay_Item->comment = $request->pay_text[$key];
                 $Pay_Item->save();

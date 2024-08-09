@@ -10,6 +10,7 @@ use App\Models\Job;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use App\Models\PayHistory;
 
 class PayDataController extends Controller
 {
@@ -221,6 +222,14 @@ class PayDataController extends Controller
                 $Pay_Item->save();
             }
         }
+
+        //業務單軌跡-新增
+        $sale_history = new PayHistory();
+        $sale_history->pay_id = $Pay_data_id->id;
+        $sale_history->user_id = Auth::user()->id;
+        $sale_history->state = 'create';
+        $sale_history->save();
+
         return redirect()->route('pay.create');
     }
 
@@ -278,7 +287,28 @@ class PayDataController extends Controller
             }
         }
 
-        return redirect()->route('pays');
+        //業務單軌跡-編輯
+        if($pay->user_id == Auth::user()->id){
+            $sale_history = new PayHistory();
+            $sale_history->pay_id = $id;
+            $sale_history->user_id = Auth::user()->id;
+            $sale_history->state = 'update';
+            $sale_history->save();
+        }else{
+            $sale_history = new PayHistory();
+            $sale_history->pay_id = $id;
+            $sale_history->user_id = Auth::user()->id;
+            $sale_history->state = 'other_user_update';
+            $sale_history->save();
+        }
+
+        if(Auth::user()->level != 2 || Auth::user()->job_id == '9'){
+            return redirect()->route('pays');
+        }else{
+            return redirect()->route('person.pays');
+        }
+
+        
     }
 
 
@@ -301,6 +331,12 @@ class PayDataController extends Controller
                     $item->status = 1;
                     $item->save();
                 }
+                //業務單軌跡-確定審核
+                $sale_history = new PayHistory();
+                $sale_history->pay_id = $id;
+                $sale_history->user_id = Auth::user()->id;
+                $sale_history->state = 'check';
+                $sale_history->save();
             }else{
                 $data->status = 0;
                 $data->save();
@@ -308,6 +344,12 @@ class PayDataController extends Controller
                     $item->status = 0;
                     $item->save();
                 }
+                //業務單軌跡-未審核
+                $sale_history = new PayHistory();
+                $sale_history->pay_id = $id;
+                $sale_history->user_id = Auth::user()->id;
+                $sale_history->state = 'not_check';
+                $sale_history->save();
             }
         }
         return redirect()->route('pays');
@@ -381,4 +423,12 @@ class PayDataController extends Controller
         return view('pay.user_index')->with('datas',$datas)->with('request',$request)->with('user',$user)->with('condition',$condition)
                                 ->with('sum_pay',$sum_pay);
     }    
+
+    public function history($id)
+    {
+        $pay_data = PayData::where('id', $id)->first();
+        $datas = PayHistory::where('pay_id',$id)->get();
+        return view('pay.history')->with('pay_data', $pay_data)->with('datas', $datas);
+    }
+
 }

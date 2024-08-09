@@ -60,6 +60,7 @@ use App\Http\Controllers\RestockController;
 use App\Http\Controllers\LiffController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LeaveSettingController;
+use App\Models\Pay;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Auth;
@@ -357,6 +358,7 @@ Route::group(['prefix' => '/'], function () {
     Route::post('/pay/del/{id}', [PayDataController::class, 'delete'])->name('pay.del.data');
     Route::get('/pay/check/{id}', [PayDataController::class, 'check'])->name('pay.check');
     Route::post('/pay/check/{id}', [PayDataController::class, 'check_data'])->name('pay.check.data');
+    Route::get('/pay/history/{id}', [PayDataController::class, 'history'])->name('pay.history');
 
     /*零用金管理*/
     Route::get('/cash', [CashController::class, 'index'])->name('cashs');
