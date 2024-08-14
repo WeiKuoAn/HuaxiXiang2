@@ -122,35 +122,27 @@
                                         <td>{{ $data->pay_date }}</td>
                                         <td>{{ $data->pay_on }}</td>
                                         <td>
-                                            @if(isset($data->pay_id))
-                                                {{ $data->pay_name->name }}
-                                            @else
-                                                @if(isset($data->pay_items))
-                                                    @foreach ($data->pay_items as $item)
-                                                        @if(isset($item->pay_id))
-                                                        {{ $item->pay_date }}<br>
-                                                        @endif
-                                                    @endforeach
-                                                @endif
+                                            @if(isset($pay_items[$data->id]['items']))
+                                                @foreach($pay_items[$data->id]['items'] as $item)
+                                                    {{ $item->pay_date }}<br>
+                                                @endforeach
                                             @endif
                                         </td>
                                         <td>
-                                            @if(isset($data->pay_id))
-                                                {{ $data->pay_name->name }}
-                                            @else
-                                                @if(isset($data->pay_items))
-                                                    @foreach ($data->pay_items as $item)
-                                                        @if(isset($item->pay_id))
-                                                        {{ $item->pay_name->name }}<br>
-                                                        @endif
-                                                    @endforeach
-                                                @endif
+                                            @if(isset($pay_items[$data->id]['items']))
+                                                @foreach($pay_items[$data->id]['items'] as $item)
+                                                    @if(isset($item->pay_id))
+                                                    {{ $item->pay_name->name }}<br>
+                                                    @endif
+                                                @endforeach
                                             @endif
                                         </td>
                                         <td>
-                                            @if(isset($data->pay_items))
-                                                @foreach ($data->pay_items as $item)
+                                            @if(isset($pay_items[$data->id]['items']))
+                                                @foreach($pay_items[$data->id]['items'] as $item)
+                                                    @if(isset($item->pay_id))
                                                     <b>{{ $item->invoice_number }}</b> - ${{ number_format($item->price) }}<br>
+                                                    @endif
                                                 @endforeach
                                             @endif
                                         </td>

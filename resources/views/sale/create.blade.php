@@ -110,7 +110,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="mb-3 col-md-4 not_final_show not_memorial_show plan">
+                        <div class="mb-3 col-md-4 not_memorial_show plan">
                             <label for="plan_id" class="form-label">方案選擇<span class="text-danger">*</span></label>
                             <select id="plan_id" class="form-select" name="plan_id" >
                                 <option value="">請選擇...</option>
@@ -522,8 +522,8 @@
         if($(this).val() == 'memorial'){
             $(".not_memorial_show").hide(300);
             $("#final_price").hide(300);
-            $("#cust_name_q").prop('required', false);
-            $("#pet_name").prop('required', false);
+            // $("#cust_name_q").prop('required', false);
+            // $("#pet_name").prop('required', false);
             $("#kg").prop('required', false);
             $("#type").prop('required', false);
             $("#plan_id").prop('required', false);
@@ -538,11 +538,17 @@
             $("#connector_div").show(300);
             $("#cust_name_q").prop('required', true);
             if(payIdValue == 'D' || payIdValue =='E'){
-                // $("#final_price").show(300);
+                $("#final_price").show(300);
                 $(".not_final_show").hide();
+                if(payIdValue =='D'){
+                    $(".plan").hide(300);
+                    $("#plan_id").prop('required', false);
+                }else{
+                    $(".plan").show(300);
+                    $("#plan_id").prop('required', true);
+                }
                 $("#kg").prop('required', false);
                 $("#type").prop('required', false);
-                $("#plan_id").prop('required', false);
                 $("#plan_price").prop('required', false);
                 $("#send_div").hide();
                 $("#connector_div").hide();
@@ -568,9 +574,16 @@
             console.log(a);
         if($(this).val() == 'D' || $(this).val() =='E'){
             $(".not_final_show").hide(300);
+            if($(this).val() =='D'){
+                $(".plan").hide(300);
+                $("#plan_id").prop('required', false);
+            }else{
+                $(".plan").show(300);
+                $("#plan_id").prop('required', true);
+            }
             $("#kg").prop('required', false);
             $("#type").prop('required', false);
-            $("#plan_id").prop('required', false);
+            // $("#plan_id").prop('required', false);
             $("#plan_price").prop('required', false);
             if(type_list == 'memorial'){
                 $("#final_price").hide();
