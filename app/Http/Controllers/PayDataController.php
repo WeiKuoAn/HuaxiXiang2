@@ -62,6 +62,12 @@ class PayDataController extends Controller
                 $datas = $datas->whereNotIn('user_id',['1','10']);
             }
 
+            $comment = $request->comment;
+            if($comment){
+                $comment = '%'.$request->comment.'%';
+                $datas =  $datas->where('comment', 'like' ,$comment);
+            }
+
             // 先找出符合條件的 pay_item 的 pay_data_id
             $pay_items = PayItem::query();
 

@@ -24,6 +24,12 @@
                     
     <div class="row">
         <div class="col-12">
+            <div class="col mb-3">
+                <div class="text-lg-end my-1 my-lg-0 mt-5">
+                    {{-- <button type="button" class="btn btn-success waves-effect waves-light me-1"><i class="mdi mdi-cog"></i></button> --}}
+                    <a href="{{ route('pay.create') }}" class="btn btn-danger waves-effect waves-light"><i class="mdi mdi-plus-circle me-1"></i>新增支出</a>
+                </div>
+            </div><!-- end col-->
             <div class="card">
                 <div class="card-body">
                     <div class="row justify-content-between">
@@ -44,6 +50,10 @@
                                 <div class="me-3">
                                     <label for="before_date" class="form-label">&nbsp;</label>
                                     <input type="date" class="form-control my-1 my-lg-0" id="inputPassword2" name="pay_before_date" value="{{ $request->pay_before_date }}">
+                                </div>
+                                <div class="me-sm-3" w>
+                                    <label for="after_date" class="form-label">備註</label>
+                                    <input type="text" class="form-control my-1 my-lg-0" id="inputPassword2" name="comment" value="{{ $request->comment }}">
                                 </div>
                                 <div class="me-sm-3">
                                     <label for="before_date" class="form-label">支出來源</label>
@@ -77,12 +87,6 @@
                                 </div>
                             </form>
                         </div>
-                        <div class="col mt-3">
-                            <div class="text-lg-end my-1 my-lg-0 mt-5">
-                                {{-- <button type="button" class="btn btn-success waves-effect waves-light me-1"><i class="mdi mdi-cog"></i></button> --}}
-                                <a href="{{ route('pay.create') }}" class="btn btn-danger waves-effect waves-light"><i class="mdi mdi-plus-circle me-1"></i>新增支出</a>
-                            </div>
-                        </div><!-- end col-->
                     </div> <!-- end row -->
                 </div>
             </div> <!-- end card -->
