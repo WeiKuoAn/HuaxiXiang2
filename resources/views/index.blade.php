@@ -126,8 +126,8 @@
                                     <td>{{ $contract_data->mobile }}</td>
                                     <td>{{ $contract_data->pet_name }}</td>
                                     <td>第{{ $contract_data->year }}年</td>
-                                    <td>{{ $contract_data->start_date }}</td>
-                                    <td>{{ $contract_data->end_date }}</td>
+                                    <td>{{ $contract_data->getRocStartDateAttribute() }}</td>
+                                    <td>{{ $contract_data->getRocEndDateAttribute() }}</td>
                                     <td>{{ number_format($contract_data->price) }}</td>
                                     <td>
                                         @if($contract_data->renew == '1')
