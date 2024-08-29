@@ -15,6 +15,7 @@
             width: 120px;
         }
     }
+    
     /* .bg-light {
         background-color: rgba(0,0,0,0.08) !important;
     } */

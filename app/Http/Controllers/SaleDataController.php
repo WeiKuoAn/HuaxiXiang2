@@ -1083,7 +1083,7 @@ class SaleDataController extends Controller
                 $sales = Sale::whereIn('status', [1, 2]);
             }
             if ($status == 'check') {
-                $sales = Sale::where('status', 9);
+                $sales = Sale::whereIn('status', [9,100]);
             }
             $type_list = $request->type_list;
             if ($type_list != "null") {
@@ -1093,6 +1093,7 @@ class SaleDataController extends Controller
                     $sales = $sales;
                 }
             }
+
             $after_date = $request->after_date;
             if ($after_date) {
                 $sales = $sales->where('sale_date', '>=', $after_date);
@@ -1103,14 +1104,14 @@ class SaleDataController extends Controller
             }
             $sale_on = $request->sale_on;
             if ($sale_on) {
-                $sales = $sales->where('sale_on', $sale_on);
+                $sale_on = '%'.$request->sale_on.'%';
+                $sales = $sales->where('sale_on','like',$sale_on);
             }
             $cust_mobile = $request->cust_mobile;
 
             if ($cust_mobile) {
                 $cust_mobile = $request->cust_mobile.'%';
                 $customers = Customer::where('mobile', 'like' ,$cust_mobile)->get();
-
                 foreach($customers as $customer) {
                     $customer_ids[] = $customer->id;
                 }
@@ -1119,12 +1120,6 @@ class SaleDataController extends Controller
                 }else{
                     $sales = $sales;
                 }
-            }
-
-            $pet_name = $request->pet_name;
-            if ($pet_name) {
-                $pet_name = $request->pet_name.'%';
-                $sales = $sales->where('pet_name', 'like' ,$pet_name);
             }
 
             $pet_name = $request->pet_name;
@@ -1270,7 +1265,7 @@ class SaleDataController extends Controller
                     $row['客戶'] = '追思';
                 }
                 if((isset($sale->pet_name))){
-                    $row['寶貝名'] = $sale->pet_name;
+                    $row['寶貝名'] = '="' . $sale->pet_name . '"';
                 }else{
                     $row['寶貝名'] = '';
                 }
