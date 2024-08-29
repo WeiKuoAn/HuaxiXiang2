@@ -135,8 +135,8 @@
                                         <td>
                                             @if(isset($pay_items[$data->id]['items']))
                                                 @foreach($pay_items[$data->id]['items'] as $item)
-                                                    @if(isset($item->pay_id))
-                                                    {{ $item->pay_name->name }}<br>
+                                                    @if(!empty($item->pay_id))
+                                                        {{ $item->pay_name->name }}<br>
                                                     @endif
                                                 @endforeach
                                             @endif
