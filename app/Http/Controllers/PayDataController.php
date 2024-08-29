@@ -142,6 +142,7 @@ class PayDataController extends Controller
 
     public function create(){
         //只取日期當數字
+        $create_today = date('Y-m-d', strtotime(Carbon::now()->locale('zh-tw')));
         $today = date('Y-m-d', strtotime(Carbon::now()->locale('zh-tw')));
         $today = explode("-",$today);
         $today = $today[0].$today[1].$today[2];
@@ -172,7 +173,7 @@ class PayDataController extends Controller
         // dd($pay_on);
 
         $pays = Pay::where('status','up')->orderby('seq','asc')->get();
-        return view('pay.create')->with('pays',$pays)->with('pay_on',$pay_on);
+        return view('pay.create')->with('pays',$pays)->with('pay_on',$pay_on)->with('create_today',$create_today);
     }
 
     public function store(Request $request){

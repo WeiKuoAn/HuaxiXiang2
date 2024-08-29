@@ -724,23 +724,28 @@
         });
     }
 
-    function chgNums(obj){
-        $("#row_id").val($("#"+ obj.id).attr('alt'));
-        row_id = $("#row_id").val();
+    function chgNums(obj) {
+        $("#row_id").val($("#" + obj.id).attr('alt'));
+        var row_id = $("#row_id").val();
+
         $.ajax({
-            url : '{{ route('gdpaper.search') }}',
-            data:{'gdpaper_id':$("#gdpaper_id_"+row_id).val()},
-            success:function(data){
-                $("#gdpaper_num_"+row_id).on('change', function(){
-                    console.log("#gdpaper_total_"+row_id);
-                    var gdpaper_num = $("#gdpaper_num_"+row_id).val();
-                    $("#gdpaper_total_"+row_id).val(gdpaper_num*data);
+            url: '{{ route('gdpaper.search') }}',
+            data: {'gdpaper_id': $("#gdpaper_id_" + row_id).val()},
+            success: function(data) {
+                var gdpaper_num = $("#gdpaper_num_" + row_id).val();
+                $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
+                calculate_price();
+
+                // 更新事件监听器
+                $("#gdpaper_num_" + row_id).on('change', function() {
+                    gdpaper_num = $(this).val();
+                    $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
                     calculate_price();
                 });
-                
             }
         });
     }
+
     
 
     $("table.prom-list tbody").on("click", ".ibtnDel_prom", function() {

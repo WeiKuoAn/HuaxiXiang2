@@ -97,7 +97,7 @@
                                             <button class="mobile btn btn-primary del-row" alt="{{ $i }}" type="button" name="button" onclick="del_row(this)">刪除</button>
                                             </td>
                                             <td scope="row">
-                                            <input id="pay_date-{{ $i }}" class="mobile form-control" type="date" name="pay_data_date[]" value="" required>
+                                            <input id="pay_date-{{ $i }}" class="mobile form-control" type="date" name="pay_data_date[]" value="{{ $create_today }}" required>
                                             </td>
                                             <td>
                                                 <select id="pay_id-{{ $i }}" class="mobile form-select"  aria-label="Default select example" name="pay_id[]" required>
@@ -214,7 +214,7 @@
             $newRow += '<button class="mobile btn btn-primary del-row" alt="'+$rowCount+'" type="button" name="button" onclick="del_row(this)">刪除</button>';
             $newRow += '</td>';
             $newRow += '<td scope="row">';
-            $newRow += '<input id="pay_date-'+$rowCount+'" class="mobile form-control" type="date" name="pay_data_date[]" value="" required>';
+            $newRow += '<input id="pay_date-'+$rowCount+'" class="mobile form-control" type="date" name="pay_data_date[]" value="{{ $create_today }}" required>';
             $newRow += '</td>';
             $newRow += '<td>';
             $newRow += '<select id="pay_id-'+$rowCount+'" class="mobile form-select" aria-label="Default select example" name="pay_id[]" required>';
