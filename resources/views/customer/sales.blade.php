@@ -92,11 +92,7 @@
                                                 @foreach ($sale->gdpapers as $gdpaper)
                                                     @if (isset($gdpaper->gdpaper_id))
                                                         @if(isset($gdpaper->gdpaper_name))
-                                                            @if ($sale->plan_id != '4')
-                                                                {{ $gdpaper->gdpaper_name->name }}({{ number_format($gdpaper->gdpaper_total) }})元<br>
-                                                            @else
-                                                                {{ $gdpaper->gdpaper_name->name }}({{ number_format($gdpaper->gdpaper_num) }})份<br>
-                                                            @endif
+                                                            {{ $gdpaper->gdpaper_name->name }}({{ number_format($gdpaper->gdpaper_total) }})元<br>
                                                         @endif
                                                     @else
                                                         無

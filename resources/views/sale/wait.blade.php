@@ -121,17 +121,17 @@
                                             @endif
                                         </td>
                                         <td>
-                                            @foreach ($sale->gdpapers as $gdpaper)
-                                                @if (isset($gdpaper->gdpaper_id))
-                                                    @if ($sale->plan_id != '4')
-                                                        {{ $gdpaper->gdpaper_name->name }}({{ number_format($gdpaper->gdpaper_total) }})元<br>
+                                            @if(isset($sale->gdpapers))
+                                                @foreach ($sale->gdpapers as $gdpaper)
+                                                    @if (isset($gdpaper->gdpaper_id))
+                                                        @if(isset($gdpaper->gdpaper_name))
+                                                            {{ $gdpaper->gdpaper_name->name }}({{ number_format($gdpaper->gdpaper_total) }})元<br>
+                                                        @endif
                                                     @else
-                                                        {{ $gdpaper->gdpaper_name->name }}({{ number_format($gdpaper->gdpaper_num) }})份<br>
+                                                        無
                                                     @endif
-                                                @else
-                                                    無
-                                                @endif
-                                            @endforeach
+                                                @endforeach
+                                            @endif
                                         </td>
                                         <td>
                                             @if(isset($sale->before_prom_id))
