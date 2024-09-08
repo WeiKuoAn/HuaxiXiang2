@@ -294,7 +294,7 @@
                                                 </select>
                                             </td>
                                             <td>
-                                                <input type="number" alt="{{ $i }}"  class="mobile form-control" min="1" id="gdpaper_num_{{$i}}" name="gdpaper_num[]" onchange="chgNums(this)" onclick="chgNums(this)" onkeydown="chgNums(this)">
+                                                <input type="number" alt="{{ $i }}"  class="mobile form-control" min="0" id="gdpaper_num_{{$i}}" name="gdpaper_num[]" onchange="chgNums(this)" onclick="chgNums(this)" onkeydown="chgNums(this)">
                                             </td>
                                             <td>
                                                 <input type="text" class="mobile form-control total_number" id="gdpaper_total_{{$i}}" name="gdpaper_total[]" value="">
@@ -713,8 +713,8 @@
             success: function(data){
                 var gdpaper_num = $("#gdpaper_num_" + row_id).val();
                 
-                // 如果數量為空，預設為 1
-                if (!gdpaper_num || gdpaper_num <= 0) {
+                // 如果數量為空，預設為 1gdpaper_num <= 0
+                if (!gdpaper_num) {
                     gdpaper_num = 1;
                     $("#gdpaper_num_" + row_id).val(gdpaper_num);
                 }
@@ -726,10 +726,6 @@
                 // 監聽數量變化，重新計算總價
                 $("#gdpaper_num_" + row_id).on('change', function() {
                     gdpaper_num = $(this).val();
-                    if (gdpaper_num <= 0) {
-                        gdpaper_num = 1; // 確保數量最小值為 1
-                        $(this).val(gdpaper_num);
-                    }
                     $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
                     calculate_price();
                 });
@@ -748,10 +744,10 @@
                 var gdpaper_num = $("#gdpaper_num_" + row_id).val();
                 
                 // 防止數量為 0 或空值
-                if (!gdpaper_num || gdpaper_num <= 0) {
-                    gdpaper_num = 1;
-                    $("#gdpaper_num_" + row_id).val(gdpaper_num);
-                }
+                // if (!gdpaper_num) {
+                //     gdpaper_num = 1;
+                //     $("#gdpaper_num_" + row_id).val(gdpaper_num);
+                // }
                 
                 // 計算總金額
                 $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
@@ -760,10 +756,10 @@
                 // 更新數量變更事件
                 $("#gdpaper_num_" + row_id).on('change', function() {
                     gdpaper_num = $(this).val();
-                    if (gdpaper_num <= 0) {
-                        gdpaper_num = 1; // 確保數量最小值為 1
-                        $(this).val(gdpaper_num);
-                    }
+                    // if (gdpaper_num <= 0) {
+                    //     gdpaper_num = 1; // 確保數量最小值為 1
+                    //     $(this).val(gdpaper_num);
+                    // }
                     $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
                     calculate_price();
                 });
@@ -778,10 +774,25 @@
         // 遍歷所有的 gdpaper_num 欄位
         $("input[id^='gdpaper_num_']").each(function() {
             var gdpaper_num = $(this).val();
-            if (gdpaper_num == 0 || gdpaper_num == '') {
-                alert('金紙數量不能為 0');
-                hasError = true;
-                return false; // 終止 each 循環
+            var row_id = $(this).attr('id').split('_')[2]; // 取得對應的 row_id
+            var gdpaper_id = $("#gdpaper_id_" + row_id).val(); // 獲取對應的金紙 ID
+
+            // 如果 gdpaper_num 有值且大於 0，檢查是否選擇了有效的金紙 ID
+            if (gdpaper_num && gdpaper_num > 0) {
+                if (!gdpaper_id || gdpaper_id == '0') {
+                    alert('請選擇金紙');
+                    hasError = true;
+                    return false; // 終止 each 循環
+                }
+            } 
+            // 如果 gdpaper_num 為 0
+            else if (gdpaper_num == 0 || gdpaper_num == '') {
+                // 檢查是否選擇了金紙 ID
+                if (gdpaper_id && gdpaper_id != '0') {
+                    alert('金紙數量不能為 0');
+                    hasError = true;
+                    return false; // 終止 each 循環
+                }
             }
         });
 
@@ -789,6 +800,7 @@
             event.preventDefault(); // 阻止表單提交
         }
     });
+
 
 
     
@@ -815,7 +827,7 @@
         cols += '</select>';
         cols += '</td>';
         cols += '<td>';
-        cols += '<input type="number"  alt="'+rowCount+'"  class="mobile form-control" id="gdpaper_num_'+rowCount+'" min="1" name="gdpaper_num[]" value="" onchange="chgNums(this)" onmousedown="chgNums(this)" onkeydown="chgNums(this)">';
+        cols += '<input type="number"  alt="'+rowCount+'"  class="mobile form-control" id="gdpaper_num_'+rowCount+'" min="0" name="gdpaper_num[]" value="" onchange="chgNums(this)" onmousedown="chgNums(this)" onkeydown="chgNums(this)">';
         cols += '</td>';
         cols += '<td>';
         cols += '<input type="text" class="mobile form-control total_number" id="gdpaper_total_'+rowCount+'" name="gdpaper_total[]">';
