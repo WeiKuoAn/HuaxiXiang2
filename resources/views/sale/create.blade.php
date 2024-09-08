@@ -73,7 +73,7 @@
                             <input type="date" class="form-control" id="sale_date" name="sale_date" required>
                         </div>
                         <div class="mb-3 col-md-4">
-                            <label for="customer_id" class="form-label">客戶名稱<span class="text-danger">*</span></label>
+                            <label for="customer_id" class="form-label">客戶名稱<span class="text-danger required">*</span></label>
                             <select class="form-control" data-toggle="select2" data-width="100%" name="cust_name_q" id="cust_name_q" required>
                                 <option value="">請選擇...</option>
                                 @foreach($customers as $customer)
@@ -85,8 +85,8 @@
                             </datalist> --}}
                         </div>
                         <div class="mb-3 col-md-4">
-                            <label for="pet_name" class="form-label">寵物名稱<span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="pet_name" name="pet_name" required >
+                            <label for="pet_name" class="form-label">寵物名稱<span class="text-danger required">*</span></label>
+                            <input type="text" class="form-control" id="pet_name" name="pet_name" >
                         </div>
                         <div class="mb-3 col-md-4 not_final_show not_memorial_show">
                             <label for="kg" class="form-label">公斤數<span class="text-danger">*</span></label>
@@ -294,7 +294,7 @@
                                                 </select>
                                             </td>
                                             <td>
-                                                <input type="number" alt="{{ $i }}"  class="mobile form-control" id="gdpaper_num_{{$i}}" name="gdpaper_num[]" onchange="chgNums(this)" onclick="chgNums(this)" onkeydown="chgNums(this)">
+                                                <input type="number" alt="{{ $i }}"  class="mobile form-control" min="1" id="gdpaper_num_{{$i}}" name="gdpaper_num[]" onchange="chgNums(this)" onclick="chgNums(this)" onkeydown="chgNums(this)">
                                             </td>
                                             <td>
                                                 <input type="text" class="mobile form-control total_number" id="gdpaper_total_{{$i}}" name="gdpaper_total[]" value="">
@@ -522,7 +522,7 @@
         if($(this).val() == 'memorial'){
             $(".not_memorial_show").hide(300);
             $("#final_price").hide(300);
-            // $("#cust_name_q").prop('required', false);
+            $("#cust_name_q").prop('required', false);
             // $("#pet_name").prop('required', false);
             $("#kg").prop('required', false);
             $("#type").prop('required', false);
@@ -532,11 +532,13 @@
             $("#send_div").hide(300);
             $("#connector_div").hide(300);
             $("#connector_hospital_div").hide(300);
+            $(".required").hide();
         }else if($(this).val() == 'dispatch'){
             $(".not_memorial_show").show(300);
             $("#send_div").show(300);
             $("#connector_div").show(300);
             $("#cust_name_q").prop('required', true);
+            $(".required").show();
             if(payIdValue == 'D' || payIdValue =='E'){
                 $("#final_price").show(300);
                 $(".not_final_show").hide();
@@ -700,26 +702,37 @@
     }
 
     function chgPapers(obj){
-        $("#row_id").val($("#"+ obj.id).attr('alt'));
+        $("#row_id").val($("#" + obj.id).attr('alt'));
         row_id = $("#row_id").val();
+
         console.log(row_id);
+        
         $.ajax({
-            url : '{{ route('gdpaper.search') }}',
-            data:{'gdpaper_id':$("#gdpaper_id_"+row_id).val()},
-            success:function(data){
-                $("#gdpaper_num_"+row_id).val(1);
-                if($("#gdpaper_num_"+row_id).val()){
-                    var gdpaper_num = $("#gdpaper_num_"+row_id).val();
-                    $("#gdpaper_total_"+row_id).val(gdpaper_num*data);
-                    calculate_price();
-                }else{
-                    $("#gdpaper_num_"+row_id).on('change', function(){
-                        var gdpaper_num = $("#gdpaper_num_"+row_id).val();
-                        $("#gdpaper_total_"+row_id).val(gdpaper_num*data);
-                        calculate_price();
-                    });
+            url: '{{ route('gdpaper.search') }}',
+            data: {'gdpaper_id': $("#gdpaper_id_" + row_id).val()},
+            success: function(data){
+                var gdpaper_num = $("#gdpaper_num_" + row_id).val();
+                
+                // 如果數量為空，預設為 1
+                if (!gdpaper_num || gdpaper_num <= 0) {
+                    gdpaper_num = 1;
+                    $("#gdpaper_num_" + row_id).val(gdpaper_num);
                 }
                 
+                // 計算金額
+                $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
+                calculate_price();
+                
+                // 監聽數量變化，重新計算總價
+                $("#gdpaper_num_" + row_id).on('change', function() {
+                    gdpaper_num = $(this).val();
+                    if (gdpaper_num <= 0) {
+                        gdpaper_num = 1; // 確保數量最小值為 1
+                        $(this).val(gdpaper_num);
+                    }
+                    $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
+                    calculate_price();
+                });
             }
         });
     }
@@ -733,18 +746,50 @@
             data: {'gdpaper_id': $("#gdpaper_id_" + row_id).val()},
             success: function(data) {
                 var gdpaper_num = $("#gdpaper_num_" + row_id).val();
+                
+                // 防止數量為 0 或空值
+                if (!gdpaper_num || gdpaper_num <= 0) {
+                    gdpaper_num = 1;
+                    $("#gdpaper_num_" + row_id).val(gdpaper_num);
+                }
+                
+                // 計算總金額
                 $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
                 calculate_price();
 
-                // 更新事件监听器
+                // 更新數量變更事件
                 $("#gdpaper_num_" + row_id).on('change', function() {
                     gdpaper_num = $(this).val();
+                    if (gdpaper_num <= 0) {
+                        gdpaper_num = 1; // 確保數量最小值為 1
+                        $(this).val(gdpaper_num);
+                    }
                     $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
                     calculate_price();
                 });
             }
         });
     }
+
+    // 檢查表單提交時 gdpaper_num 是否為 0
+    $("form").on('submit', function(event) {
+        var hasError = false;
+
+        // 遍歷所有的 gdpaper_num 欄位
+        $("input[id^='gdpaper_num_']").each(function() {
+            var gdpaper_num = $(this).val();
+            if (gdpaper_num == 0 || gdpaper_num == '') {
+                alert('金紙數量不能為 0');
+                hasError = true;
+                return false; // 終止 each 循環
+            }
+        });
+
+        if (hasError) {
+            event.preventDefault(); // 阻止表單提交
+        }
+    });
+
 
     
 
@@ -770,7 +815,7 @@
         cols += '</select>';
         cols += '</td>';
         cols += '<td>';
-        cols += '<input type="number"  alt="'+rowCount+'"  class="mobile form-control" id="gdpaper_num_'+rowCount+'" name="gdpaper_num[]" value="" onchange="chgNums(this)" onmousedown="chgNums(this)" onkeydown="chgNums(this)">';
+        cols += '<input type="number"  alt="'+rowCount+'"  class="mobile form-control" id="gdpaper_num_'+rowCount+'" min="1" name="gdpaper_num[]" value="" onchange="chgNums(this)" onmousedown="chgNums(this)" onkeydown="chgNums(this)">';
         cols += '</td>';
         cols += '<td>';
         cols += '<input type="text" class="mobile form-control total_number" id="gdpaper_total_'+rowCount+'" name="gdpaper_total[]">';
@@ -797,19 +842,6 @@
         $("#total_text").html(total);
         console.log(plan_id);
     }
-
-    // $( "#cust_name_q" ).keydown(function() {
-    //         $value=$(this).val();
-    //         $.ajax({
-    //         type : 'get',
-    //         url : '{{ route('customer.search') }}',
-    //         data:{'cust_name':$value},
-    //         success:function(data){
-    //             $('#cust_name_list_q').html(data);
-    //         }
-    //         });
-    //         console.log($value);
-    //     });
 
 
     $( ".source_company_name" ).keydown(function() {
