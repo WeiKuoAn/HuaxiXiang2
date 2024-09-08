@@ -884,7 +884,7 @@
                 var gdpaper_num = $("#gdpaper_num_" + row_id).val();
                 
                 // 如果數量為空或 <= 0，預設設置為 1
-                if (!gdpaper_num || gdpaper_num <= 0) {
+                if (!gdpaper_num) {
                     gdpaper_num = 1;
                     $("#gdpaper_num_" + row_id).val(gdpaper_num);
                 }
@@ -896,10 +896,7 @@
                 // 監聽數量變化，動態更新金額
                 $("#gdpaper_num_" + row_id).on('change', function() {
                     gdpaper_num = $(this).val();
-                    if (gdpaper_num <= 0) {
-                        gdpaper_num = 1; // 確保數量最小為 1
-                        $(this).val(gdpaper_num);
-                    }
+                   
                     $("#gdpaper_total_" + row_id).val(gdpaper_num * data); // 更新金額
                     calculate_price();
                 });
@@ -917,7 +914,7 @@
                 var gdpaper_num = $("#gdpaper_num_" + row_id).val();
                 
                 // 防止數量為 0 或空值，設置最小值為 1
-                if (!gdpaper_num || gdpaper_num <= 0) {
+                if (!gdpaper_num) {
                     gdpaper_num = 1;
                     $("#gdpaper_num_" + row_id).val(gdpaper_num);
                 }
@@ -929,10 +926,7 @@
                 // 監聽數量變更事件，動態更新金額
                 $("#gdpaper_num_" + row_id).on('change', function() {
                     gdpaper_num = $(this).val();
-                    if (gdpaper_num <= 0) {
-                        gdpaper_num = 1; // 確保數量最小為 1
-                        $(this).val(gdpaper_num);
-                    }
+                   
                     $("#gdpaper_total_" + row_id).val(gdpaper_num * data); // 更新總金額
                     calculate_price();
                 });
@@ -963,7 +957,7 @@
         cols += '</select>';
         cols += '</td>';
         cols += '<td>';
-        cols += '<input type="number" class="mobile form-control"  min="1"  id="gdpaper_num_'+rowCount+'" name="gdpaper_num[]" value="">';
+        cols += '<input type="number" class="mobile form-control"  min="0"  id="gdpaper_num_'+rowCount+'" name="gdpaper_num[]" value="">';
         cols += '</td>';
         cols += '<td>';
         cols += '<input type="text" class="mobile form-control total_number" id="gdpaper_total_'+rowCount+'" name="gdpaper_total[]">';
