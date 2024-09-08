@@ -31,7 +31,7 @@
                                 <tr align="center">
                                     <td>假別名稱</td>
                                     <td>剩餘天數</td>
-                                    <td>可修總天數</td>
+                                    <td>可休總天數</td>
                                 </tr>
                                 @foreach($dates as $date_type=>$date)
                                 <tr align="center">

@@ -135,7 +135,7 @@
                                        <td colspan="5"></td>
                                        <td align="right">共：{{ number_format($data['total_num']) }}份</td>
                                        <td align="right">小計：{{ number_format($data['total_price']) }}元</td>
-                                       <td align="right">傭金小記：{{ number_format($data['total_comm_price']) }}元</td>
+                                       <td align="right">傭金小計：{{ number_format($data['total_comm_price']) }}元</td>
                                    </tr>
                                 </tbody>
                             @endforeach
