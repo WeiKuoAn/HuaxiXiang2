@@ -35,20 +35,20 @@ class Rpg05Controller extends Controller
                  $sale_datas = Sale::where('status','9')->where('sale_date','>=',$after_date)->get();
                  $income_datas = IncomeData::where('income_date','>=',$after_date)->get();
                  $pay_datas = PayData::where('status','1')->where('pay_date','>=',$after_date)->where('created_at','<=','2023-01-08 14:22:21')->get();
-                 $pay_items = PayItem::where('status','1')->where('pay_date','>=',$after_date)->get();
+                 $pay_items = PayItem::where('status','1')->where('pay_date','>=',$after_date)->whereNotIn('pay_id',['23'])->get();
             }
             $before_date = $request->before_date;
             if($before_date){
                  $sale_datas = Sale::where('status','9')->where('sale_date','<=',$before_date)->get();
                  $income_datas = IncomeData::where('income_date','<=',$before_date)->get();
                  $pay_datas = PayData::where('status','1')->where('pay_date','<=',$before_date)->where('created_at','<=','2023-01-08 14:22:21')->get();
-                 $pay_items = PayItem::where('status','1')->where('pay_date','<=',$before_date)->get();
+                 $pay_items = PayItem::where('status','1')->where('pay_date','<=',$before_date)->whereNotIn('pay_id',['23'])->get();
             }
             if($after_date && $before_date){
                  $sale_datas = Sale::where('status','9')->where('sale_date','>=',$after_date)->where('sale_date','<=',$before_date)->get();
                  $income_datas = IncomeData::where('income_date','>=',$after_date)->where('income_date','<=',$before_date)->get();
                  $pay_datas = PayData::where('status','1')->where('pay_date','>=',$after_date)->where('pay_date','<=',$before_date)->where('created_at','<=','2023-01-08 14:22:21')->get();
-                 $pay_items = PayItem::where('status','1')->where('pay_date','>=',$after_date)->where('pay_date','<=',$before_date)->get();
+                 $pay_items = PayItem::where('status','1')->where('pay_date','>=',$after_date)->where('pay_date','<=',$before_date)->whereNotIn('pay_id',['23'])->get();
             }
             if($after_date && $before_date){
                 $periods = CarbonPeriod::create( $request->after_date,  $request->before_date);

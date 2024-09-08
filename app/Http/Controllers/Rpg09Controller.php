@@ -59,7 +59,7 @@ class Rpg09Controller extends Controller
             $datas[$key]['cur_sale_price'] = Sale::where('status', '9')->where('sale_date','>=',$month['start_date'])->where('sale_date','<=',$month['end_date'])->sum('pay_price');
             $datas[$key]['cur_price_amount'] = $datas[$key]['cur_income_price'] + $datas[$key]['cur_sale_price'];
             $datas[$key]['cur_pay_data_price'] = PayData::where('status','1')->where('pay_date','>=',$month['start_date'])->where('pay_date','<=',$month['end_date'])->where('created_at','<=','2023-01-08 14:22:21')->sum('price');
-            $datas[$key]['cur_pay_item_price'] = PayItem::where('status','1')->where('pay_date','>=',$month['start_date'])->where('pay_date','<=',$month['end_date'])->sum('price');
+            $datas[$key]['cur_pay_item_price'] = PayItem::where('status','1')->where('pay_date','>=',$month['start_date'])->where('pay_date','<=',$month['end_date'])->whereNotIn('pay_id',['23'])->sum('price');
             $datas[$key]['cur_pay_price'] = $datas[$key]['cur_pay_data_price']+$datas[$key]['cur_pay_item_price'];
             $datas[$key]['cur_month_total'] = $datas[$key]['cur_price_amount'] - $datas[$key]['cur_pay_price'];
         }

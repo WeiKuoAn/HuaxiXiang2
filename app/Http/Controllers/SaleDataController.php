@@ -254,11 +254,7 @@ class SaleDataController extends Controller
                 $gdpaper->type_list = $request->type_list;
                 $gdpaper->gdpaper_id = $request->gdpaper_ids[$key];
                 $gdpaper->gdpaper_num = $request->gdpaper_num[$key];
-                if ($request->plan_id != '4') {
-                    $gdpaper->gdpaper_total = $request->gdpaper_total[$key];
-                } else {
-                    $gdpaper->gdpaper_total = 0;
-                }
+                $gdpaper->gdpaper_total = $request->gdpaper_total[$key];
                 $gdpaper->save();
             }
         }
@@ -975,11 +971,7 @@ class SaleDataController extends Controller
                     $gdpaper->type_list = $request->type_list;
                     $gdpaper->gdpaper_id = $request->gdpaper_ids[$key];
                     $gdpaper->gdpaper_num = $request->gdpaper_num[$key];
-                    if ($request->plan_id != '4') {
-                        $gdpaper->gdpaper_total = $request->gdpaper_total[$key];
-                    } else {
-                        $gdpaper->gdpaper_total = 0;
-                    }
+                    $gdpaper->gdpaper_total = $request->gdpaper_total[$key];
                     $gdpaper->save();
                 }
             }

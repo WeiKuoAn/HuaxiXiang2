@@ -12,6 +12,7 @@ use App\Models\IncomeData;
 use App\Models\Customer;
 use App\Models\Pay;
 use App\Models\PayData;
+use App\Models\PayItem;
 use App\Models\Sale_gdpaper;
 use Illuminate\Support\Facades\Auth;
 
@@ -49,7 +50,7 @@ class WorkController extends Controller
         $gdpaper_month = Sale_gdpaper::where('created_at','>=',$firstDay->format("Y-m-d"))->where('created_at','<=',$lastDay->format("Y-m-d"))->sum('gdpaper_total');
         
         //月支出
-        $pay_month = PayData::where('pay_date','>=',$firstDay->format("Y-m-d"))->where('pay_date','<=',$lastDay->format("Y-m-d"))->sum('price');
+        $pay_month = PayItem::where('pay_date','>=',$firstDay->format("Y-m-d"))->where('pay_date','<=',$lastDay->format("Y-m-d"))->whereNotIn('pay_id',['23'])->sum('price');
         
         //營業淨利
         $net_income =  $price_month -  $pay_month;

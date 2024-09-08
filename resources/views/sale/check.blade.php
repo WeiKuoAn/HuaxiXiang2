@@ -71,8 +71,8 @@
                             <label for="sale_date" class="form-label">日期<span class="text-danger">*</span></label>
                             <input type="date" class="form-control" id="sale_date" name="sale_date" value="{{ $data->sale_date }}" required readonly>
                         </div>
-                        <div class="mb-3 col-md-4 not_memorial_show">
-                            <label for="customer_id" class="form-label">客戶名稱<span class="text-danger">*</span></label>
+                        <div class="mb-3 col-md-4">
+                            <label for="customer_id" class="form-label">客戶名稱<span class="text-danger required">*</span></label>
                             <select id="type" class="form-select" name="customer_id" disabled >
                                 <option value="">請選擇...</option>
                                 @foreach ($customers as $customer)
@@ -80,8 +80,8 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="mb-3 col-md-4  not_memorial_show">
-                            <label for="pet_name" class="form-label">寵物名稱<span class="text-danger">*</span></label>
+                        <div class="mb-3 col-md-4 ">
+                            <label for="pet_name" class="form-label">寵物名稱<span class="text-danger required">*</span></label>
                             <input type="text" class="form-control" id="pet_name" name="pet_name" value="{{ $data->pet_name }}" readonly>
                         </div>
                         
@@ -110,7 +110,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="mb-3 col-md-4 not_final_show not_memorial_show">
+                        <div class="mb-3 col-md-4 not_memorial_show plan">
                             <label for="plan_id" class="form-label">方案選擇<span class="text-danger">*</span></label>
                             <select id="plan_id" class="form-select" name="plan_id" disabled>
                                 <option value="">請選擇...</option>
@@ -436,31 +436,40 @@
     console.log(send);
     if(send == 1){
         $("#connector_div").hide();
+        $("#connector_hospital_div").hide();
     }else{
         $("#connector_div").show();
+        $("#connector_hospital_div").show();
     }
     $("#send").on("change", function() {
         if ($(this).is(':checked')) {
             $(this).val(1);
             $("#connector_div").hide(300);
+            $("#connector_hospital_div").hide();
         }
         else {
             $(this).val(0);
             $("#connector_div").show(300);
+            $("#connector_hospital_div").show(300);
         }
     });
+
     //地址
     connector_address = $('input[name="connector_address"]').val();
     if(connector_address == 1){
-        $("#connector_address_div").show();
-
+        $("#send_div").hide();
+        $("#connector_hospital_div").hide();
+        $("#connector_div").show();
     }else{
+        $("#send_div").show();
+        // $("#connector_hospital_div").show();
         $("#connector_address_div").hide();
     }
     $("#connector_address").on("change", function() {
         if ($(this).is(':checked')) {
             $("#connector_address_div").show(300);
             $("#send_div").hide(300);
+            $("#connector_hospital_div").hide(300);
             $(this).val(1);
             $('#your-form').submit(function(event){
                 var county = $('select[name="county"]').val();
@@ -469,11 +478,16 @@
                     event.preventDefault();
                 }
             });
+            $("#address").prop('required', true);
         }
         else {
             $("#connector_address_div").hide(300);
             $("#send_div").show(300);
+            $("#connector_hospital_div").show(300);
             $(this).val(0);
+            $('#your-form').off('submit');
+            // Remove pet name required attribute
+            $("#address").prop('required', false);
         }
     });
 
@@ -514,28 +528,43 @@
         }
     });
 
+
     //案件單類別
     if(type_list == 'memorial'){
         $(".not_memorial_show").hide(300);
+        $("#final_price").hide(300);
         $("#cust_name_q").prop('required', false);
-        $("#pet_name").prop('required', false);
+        // $("#pet_name").prop('required', false);
         $("#kg").prop('required', false);
         $("#type").prop('required', false);
         $("#plan_id").prop('required', false);
+        $("#plan_price").prop('required', false);
+        $("#hospital_address").prop('required', false);
         $("#send_div").hide(300);
         $("#connector_div").hide(300);
+        $("#connector_hospital_div").hide(300);
+        $(".required").hide();
+        if(payIdValue == 'A' || payIdValue =='C'){
+            $(".not_memorial_show").hide(300);
+        }
     }else if(type_list == 'dispatch'){
         $(".not_memorial_show").show(300);
+        $("#cust_name_q").prop('required', true);
+        $(".required").show();
             if(payIdValue == 'D' || payIdValue =='E'){
                 $("#final_price").show(300);
                 $(".not_final_show").hide();
-                $("#pet_name").prop('required', false);
+                if(payIdValue =='D'){
+                    $(".plan").hide(300);
+                    $("#plan_id").prop('required', false);
+                }else{
+                    $(".plan").show(300);
+                    $("#plan_id").prop('required', true);
+                }
                 $("#kg").prop('required', false);
                 $("#type").prop('required', false);
                 $("#plan_id").prop('required', false);
                 $("#plan_price").prop('required', false);
-                $("#send_div").hide();
-                $("#connector_div").hide();
             }else{
                 $("#final_price").hide(300);
                 $(".not_final_show").show(300);
@@ -544,8 +573,6 @@
                 $("#type").prop('required', true);
                 $("#plan_id").prop('required', true);
                 $("#plan_price").prop('required', true);
-                $("#send_div").show();
-                $("#connector_div").show();
             }
     }
 

@@ -72,8 +72,8 @@
                             <input type="date" class="form-control" id="sale_date" name="sale_date" value="{{ $data->sale_date }}" required>
                         </div>
                         
-                        <div class="mb-3 col-md-4 not_memorial_show">
-                            <label for="customer_id" class="form-label">客戶名稱<span class="text-danger">*</span></label>
+                        <div class="mb-3 col-md-4">
+                            <label for="customer_id" class="form-label">客戶名稱<span class="text-danger required">*</span></label>
                             <select class="form-control" data-toggle="select2" data-width="100%" name="cust_name_q" id="cust_name_q" required>
                                 <option value="">請選擇...</option>
                                 @foreach($customers as $customer)
@@ -81,9 +81,9 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="mb-3 col-md-4 not_final_show not_memorial_show">
-                            <label for="pet_name" class="form-label">寵物名稱<span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="pet_name" name="pet_name" value="{{ $data->pet_name }}" required>
+                        <div class="mb-3 col-md-4 not_final_show">
+                            <label for="pet_name" class="form-label">寵物名稱<span class="text-danger required">*</span></label>
+                            <input type="text" class="form-control" id="pet_name" name="pet_name" value="{{ $data->pet_name }}">
                         </div>
                         <div class="mb-3 col-md-4 not_final_show not_memorial_show">
                             <label for="kg" class="form-label">公斤數<span class="text-danger">*</span></label>
@@ -118,7 +118,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="mb-3 col-md-4 not_final_show not_memorial_show">
+                        <div class="mb-3 col-md-4 not_memorial_show plan">
                             <label for="plan_id" class="form-label">方案選擇<span class="text-danger">*</span></label>
                             <select id="plan_id" class="form-select" name="plan_id" >
                                 <option value="">請選擇...</option>
@@ -322,7 +322,7 @@
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <input type="number" class="mobile form-control" id="gdpaper_num_{{$key}}" alt="{{ $key }}"  name="gdpaper_num[]" value="{{ $sale_gdpaper->gdpaper_num }}" onchange="chgNums(this)">
+                                                    <input type="number" class="mobile form-control" id="gdpaper_num_{{$key}}" alt="{{ $key }}"  name="gdpaper_num[]" value="{{ $sale_gdpaper->gdpaper_num }}"  onchange="chgNums(this)" onclick="chgNums(this)" onkeydown="chgNums(this)">
                                                 </td>
                                                 <td>
                                                     <input type="text" class="mobile form-control total_number" id="gdpaper_total_{{$key}}" name="gdpaper_total[]" value="{{ $sale_gdpaper->gdpaper_total }}">
@@ -492,6 +492,7 @@
 
     //親送
     send = $('input[name="send"]').val();
+    console.log(send);
     if(send == 1){
         $("#connector_div").hide();
         $("#connector_hospital_div").hide();
@@ -593,30 +594,40 @@
         $(".not_memorial_show").hide(300);
         $("#final_price").hide(300);
         $("#cust_name_q").prop('required', false);
-        $("#pet_name").prop('required', false);
+        // $("#pet_name").prop('required', false);
         $("#kg").prop('required', false);
         $("#type").prop('required', false);
         $("#plan_id").prop('required', false);
         $("#plan_price").prop('required', false);
+        $("#hospital_address").prop('required', false);
         $("#send_div").hide(300);
         $("#connector_div").hide(300);
+        $("#connector_hospital_div").hide(300);
+        $(".required").hide();
         if(payIdValue == 'A' || payIdValue =='C'){
             $(".not_memorial_show").hide(300);
         }
     }else if(type_list == 'dispatch'){
             $(".not_memorial_show").show(300);
-            // $("#send_div").show(300);
-            // $("#connector_div").show(300);
+            $("#cust_name_q").prop('required', true);
+            $(".required").show();
             if(payIdValue == 'D' || payIdValue =='E'){
                 $("#final_price").show(300);
                 $(".not_final_show").hide();
-                $("#pet_name").prop('required', false);
+                if(payIdValue =='D'){
+                    $(".plan").hide(300);
+                    $("#plan_id").prop('required', false);
+                }else{
+                    $(".plan").show(300);
+                    $("#plan_id").prop('required', true);
+                }
                 $("#kg").prop('required', false);
                 $("#type").prop('required', false);
                 $("#plan_id").prop('required', false);
                 $("#plan_price").prop('required', false);
                 $("#send_div").hide();
                 $("#connector_div").hide();
+                $("#connector_hospital_div").hide();
             }else{
                 $("#final_price").hide(300);
                 $(".not_final_show").show(300);
@@ -625,39 +636,39 @@
                 $("#type").prop('required', true);
                 $("#plan_id").prop('required', true);
                 $("#plan_price").prop('required', true);
-                // $("#send_div").show();
-                // $("#connector_div").show();
             }
     }
 
     $('select[name="type_list"]').on('change', function() {
+        payIdValue = $('select[name="pay_id"]').val();
         if($(this).val() == 'memorial'){
             $(".not_memorial_show").hide(300);
+            $("#final_price").hide(300);
             $("#cust_name_q").prop('required', false);
-            $("#pet_name").prop('required', false);
+            // $("#pet_name").prop('required', false);
             $("#kg").prop('required', false);
             $("#type").prop('required', false);
             $("#plan_id").prop('required', false);
-            $("#send_div").hide();
-            $("#connector_div").hide();
-            if(payIdValue == 'A' || payIdValue =='C'){
-                $("#send_div").hide();
-                $("#connector_div").hide();
-            }
+            $("#plan_price").prop('required', false);
+            $("#hospital_address").prop('required', false);
+            $(".required").hide();
         }else if($(this).val() == 'dispatch'){
             $(".not_memorial_show").show(300);
-            $("#send_div").show(300);
-            $("#connector_div").show(300);
+            $("#cust_name_q").prop('required', true);
+            $(".required").show();
             if(payIdValue == 'D' || payIdValue =='E'){
                 $("#final_price").show(300);
                 $(".not_final_show").hide();
-                $("#pet_name").prop('required', false);
+                if(payIdValue =='D'){
+                    $(".plan").hide(300);
+                    $("#plan_id").prop('required', false);
+                }else{
+                    $(".plan").show(300);
+                    $("#plan_id").prop('required', true);
+                }
                 $("#kg").prop('required', false);
                 $("#type").prop('required', false);
-                $("#plan_id").prop('required', false);
                 $("#plan_price").prop('required', false);
-                $("#send_div").hide();
-                $("#connector_div").hide();
             }else{
                 $("#final_price").hide(300);
                 $(".not_final_show").show(300);
@@ -666,37 +677,60 @@
                 $("#type").prop('required', true);
                 $("#plan_id").prop('required', true);
                 $("#plan_price").prop('required', true);
-                $("#send_div").hide();
-                $("#connector_div").hide();
             }
         }
     });
 
     $('select[name="pay_id"]').on('change', function() {
+        type_list = $('select[name="type_list"]').val();
+        var a = $(this).val();
+            console.log(a);
         if($(this).val() == 'D' || $(this).val() =='E'){
-            $(".not_final_show").hide();
-            $("#pet_name").prop('required', false);
+            $(".not_final_show").hide(300);
+            if($(this).val() =='D'){
+                $(".plan").hide(300);
+                $("#plan_id").prop('required', false);
+            }else{
+                $(".plan").show(300);
+                $("#plan_id").prop('required', true);
+            }
             $("#kg").prop('required', false);
             $("#type").prop('required', false);
-            $("#plan_id").prop('required', false);
+            // $("#plan_id").prop('required', false);
             $("#plan_price").prop('required', false);
-            if(type_list == memorial){
+            if(type_list == 'memorial'){
                 $("#final_price").hide();
-            }else{
-                $("#final_price").show(300);
+                $(".not_memorial_show").hide();
+                $("#send_div").hide(300);
+                $("#connector_div").hide(300);
+                $("#connector_hospital_div").hide(300);
             }
             $("#send_div").hide();
             $("#connector_div").hide();
+            $("#connector_hospital_div").hide();
         }else{
             $("#final_price").hide(300);
-            $(".not_final_show").show(300);
-            $("#pet_name").prop('required', true);
-            $("#kg").prop('required', true);
-            $("#type").prop('required', true);
-            $("#plan_id").prop('required', true);
-            $("#plan_price").prop('required', true);
             $("#send_div").show(300);
             $("#connector_div").show(300);
+            $("#connector_hospital_div").show(300);
+            if(type_list == 'memorial'){
+                $("#final_price").hide();
+                $(".not_memorial_show").hide();
+                $("#send_div").hide();
+                $("#connector_div").hide();
+                $("#connector_hospital_div").hide();
+            }else{
+                $(".not_memorial_show").show();
+                $("#pet_name").prop('required', true);
+                $("#kg").prop('required', true);
+                $("#type").prop('required', true);
+                $("#plan_id").prop('required', true);
+                $("#plan_price").prop('required', true);
+                $("#send_div").show();
+                $("#connector_div").show();
+                $("#connector_hospital_div").show();
+            }
+            
         }
     });
 
@@ -840,50 +874,66 @@
         }
     });
 
+    function chgPapers(obj){
+        var row_id = $(obj).attr('alt'); // 取得行 ID
 
-
-
-
-
-
-
-
-    function chgNums(obj){
-        $("#row_id").val($("#"+ obj.id).attr('alt'));
-        row_id = $("#row_id").val();
         $.ajax({
-            url : '{{ route('gdpaper.search') }}',
-            data:{'gdpaper_id':$("#gdpaper_id_"+row_id).val()},
-            success:function(data){
-                if($("#gdpaper_num_"+row_id).val()){
-                    var gdpaper_num = $("#gdpaper_num_"+row_id).val();
-                    $("#gdpaper_total_"+row_id).val(gdpaper_num*data);
-                    calculate_price();
+            url: '{{ route('gdpaper.search') }}', // AJAX 查詢
+            data: {'gdpaper_id': $("#gdpaper_id_" + row_id).val()},
+            success: function(data){
+                var gdpaper_num = $("#gdpaper_num_" + row_id).val();
+                
+                // 如果數量為空或 <= 0，預設設置為 1
+                if (!gdpaper_num || gdpaper_num <= 0) {
+                    gdpaper_num = 1;
+                    $("#gdpaper_num_" + row_id).val(gdpaper_num);
                 }
-                $("#gdpaper_num_"+row_id).on('change', function(){
-                    var gdpaper_num = $("#gdpaper_num_"+row_id).val();
-                    $("#gdpaper_total_"+row_id).val(gdpaper_num*data);
+                
+                // 計算金額並更新總金額欄位
+                $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
+                calculate_price();
+                
+                // 監聽數量變化，動態更新金額
+                $("#gdpaper_num_" + row_id).on('change', function() {
+                    gdpaper_num = $(this).val();
+                    if (gdpaper_num <= 0) {
+                        gdpaper_num = 1; // 確保數量最小為 1
+                        $(this).val(gdpaper_num);
+                    }
+                    $("#gdpaper_total_" + row_id).val(gdpaper_num * data); // 更新金額
                     calculate_price();
                 });
             }
         });
     }
 
-    function chgPapers(obj){
-        $("#row_id").val($("#"+ obj.id).attr('alt'));
-        row_id = $("#row_id").val();
+    function chgNums(obj) {
+        var row_id = $(obj).attr('alt'); // 取得行 ID
+
         $.ajax({
-            url : '{{ route('gdpaper.search') }}',
-            data:{'gdpaper_id':$("#gdpaper_id_"+row_id).val()},
-            success:function(data){
-                if($("#gdpaper_num_"+row_id).val()){
-                    var gdpaper_num = $("#gdpaper_num_"+row_id).val();
-                    $("#gdpaper_total_"+row_id).val(gdpaper_num*data);
-                    calculate_price();
+            url: '{{ route('gdpaper.search') }}', // AJAX 查詢
+            data: {'gdpaper_id': $("#gdpaper_id_" + row_id).val()},
+            success: function(data) {
+                var gdpaper_num = $("#gdpaper_num_" + row_id).val();
+                
+                // 防止數量為 0 或空值，設置最小值為 1
+                if (!gdpaper_num || gdpaper_num <= 0) {
+                    gdpaper_num = 1;
+                    $("#gdpaper_num_" + row_id).val(gdpaper_num);
                 }
-                $("#gdpaper_num_"+row_id).on('change', function(){
-                    var gdpaper_num = $("#gdpaper_num_"+row_id).val();
-                    $("#gdpaper_total_"+row_id).val(gdpaper_num*data);
+                
+                // 更新總金額
+                $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
+                calculate_price();
+
+                // 監聽數量變更事件，動態更新金額
+                $("#gdpaper_num_" + row_id).on('change', function() {
+                    gdpaper_num = $(this).val();
+                    if (gdpaper_num <= 0) {
+                        gdpaper_num = 1; // 確保數量最小為 1
+                        $(this).val(gdpaper_num);
+                    }
+                    $("#gdpaper_total_" + row_id).val(gdpaper_num * data); // 更新總金額
                     calculate_price();
                 });
             }
@@ -905,7 +955,7 @@
         var cols = '';
         cols += '<td class="text-center"><button type="button" class="ibtnDel_gdpaper demo-delete-row btn btn-danger btn-sm btn-icon"><i class="fa fa-times"></i></button></td>';
         cols += '<td>';
-        cols += '<select id="gdpaper_id_'+rowCount+'" alt="'+rowCount+'" class="mobile form-select" name="gdpaper_ids[]" onchange="chgPapers(this)">';
+        cols += '<select id="gdpaper_id_'+rowCount+'" alt="'+rowCount+'" class="mobile form-select" name="gdpaper_ids[]" onchange="chgNums(this)" onclick="chgNums(this)" onkeydown="chgNums(this)">';
         cols += '<option value="" selected>請選擇...</option>';
             @foreach($products as $product)
                 cols += '<option value="{{ $product->id }}">{{ $product->name }}({{ $product->price }})</option>';
@@ -913,7 +963,7 @@
         cols += '</select>';
         cols += '</td>';
         cols += '<td>';
-        cols += '<input type="number" class="mobile form-control" id="gdpaper_num_'+rowCount+'" name="gdpaper_num[]" value="">';
+        cols += '<input type="number" class="mobile form-control"  min="1"  id="gdpaper_num_'+rowCount+'" name="gdpaper_num[]" value="">';
         cols += '</td>';
         cols += '<td>';
         cols += '<input type="text" class="mobile form-control total_number" id="gdpaper_total_'+rowCount+'" name="gdpaper_total[]">';
