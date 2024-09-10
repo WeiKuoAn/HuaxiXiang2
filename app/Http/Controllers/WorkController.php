@@ -297,9 +297,11 @@ class WorkController extends Controller
         } else {
             $works = Works::where('user_id', $userId)->orderBy('worktime','desc')->get();
         }
+        $user= User::find($userId);
+        // dd($user);
         // dd($request->startdate);
 
-        $fileName = '套組法會資料匯出' . date("Y-m-d") . '.csv';
+        $fileName = $user->name.'班表匯出' . date("Y-m-d") . '.csv';
 
         $headers = array(
             "Content-type"        => "text/csv",
@@ -315,7 +317,7 @@ class WorkController extends Controller
             $file = fopen('php://output', 'w');
             fputs($file, chr(0xEF).chr(0xBB).chr(0xBF), 3); 
             fputcsv($file, $columns);
-
+            // $row['姓名'] = date('Y-m-d', strtotime($data->worktime));
             foreach ($works as $key=>$data) {
                 $row['日期'] = date('Y-m-d', strtotime($data->worktime));
                 $row['上班時間'] = date('H:i', strtotime($data->worktime));
