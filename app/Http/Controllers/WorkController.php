@@ -281,4 +281,63 @@ class WorkController extends Controller
         // dd($test);
         return view('work.index')->with(['works' => $works, 'user' => $user, 'work_sum' => $work_sum, 'condition' => $condition , 'request'=>$request]);
     }
+
+    public function export(Request $request,$userId)
+    {
+        if ($request->startdate || $request->enddate) {
+            if($request->startdate){
+                $works = Works::where('user_id', $userId)->where('worktime','>=',$request->startdate)->orderBy('worktime','desc')->get();
+            }
+            if($request->enddate){
+                $works = Works::where('user_id', $userId)->where('worktime','<=',$request->enddate)->orderBy('worktime','desc')->get();
+            }
+            if($request->startdate && $request->enddate){
+                $works = Works::where('user_id', $userId)->where('worktime','>=',$request->startdate)->where('worktime','<=',$request->enddate)->orderBy('worktime','desc')->get();
+            }
+        } else {
+            $works = Works::where('user_id', $userId)->orderBy('worktime','desc')->get();
+        }
+        // dd($request->startdate);
+
+        $fileName = '套組法會資料匯出' . date("Y-m-d") . '.csv';
+
+        $headers = array(
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        );
+        $columns = array('日期','上班時間', '下班時間', '時間', '備註' , '狀態');
+
+        $callback = function() use($works, $columns) {
+            
+            $file = fopen('php://output', 'w');
+            fputs($file, chr(0xEF).chr(0xBB).chr(0xBF), 3); 
+            fputcsv($file, $columns);
+
+            foreach ($works as $key=>$data) {
+                $row['日期'] = date('Y-m-d', strtotime($data->worktime));
+                $row['上班時間'] = date('H:i', strtotime($data->worktime));
+                if($data->dutytime != null){
+                    $row['下班時間'] = date('H:i', strtotime($data->dutytime));
+                }else{
+                    $row['下班時間'] = '尚未下班';
+                }
+                $row['時間'] = $data->total;
+                $row['備註'] = $data->remark;
+                if($data->status == '0'){
+                    $row['狀態'] = '值班';
+                }else{
+                    $row['狀態'] = '補簽';
+                }
+                fputcsv($file, array($row['日期'],$row['上班時間'],$row['下班時間']
+                                    ,$row['時間'],$row['備註'], $row['狀態']));
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

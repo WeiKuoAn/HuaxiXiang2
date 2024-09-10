@@ -51,13 +51,16 @@
                         <div class="col-auto">
                             <form class="d-flex flex-wrap align-items-center" action="{{ route('user.work.index',$user->id) }}" method="GET">
                                 <div class="me-3">
-                                    <input type="date" class="form-control my-1 my-lg-0" id="inputPassword2" name="startdate" >
+                                    <input type="date" class="form-control my-1 my-lg-0" id="inputPassword2" name="startdate" value="{{$request->startdate}}" >
                                 </div>
                                 <div class="me-3">
-                                    <input type="date" class="form-control my-1 my-lg-0" id="inputPassword2" name="enddate" >
+                                    <input type="date" class="form-control my-1 my-lg-0" id="inputPassword2" name="enddate" value="{{$request->enddate}}" >
                                 </div>
                                 <div class="me-3">
                                     <button type="submit" class="btn btn-success waves-effect waves-light me-1"><i class="fe-search me-1"></i>搜尋</button>
+                                </div>
+                                <div class="me-3">
+                                    <a href="{{ route('user.work.export', array_merge(['id' => $user->id], request()->input())) }}" class="btn btn-danger waves-effect waves-light">匯出</a>
                                 </div>
                             </form>
                         </div>

@@ -117,6 +117,7 @@ Route::group(['prefix' => '/'], function () {
     Route::post('user/work/edit/{id}', [WorkController::class, 'edituserwork'])->name('user.work.edit.data');
     Route::get('user/work/del/{id}', [WorkController::class, 'showdeluserwork'])->name('user.work.del');
     Route::post('user/work/del/{id}', [WorkController::class, 'deluserwork'])->name('user.work.del.data');
+    Route::get('user/work/{id}/export', [WorkController::class, 'export'])->name('user.work.export');
 
 
     /*部門管理*/
