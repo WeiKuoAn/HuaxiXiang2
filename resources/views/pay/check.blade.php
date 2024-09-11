@@ -82,7 +82,7 @@
                                         <tr>
                                             <th>消費日期<span class="text-danger">*</span></th>
                                             <th>會計項目<span class="text-danger">*</span></th>
-                                            <th>發票號碼<span class="text-danger">*</span></th>
+                                            {{-- <th>發票號碼<span class="text-danger">*</span></th> --}}
                                             <th>支出金額<span class="text-danger">*</span></th>
                                             <th>發票類型<span class="text-danger">*</span></th>
                                             <th></th>
@@ -104,9 +104,9 @@
                                                             @endforeach
                                                         </select>
                                                     </td>
-                                                    <td>
+                                                    {{-- <td>
                                                     <input id="pay_invoice-{{ $key }}" class="mobile form-control" type="text" name="pay_invoice_number[]" value="{{ $item->invoice_number }}">
-                                                    </td>
+                                                    </td> --}}
                                                     <td>
                                                     <input id="pay_price-{{ $key }}" class="mobile form-control" type="text" name="pay_price[]" value="{{ $item->price }}" required>
                                                     </td>
