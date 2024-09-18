@@ -46,6 +46,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="text-uppercase bg-light  p-2 mt-0 mb-3">基本資訊</h5>
+                    <div class="alert alert-danger alert-dismissible fade show p-2" id="final_price_display" role="alert"></div>
                     <div class="row">
                         <div class="mb-3 col-md-4">
                             <label for="type_list" class="form-label">案件類別選擇<span class="text-danger">*</span></label>
@@ -56,7 +57,7 @@
                         </div>
                         <div class="mb-3 col-md-4">
                             <label for="pay_id" class="form-label">支付類別<span class="text-danger">*</span></label>
-                            <select class="form-select" name="pay_id" required>
+                            <select class="form-select" name="pay_id" id="pay_id" required>
                                 <option value="" selected>請選擇</option>
                                 <option value="A">一次付清</option>
                                 <option value="C">訂金</option>
@@ -80,9 +81,6 @@
                                     <option value="{{ $customer->id }}">No.{{ $customer->id }} {{ $customer->name }}（{{ $customer->mobile }}）</option>
                                 @endforeach
                             </select>
-                            {{-- <input list="cust_name_list_q" class="form-control" id="cust_name_q" name="cust_name_q" placeholder="請輸入客戶姓名" required>
-                            <datalist id="cust_name_list_q">
-                            </datalist> --}}
                         </div>
                         <div class="mb-3 col-md-4">
                             <label for="pet_name" class="form-label">寵物名稱<span class="text-danger required">*</span></label>
@@ -371,7 +369,7 @@
         <div class="col-12">
             <div class="text-center mb-3">
                 <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
-                <button type="submit" class="btn w-sm btn-success waves-effect waves-light">新增</button>
+                <button type="submit" class="btn w-sm btn-success waves-effect waves-light" id="submit_btn">新增</button>
                 {{-- <button type="button" class="btn w-sm btn-danger waves-effect waves-light">Delete</button> --}}
             </div>
         </div> <!-- end col -->
@@ -413,6 +411,43 @@
        zipcodeName: "zipcode", // 自訂地區 select 標籤的 name 值
     });
 
+    //判斷尾款、訂金
+    $("#final_price_display").hide();
+    $('#pay_id, #cust_name_q').on('change', function() {
+        var payId = $('#pay_id').val();
+        var customerId = $('#cust_name_q').val();
+
+        // 檢查兩者都已經選擇
+        if (payId && customerId) {
+            // 發送 AJAX 請求
+            $.ajax({
+                url: '{{ route('sales.final_price') }}',  // 你的路徑
+                type: 'GET',
+                data: {
+                    pay_id: payId,
+                    customer_id: customerId
+                },
+                success: function(response) {
+                    // 如果回應為 'OK'
+                    if (response.trim() === 'OK') {
+                        $('#final_price_display').hide(300); // 隱藏警告訊息
+                        $('#submit_btn').prop('disabled', false); // 啟用提交按鈕
+                    } else {
+                        // 顯示警告訊息，並禁止表單提交
+                        $('#final_price_display').show();
+                        $('#final_price_display').text(response);
+                        $('#submit_btn').prop('disabled', true); // 禁用提交按鈕
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // 處理錯誤
+                    console.error('Error: ', error);
+                }
+            });
+        } else {
+            console.log('payId 或 customerId 未選擇');
+        }
+    });
 
     //親送
     send = $('input[name="send"]').val();
@@ -799,6 +834,7 @@
         if (hasError) {
             event.preventDefault(); // 阻止表單提交
         }
+        
     });
 
 

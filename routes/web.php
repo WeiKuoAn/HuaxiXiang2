@@ -283,7 +283,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/sale/change_plan/{id}', [SaleDataController::class, 'change_plan_show'])->name('sale.change_plan');
     Route::post('/sale/change_plan/{id}', [SaleDataController::class, 'change_plan_update'])->name('sale.data.change_plan');
     //尾款ajax
-    // Route::get('/sales/final_price', [SaleDataController::class, 'final_price'])->name('sales.final_price');
+    Route::get('/sales/final_price', [SaleDataController::class, 'final_price'])->name('sales.final_price');
 
     Route::get('/prom/search', [SaleDataController::class, 'prom_search'])->name('prom.search');
     Route::get('/gdpaper/search', [SaleDataController::class, 'gdpaper_search'])->name('gdpaper.search');

@@ -45,17 +45,19 @@
                                             <th>編號</th>
                                             <th>代碼</th>
                                             <th>名稱</th>
+                                            <th>排序</th>
                                             <th>狀態</th>
                                             <th>動作</th>
                                         </tr>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($datas as $data)
+                                    @foreach ($datas as $key=>$data)
                                         <tr>
-                                            <td>{{ $data->id }}</td>
+                                            <td>{{ $key+1 }}</td>
                                             <td>{{ $data->code }}</td>
                                             <td>{{ $data->name }}</td>
+                                            <td>{{ $data->seq }}</td>
                                             <td>
                                                 @if($data->status == "up") 啟用
                                                 @else <b style="color:red;">停用</b>

@@ -94,24 +94,37 @@ class SaleDataController extends Controller
         }
     }
     
-    // public function final_price(Request $request)
-    // {
-    //     if ($request->ajax()) {
-    //         $output = "";
-    //         $product = Sale::where('customer_id', $request->cust_id)->orderby('id','desc')->first();
+    public function final_price(Request $request)
+    {
+        if ($request->ajax()) {
+            $output = $request->customerId;
+            $data = Sale::where('customer_id', $request->customer_id)->where('pay_id', $request->pay_id)->first();
             
-
-    //         if($product){
-    //             $output.=  $product->price;
-    //         }
-    //         return Response($output);
-    //     }
-    // }
+            if($request->pay_id == 'D'){//判斷尾款要先有訂金
+                if(isset($data->pay_id) && $data->pay_id == 'C'){
+                    $output.=  'OK';
+                }else{
+                    $output.=  '此客戶尚未建立訂金，請先建立訂金';
+                }
+            }elseif($request->pay_id == 'E'){//判斷追加要先有業務單
+                if(!isset($data->pay_id)){
+                    $output.=  '此客戶尚未建立業務單，請先建立業務單';
+                }elseif(isset($data->pay_id) && $data->pay_id == 'C'){
+                    $output.=  '此客戶尚未完成尾款，請先完成尾款單';
+                }else{
+                    $output.=  'OK';
+                }
+            }elseif($request->pay_id == 'A' || $request->pay_id == 'C'){
+                $output.=  'OK';
+            }
+            return Response($output);
+        }
+    }
 
 
     public function create()
     {
-        $sources = SaleSource::where('status','up')->get();
+        $sources = SaleSource::where('status','up')->orderby('seq','asc')->get();
         $plans = Plan::where('status', 'up')->get();
         $products = Product::where('status', 'up')->orderby('seq','asc')->orderby('price','desc')->get();
         $customers = Customer::orderby('created_at','desc')->get();
@@ -125,7 +138,7 @@ class SaleDataController extends Controller
 
     public function test()
     {
-        $sources = SaleSource::where('status','up')->get();
+        $sources = SaleSource::where('status','up')->orderby('seq','asc')->get();
         $plans = Plan::where('status', 'up')->get();
         $products = Product::where('status', 'up')->orderby('seq','asc')->orderby('price','desc')->get();
 
@@ -432,7 +445,7 @@ class SaleDataController extends Controller
             $sales = Sale::orderby('sale_date', 'desc')->orderby('user_id','desc')->orderby('sale_on', 'desc')->where('status', '1')->paginate(50);
         }
         $users = User::whereIn('job_id',[1,3,5])->where('status','0')->orderby('seq')->get();
-        $sources = SaleSource::where('status','up')->get();
+        $sources = SaleSource::where('status','up')->orderby('seq','asc')->get();
         $plans = Plan::where('status','up')->get();
 
         if(Auth::user()->level != 2 || Auth::user()->job_id == '9'){
@@ -558,7 +571,7 @@ class SaleDataController extends Controller
      */
     public function show($id)
     {
-        $sources = SaleSource::where('status','up')->get();
+        $sources = SaleSource::where('status','up')->orderby('seq','asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
         $products = Product::where('status', 'up')->orderby('seq','asc')->orderby('price','desc')->get();
@@ -586,7 +599,7 @@ class SaleDataController extends Controller
     {
 
         $source_companys = Customer::whereIn('group_id',[2,3,4,5,6,7])->get();
-        $sources = SaleSource::where('status','up')->get();
+        $sources = SaleSource::where('status','up')->orderby('seq','asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
         $products = Product::where('status', 'up')->orderby('seq','asc')->orderby('price','desc')->get();
@@ -723,7 +736,7 @@ class SaleDataController extends Controller
     public function change_show($id)
     {
         $users = User::where('status','0')->get();
-        $sources = SaleSource::where('status','up')->get();
+        $sources = SaleSource::where('status','up')->orderby('seq','asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
         $products = Product::where('status', 'up')->orderby('seq','asc')->orderby('price','desc')->get();
@@ -752,7 +765,7 @@ class SaleDataController extends Controller
     public function change_plan_show($id)
     {
         $users = User::where('status','0')->get();
-        $sources = SaleSource::where('status','up')->get();
+        $sources = SaleSource::where('status','up')->orderby('seq','asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
         $products = Product::where('status', 'up')->orderby('seq','asc')->orderby('price','desc')->get();
@@ -1028,7 +1041,7 @@ class SaleDataController extends Controller
     public function delete($id)
     {
         $source_companys = Customer::whereIn('group_id',[2,3,4,5,6,7])->get();
-        $sources = SaleSource::where('status','up')->get();
+        $sources = SaleSource::where('status','up')->orderby('seq','asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
         $products = Product::where('status', 'up')->orderby('seq','asc')->orderby('price','desc')->get();

@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class SaleSourceController extends Controller
 {
     public function index(){
-        $datas = SaleSource::paginate(50);
+        $datas = SaleSource::orderby('seq','asc')->paginate(50);
         return view('source.index')->with('datas',$datas);
     }
 
@@ -20,6 +20,7 @@ class SaleSourceController extends Controller
         $source = new SaleSource();
         $source->name = $request->name;
         $source->code = $request->code;
+        $source->seq = $request->seq;
         $source->status = $request->status;
         $source->save();
         return redirect()->route('sources');
@@ -34,6 +35,7 @@ class SaleSourceController extends Controller
         $source = SaleSource::where('id',$id)->first();
         $source->name = $request->name;
         $source->code = $request->code;
+        $source->seq = $request->seq;
         $source->status = $request->status;
         $source->save();
         return redirect()->route('sources');

@@ -14,6 +14,7 @@ class SaleSource extends Model
     protected $fillable = [
         'code',
         'name',
+        'seq',
         'sale_date',
         'status'
     ];

@@ -45,6 +45,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="text-uppercase bg-light  p-2 mt-0 mb-3">基本資訊</h5>
+                    <div class="alert alert-danger alert-dismissible fade show p-2" id="final_price_display" role="alert"></div>
                     <div class="row">
                         <div class="mb-3 col-md-4">
                             <label for="type_list" class="form-label">案件類別選擇<span class="text-danger">*</span></label>
@@ -486,6 +487,44 @@
                 districtName: "district",
                 zipcodeName: "zipcode"
             });
+        }
+    });
+
+    //判斷尾款、訂金
+    $("#final_price_display").hide();
+    $('#pay_id, #cust_name_q').on('change', function() {
+        var payId = $('#pay_id').val();
+        var customerId = $('#cust_name_q').val();
+
+        // 檢查兩者都已經選擇
+        if (payId && customerId) {
+            // 發送 AJAX 請求
+            $.ajax({
+                url: '{{ route('sales.final_price') }}',  // 你的路徑
+                type: 'GET',
+                data: {
+                    pay_id: payId,
+                    customer_id: customerId
+                },
+                success: function(response) {
+                    // 如果回應為 'OK'
+                    if (response.trim() === 'OK') {
+                        $('#final_price_display').hide(300); // 隱藏警告訊息
+                        $('#submit_btn').prop('disabled', false); // 啟用提交按鈕
+                    } else {
+                        // 顯示警告訊息，並禁止表單提交
+                        $('#final_price_display').show();
+                        $('#final_price_display').text(response);
+                        $('#submit_btn').prop('disabled', true); // 禁用提交按鈕
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // 處理錯誤
+                    console.error('Error: ', error);
+                }
+            });
+        } else {
+            console.log('payId 或 customerId 未選擇');
         }
     });
 
