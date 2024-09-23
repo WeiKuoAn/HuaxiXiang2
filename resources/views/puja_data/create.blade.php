@@ -228,7 +228,7 @@
                             <input type="text" class="form-control" id="transfer_price" name="transfer_price">
                         </div>
                         <div class="mb-3 col-md-4" id="transfer_number_div">
-                            <label for="pay_price" class="form-label">匯款後五碼<span class="text-danger">*</span></label>
+                            <label for="pay_price" class="form-label">匯款後四碼<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="transfer_number" name="transfer_number">
                         </div>
                         <div class="mb-3 col-md-4" id="this_price_div">

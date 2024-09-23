@@ -318,7 +318,7 @@
                             </select>
                         </div>
                         <div class="mb-3 col-md-4" id="transfer_number_div">
-                            <label for="pay_price" class="form-label">匯款後五碼</label>
+                            <label for="pay_price" class="form-label">匯款後四碼</label>
                             <input type="text" class="form-control" id="transfer_number" name="transfer_number" value="{{ $data->transfer_number }}" readonly>
                         </div>
                         <div class="mb-3 col-md-4">
@@ -565,7 +565,12 @@
                 $("#type").prop('required', false);
                 $("#plan_id").prop('required', false);
                 $("#plan_price").prop('required', false);
+            }else if(payIdValue =='C'){
+                $("#prom_div").hide(300);
+                $("#gdpaper_div").hide(300);
             }else{
+                $("#prom_div").show(300);
+                $("#gdpaper_div").show(300);
                 $("#final_price").hide(300);
                 $(".not_final_show").show(300);
                 $("#pet_name").prop('required', true);

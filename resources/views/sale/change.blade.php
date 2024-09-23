@@ -329,7 +329,7 @@
                             <input type="text" class="form-control" id="transfer_price" name="transfer_price" value="{{ $data->transfer_price }}" readonly>
                         </div>
                         <div class="mb-3 col-md-3" id="transfer_number_div">
-                            <label for="pay_price" class="form-label">匯款後五碼<span class="text-danger">*</span></label>
+                            <label for="pay_price" class="form-label">匯款後四碼<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="transfer_number" name="transfer_number" value="{{ $data->transfer_number }}" readonly>
                         </div>
                         <div class="mb-3 col-md-3">

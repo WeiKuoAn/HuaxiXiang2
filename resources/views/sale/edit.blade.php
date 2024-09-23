@@ -667,7 +667,12 @@
                 $("#send_div").hide();
                 $("#connector_div").hide();
                 $("#connector_hospital_div").hide();
+            }else if(payIdValue =='C'){
+                $("#prom_div").hide(300);
+                $("#gdpaper_div").hide(300);
             }else{
+                $("#prom_div").show(300);
+                $("#gdpaper_div").show(300);
                 $("#final_price").hide(300);
                 $(".not_final_show").show(300);
                 $("#pet_name").prop('required', true);
@@ -708,7 +713,12 @@
                 $("#kg").prop('required', false);
                 $("#type").prop('required', false);
                 $("#plan_price").prop('required', false);
+            }else if($(this).val() =='C'){
+                $("#prom_div").hide(300);
+                $("#gdpaper_div").hide(300);
             }else{
+                $("#prom_div").show(300);
+                $("#gdpaper_div").show(300);
                 $("#final_price").hide(300);
                 $(".not_final_show").show(300);
                 $("#pet_name").prop('required', true);
@@ -747,7 +757,12 @@
             $("#send_div").hide();
             $("#connector_div").hide();
             $("#connector_hospital_div").hide();
+        }else if($(this).val() =='C'){
+            $("#prom_div").hide(300);
+            $("#gdpaper_div").hide(300);
         }else{
+            $("#prom_div").show(300);
+            $("#gdpaper_div").show(300);
             $("#final_price").hide(300);
             $("#send_div").show(300);
             $("#connector_div").show(300);

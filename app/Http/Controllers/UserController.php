@@ -153,6 +153,9 @@ class UserController extends Controller
             $user->urgent_name = $request->urgent_name;
             $user->urgent_relation = $request->urgent_relation;
             $user->urgent_mobile = $request->urgent_mobile;
+            $user->education_school = $request->education_school;
+            $user->education_level = $request->education_level;
+            $user->is_graduated = $request->is_graduated;
             $user->job_id = $request->job_id;
             $user->resign_date = $request->resign_date;
             if(!empty($user->birthday)){//判斷生日值再不再，代表員工是否有填寫

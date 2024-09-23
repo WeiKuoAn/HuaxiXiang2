@@ -29,6 +29,9 @@ class User extends Authenticatable
         'branch_id',
         'status',
         'password',
+        'education_school',
+        'education_level',
+        'is_graduated',
         'state',
         'seq',
     ];

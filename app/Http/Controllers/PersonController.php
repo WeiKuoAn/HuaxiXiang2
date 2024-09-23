@@ -154,6 +154,9 @@ class PersonController extends Controller
             $user->urgent_name = $request->urgent_name;
             $user->urgent_relation = $request->urgent_relation;
             $user->urgent_mobile = $request->urgent_mobile;
+            $user->education_school = $request->education_school;
+            $user->education_level = $request->education_level;
+            $user->is_graduated = $request->is_graduated;
             $user->state = 0; //用戶只能修改第一次,第一次修改後 只能透過人資去修改，所以狀態是0
             $user->save();
         }

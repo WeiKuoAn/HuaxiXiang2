@@ -117,6 +117,32 @@
                         <input type="text" class="form-control" name="email" value="{{ $user->email }}">
                     </div>
 
+                    <div class="row mb-3">
+                        <div class="col-lg-6">
+                            <label class="form-label">就讀學校/科系<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="education_school" value="{{ $user->education_school }}">
+                        </div>
+                        <div class="col-lg-3">
+                            <label class="form-label">學歷<span class="text-danger">*</span></label>
+                            <select class="form-control" data-toggle="select" data-width="100%" name="education_level">
+                                <option value="請選擇" @if($user->education_level == '請選擇') selected @endif>請選擇</option>
+                                <option value="國中" @if($user->education_level == '國中') selected @endif>國中</option>
+                                <option value="高中" @if($user->education_level == '高中') selected @endif>高中</option>
+                                <option value="大學" @if($user->education_level == '大學') selected @endif>大學</option>
+                                <option value="碩士" @if($user->education_level == '碩士') selected @endif>碩士</option>
+                                <option value="博士" @if($user->education_level == '博士') selected @endif>博士</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-3">
+                            <label class="form-label">狀態<span class="text-danger">*</span></label>
+                            <select class="form-control" data-toggle="select" data-width="100%" name="is_graduated">
+                                <option value="請選擇" @if($user->is_graduated == '請選擇') selected @endif>請選擇</option>
+                                <option value="畢業" @if($user->is_graduated == '畢業') selected @endif>畢業</option>
+                                <option value="肄業" @if($user->is_graduated == '肄業') selected @endif>肄業</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label">婚姻狀況<span class="text-danger">*</span></label>
                         <select class="form-control" data-toggle="select" data-width="100%" name="marriage">

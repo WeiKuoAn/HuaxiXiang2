@@ -98,8 +98,8 @@ class SaleDataController extends Controller
     {
         if ($request->ajax()) {
             $output = $request->customerId;
-            $data = Sale::where('customer_id', $request->customer_id)->where('pay_id', $request->pay_id)->first();
-            
+            $data = Sale::where('customer_id', $request->customer_id)->orderby('id','desc')->first();
+            // dd($data);
             if($request->pay_id == 'D'){//判斷尾款要先有訂金
                 if(isset($data->pay_id) && $data->pay_id == 'C'){
                     $output.=  'OK';
@@ -107,15 +107,23 @@ class SaleDataController extends Controller
                     $output.=  '此客戶尚未建立訂金，請先建立訂金';
                 }
             }elseif($request->pay_id == 'E'){//判斷追加要先有業務單
-                if(!isset($data->pay_id)){
-                    $output.=  '此客戶尚未建立業務單，請先建立業務單';
-                }elseif(isset($data->pay_id) && $data->pay_id == 'C'){
+                if(isset($data->pay_id) && $data->pay_id == 'C'){
                     $output.=  '此客戶尚未完成尾款，請先完成尾款單';
                 }else{
                     $output.=  'OK';
                 }
-            }elseif($request->pay_id == 'A' || $request->pay_id == 'C'){
-                $output.=  'OK';
+            }elseif($request->pay_id == 'A'){
+                if(isset($data->pay_id) && $data->pay_id == 'C'){
+                    $output.=  '此客戶已建立訂金，請先完成尾款';
+                }else{
+                    $output.=  'OK';
+                }
+            }elseif($request->pay_id == 'C'){
+                if(isset($data->pay_id) && $data->pay_id == 'C'){
+                    $output.=  '此客戶已建立訂金，請勿重複建立';
+                }else{
+                    $output.=  'OK';
+                }
             }
             return Response($output);
         }
