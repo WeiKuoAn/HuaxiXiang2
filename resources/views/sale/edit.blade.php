@@ -137,7 +137,7 @@
                             <input type="text" class="form-control" id="user_id" name="user_id" value="{{ $data->user_name->name }}" readonly>
                         </div>
                         {{-- <div class="mb-3 col-md-4 not_memorial_show" id="final_price">
-                            <label for="plan_price" class="form-label">方案追加/尾款價格<span class="text-danger">*</span></label>
+                            <label for="plan_price" class="form-label">方案追加/收款金額<span class="text-danger">*</span></label>
                             <input type="text" class="form-control total_number"  name="final_price" value="{{ $data->plan_price }}" >
                         </div> --}}
                         <div class="row">

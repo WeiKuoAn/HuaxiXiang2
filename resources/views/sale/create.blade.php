@@ -122,7 +122,7 @@
                             <input type="text" class="form-control total_number" id="plan_price" name="plan_price" >
                         </div>
                         <div class="mb-3 col-md-4" id="final_price">
-                            <label for="plan_price" class="form-label">方案追加/尾款價格<span class="text-danger">*</span></label>
+                            <label for="plan_price" class="form-label">方案追加/收款金額<span class="text-danger">*</span></label>
                             <input type="text" class="form-control total_number"  name="final_price" >
                         </div>
                         <div class="mb-3 col-md-4">
