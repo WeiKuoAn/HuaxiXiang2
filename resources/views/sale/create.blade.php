@@ -428,14 +428,15 @@
                     customer_id: customerId
                 },
                 success: function(response) {
+                    console.log(response);
                     // 如果回應為 'OK'
-                    if (response.trim() === 'OK') {
+                    if (response.message  === 'OK') {
                         $('#final_price_display').hide(300); // 隱藏警告訊息
                         $('#submit_btn').prop('disabled', false); // 啟用提交按鈕
                     } else {
                         // 顯示警告訊息，並禁止表單提交
                         $('#final_price_display').show();
-                        $('#final_price_display').text(response);
+                        $('#final_price_display').text(response.message);
                         $('#submit_btn').prop('disabled', true); // 禁用提交按鈕
                     }
                 },
@@ -590,9 +591,6 @@
                 $("#send_div").hide();
                 $("#connector_div").hide();
                 $("#connector_hospital_div").hide();
-            }else if($(this).val() =='C'){
-                $("#prom_div").hide(300);
-                $("#gdpaper_div").hide(300);
             }else{
                 $("#final_price").hide(300);
                 $(".not_final_show").show(300);
@@ -604,6 +602,10 @@
                 $("#send_div").show(300);
                 $("#connector_div").show(300);
                 $("#connector_hospital_div").show(300);
+                if(payIdValue =='C'){
+                    $("#prom_div").hide(300);
+                    $("#gdpaper_div").hide(300);
+                }
             }
         }
     });
@@ -637,9 +639,6 @@
             $("#connector_hospital_div").hide();
             $("#prom_div").show(300);
             $("#gdpaper_div").show(300);
-        }else if($(this).val() =='C'){
-            $("#prom_div").hide(300);
-            $("#gdpaper_div").hide(300);
         }else{
             $("#prom_div").show(300);
             $("#gdpaper_div").show(300);
@@ -663,6 +662,10 @@
                 $("#send_div").show();
                 $("#connector_div").show();
                 $("#connector_hospital_div").show();
+                if($(this).val() =='C'){
+                    $("#prom_div").hide(300);
+                    $("#gdpaper_div").hide(300);
+                }
             }
             
         }

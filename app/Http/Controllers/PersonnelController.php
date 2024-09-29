@@ -26,7 +26,20 @@ class PersonnelController extends Controller
 {
     public function index(Request $request)
     {
-        $users = User::where('status','0')->orderby('level')->paginate(30);
+        
+        if(!isset($request->status) || $request->status == 0){
+            $users = User::where('status','0');
+        }else{
+            $users = User::where('status','1');
+        }
+
+        if($request->name){
+            $users = $users->where('name','like',$request->name.'%');
+        }
+
+        $users = $users->orderby('level')->paginate(30);
+
+
         $year = Vacation::where('year',Carbon::now()->year)->first();//取得當年
         //計算當前專員餘額
         $datas = [];
@@ -67,7 +80,7 @@ class PersonnelController extends Controller
         }
         // dd($datas);
         
-        return view('personnel.index')->with('users', $users)->with('datas',$datas);
+        return view('personnel.index')->with('users', $users)->with('datas',$datas)->with('request',$request);
     }
 
     public function holidays(Request $request)

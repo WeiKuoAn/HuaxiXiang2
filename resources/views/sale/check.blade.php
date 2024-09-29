@@ -565,9 +565,6 @@
                 $("#type").prop('required', false);
                 $("#plan_id").prop('required', false);
                 $("#plan_price").prop('required', false);
-            }else if(payIdValue =='C'){
-                $("#prom_div").hide(300);
-                $("#gdpaper_div").hide(300);
             }else{
                 $("#prom_div").show(300);
                 $("#gdpaper_div").show(300);
@@ -578,6 +575,10 @@
                 $("#type").prop('required', true);
                 $("#plan_id").prop('required', true);
                 $("#plan_price").prop('required', true);
+                if(payIdValue =='C'){
+                    $("#prom_div").hide(300);
+                    $("#gdpaper_div").hide(300);
+                }
             }
     }
 

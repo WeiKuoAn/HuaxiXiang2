@@ -120,6 +120,48 @@
                     </div>
                 </li>
 
+                <li>
+                    <a href="#rpg" data-bs-toggle="collapse">
+                        <i data-feather="file-text"></i>
+                        <span> 報表管理 </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="rpg">
+                        <ul class="nav-second-level">
+                            <li>
+                                <a href="{{ route('rpg01') }}"  class="{{ request()->is('rpg01') ? 'active' : '' }}">方案報表</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('rpg17') }}"  class="{{ request()->is('rpg17') ? 'active' : '' }}">安葬服務報表</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('rpg16') }}"  class="{{ request()->is('rpg16') ? 'active' : '' }}">後續服務報表</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('rpg25') }}"  class="{{ request()->is('rpg25') ? 'active' : '' }}">其他服務報表</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('rpg04') }}"  class="{{ request()->is('rpg04') ? 'active' : '' }}">金紙銷售報表</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('rpg13') }}"  class="{{ request()->is('rpg13') ? 'active' : '' }}">金紙賣出報表</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('rpg07') }}"  class="{{ request()->is('rpg07') ? 'active' : '' }}">團火查詢</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('rpg10') }}"  class="{{ request()->is('rpg10') ? 'active' : '' }}">專員金紙獎金</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('rpg09') }}"  class="{{ request()->is('rpg09') ? 'active' : '' }}">每月營收報表</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('rpg15') }}"  class="{{ request()->is('rpg15') ? 'active' : '' }}">專員各單量統計</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
             </ul>
 
         </div>

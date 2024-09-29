@@ -97,37 +97,55 @@ class SaleDataController extends Controller
     public function final_price(Request $request)
     {
         if ($request->ajax()) {
-            $output = $request->customerId;
-            $data = Sale::where('customer_id', $request->customer_id)->orderby('id','desc')->first();
-            // dd($data);
-            if($request->pay_id == 'D'){//判斷尾款要先有訂金
-                if(isset($data->pay_id) && $data->pay_id == 'C'){
-                    $output.=  'OK';
-                }else{
-                    $output.=  '此客戶尚未建立訂金，請先建立訂金';
-                }
-            }elseif($request->pay_id == 'E'){//判斷追加要先有業務單
-                if(isset($data->pay_id) && $data->pay_id == 'C'){
-                    $output.=  '此客戶尚未完成尾款，請先完成尾款單';
-                }else{
-                    $output.=  'OK';
-                }
-            }elseif($request->pay_id == 'A'){
-                if(isset($data->pay_id) && $data->pay_id == 'C'){
-                    $output.=  '此客戶已建立訂金，請先完成尾款';
-                }else{
-                    $output.=  'OK';
-                }
-            }elseif($request->pay_id == 'C'){
-                if(isset($data->pay_id) && $data->pay_id == 'C'){
-                    $output.=  '此客戶已建立訂金，請勿重複建立';
-                }else{
-                    $output.=  'OK';
-                }
+            $customerId = $request->customer_id; // 確保變數名稱一致
+            $output = '';
+            $data = Sale::where('customer_id', $customerId)->orderby('id','desc')->first();
+            
+            // 使用 switch 語句來簡化條件判斷
+            switch ($request->pay_id) {
+                case 'D':
+                    if (isset($data->pay_id) && $data->pay_id == 'C') {
+                        $output = 'OK';
+                    } else {
+                        $output = '此客戶尚未建立訂金，請先建立訂金';
+                    }
+                    break;
+
+                case 'E':
+                    if (isset($data->pay_id) && $data->pay_id == 'C') {
+                        $output = '此客戶尚未完成尾款，請先完成尾款單';
+                    } else {
+                        $output = 'OK';
+                    }
+                    break;
+
+                case 'A':
+                    if (isset($data->pay_id) && $data->pay_id == 'C') {
+                        $output = '此客戶已建立訂金，請先完成尾款';
+                    } else {
+                        $output = 'OK';
+                    }
+                    break;
+
+                case 'C':
+                    if (isset($data->pay_id) && $data->pay_id == 'C') {
+                        $output = '此客戶已建立訂金，請勿重複建立';
+                    } else {
+                        $output = 'OK';
+                    }
+                    break;
+
+                default:
+                    $output = '無效的支付狀態';
+                    break;
             }
-            return Response($output);
+
+            return response()->json(['message' => $output]);
         }
+
+        return response()->json(['message' => '無效的請求'], 400);
     }
+
 
 
     public function create()
@@ -306,7 +324,7 @@ class SaleDataController extends Controller
 
     public function index(Request $request)
     {
-
+        $check_users = User::where('status','0')->whereIn('job_id',[1,2,8,9])->orderby('seq')->get();
         if ($request) {
             $status = $request->status;
             if (!isset($status) || $status == 'not_check') {
@@ -390,6 +408,14 @@ class SaleDataController extends Controller
             if(isset($before_date)){
                 $other_before_date = $before_date.' 11:59:59';
             }
+
+            $check_user_id = $request->check_user_id;
+            if(isset($check_user_id)){
+                $sales = $sales->where('check_user_id', $check_user_id);
+            }
+
+
+
             $other = $request->other;
             if($other == 'change'){
                 if (!isset($sale_change_ids)) {
@@ -464,7 +490,8 @@ class SaleDataController extends Controller
             ->with('price_total', $price_total)
             ->with('gdpaper_total', $gdpaper_total)
             ->with('sources',$sources)
-            ->with('plans',$plans);
+            ->with('plans',$plans)
+            ->with('check_users',$check_users);
         }else{
             return redirect()->route('person.sales');
         }
@@ -1173,6 +1200,10 @@ class SaleDataController extends Controller
             }
             if(isset($before_date)){
                 $other_before_date = $before_date.' 11:59:59';
+            }
+            $check_user_id = $request->check_user_id;
+            if(isset($check_user_id)){
+                $sales = $sales->where('check_user_id', $check_user_id);
             }
             $other = $request->other;
             if($other == 'change'){

@@ -104,10 +104,20 @@
                                             <option value="check" @if ($request->status == 'check') selected @endif>已對帳</option>
                                         </select>
                                     </div>
-                                    <div class="me-3 mt-3">
+                                    <div class="me-4">
+                                        <label for="sale_on" class="form-label">對帳人員</label>
+                                        <select id="inputState" class="form-select" name="check_user_id" onchange="this.form.submit()">
+                                            <option value="null" @if (isset($request->check_user_id) || $request->check_user_id == '') selected @endif>請選擇</option>
+                                            @foreach ($check_users as $check_user)
+                                                <option value="{{ $check_user->id }}" @if ($request->check_user_id == $check_user->id) selected @endif>
+                                                    {{ $check_user->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="me-3 mt-4">
                                         <button type="submit" class="btn btn-success waves-effect waves-light me-1"><i class="fe-search me-1"></i>搜尋</button>
                                     </div>
-                                    <div class="me-3 mt-3">
+                                    <div class="me-3 mt-4">
                                         <a href="{{ route('sales.export',request()->input()) }}">
                                             <button type="button" class="btn btn-primary waves-effect waves-light me-1"><i class="fe-download me-1"></i>匯出</button>
                                         </a>
