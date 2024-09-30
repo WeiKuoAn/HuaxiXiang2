@@ -410,8 +410,12 @@ class SaleDataController extends Controller
             }
 
             $check_user_id = $request->check_user_id;
-            if(isset($check_user_id)){
-                $sales = $sales->where('check_user_id', $check_user_id);
+            if ($check_user_id != "null") {
+                if (isset($check_user_id)) {
+                    $sales = $sales->where('check_user_id', $check_user_id);
+                } else {
+                    $sales = $sales;
+                }
             }
 
 
@@ -1201,10 +1205,19 @@ class SaleDataController extends Controller
             if(isset($before_date)){
                 $other_before_date = $before_date.' 11:59:59';
             }
+
+            
             $check_user_id = $request->check_user_id;
-            if(isset($check_user_id)){
-                $sales = $sales->where('check_user_id', $check_user_id);
+            if ($check_user_id != "null") {
+                if (isset($check_user_id)) {
+                    $sales = $sales->where('check_user_id', $check_user_id);
+                } else {
+                    $sales = $sales;
+                }
             }
+            
+            // dd($sales);
+
             $other = $request->other;
             if($other == 'change'){
                 if (!isset($sale_change_ids)) {

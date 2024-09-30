@@ -51,6 +51,8 @@
                                                 撤回對帳單
                                             @elseif($data->state == 'reset')
                                                 已對帳還原未對帳單
+                                            @elseif($data->state == 'update_plan')
+                                                修改方案
                                             @endif
                                         </td>
                                         <td>{{ $data->created_at }}</td>
