@@ -98,7 +98,7 @@
                     </div>
                 </li>
 
-                <li>
+                {{-- <li>
                     <a href="#visit" data-bs-toggle="collapse">
                         <i data-feather="github"></i>
                         <span> 拜訪管理 </span>
@@ -126,7 +126,7 @@
                             </li>
                         </ul>
                     </div>
-                </li>
+                </li> --}}
 
                 <li>
                     <a href="#product" data-bs-toggle="collapse">
