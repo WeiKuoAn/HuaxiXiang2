@@ -102,11 +102,15 @@
                                                 {{ $data->pet_name }}
                                             @endif
                                         </td>
-                                        <td>
+                                        <td align="center">
                                             {{ $data->kg }}
                                         </td>
                                         <td align="center">
-                                            {{ number_format($data->plan_price) }}
+                                            @if($data->pay_id == 'E')
+                                                {{ number_format($data->pay_price) }}
+                                            @else
+                                                {{ number_format($data->plan_price) }}
+                                            @endif
                                         </td>
                                         <td align="center">
                                             @if (isset($data->type))

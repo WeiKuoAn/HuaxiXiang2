@@ -443,6 +443,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/rpg/rpg01', [Rpg01Controller::class, 'rpg01'])->name('rpg01');
     Route::get('/rpg/rpg01/detail/{date}/{plan_id}', [Rpg01Controller::class, 'detail'])->middleware(['auth'])->name('rpg01.detail');
     Route::get('/rpg/rpg02', [Rpg02Controller::class, 'rpg02'])->name('rpg02');
+    Route::get('/rpg/rpg02/detail/{start_date}/{end_date_date}/{pay_id}', [Rpg02Controller::class, 'detail'])->name('rpg02.detail');
     Route::get('/rpg/rpg04', [Rpg04Controller::class, 'rpg04'])->name('rpg04');
     Route::get('/rpg/rpg05', [Rpg05Controller::class, 'rpg05'])->name('rpg05');
     Route::get('/rpg/rpg06', [Rpg06Controller::class, 'rpg06'])->name('rpg06');//舊法會查詢

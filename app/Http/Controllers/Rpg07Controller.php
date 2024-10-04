@@ -24,7 +24,7 @@ class Rpg07Controller extends Controller
     public function rpg07(Request $request)
     {
         if ($request->input() != null) {
-            $datas = Sale::whereIn('plan_id',[2,3])->whereIn('pay_id',['A','C','E'])->whereIn('status',[3,9]);
+            $datas = Sale::whereIn('plan_id',[2,3])->whereIn('pay_id',['A','C','E'])->whereIn('status',[1,3,9]);
             $after_date = $request->after_date;
             if ($after_date) {
                 $datas = $datas->where('sale_date', '>=', $after_date);
@@ -53,7 +53,7 @@ class Rpg07Controller extends Controller
     public function export(Request $request)
     {
         if ($request->input() != null) {
-            $datas = Sale::whereIn('plan_id',[2,3])->whereIn('pay_id',['A','C','E'])->whereIn('status',[3,9]);
+            $datas = Sale::whereIn('plan_id',[2,3])->whereIn('pay_id',['A','C','E'])->whereIn('status',[1,3,9]);
             $after_date = $request->after_date;
             if ($after_date) {
                 $datas = $datas->where('sale_date', '>=', $after_date);
@@ -108,7 +108,11 @@ class Rpg07Controller extends Controller
                 $row['客戶'] = $data->cust_name->name;
                 $row['寶貝名'] = $data->pet_name;
                 $row['公斤數'] = $data->kg;
-                $row['火化費'] = $data->plan_price;
+                if($data->pay_id == 'E'){
+                    $row['火化費'] = number_format($data->pay_price);
+                }else{
+                    $row['火化費'] = number_format($data->plan_price);
+                }
                 $row['方案'] = $data->plan_name->name;
                 $row['金紙'] = '';
                 foreach ($data->gdpapers as $gdpaper){
