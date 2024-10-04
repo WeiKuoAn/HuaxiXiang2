@@ -60,14 +60,14 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="table-responsive ">
+                    <div class="table-responsive">
                         <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
                             <thead class="table-light">
                                     <tr align="center">
                                         <th scope="col" width="33.3%">科目</th>
                                         <th scope="col" width="10%">支出金額</th>
-                                        {{-- <th scope="col" width="40%">備註</th> --}}
                                         <th scope="col" width="33.3%">百分比</th>
+                                        <th scope="col" width="10%">檢視細項</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -75,8 +75,10 @@
                                     <tr align="center">
                                         <td>{{ $data['pay_name'] }}</td>
                                         <td align="right">{{ number_format($data['total_price']) }}</td>
-                                        {{-- <td align="right">{{ $data['comment'] }}</td> --}}
                                         <td>{{ $data['percent'] }}%</td>
+                                        <td><a href="{{ route('rpg02.detail', [$after_date, $before_date, $key]) }}">
+                                            <i class="mdi mdi-eye me-2 font-18 text-muted vertical-middle"></i>
+                                        </a></td>
                                     </tr>
                                     @endforeach
                                     <tr align="center" style="color:red;font-weight:500;">
