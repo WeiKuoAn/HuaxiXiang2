@@ -527,7 +527,13 @@ class SaleDataController extends Controller
         }
         $sales = $sales->get();
         $users = User::where('status','0')->whereIn('job_id',[3,5])->get();
-        return view('sale.wait')->with('sales', $sales)->with('request',$request)->with('users', $users);
+
+        $total = 0;
+        foreach($sales as $sale)
+        {
+            $total += $sale->pay_price;
+        }
+        return view('sale.wait')->with('sales', $sales)->with('request',$request)->with('users', $users)->with('total',$total);
     }
 
     public function user_sale($id, Request $request) //從用戶管理進去看業務單
