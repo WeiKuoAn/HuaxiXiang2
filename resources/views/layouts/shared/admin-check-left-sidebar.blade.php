@@ -93,13 +93,13 @@
                     <div class="collapse" id="sale">
                         <ul class="nav-second-level">
                             <li>
-                                <a href="{{ route('person.sales') }}"  class="{{ request()->is('person.sales') ? 'active' : '' }}">業務管理</a>
+                                <a href="{{ route('sales') }}"  class="{{ request()->is('sales') ? 'active' : '' }}">業務管理</a>
                             </li>
                             <li>
                                 <a href="{{ route('sale.create') }}"  class="{{ request()->is('sale.create') ? 'active' : '' }}">業務Key單</a>
                             </li>
                             <li>
-                                <a href="{{ route('person.wait.sales') }}"  class="{{ request()->is('person.wait.sales') ? 'active' : '' }}">業務對帳確認</a>
+                                <a href="{{ route('wait.sales') }}"  class="{{ request()->is('wait.sales') ? 'active' : '' }}">業務對帳確認</a>
                             </li>
                         </ul>
                     </div>
