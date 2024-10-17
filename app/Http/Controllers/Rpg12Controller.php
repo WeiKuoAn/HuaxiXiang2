@@ -25,14 +25,6 @@ class Rpg12Controller extends Controller
             $lastDay = $request->before_date;
         }
 
-        // if($request->input() != null){
-        //     $firstDay = Carbon::now()->firstOfMonth();
-        //     $lastDay = Carbon::now()->lastOfMonth();
-        // } else {
-        //     $firstDay = $request->after_date;
-        //     $lastDay = $request->before_date;
-        // }
-
         $CustGroups = CustGroup::where('id','!=',1)->get();
 
         $sources = SaleSource::whereIn('code',['H','B','dogpark','G','other'])->get();

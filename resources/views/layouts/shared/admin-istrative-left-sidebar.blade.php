@@ -101,6 +101,9 @@
                             <li>
                                 <a href="{{ route('wait.sales') }}"  class="{{ request()->is('wait.sales') ? 'active' : '' }}">業務對帳確認</a>
                             </li>
+                            <li>
+                                <a href="{{ route('sales.checkHistory') }}"  class="{{ request()->is('sales.checkHistory') ? 'active' : '' }}">查看對帳明細</a>
+                            </li>
                         </ul>
                     </div>
                 </li>

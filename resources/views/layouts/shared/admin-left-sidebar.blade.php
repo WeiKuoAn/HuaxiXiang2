@@ -101,6 +101,9 @@
                             <li>
                                 <a href="{{ route('wait.sales') }}"  class="{{ request()->is('wait.sales') ? 'active' : '' }}">業務對帳確認</a>
                             </li>
+                            <li>
+                                <a href="{{ route('sales.checkHistory') }}"  class="{{ request()->is('sales.checkHistory') ? 'active' : '' }}">查看對帳明細</a>
+                            </li>
                         </ul>
                     </div>
                 </li>
@@ -406,6 +409,9 @@
                                         </li>
                                         <li>
                                             <a href="{{ route('rpg11') }}"  class="{{ request()->is('rpg11') ? 'active' : '' }}">年度營收報表</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ route('rpg26') }}"  class="{{ request()->is('rpg26') ? 'active' : '' }}">營收總表</a>
                                         </li>
                                         <li>
                                             <a href="{{ route('rpg18') }}"  class="{{ request()->is('rpg18') ? 'active' : '' }}">法會收入統計</a>

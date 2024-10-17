@@ -81,6 +81,13 @@
                                             <label class="form-check-label" for="not_mobile"><b>未提供電話</b></label>
                                         </div>
                                     </div>
+                                    <div class="mb-3 mt-3">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="not_address"
+                                                name="not_address">
+                                            <label class="form-check-label" for="not_address"><b>（親送）未提供地址</b></label>
+                                        </div>
+                                    </div>
 
 
                                 </div> <!-- end col-->
@@ -117,6 +124,13 @@
             } else {
                 $(this).val(0);
                 $("#mobile").prop('required', true);
+            }
+        });
+        $('#not_address').change(function() {
+            if ($(this).is(':checked')) {
+                $(this).val(1);
+            } else {
+                $(this).val(0);
             }
         });
         $(document).ready(function() {
