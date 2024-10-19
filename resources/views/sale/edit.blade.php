@@ -82,7 +82,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="mb-3 col-md-4 not_final_show">
+                        <div class="mb-3 col-md-4">
                             <label for="pet_name" class="form-label">寵物名稱<span class="text-danger required">*</span></label>
                             <input type="text" class="form-control" id="pet_name" name="pet_name" value="{{ $data->pet_name }}">
                         </div>
