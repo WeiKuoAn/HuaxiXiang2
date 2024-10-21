@@ -70,23 +70,23 @@ class Rpg26Controller extends Controller
                 ->sum('sale_prom.prom_total');
 
             //後續服務金額
-            $datas[$key]['sale_promA'] = DB::table('sale_prom')
-                ->whereNotNull('prom_id')
-                ->where('prom_type', 'A')
-                ->whereBetween('created_at', [$month['start_date'], $month['end_date']])
-                ->sum('prom_total');
+            $datas[$key]['sale_promB'] = DB::table('sale_data')
+            ->leftjoin('sale_prom', 'sale_prom.sale_id', '=', 'sale_data.id')
+            ->whereNotNull('sale_prom.prom_id')
+            ->where('sale_data.sale_date', '>=', $month['start_date'])->where('sale_data.sale_date', '<=', $month['end_date'])
+            ->where('sale_prom.prom_type', 'B')
+            ->where('sale_data.status', '9')
+            ->sum('sale_prom.prom_total');
 
-            $datas[$key]['sale_promB'] = DB::table('sale_prom')
-                ->whereNotNull('prom_id')
-                ->where('prom_type', 'B')
-                ->whereBetween('created_at', [$month['start_date'].' 00:00:00', $month['end_date'].' 11:59:59'])
-                ->sum('prom_total');
+            $datas[$key]['sale_promC'] = DB::table('sale_data')
+                ->leftjoin('sale_prom', 'sale_prom.sale_id', '=', 'sale_data.id')
+                ->whereNotNull('sale_prom.prom_id')
+                ->where('sale_data.sale_date', '>=', $month['start_date'])->where('sale_data.sale_date', '<=', $month['end_date'])
+                ->where('sale_prom.prom_type', 'C')
+                ->where('sale_data.status', '9')
+                ->sum('sale_prom.prom_total');
 
-            $datas[$key]['sale_promC'] = DB::table('sale_prom')
-                ->whereNotNull('prom_id')
-                ->where('prom_type', 'C')
-                ->whereBetween('created_at', [$month['start_date'], $month['end_date']])
-                ->sum('prom_total');
+                
             //方案金額
             $datas[$key]['gdpaper_price'] = DB::table('sale_gdpaper')
                 ->join('sale_data', 'sale_gdpaper.sale_id', '=', 'sale_data.id')
