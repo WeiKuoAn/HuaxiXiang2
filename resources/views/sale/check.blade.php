@@ -565,6 +565,9 @@
                 $("#type").prop('required', false);
                 $("#plan_id").prop('required', false);
                 $("#plan_price").prop('required', false);
+                $("#send_div").hide();
+                $("#connector_div").hide();
+                $("#connector_hospital_div").hide();
             }else{
                 $("#prom_div").show(300);
                 $("#gdpaper_div").show(300);
