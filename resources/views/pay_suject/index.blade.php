@@ -66,7 +66,7 @@
                                             @elseif($data->suject_type == '1')
                                                 營業成本
                                             @elseif($data->suject_type == '2')
-                                                銀行轉帳-手續費
+                                                其他費用
                                             @endif
                                         </td>
                                         <td>

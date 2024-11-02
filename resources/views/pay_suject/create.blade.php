@@ -51,7 +51,7 @@
                                             name="suject_type">
                                             <option value="0">營業費用</option>
                                             <option value="1">營業成本</option>
-                                            <option value="2">銀行轉帳-手續費</option>
+                                            <option value="2">其他費用</option>
                                         </select>
                                     </div>
                                     <div class="mb-3">

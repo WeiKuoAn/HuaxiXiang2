@@ -51,7 +51,7 @@
                                             name="suject_type">
                                             <option value="0" @if ($data->suject_type == '0') selected @endif>營業費用</option>
                                             <option value="1" @if ($data->suject_type == '1') selected @endif>營業成本</option>
-                                            <option value="2" @if ($data->suject_type == '2') selected @endif>銀行轉帳-手續費</option>
+                                            <option value="2" @if ($data->suject_type == '2') selected @endif>其他費用</option>
                                         </select>
                                     </div>
                                     <div class="mb-3">
