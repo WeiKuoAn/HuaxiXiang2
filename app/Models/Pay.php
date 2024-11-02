@@ -15,6 +15,8 @@ class Pay extends Model
         'name',
         'status',
         'seq',
-        'comment'
+        'comment',
+        'suject_type',
+        'view_status'
     ];
 }
