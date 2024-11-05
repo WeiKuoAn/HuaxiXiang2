@@ -99,8 +99,9 @@ class SaleDataController extends Controller
     {
         if ($request->ajax()) {
             $customerId = $request->customer_id; // 確保變數名稱一致
+            $pet_name = $request->pet_name;
             $output = '';
-            $data = Sale::where('customer_id', $customerId)->orderby('id', 'desc')->first();
+            $data = Sale::where('customer_id', $customerId)->where('pet_name',$pet_name)->orderby('id', 'desc')->first();
 
             // 使用 switch 語句來簡化條件判斷
             switch ($request->pay_id) {

@@ -413,19 +413,22 @@
 
     //判斷尾款、訂金
     $("#final_price_display").hide();
-    $('#pay_id, #cust_name_q').on('change', function() {
+    $('#pay_id, #cust_name_q, #pet_name').on('change keyup', function() {
         var payId = $('#pay_id').val();
         var customerId = $('#cust_name_q').val();
+        var petName = $('#pet_name').val();
 
         // 檢查兩者都已經選擇
-        if (payId && customerId) {
+        if (payId && customerId && petName) {
+            console.log(petName);
             // 發送 AJAX 請求
             $.ajax({
                 url: '{{ route('sales.final_price') }}',  // 你的路徑
                 type: 'GET',
                 data: {
                     pay_id: payId,
-                    customer_id: customerId
+                    customer_id: customerId,
+                    pet_name: petName
                 },
                 success: function(response) {
                     console.log(response);

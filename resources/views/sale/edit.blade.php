@@ -56,7 +56,7 @@
                         </div>
                         <div class="mb-3 col-md-4">
                             <label for="pay_id" class="form-label">支付類別<span class="text-danger">*</span></label>
-                            <select class="form-select" name="pay_id" required>
+                            <select class="form-select" name="pay_id" id="pay_id" required>
                                 <option value="" selected>請選擇</option>
                                 <option value="A" @if($data->pay_id == 'A') selected @endif>一次付清</option>
                                 <option value="C" @if($data->pay_id == 'C') selected @endif>訂金</option>
@@ -492,34 +492,32 @@
 
     //判斷尾款、訂金
     $("#final_price_display").hide();
-    $('#pay_id, #cust_name_q').on('change', function() {
-        var payId = $('#pay_id').val();
+    $(document).ready(function() {
+    $('#pay_id, #cust_name_q , #pet_name').on('change keyup', function() {
+        var payId =  $('#pay_id').val();
         var customerId = $('#cust_name_q').val();
-
-        // 檢查兩者都已經選擇
-        if (payId && customerId) {
-            // 發送 AJAX 請求
+        var petName = $('#pet_name').val();
+        
+        if (payId && customerId && petName) {
             $.ajax({
-                url: '{{ route('sales.final_price') }}',  // 你的路徑
+                url: '{{ route('sales.final_price') }}',
                 type: 'GET',
                 data: {
                     pay_id: payId,
-                    customer_id: customerId
+                    customer_id: customerId,
+                    pet_name: petName
                 },
                 success: function(response) {
-                    // 如果回應為 'OK'
                     if (response.message === 'OK') {
-                        $('#final_price_display').hide(300); // 隱藏警告訊息
-                        $('#submit_btn').prop('disabled', false); // 啟用提交按鈕
+                        $('#final_price_display').hide(300);
+                        $('#submit_btn').prop('disabled', false);
                     } else {
-                        // 顯示警告訊息，並禁止表單提交
                         $('#final_price_display').show();
                         $('#final_price_display').text(response.message);
-                        $('#submit_btn').prop('disabled', true); // 禁用提交按鈕
+                        $('#submit_btn').prop('disabled', true);
                     }
                 },
                 error: function(xhr, status, error) {
-                    // 處理錯誤
                     console.error('Error: ', error);
                 }
             });
@@ -527,6 +525,8 @@
             console.log('payId 或 customerId 未選擇');
         }
     });
+});
+
 
 
     //親送

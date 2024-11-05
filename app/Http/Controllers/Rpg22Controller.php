@@ -54,7 +54,7 @@ class Rpg22Controller extends Controller
         $datas = [];
         $sums = [];
         
-        $proms = Prom::where('status','up')->whereIn('id',[4,14,17,24,28])->get();
+        $proms = Prom::where('status','up')->whereIn('id',[4,14,17,24,28,31,32])->get();
 
         foreach($proms as $prom)
         {
