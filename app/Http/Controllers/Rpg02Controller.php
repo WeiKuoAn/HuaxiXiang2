@@ -69,7 +69,10 @@ class Rpg02Controller extends Controller
             $datas[$pay_data->pay_id]['comment'] = $pay_data->comment;
             $datas[$pay_data->pay_id]['start_date'] = $after_date;
             $datas[$pay_data->pay_id]['end_start'] = $before_date;
+            $datas[$pay_data->pay_id]['group_id'] =  Pay::where('id', $pay_data->pay_id)->first()->suject_type;
+            $datas[$pay_data->pay_id]['pay_id'] =  $pay_data->pay_id;
         }
+
         foreach ($pay_datas as $pay_data) {
             $datas[$pay_data->pay_id]['total_price'] =  array_sum($datas[$pay_data->pay_id]['price']);
         }
@@ -86,7 +89,10 @@ class Rpg02Controller extends Controller
             }
             $datas[$pay_item->pay_id]['price'][] =  $pay_item->price;
             $datas[$pay_item->pay_id]['comment'] = $pay_item->comment;
+            $datas[$pay_item->pay_id]['group_id'] =  Pay::where('id', $pay_item->pay_id)->first()->suject_type;
+            $datas[$pay_item->pay_id]['pay_id'] =  $pay_item->pay_id;
         }
+
         foreach ($pay_items as $pay_item) {
             $datas[$pay_item->pay_id]['total_price'] =  array_sum($datas[$pay_item->pay_id]['price']);
         }
@@ -96,6 +102,9 @@ class Rpg02Controller extends Controller
             $sums['percent'] = round($sums['total_amount'] * 100 / $sums['total_amount'], 2);
         }
 
+        // dd($datas);
+
+
         foreach ($pay_datas as $pay_data) {
             $datas[$pay_data->pay_id]['percent'] = round($datas[$pay_data->pay_id]['total_price'] * 100 / $sums['total_amount'], 2);
         }
@@ -103,6 +112,65 @@ class Rpg02Controller extends Controller
         foreach ($pay_items as $pay_item) {
             $datas[$pay_item->pay_id]['percent'] = round($datas[$pay_item->pay_id]['total_price'] * 100 / $sums['total_amount'], 2);
         }
+
+        // dd($datas);
+        $groupedDatas = [];
+        $totalSum = 0;
+
+        // 先分組並累加每個 group 的 total_price
+        foreach ($datas as $data) {
+            $groupId = $data['group_id'] ?? 'null';
+
+            // 根據 suject_type 設定 group_name
+            if ($groupId == '0') {
+                $groupName = '營業費用';
+            } elseif ($groupId == '1') {
+                $groupName = '營業成本';
+            } elseif ($groupId == '2') {
+                $groupName = '其他費用';
+            } else {
+                $groupName = ($groupId === 0) ? '其他費用' : '尚未設定';
+            }
+
+            if (!isset($groupedDatas[$groupId])) {
+                $groupedDatas[$groupId] = [
+                    'group_id' => $groupId,
+                    'group_name' => $groupName,
+                    'total_price_sum' => 0,
+                    'details' => []
+                ];
+            }
+
+            $groupedDatas[$groupId]['total_price_sum'] += $data['total_price'];
+            $groupedDatas[$groupId]['details'][] = $data;
+
+            // 累加 total_sum
+            $totalSum += $data['total_price'];
+        }
+
+        // 計算百分比，並調整最後一項的百分比以使總和為 100%
+        $runningTotalPercent = 0;
+        $lastKey = array_key_last($groupedDatas);
+
+        foreach ($groupedDatas as $key => &$group) {
+            if ($totalSum > 0) {
+                // 計算百分比
+                $group['total_price_percent'] = round(($group['total_price_sum'] / $totalSum) * 100, 2);
+
+                // 累加百分比，如果是最後一項，則調整為使總和為100%
+                $runningTotalPercent += $group['total_price_percent'];
+                if ($key === $lastKey) {
+                    $group['total_price_percent'] += (100 - $runningTotalPercent);
+                }
+            } else {
+                $group['total_price_percent'] = 0;
+            }
+        }
+        ksort($groupedDatas);
+
+        // dd($groupedDatas);
+
+
 
         $pays = Pay::where('status', 'up')->orderby('id')->get();
 
@@ -114,7 +182,8 @@ class Rpg02Controller extends Controller
             ->with('sums', $sums)
             ->with('pays', $pays)
             ->with('after_date', $after_date)
-            ->with('before_date', $before_date);
+            ->with('before_date', $before_date)
+            ->with('groupedDatas', $groupedDatas);
     }
 
     public function detail(Request $request, $after_date, $before_date, $pay_id)
