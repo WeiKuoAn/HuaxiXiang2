@@ -61,19 +61,19 @@
                             <tbody>
                                 @foreach($datas as $data)
                                 <tr align="center">
-                                    <td>{{ $data->name }}</td>
-                                    <td>
+                                    <td width="20%">{{ $data->name }}</td>
+                                    <td width="20%">
                                         @foreach($data->settings as $setting)
                                             {{$setting->year}} - {{$setting->approved_days}}天<a href="{{ route('personnel.leavesitting.edit',$setting->id) }}" class="action-icon"> <i class="mdi mdi-pencil"></i></a><br>
                                         @endforeach
                                     </td>
-                                    <td>{{ $data->seq }}</td>
-                                    <td>
+                                    <td width="10%">{{ $data->seq }}</td>
+                                    <td width="10%">
                                         @if($data->status == 0)啟用
                                         @else 停用
                                         @endif
                                     </td>
-                                    <td>{{ $data->comment }}</td>
+                                    <td width="30%"><div id="content">{{ $data->comment }}</div></td>
                                     <td><a href="{{ route('personnel.leaves.edit',$data->id) }}" class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a></td>
                                 </tr>
                                 @endforeach
@@ -91,3 +91,8 @@
 
 </div> <!-- container -->
 @endsection
+<style>
+    div#content {
+        white-space: pre;
+    }
+</style>
