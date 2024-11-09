@@ -21,28 +21,7 @@
     </div>
     <!-- end page title -->
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="row justify-content-between">
-                        <div class="col-auto">
-                            <h4 class="page-title">{{ $user->name }}出勤列表</h4>
-                        </div>
-                        <div class="col-auto">
-                            <div class="text-lg-end my-1 my-lg-0">
-                                <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
-                                    <li class="breadcrumb-item"><a href="javascript: void(0);">用戶管理</a></li>
-                                    <li class="breadcrumb-item active">出勤列表</li>
-                                </ol>
-                            </div>
-                        </div><!-- end col-->
-                    </div> <!-- end row -->
-                </div>
-            </div> <!-- end card -->
-        </div> <!-- end col-->
-    </div>
+    
     <div class="row">
         <div class="col-12">
             <div class="card">

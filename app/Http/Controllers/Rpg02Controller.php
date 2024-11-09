@@ -154,18 +154,21 @@ class Rpg02Controller extends Controller
 
         foreach ($groupedDatas as $key => &$group) {
             if ($totalSum > 0) {
-                // 計算百分比
+                // 計算百分比，並保留兩位小數
                 $group['total_price_percent'] = round(($group['total_price_sum'] / $totalSum) * 100, 2);
 
-                // 累加百分比，如果是最後一項，則調整為使總和為100%
-                $runningTotalPercent += $group['total_price_percent'];
+                // 累加百分比，確保小數點精度
+                $runningTotalPercent = bcadd($runningTotalPercent, $group['total_price_percent'], 2);
+
+                // 如果是最後一項，調整為使總和為100%
                 if ($key === $lastKey) {
-                    $group['total_price_percent'] += (100 - $runningTotalPercent);
+                    $group['total_price_percent'] = number_format(bcadd($group['total_price_percent'], 100 - $runningTotalPercent, 2), 2);
                 }
             } else {
-                $group['total_price_percent'] = 0;
+                $group['total_price_percent'] = '0.00';
             }
         }
+
         ksort($groupedDatas);
 
         // dd($groupedDatas);
