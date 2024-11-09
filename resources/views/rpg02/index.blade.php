@@ -64,11 +64,7 @@
                             <div class="col-auto">
                                 <div class="text-lg-end my-1 my-lg-0">
                                     <h3 class="text-end text-danger">
-                                        @if ($sums['total_amount'] > 0)
-                                            淨利{{ number_format($sums['total_amount']) }}元
-                                        @else
-                                            虧損{{ number_format($sums['total_amount']) }}元
-                                        @endif
+                                        總支出：{{ number_format($sums['total_amount']) }}元
                                     </h3>
                                 </div>
                             </div><!-- end col-->
