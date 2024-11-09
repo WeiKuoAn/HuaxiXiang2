@@ -73,7 +73,7 @@
                                         @else 停用
                                         @endif
                                     </td>
-                                    <td width="30%"><div id="content">{{ $data->comment }}</div></td>
+                                    <td width="30%" align="left"><div id="content">{{ $data->comment }}</div></td>
                                     <td><a href="{{ route('personnel.leaves.edit',$data->id) }}" class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a></td>
                                 </tr>
                                 @endforeach
