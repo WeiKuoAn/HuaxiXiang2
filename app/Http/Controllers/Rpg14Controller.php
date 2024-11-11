@@ -41,7 +41,7 @@ class Rpg14Controller extends Controller
                     $datas[$period->format("Y-m-d")][$sale->type]['count']++;
                 }
             }
-    
+            // dd($datas);
             foreach ($periods as $period) {
                 foreach ($sources as $source) {
                     $sums[$source->code]['count'] += $datas[$period->format("Y-m-d")][$source->code]['count'];

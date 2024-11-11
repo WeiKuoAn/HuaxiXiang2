@@ -129,6 +129,9 @@
                                             <a href="{{ route('rpg14') }}"  class="{{ request()->is('rpg14') ? 'active' : '' }}">來源報表</a>
                                         </li>
                                         <li>
+                                            <a href="{{ route('rpg27') }}"  class="{{ request()->is('rpg27') ? 'active' : '' }}">每月來源統計</a>
+                                        </li>
+                                        <li>
                                             <a href="{{ route('rpg01') }}"  class="{{ request()->is('rpg01') ? 'active' : '' }}">方案報表</a>
                                         </li>
                                         <li>

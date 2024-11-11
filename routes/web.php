@@ -56,6 +56,7 @@ use App\Http\Controllers\Rpg23Controller;
 use App\Http\Controllers\Rpg24Controller;
 use App\Http\Controllers\Rpg25Controller;
 use App\Http\Controllers\Rpg26Controller;
+use App\Http\Controllers\Rpg27Controller;
 use App\Http\Controllers\LeaveDayController;
 use App\Http\Controllers\RestockController;
 use App\Http\Controllers\LiffController;
@@ -458,6 +459,8 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/rpg/rpg12', [Rpg12Controller::class, 'rpg12'])->name('rpg12');
     Route::get('/rpg/rpg13', [Rpg13Controller::class, 'rpg13'])->name('rpg13');
     Route::get('/rpg/rpg14', [Rpg14Controller::class, 'rpg14'])->name('rpg14');
+    Route::get('/rpg/rpg27', [Rpg27Controller::class, 'rpg27'])->name('rpg27');
+    Route::get('/rpg/rpg27/{month}/{source_id}/detail', [Rpg27Controller::class, 'detail'])->name('rpg27.detail');
     Route::get('/rpg/rpg14/detail/{date}/{source_code}', [Rpg14Controller::class, 'detail'])->middleware(['auth'])->name('rpg14.detail');
     Route::get('/rpg/rpg15', [Rpg15Controller::class, 'rpg15'])->name('rpg15');
     Route::get('/rpg/rpg16', [Rpg16Controller::class, 'rpg16'])->name('rpg16');
@@ -476,6 +479,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/rpg/rpg25', [Rpg25Controller::class, 'rpg25'])->name('rpg25');
     Route::get('/rpg/rpg25/{month}/{prom_id}/detail', [Rpg25Controller::class, 'detail'])->name('rpg25.detail');
     Route::get('/rpg/rpg26', [Rpg26Controller::class, 'rpg26'])->name('rpg26');
+    // Route::get('/rpg/rpg26/{month}/{prom_id}/detail', [Rpg26Controller::class, 'rpg26'])->name('rpg26');
 
     Route::get('/liff', [LiffController::class, 'index'])->name('liff.index');
 
