@@ -128,6 +128,7 @@
                                             <option value="day">天</option>
                                             <option value="hour">小時</option>
                                             <option value="week">週</option>
+                                            <option value="month">週</option>
                                         </select>
                                     </div>
                                     <div class="mb-3">

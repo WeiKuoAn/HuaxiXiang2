@@ -114,6 +114,10 @@
                                             </option>
                                             <option value="hour" @if ($data->unit == 'hour') selected @endif>小時
                                             </option>
+                                            <option value="week" @if ($data->unit == 'week') selected @endif>週
+                                            </option>
+                                            <option value="month" @if ($data->unit == 'month') selected @endif>週
+                                            </option>
                                         </select>
                                     </div>
                                     <div class="mb-3">
