@@ -111,7 +111,7 @@
                                     <td>
                                         {{ $data->total }}
                                         @if($data->unit == 'hour')小時
-                                        @if($data->unit == 'week')週
+                                        @elseif($data->unit == 'week')週
                                         @else 天
                                         @endif
                                     </td>
