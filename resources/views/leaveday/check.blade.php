@@ -116,7 +116,7 @@
                                             </option>
                                             <option value="week" @if ($data->unit == 'week') selected @endif>週
                                             </option>
-                                            <option value="month" @if ($data->unit == 'month') selected @endif>週
+                                            <option value="month" @if ($data->unit == 'month') selected @endif>月
                                             </option>
                                         </select>
                                     </div>
