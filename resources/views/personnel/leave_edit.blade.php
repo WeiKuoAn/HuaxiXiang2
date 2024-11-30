@@ -58,6 +58,13 @@
                                             value="{{ $data->seq }}" required>
                                     </div>
                                     <div class="mb-3">
+                                        <label for="project-priority" class="form-label">固定天數<span class="text-danger">*</span></label>
+                                        <select class="form-control" data-toggle="select" data-width="100%" name="fixed">
+                                            <option value="0" value="0" @if ($data->fixed == 0) selected @endif>有固定天數</option>
+                                            <option value="1" value="1" @if ($data->fixed == 1) selected @endif>沒有固定天數</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
                                         <label for="project-priority" class="form-label">狀態<span
                                                 class="text-danger">*</span></label>
                                         <select class="form-control" data-toggle="select" data-width="100%" name="status">

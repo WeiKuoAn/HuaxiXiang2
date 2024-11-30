@@ -20,6 +20,7 @@ class LeaveDay extends Model
         'total',
         'comment',
         'director_id',
+        'file',
         'state',
     ];
 

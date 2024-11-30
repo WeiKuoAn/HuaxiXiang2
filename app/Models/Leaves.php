@@ -16,6 +16,7 @@ class Leaves extends Model
         'name',
         'approved_days',
         'comment',
+        'fixed',
         'seq',
         'status'
     ];

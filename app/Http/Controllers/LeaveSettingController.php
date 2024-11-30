@@ -30,6 +30,7 @@ class LeaveSettingController extends Controller
         $data->leave_id = $request->leave_id;
         $data->year = $request->year;
         $data->approved_days = $request->approved_days;
+        $data->unit = $request->unit;
         $data->save();
         return redirect()->route('personnel.leaves');
     }
@@ -48,6 +49,7 @@ class LeaveSettingController extends Controller
         $data->leave_id = $request->leave_id;
         $data->year = $request->year;
         $data->approved_days = $request->approved_days;
+        $data->unit = $request->unit;
         $data->save();
         return redirect()->route('personnel.leaves');
     }

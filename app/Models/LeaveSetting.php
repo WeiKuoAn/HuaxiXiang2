@@ -15,6 +15,7 @@ class LeaveSetting extends Model
         'leave_id',
         'year',
         'approved_days',
+        'unit',
     ];
 
 }

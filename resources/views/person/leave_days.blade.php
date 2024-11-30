@@ -96,6 +96,7 @@
                                     <th width="12%">請假開始時間</th>
                                     <th width="12%">請假結束時間</th>
                                     <th>總時數</th>
+                                    <th>附件</th>
                                     <th>備註</th>
                                     <th>狀態</th>
                                     <th>審核</th>
@@ -116,6 +117,9 @@
                                         @else 天
                                         @endif
                                     </td>
+                                    <td><a href="{{$data->file }}" target="_blank" class="action-icon"> 
+                                        <i class="mdi mdi-file-document"></i>
+                                    </a></td>
                                     <td>{{ $data->comment }}</td>
                                     <td>{{ $data->leave_status() }}</td>
                                     <td>

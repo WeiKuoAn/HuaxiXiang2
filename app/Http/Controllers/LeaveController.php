@@ -59,6 +59,7 @@ class LeaveController extends Controller
         $data->name = $request->name;
         $data->seq = $request->seq;
         $data->status = $request->status;
+        $data->fixed = $request->fixed;
         $data->comment = $request->comment;
         $data->save();
         return redirect()->route('personnel.leaves');
@@ -77,6 +78,7 @@ class LeaveController extends Controller
         $data->name = $request->name;
         $data->seq = $request->seq;
         $data->status = $request->status;
+        $data->fixed = $request->fixed;
         $data->comment = $request->comment;
         $data->save();
         return redirect()->route('personnel.leaves');

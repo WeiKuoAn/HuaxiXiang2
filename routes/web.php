@@ -156,6 +156,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('personnel/user/{id}/leave_day', [LeaveDayController::class, 'user_index'])->name('user.leave_day');
     Route::get('leave_day/create', [LeaveDayController::class, 'create'])->name('leave_day.create');
     Route::post('leave_day/create', [LeaveDayController::class, 'store'])->name('leave_day.create.data');
+    Route::post('/leave-day/upload-file', [LeaveDayController::class, 'uploadFile'])->name('leave_day.upload_file');
     Route::get('leave_day/edit/{id}', [LeaveDayController::class, 'show'])->name('leave_day.edit');
     Route::post('leave_day/edit/{id}', [LeaveDayController::class, 'update'])->name('leave_day.edit.data');
     Route::get('leave_day/del/{id}', [LeaveDayController::class, 'delete'])->name('leave_day.del');

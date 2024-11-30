@@ -94,6 +94,7 @@
                                     <th width="12%">請假結束時間</th>
                                     <th>總時數</th>
                                     <th>備註</th>
+                                    <th>附件</th>
                                     <th>狀態</th>
                                     <th>審核</th>
                                 </tr>
@@ -110,10 +111,14 @@
                                     <td>
                                         {{ $data->total }}
                                         @if($data->unit == 'hour')小時
+                                        @if($data->unit == 'week')週
                                         @else 天
                                         @endif
                                     </td>
                                     <td>{{ $data->comment }}</td>
+                                    <td><a href="{{$data->file }}" target="_blank" class="action-icon"> 
+                                        <i class="mdi mdi-file-document"></i>
+                                    </a></td>
                                     <td>{{ $data->leave_status() }}</td>
                                     <td>
                                         @if($data->state == '2')

@@ -53,12 +53,20 @@
                                 <input type="text" class="form-control" name="seq" value="0" required>
                             </div>
                             <div class="mb-3">
+                                <label for="project-priority" class="form-label">固定天數<span class="text-danger">*</span></label>
+                                <select class="form-control" data-toggle="select" data-width="100%" name="fixed">
+                                    <option value="0">有固定天數</option>
+                                    <option value="1">沒有固定天數</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
                                 <label for="project-priority" class="form-label">狀態<span class="text-danger">*</span></label>
                                 <select class="form-control" data-toggle="select" data-width="100%" name="status">
                                     <option value="0">上架</option>
                                     <option value="1">下架</option>
                                 </select>
                             </div>
+                            
                             <div class="mb-3">
                                 <label class="form-label">備註<span class="text-danger">*</span></label>
                                 <textarea class="form-control" rows="5" placeholder="" name="comment"></textarea>
