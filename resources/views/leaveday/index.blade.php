@@ -112,6 +112,7 @@
                                         {{ $data->total }}
                                         @if($data->unit == 'hour')小時
                                         @elseif($data->unit == 'week')週
+                                        @elseif($data->unit == 'month')月
                                         @else 天
                                         @endif
                                     </td>
