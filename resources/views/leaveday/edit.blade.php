@@ -139,7 +139,7 @@
                                     <label class="form-label">選擇附件 (PDF, JPG, PNG)<span
                                             class="text-danger">*</span></label>
                                     <input type="file" class="form-control" name="file1" id="fileInput"
-                                        accept=".pdf,.jpg,.png" required>
+                                        accept=".pdf,.jpg,.png">
                                     @if (isset($data->file))
                                         <small class="form-text text-muted">
                                             已上傳檔案：<strong><a href="{{ $data->file }}"

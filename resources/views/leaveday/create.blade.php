@@ -142,7 +142,7 @@
                                     <label class="form-label">選擇附件 (PDF, JPG, PNG)<span
                                             class="text-danger">*</span></label>
                                     <input type="file" class="form-control" name="file1" id="fileInput"
-                                        accept=".pdf,.jpg,.png" required>
+                                        accept=".pdf,.jpg,.png">
                                 </div>
                                 <div class="mb-3" id="previewSection" style="display: none;">
                                     <label class="form-label">檔案預覽：</label>
