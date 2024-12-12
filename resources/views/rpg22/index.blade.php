@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ["page_title"=> "每月紀念品銷售統計"])
+@extends('layouts.vertical', ["page_title"=> "年度紀念品統計"])
 
 @section('content')
 <!-- Start Content-->
@@ -12,10 +12,10 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="javascript: void(0);">報表管理</a></li>
-                        <li class="breadcrumb-item active">每月紀念品銷售統計</li>
+                        <li class="breadcrumb-item active">年度紀念品統計</li>
                     </ol>
                 </div>
-                <h4 class="page-title">每月紀念品銷售統計</h4>
+                <h4 class="page-title">年度紀念品統計</h4>
             </div>
         </div>
     </div>

@@ -12,7 +12,7 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="javascript: void(0);">報表管理</a></li>
-                        <li class="breadcrumb-item active">方案報表</li>
+                        <li class="breadcrumb-item active">每月方案報表</li>
                     </ol>
                 </div>
                 <h4 class="page-title">{{ $date."【".$plan_name[$plan_id]."】火化" }}</h4>

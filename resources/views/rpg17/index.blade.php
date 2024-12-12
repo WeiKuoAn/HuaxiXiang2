@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ["page_title"=> "安葬服務報表"])
+@extends('layouts.vertical', ["page_title"=> "年度安葬服務統計"])
 
 @section('content')
 <!-- Start Content-->
@@ -12,10 +12,10 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="javascript: void(0);">報表管理</a></li>
-                        <li class="breadcrumb-item active">安葬服務報表</li>
+                        <li class="breadcrumb-item active">年度安葬服務統計</li>
                     </ol>
                 </div>
-                <h4 class="page-title">安葬服務報表</h4>
+                <h4 class="page-title">年度安葬服務統計</h4>
             </div>
         </div>
     </div>

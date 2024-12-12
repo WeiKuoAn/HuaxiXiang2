@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ['page_title' => '來源報表'])
+@extends('layouts.vertical', ['page_title' => '支出報表'])
 
 @section('content')
     <!-- Start Content-->
@@ -12,7 +12,7 @@
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                             <li class="breadcrumb-item"><a href="javascript: void(0);">報表管理</a></li>
-                            <li class="breadcrumb-item active">來源報表</li>
+                            <li class="breadcrumb-item active">支出報表</li>
                         </ol>
                     </div>
                     <h4 class="page-title">{{ '【' . $after_date . '~' . $before_date . '】' . '會計科目：' . $pay_data->name }}</h4>

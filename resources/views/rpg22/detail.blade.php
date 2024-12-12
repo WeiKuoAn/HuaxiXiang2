@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ["page_title"=> "專員紀念品銷售統計"])
+@extends('layouts.vertical', ["page_title"=> "年度紀念品統計"])
 
 @section('content')
 <!-- Start Content-->

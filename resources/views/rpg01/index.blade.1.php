@@ -6,7 +6,7 @@
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">報表管理</li>
-                <li class="breadcrumb-item active">方案報表</li>
+                <li class="breadcrumb-item active">每月方案報表</li>
             </ol>
         </nav>
     </div><!-- End Page Title -->

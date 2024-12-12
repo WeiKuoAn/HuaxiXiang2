@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ["page_title"=> "廠商傭金抽成"])
+@extends('layouts.vertical', ["page_title"=> "每月金紙報表"])
 
 @section('content')
 <!-- Start Content-->
@@ -12,10 +12,10 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="javascript: void(0);">報表管理</a></li>
-                        <li class="breadcrumb-item active">金紙賣出報表</li>
+                        <li class="breadcrumb-item active">每月金紙報表</li>
                     </ol>
                 </div>
-                <h4 class="page-title">金紙賣出報表</h4>
+                <h4 class="page-title">每月金紙報表</h4>
             </div>
         </div>
     </div>
