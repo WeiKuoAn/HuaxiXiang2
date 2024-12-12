@@ -61,13 +61,13 @@
                                         </select>
                                     </div>
                                     <div class="me-sm-1">
-                                        <select class="form-select my-1 my-lg-0" id="status-select" name="commission"
-                                            onchange="this.form.submit()">
-                                            <option value="null" selected>是否有傭金</option>
-                                            <option value="1" @if ($request->commission == 1) selected @endif>有</option>
-                                            <option value="0" @if ($request->commission == 0) selected @endif>沒有</option>
+                                        <select class="form-select my-1 my-lg-0" id="status-select" name="commission" onchange="this.form.submit()">
+                                            <option value="null" @if (is_null($request->commission)) selected @endif>是否有傭金</option>
+                                            <option value="1" @if ($request->commission === 1) selected @endif>有</option>
+                                            <option value="0" @if ($request->commission === 0) selected @endif>沒有</option>
                                         </select>
                                     </div>
+                                    
                                     <div class="me-sm-1">
                                         <select class="form-select my-1 my-lg-0" id="status-select" name="seq"
                                             onchange="this.form.submit()">
