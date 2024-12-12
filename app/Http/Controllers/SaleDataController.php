@@ -828,12 +828,15 @@ class SaleDataController extends Controller
     {
         $data = Sale::where('id', $id)->first();
         $data->plan_id = $request->new_plan_id;
+        $data->pay_price = $request->new_pay_price;
         $data->save();
 
         $sale_plan = new SalePlan;
         $sale_plan->sale_id = $data->id;
         $sale_plan->plan_id = $request->old_plan_id;
         $sale_plan->new_plan_id = $request->new_plan_id;
+        $sale_plan->pay_price = $request->old_pay_price;
+        $sale_plan->new_pay_price = $request->new_pay_price;
         $sale_plan->save();
 
         //業務單軌跡-更新方案

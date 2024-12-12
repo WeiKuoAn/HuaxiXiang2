@@ -20,7 +20,9 @@ class Customer extends Model
         'created_up',
         'group_id',
         'bank_id',
-        'bank_number'
+        'bank_number',
+        'commission',
+        'visit'
     ];
     public function group()
     {

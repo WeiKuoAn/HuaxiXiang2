@@ -64,6 +64,8 @@
                                         <th>電話</th>
                                         <th>寶貝名稱</th>
                                         <th>群組</th>
+                                        <th>傭金</th>
+                                        <th>拜訪</th>
                                         <th>新增時間</th>
                                         <th>拜訪紀錄</th>
                                     </tr>
@@ -84,6 +86,20 @@
                                         <td>
                                             @if(isset($data->group))
                                             {{ $data->group->name }}
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($data->commission == 1)
+                                                有
+                                            @else
+                                                無
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($data->vist == 1)
+                                                有
+                                            @else
+                                                無
                                             @endif
                                         </td>
                                         <td>{{ date('Y-m-d', strtotime($data->created_at)) }}</td>

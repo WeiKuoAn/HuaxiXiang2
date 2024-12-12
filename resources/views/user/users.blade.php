@@ -44,14 +44,14 @@
                                 </div><!-- end col-->
                                 <div class="col-sm-2">
                                     <div class="mt-4">
-                                        <button type="button" class="btn btn-success mb-2 me-1"><i
+                                        <button type="submit" class="btn btn-success mb-2 me-1"><i
                                                 class="fe-search me-1"></i>搜尋</button>
                                     </div>
                                 </div><!-- end col-->
                         </form>
                         <div class="col-sm-7 text-sm-end mt-4">
                             <a href="{{ route('user.create') }}">
-                                <button type="submit" class="btn btn-danger waves-effect waves-light"
+                                <button type="button" class="btn btn-danger waves-effect waves-light"
                                     data-bs-toggle="modal" data-bs-target="#custom-modal"><i
                                         class="mdi mdi-plus-circle me-1"></i>新增用戶</button>
                             </a>
