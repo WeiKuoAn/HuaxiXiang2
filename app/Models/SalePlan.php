@@ -15,6 +15,8 @@ class SalePlan extends Model
         'plan_id',
         'sale_id',
         'new_plan_id',
+        'pay_price',
+        'new_pay_price'
     ];
 
     public function old_plan_data()
