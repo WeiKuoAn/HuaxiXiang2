@@ -140,11 +140,19 @@ class LeaveDayController extends Controller
             // 生成檔案名稱（時間戳 + 原始檔名）
             $fileName = time() . '_' . $file->getClientOriginalName();
 
-            // 儲存檔案到 storage/app/public/uploads
-            $filePath = $file->storeAs('public/uploads', $fileName);
+            // 定義存放路徑為 public/assets/uploads
+            $destinationPath = public_path('assets/uploads');
 
-            // 生成檔案公開 URL
-            $fileUrl = Storage::url('uploads/' . $fileName);
+            // 如果目錄不存在，則建立目錄
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0777, true);
+            }
+
+            // 將檔案移動到指定目錄
+            $file->move($destinationPath, $fileName);
+
+            // 生成檔案的公開 URL
+            $fileUrl = asset('assets/uploads/' . $fileName);
 
             // 返回 JSON 回應，包含檔案 URL
             return response()->json([
@@ -159,6 +167,8 @@ class LeaveDayController extends Controller
             'message' => '檔案上傳失敗，請確認是否選擇了檔案。',
         ]);
     }
+
+
 
 
 
@@ -197,7 +207,8 @@ class LeaveDayController extends Controller
         $data = LeaveDay::where('id', $id)->first();
         $items = LeaveDayCheck::where('leave_day_id', $data->id)->get();
         $leaves = Leaves::where('status', 0)->orderby('seq')->get();
-        return view('leaveday.check')->with('data', $data)->with('items', $items)->with('leaves', $leaves);
+        $users = User::where('status', '0')->whereIn('job_id', [1, 2, 3, 10])->get();
+        return view('leaveday.check')->with('data', $data)->with('items', $items)->with('leaves', $leaves)->with('users', $users);
     }
 
     public function check_data($id, Request $request) //主管確認
