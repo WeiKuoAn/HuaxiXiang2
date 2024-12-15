@@ -129,19 +129,19 @@
                                             <a href="{{ route('rpg14') }}"  class="{{ request()->is('rpg14') ? 'active' : '' }}">每月來源報表</a>
                                         </li>
                                         <li>
-                                            <a href="{{ route('rpg27') }}"  class="{{ request()->is('rpg27') ? 'active' : '' }}">年度來源統計</a>
+                                            <a href="{{ route('rpg27') }}"  class="{{ request()->is('rpg27') ? 'active' : '' }}">年度來源</a>
                                         </li>
                                         <li>
                                             <a href="{{ route('rpg01') }}"  class="{{ request()->is('rpg01') ? 'active' : '' }}">每月方案報表</a>
                                         </li>
                                         <li>
-                                            <a href="{{ route('rpg17') }}"  class="{{ request()->is('rpg17') ? 'active' : '' }}">年度安葬服務統計</a>
+                                            <a href="{{ route('rpg17') }}"  class="{{ request()->is('rpg17') ? 'active' : '' }}">年度安葬服務</a>
                                         </li>
                                         <li>
-                                            <a href="{{ route('rpg16') }}"  class="{{ request()->is('rpg16') ? 'active' : '' }}">年度後續服務統計</a>
+                                            <a href="{{ route('rpg16') }}"  class="{{ request()->is('rpg16') ? 'active' : '' }}">年度後續服務</a>
                                         </li>
                                         <li>
-                                            <a href="{{ route('rpg25') }}"  class="{{ request()->is('rpg25') ? 'active' : '' }}">年度其他服務統計</a>
+                                            <a href="{{ route('rpg25') }}"  class="{{ request()->is('rpg25') ? 'active' : '' }}">年度其他服務</a>
                                         </li>
                                         <li>
                                             <a href="{{ route('rpg04') }}"  class="{{ request()->is('rpg04') ? 'active' : '' }}">每月金紙銷售報表</a>
@@ -150,7 +150,7 @@
                                             <a href="{{ route('rpg13') }}"  class="{{ request()->is('rpg13') ? 'active' : '' }}">每月金紙報表</a>
                                         </li>
                                         <li>
-                                            <a href="{{ route('rpg22') }}"  class="{{ request()->is('rpg22') ? 'active' : '' }}">年度紀念品統計</a>
+                                            <a href="{{ route('rpg22') }}"  class="{{ request()->is('rpg22') ? 'active' : '' }}">年度紀念品</a>
                                         </li>
                                     </ul>
                                 </div>
