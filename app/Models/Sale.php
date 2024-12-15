@@ -26,6 +26,7 @@ class Sale extends Model
         'before_prom_price',
         'pay_id',
         'pay_price',
+        'variety',
         'total',
         'send',
         'connector_address',

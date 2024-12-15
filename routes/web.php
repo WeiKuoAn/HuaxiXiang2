@@ -62,6 +62,8 @@ use App\Http\Controllers\RestockController;
 use App\Http\Controllers\LiffController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LeaveSettingController;
+use App\Http\Controllers\LampController;
+use App\Http\Controllers\LampTypeController;
 use App\Models\Pay;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
@@ -442,6 +444,24 @@ Route::group(['prefix' => '/'], function () {
     Route::post('/contract/edit/{id}', [ContractController::class, 'update'])->name('contract.edit.data');
     Route::get('/contract/del/{id}', [ContractController::class, 'delete'])->name('contract.del');
     Route::post('/contract/del/{id}', [ContractController::class, 'destroy'])->name('contract.del.data');
+
+
+    /*平安燈類別管理*/
+    Route::get('/lampType', [LampTypeController::class, 'index'])->name('lampTypes');
+    Route::get('/lampType/create', [LampTypeController::class, 'create'])->name('lampType.create');
+    Route::post('/lampType/create', [LampTypeController::class, 'store'])->name('lampType.create.data');
+    Route::get('/lampType/edit/{id}', [LampTypeController::class, 'show'])->name('lampType.edit');
+    Route::post('/lampType/edit/{id}', [LampTypeController::class, 'update'])->name('lampType.edit.data');
+
+    /*平安燈管理*/
+    Route::get('/lamp', [LampController::class, 'index'])->name('lamps');
+    Route::get('/lamp/export', [LampController::class, 'export'])->name('lamp.export');
+    Route::get('/lamp/create', [LampController::class, 'create'])->name('lamp.create');
+    Route::post('/lamp/create', [LampController::class, 'store'])->name('lamp.create.data');
+    Route::get('/lamp/edit/{id}', [LampController::class, 'show'])->name('lamp.edit');
+    Route::post('/lamp/edit/{id}', [LampController::class, 'update'])->name('lamp.edit.data');
+    Route::get('/lamp/del/{id}', [LampController::class, 'delete'])->name('lamp.del');
+    Route::post('/lamp/del/{id}', [LampController::class, 'destroy'])->name('lamp.del.data');
 
     /*報表管理*/
     Route::get('/rpg/rpg01', [Rpg01Controller::class, 'rpg01'])->name('rpg01');
