@@ -137,9 +137,9 @@
                                         <label for="project-priority" class="form-label">是否拜訪過<span
                                                 class="text-danger">*</span></label>
                                         <select class="form-control" data-toggle="select" data-width="100%"
-                                            name="visit">
-                                            <option value="1" @if($data->visit == '1') selected @endif>有</option>
-                                            <option value="0" @if($data->visit == '0' || $data->visit==null) selected @endif>無</option>
+                                            name="visit_status">
+                                            <option value="1" @if($data->visit_status == '1') selected @endif>有</option>
+                                            <option value="0" @if($data->visit_status == '0' || $data->visit_status==null) selected @endif>無</option>
                                         </select>
                                     </div>
                                     

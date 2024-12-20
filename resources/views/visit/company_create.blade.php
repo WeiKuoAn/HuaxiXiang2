@@ -134,7 +134,7 @@
                                 <div class="mb-3">
                                     <label for="project-priority" class="form-label">是否拜訪過<span
                                             class="text-danger">*</span></label>
-                                    <select class="form-control" data-toggle="select" data-width="100%" name="visit">
+                                    <select class="form-control" data-toggle="select" data-width="100%" name="visit_status">
                                         <option value="1">有</option>
                                         <option value="0" selected>無</option>
                                     </select>

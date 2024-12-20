@@ -339,7 +339,7 @@ class VisitController extends Controller
                         $customer->bank_number = $request->bank_number;
                     }
                     $customer->commission = $request->commission;
-                    $customer->visit = $request->visit;
+                    $customer->visit_status = $request->visit_status;
                 }
             }
         }
@@ -405,7 +405,7 @@ class VisitController extends Controller
         $data->bank_id = $request->bank_id;
         $data->bank_number = $request->bank_number;
         $data->commission = $request->commission;
-        $data->visit = $request->visit;
+        $data->visit_status = $request->visit_status;
         $data->save();
 
         if ($hospital_type) {
