@@ -15,7 +15,7 @@ class Rpg11Controller extends Controller
 {
     public function rpg11(Request $request)
     {
-        $years = range(Carbon::now()->year,2022);
+        $years = range(Carbon::now()->year + 1, 2022);
         $datas = [];
 
         foreach($years as $year)
