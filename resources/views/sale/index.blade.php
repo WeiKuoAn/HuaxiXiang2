@@ -50,8 +50,8 @@
                                             <input type="text" class="form-control" id="sale_on" name="sale_on" value="{{ $request->sale_on }}">
                                         </div>
                                         <div class="me-2">
-                                            <label for="cust_mobile" class="form-label">客戶電話</label>
-                                            <input type="text" class="form-control" id="cust_mobile" name="cust_mobile" value="{{ $request->cust_mobile }}">
+                                            <label for="cust_name" class="form-label">客戶姓名</label>
+                                            <input type="text" class="form-control" id="cust_name" name="cust_name" value="{{ $request->cust_name }}">
                                         </div>  
                                 </div>
                                 <div class="col-auto d-flex flex-wrap align-items-center mt-3">

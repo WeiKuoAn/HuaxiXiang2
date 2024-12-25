@@ -334,7 +334,7 @@
                 <li>
                     <a href="#other" data-bs-toggle="collapse">
                         <i data-feather="database"></i>
-                        <span> 其他管理 </span>
+                        <span> 設定管理 </span>
                         <span class="menu-arrow"></span>
                     </a>
                     <div class="collapse" id="other">

@@ -29,6 +29,8 @@ class User extends Authenticatable
         'branch_id',
         'status',
         'password',
+        'bank',//銀行
+        'branch',//銀行分行
         'education_school',
         'education_level',
         'is_graduated',

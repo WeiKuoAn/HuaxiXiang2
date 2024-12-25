@@ -89,9 +89,12 @@ class PersonController extends Controller
 
     public function show()
     {
+        $json = file_get_contents(public_path('assets/data/banks.json'));
+        $banks = collect(json_decode($json, true));
+        $groupedBanks = $banks->groupBy('銀行代號/總機構代碼');
         $user = User::where('id', Auth::user()->id)->first();
         return view('person.edit-profile')->with('user', $user)
-                                       ->with('hint', '0');
+                                       ->with('hint', '0')->with('groupedBanks', $groupedBanks);
     }
 
     public function update(Request $request)
@@ -111,6 +114,8 @@ class PersonController extends Controller
             $user->entry_date = $request->entry_date;
             $user->level = $request->level;
             $user->status = $request->status;
+            $user->bank = $request->bank; //銀行
+            $user->branch = $request->branch; //銀行分行
             $user->save();
         }else{
             //不是管理員的話，要紀錄到log中
@@ -150,6 +155,8 @@ class PersonController extends Controller
             $user->address = $request->address;
             $user->census_address = $request->census_address;
             $user->bank_id = $request->bank_id;
+            $user->bank = $request->bank; //銀行
+            $user->branch = $request->branch; //銀行分行
             $user->bank_number = $request->bank_number;
             $user->urgent_name = $request->urgent_name;
             $user->urgent_relation = $request->urgent_relation;
@@ -160,8 +167,13 @@ class PersonController extends Controller
             $user->state = 0; //用戶只能修改第一次,第一次修改後 只能透過人資去修改，所以狀態是0
             $user->save();
         }
+        // dd($request->all());
+
+        $json = file_get_contents(public_path('assets/data/banks.json'));
+        $banks = collect(json_decode($json, true));
+        $groupedBanks = $banks->groupBy('銀行代號/總機構代碼');
         return view('person.edit-profile')->with('user', $user)
-                                        ->with('hint','1');
+                                        ->with('hint','1')->with('groupedBanks', $groupedBanks);
     }
 
      //員工送出借出。補錢單

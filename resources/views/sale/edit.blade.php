@@ -87,6 +87,10 @@
                             <input type="text" class="form-control" id="pet_name" name="pet_name" value="{{ $data->pet_name }}">
                         </div>
                         <div class="mb-3 col-md-4 not_final_show not_memorial_show">
+                            <label for="variety" class="form-label">寵物品種<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="variety" name="variety" value="{{ $data->variety }}">
+                        </div>
+                        <div class="mb-3 col-md-4 not_final_show not_memorial_show">
                             <label for="kg" class="form-label">公斤數<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="kg" name="kg" value="{{ $data->kg }}">
                         </div>
@@ -635,6 +639,7 @@
         $("#cust_name_q").prop('required', false);
         // $("#pet_name").prop('required', false);
         $("#kg").prop('required', false);
+        $("#variety").prop('required', false);
         $("#type").prop('required', false);
         $("#plan_id").prop('required', false);
         $("#plan_price").prop('required', false);
@@ -662,6 +667,7 @@
                     $("#plan_id").prop('required', true);
                 }
                 $("#kg").prop('required', false);
+                $("#variety").prop('required', false);
                 $("#type").prop('required', false);
                 $("#plan_id").prop('required', false);
                 $("#plan_price").prop('required', false);
@@ -675,6 +681,7 @@
                 $(".not_final_show").show(300);
                 $("#pet_name").prop('required', true);
                 $("#kg").prop('required', true);
+                $("#variety").prop('required', true);
                 $("#type").prop('required', true);
                 $("#plan_id").prop('required', true);
                 $("#plan_price").prop('required', true);
@@ -693,6 +700,7 @@
             $("#cust_name_q").prop('required', false);
             // $("#pet_name").prop('required', false);
             $("#kg").prop('required', false);
+            $("#variety").prop('required', false);
             $("#type").prop('required', false);
             $("#plan_id").prop('required', false);
             $("#plan_price").prop('required', false);
@@ -713,6 +721,7 @@
                     $("#plan_id").prop('required', true);
                 }
                 $("#kg").prop('required', false);
+                $("#variety").prop('required', false);
                 $("#type").prop('required', false);
                 $("#plan_price").prop('required', false);
             }else{
@@ -722,6 +731,7 @@
                 $(".not_final_show").show(300);
                 $("#pet_name").prop('required', true);
                 $("#kg").prop('required', true);
+                $("#variety").prop('required', true);
                 $("#type").prop('required', true);
                 $("#plan_id").prop('required', true);
                 $("#plan_price").prop('required', true);
@@ -747,6 +757,7 @@
                 $("#plan_id").prop('required', true);
             }
             $("#kg").prop('required', false);
+            $("#variety").prop('required', false);
             $("#type").prop('required', false);
             // $("#plan_id").prop('required', false);
             $("#plan_price").prop('required', false);
@@ -777,6 +788,7 @@
                 $(".not_memorial_show").show();
                 $("#pet_name").prop('required', true);
                 $("#kg").prop('required', true);
+                $("#variety").prop('required', true);
                 $("#type").prop('required', true);
                 $("#plan_id").prop('required', true);
                 $("#plan_price").prop('required', true);

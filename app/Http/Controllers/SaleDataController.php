@@ -192,6 +192,7 @@ class SaleDataController extends Controller
         $sale->customer_id = $request->cust_name_q;
         $sale->pet_name = $request->pet_name;
         $sale->kg = $request->kg;
+        $sale->variety = $request->variety;
         $sale->type = $request->type;
         if ($request->type_list == 'memorial') {
             //如果是追思單就客戶為空
@@ -353,11 +354,11 @@ class SaleDataController extends Controller
                 $sale_on = '%' . $request->sale_on . '%';
                 $sales = $sales->where('sale_on', 'like', $sale_on);
             }
-            $cust_mobile = $request->cust_mobile;
+            $cust_name = $request->cust_name;
 
-            if ($cust_mobile) {
-                $cust_mobile = $request->cust_mobile . '%';
-                $customers = Customer::where('mobile', 'like', $cust_mobile)->get();
+            if ($cust_name) {
+                $cust_name = $request->cust_name . '%';
+                $customers = Customer::where('name', 'like', $cust_name)->get();
                 foreach ($customers as $customer) {
                     $customer_ids[] = $customer->id;
                 }
@@ -914,6 +915,7 @@ class SaleDataController extends Controller
         $sale->customer_id = $request->cust_name_q;
         $sale->pet_name = $request->pet_name;
         $sale->kg = $request->kg;
+        $sale->variety = $request->variety;
         $sale->type = $request->type;
         if ($request->type_list == 'memorial') {
             $sale->plan_id = '4';

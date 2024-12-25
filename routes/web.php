@@ -57,6 +57,7 @@ use App\Http\Controllers\Rpg24Controller;
 use App\Http\Controllers\Rpg25Controller;
 use App\Http\Controllers\Rpg26Controller;
 use App\Http\Controllers\Rpg27Controller;
+use App\Http\Controllers\BankController;
 use App\Http\Controllers\LeaveDayController;
 use App\Http\Controllers\RestockController;
 use App\Http\Controllers\LiffController;
@@ -503,6 +504,8 @@ Route::group(['prefix' => '/'], function () {
     // Route::get('/rpg/rpg26/{month}/{prom_id}/detail', [Rpg26Controller::class, 'rpg26'])->name('rpg26');
 
     Route::get('/liff', [LiffController::class, 'index'])->name('liff.index');
+    Route::get('/api/banks/{bankCode}/branches', [BankController::class, 'getBranches']);
+
 
     Route::get('image', function()
     {

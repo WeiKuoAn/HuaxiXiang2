@@ -20,18 +20,18 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        if(!isset($request->status) || $request->status == 0){
-            $users = User::where('status','0');
-        }else{
-            $users = User::where('status','1');
+        if (!isset($request->status) || $request->status == 0) {
+            $users = User::where('status', '0');
+        } else {
+            $users = User::where('status', '1');
         }
 
-        if($request->name){
-            $users = $users->where('name','like',$request->name.'%');
+        if ($request->name) {
+            $users = $users->where('name', 'like', $request->name . '%');
         }
 
         $users =  $users->orderby('seq')->orderby('level')->paginate(30);
-        return view('user.users')->with('users', $users)->with('request',$request);
+        return view('user.users')->with('users', $users)->with('request', $request);
     }
 
     /**
@@ -41,9 +41,9 @@ class UserController extends Controller
      */
     public function create()
     {
-        $branchs = Branch::where('status','up')->get();
-        $jobs = Job::where('status','up')->get();
-        return view('user.create')->with('jobs',$jobs)->with('branchs',$branchs);
+        $branchs = Branch::where('status', 'up')->get();
+        $jobs = Job::where('status', 'up')->get();
+        return view('user.create')->with('jobs', $jobs)->with('branchs', $branchs);
     }
 
     /**
@@ -60,8 +60,8 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
             'mobile' => $request->mobile,
             'entry_date' => $request->entry_date,
-            'job_id'=> $request->job_id,
-            'branch_id'=> $request->branch_id,
+            'job_id' => $request->job_id,
+            'branch_id' => $request->branch_id,
             'seq' => $request->seq,
             'level' => '2',
             'state' => '1' //剛開始由管理員新增時
@@ -79,17 +79,23 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::where('id', $id)->first();
-        $jobs = Job::where('status','up')->get();
-        $branchs = Branch::where('status','up')->get();
+        $jobs = Job::where('status', 'up')->get();
+        $branchs = Branch::where('status', 'up')->get();
+
+        $json = file_get_contents(public_path('assets/data/banks.json'));
+        $banks = collect(json_decode($json, true));
+        $groupedBanks = $banks->groupBy('銀行代號/總機構代碼');
+
         return view('user.edit')->with('user', $user)
-                                     ->with('hint', '0')
-                                     ->with('jobs',$jobs)
-                                     ->with('branchs',$branchs);
+            ->with('hint', '0')
+            ->with('jobs', $jobs)
+            ->with('branchs', $branchs)
+            ->with('groupedBanks', $groupedBanks);
     }
 
     public function password_show()
     {
-        return view('person.edit-password')->with('hint','0');
+        return view('person.edit-password')->with('hint', '0');
     }
     /**
      * Show the form for editing the specified resource.
@@ -124,7 +130,7 @@ class UserController extends Controller
                 $user->password = Hash::make($request->password_new);
                 $user->save();
                 return view('auth.login');
-            }else {
+            } else {
                 return view('person.edit-password')->with(['hint' => '2']);
             }
         } else {
@@ -132,11 +138,12 @@ class UserController extends Controller
         }
     }
 
-    public function update(Request $request , $id)
+    public function update(Request $request, $id)
     {
+        // dd(session()->all());
         $user = User::where('id', $id)->first();
 
-        if(Auth::user()->level == 0 || Auth::user()->level == 1){
+        if (Auth::user()->level == 0 || Auth::user()->level == 1) {
             $user->name = $request->name;
             $user->sex = $request->sex;
             $user->entry_date = $request->entry_date;
@@ -149,6 +156,8 @@ class UserController extends Controller
             $user->address = $request->address;
             $user->census_address = $request->census_address;
             $user->bank_id = $request->bank_id;
+            $user->bank = $request->bank; //銀行
+            $user->branch = $request->branch; //銀行分行
             $user->bank_number = $request->bank_number;
             $user->urgent_name = $request->urgent_name;
             $user->urgent_relation = $request->urgent_relation;
@@ -158,14 +167,14 @@ class UserController extends Controller
             $user->is_graduated = $request->is_graduated;
             $user->job_id = $request->job_id;
             $user->resign_date = $request->resign_date;
-            if(!empty($user->birthday)){//判斷生日值再不再，代表員工是否有填寫
+            if (!empty($user->birthday)) { //判斷生日值再不再，代表員工是否有填寫
                 $user->state = 0; //用戶只能修改第一次,第一次修改後 只能透過人資去修改，所以狀態是0
             }
             $user->status = $request->status;
             $user->level = $request->level;
             $user->save();
         }
-        return redirect()->route('user.edit',$id);
+        return redirect()->route('user.edit', $id)->with(['hint' => '1']);
     }
 
     /**
@@ -181,8 +190,8 @@ class UserController extends Controller
 
     public function check()
     {
-        $datas = UserLog::where('type','edit')->get();
-        return view('user.check_user')->with('datas',$datas);
+        $datas = UserLog::where('type', 'edit')->get();
+        return view('user.check_user')->with('datas', $datas);
     }
 
     /**
@@ -191,7 +200,7 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function checkdata(Request $request , $id)
+    public function checkdata(Request $request, $id)
     {
         $user = User::where('id', $id)->first();
         //user的狀態改為0 代表編輯畫面出來

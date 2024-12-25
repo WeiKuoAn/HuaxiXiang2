@@ -123,4 +123,46 @@
 <!-- demo app -->
 <script src="{{asset('assets/js/pages/create-project.init.js')}}"></script>
 <!-- end demo js-->
+<script>
+    function updateBranches() {
+        const bankCode = document.getElementById('bank').value;
+        const branchSelect = document.getElementById('branch');
+
+        // 清空舊的分行選項
+        branchSelect.innerHTML = '<option value="">載入中...</option>';
+
+        if (bankCode) {
+            fetch(`/api/banks/${bankCode}/branches`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    branchSelect.innerHTML = '<option value="">請選擇分行</option>';
+
+                    // 確認數據格式
+                    if (Array.isArray(data)) {
+                        data.forEach(branch => {
+                            const option = document.createElement('option');
+                            option.value = branch['分支機構代號'];
+                            option.textContent = `${branch['分支機構名稱']} (${branch['分支機構代號']})`;
+                            branchSelect.appendChild(option);
+                        });
+                    } else {
+                        console.error('Data format error:', data);
+                        branchSelect.innerHTML = '<option value="">數據格式錯誤</option>';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Fetch error:', error);
+                    branchSelect.innerHTML = '<option value="">載入失敗</option>';
+                });
+        } else {
+            branchSelect.innerHTML = '<option value="">請先選擇銀行</option>';
+        }
+    }
+</script>
 @endsection
