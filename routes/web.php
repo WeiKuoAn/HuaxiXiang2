@@ -65,6 +65,7 @@ use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LeaveSettingController;
 use App\Http\Controllers\LampController;
 use App\Http\Controllers\LampTypeController;
+use App\Http\Controllers\PromTypeController;
 use App\Models\Pay;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
@@ -317,6 +318,13 @@ Route::group(['prefix' => '/'], function () {
     Route::post('/plan/edit/{id}', [PlanController::class, 'update'])->name('plan.edit.data');
     Route::get('/plan/del/{id}', [PlanController::class, 'delete'])->name('plan.del');
     Route::post('/plan/del/{id}', [PlanController::class, 'destroy'])->name('plan.del.data');
+
+    /*後續處理類別管理*/
+    Route::get('/prom_types', [PromTypeController::class, 'index'])->name('prom_types');
+    Route::get('/prom_type/create', [PromTypeController::class, 'create'])->name('prom_type.create');
+    Route::post('/prom_type/create', [PromTypeController::class, 'store'])->name('prom_type.create.data');
+    Route::get('/prom_type/edit/{id}', [PromTypeController::class, 'show'])->name('prom_type.edit');
+    Route::post('/prom_type/edit/{id}', [PromTypeController::class, 'update'])->name('prom_type.edit.data');
 
     /*後續處理管理*/
     Route::get('/proms', [PromController::class, 'index'])->name('proms');

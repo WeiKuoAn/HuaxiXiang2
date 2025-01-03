@@ -3,28 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Prom;
 use App\Models\PromType;
-use Illuminate\Support\Facades\Redis;
 
-class PromController extends Controller
+class PromTypeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
-        $datas = Prom::orderby('type','asc')->orderby('seq','asc')->orderby('status','asc');
-        $type = $request->type;
-        if($type){
-            $datas = $datas->where('type', $type);
-        }
-        $datas = $datas->paginate(50);
-        $prom_types = PromType::where('status','up')->get();
+        $datas = PromType::get();
 
-        return view('prom.index')->with('datas',$datas)->with('request',$request)->with('prom_types',$prom_types);
+        return view('prom_type.index')->with('datas',$datas);
     }
 
     /**
@@ -34,8 +21,7 @@ class PromController extends Controller
      */
     public function create()
     {
-        $prom_types = PromType::where('status','up')->get();
-        return view('prom.create')->with('prom_types',$prom_types);
+        return view('prom_type.create');
     }
     /**
      * Store a newly created resource in storage.
@@ -46,13 +32,12 @@ class PromController extends Controller
 
     public function store(Request $request)
     {
-        $prom = new Prom;
-        $prom->type = $request->type;
+        $prom = new PromType;
         $prom->name = $request->name;
-        $prom->seq = $request->seq;
+        $prom->code = $request->code;
         $prom->status = $request->status;
         $prom->save();
-        return redirect()->route('proms');
+        return redirect()->route('prom_types');
     }
 
     /**
@@ -63,9 +48,8 @@ class PromController extends Controller
      */
     public function show($id)
     {
-        $prom_types = PromType::where('status','up')->get();
-        $data = prom::where('id',$id)->first();
-        return view('prom.edit')->with('data',$data)->with('prom_types',$prom_types);
+        $data = PromType::where('id',$id)->first();
+        return view('prom_type.edit')->with('data',$data);
     }
 
 
@@ -89,13 +73,12 @@ class PromController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $prom = Prom::where('id',$id)->first();
-        $prom->type = $request->type;
+        $prom = PromType::where('id',$id)->first();
         $prom->name = $request->name;
-        $prom->seq = $request->seq;
+        $prom->code = $request->code;
         $prom->status = $request->status;
         $prom->save();
-        return redirect()->route('proms');
+        return redirect()->route('prom_types');
     }
 
     /**
