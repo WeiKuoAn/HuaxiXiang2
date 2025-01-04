@@ -217,7 +217,7 @@ class PayDataController extends Controller
         $PayData->price = $request->price;
         $PayData->comment = $request->comment;
         //是行政主管或行政就直接通過
-        if ($user->job_id == '1' || $user->job_id == '2' || $user->job_id == '4') {
+        if ($user->job_id == '1' || $user->job_id == '2' || $user->job_id == '7') {
             $PayData->status = 1;
         } else {
             $PayData->status = 0;
@@ -246,7 +246,6 @@ class PayDataController extends Controller
                 } else {
                     $Pay_Item->invoice_number = null;
                 }
-
                 if ($user->job_id == '1' || $user->job_id == '2' || $user->job_id == '7') {
                     $Pay_Item->status = 1;
                 } else {
@@ -314,7 +313,7 @@ class PayDataController extends Controller
                     $Pay_Item->vender_id = null;
                 }
                 //權限修改問題
-                if ($user->job_id == '1' || $user->job_id == '2' || $user->job_id == '4' || $user->job_id == '9') {
+                if ($user->job_id == '1' || $user->job_id == '2' || $user->job_id == '7' || $user->job_id == '9') {
                     $Pay_Item->status = 1;
                 } else {
                     $Pay_Item->status = 0;
