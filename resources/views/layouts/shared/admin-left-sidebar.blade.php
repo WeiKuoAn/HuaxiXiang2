@@ -74,9 +74,7 @@
                             <li>
                                 <a href="{{ route('customer.create')}}"  class="{{ request()->is('customer.create') ? 'active' : '' }}">新增客戶</a>
                             </li>
-                            <li>
-                                <a href="{{ route('customer.group') }}"  class="{{ request()->is('customer.group') ? 'active' : '' }}">客戶群組</a>
-                            </li>
+                            
                             <li>
                                 <a href="{{ route('customer')}}"  class="{{ request()->is('customer') ? 'active' : '' }}">客戶列表</a>
                             </li>
@@ -117,20 +115,15 @@
                     <div class="collapse" id="puja">
                         <ul class="nav-second-level">
                             <li>
-                                <a href="{{ route('puja.types') }}"  class="{{ request()->is('puja.types') ? 'active' : '' }}">法會類別設定</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('puja.create') }}"  class="{{ request()->is('puja.create') ? 'active' : '' }}">法會設定</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('pujas') }}"  class="{{ request()->is('pujas') ? 'active' : '' }}">法會管理</a>
-                            </li>
-                            <li>
                                 <a href="{{ route('puja_data.create') }}"  class="{{ request()->is('puja_data.create') ? 'active' : '' }}">法會報名</a>
                             </li>
                             <li>
                                 <a href="{{ route('puja_datas') }}"  class="{{ request()->is('puja_datas') ? 'active' : '' }}">法會報名查詢</a>
                             </li>
+                            <li>
+                                <a href="{{ route('pujas') }}"  class="{{ request()->is('pujas') ? 'active' : '' }}">法會場次查詢</a>
+                            </li>
+                            
                         </ul>
                     </div>
                 </li>
@@ -173,9 +166,7 @@
                     </a>
                     <div class="collapse" id="contract">
                         <ul class="nav-second-level">
-                            <li>
-                                <a href="{{ route('contractTypes') }}"  class="{{ request()->is('contractTypes') ? 'active' : '' }}">合約類別</a>
-                            </li>
+                            
                             <li>
                                 <a href="{{ route('contracts') }}"  class="{{ request()->is('contracts') ? 'active' : '' }}">合約管理</a>
                             </li>
@@ -194,9 +185,7 @@
                     </a>
                     <div class="collapse" id="lamp">
                         <ul class="nav-second-level">
-                            <li>
-                                <a href="{{ route('lampTypes') }}"  class="{{ request()->is('lampTypes') ? 'active' : '' }}">平安燈類別</a>
-                            </li>
+                            
                             <li>
                                 <a href="{{ route('lamps') }}"  class="{{ request()->is('lamps') ? 'active' : '' }}">平安燈管理</a>
                             </li>
@@ -216,9 +205,7 @@
                     </a>
                     <div class="collapse" id="pay">
                         <ul class="nav-second-level">
-                            <li>
-                                <a href="{{ route('pay.sujects') }}"  class="{{ request()->is('pay.sujects') ? 'active' : '' }}">支出科目</a>
-                            </li>
+                            
                             <li>
                                 <a href="{{ route('pays') }}"  class="{{ request()->is('pays') ? 'active' : '' }}">支出管理</a>
                             </li>
@@ -237,9 +224,7 @@
                     </a>
                     <div class="collapse" id="income">
                         <ul class="nav-second-level">
-                            <li>
-                                <a href="{{ route('income.sujects') }}"  class="{{ request()->is('income.sujects') ? 'active' : '' }}">收入科目</a>
-                            </li>
+                            
                             <li>
                                 <a href="{{ route('incomes') }}"  class="{{ request()->is('incomes') ? 'active' : '' }}">收入管理</a>
                             </li>
@@ -312,9 +297,7 @@
                     </a>
                     <div class="collapse" id="product">
                         <ul class="nav-second-level">
-                            <li>
-                                <a href="{{route('product.category')}}"  class="{{ request()->is('product.category') ? 'active' : '' }}">商品類別</a>
-                            </li>
+                            
                             <li>
                                 <a href="{{ route('product.create') }}"  class="{{ request()->is('product.create') ? 'active' : '' }}">新增商品</a>
                             </li>
@@ -340,13 +323,40 @@
                     <div class="collapse" id="other">
                         <ul class="nav-second-level">
                             <li>
-                                <a href="{{ route('sources') }}"  class="{{ request()->is('sources') ? 'active' : '' }}">來源資料</a>
+                                <a href="{{ route('customer.group') }}"  class="{{ request()->is('customer.group') ? 'active' : '' }}">客戶群組設定</a>
                             </li>
                             <li>
-                                <a href="{{ route('plans') }}"  class="{{ request()->is('plans') ? 'active' : '' }}">方案資料</a>
+                                <a href="{{ route('contractTypes') }}"  class="{{ request()->is('contractTypes') ? 'active' : '' }}">合約類別設定</a>
                             </li>
                             <li>
-                                <a href="{{ route('proms') }}"  class="{{ request()->is('proms') ? 'active' : '' }}">後續處理</a>
+                                <a href="{{ route('lampTypes') }}"  class="{{ request()->is('lampTypes') ? 'active' : '' }}">平安燈類別設定</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('puja.types') }}"  class="{{ request()->is('puja.types') ? 'active' : '' }}">法會類別設定</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('puja.create') }}"  class="{{ request()->is('puja.create') ? 'active' : '' }}">法會場次設定</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('pay.sujects') }}"  class="{{ request()->is('pay.sujects') ? 'active' : '' }}">支出科目設定</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('income.sujects') }}"  class="{{ request()->is('income.sujects') ? 'active' : '' }}">收入科目設定</a>
+                            </li>
+                            <li>
+                                <a href="{{route('product.category')}}"  class="{{ request()->is('product.category') ? 'active' : '' }}">商品類別設定</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('sources') }}"  class="{{ request()->is('sources') ? 'active' : '' }}">來源資料設定</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('plans') }}"  class="{{ request()->is('plans') ? 'active' : '' }}">方案資料設定</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('prom_types') }}"  class="{{ request()->is('prom_types') ? 'active' : '' }}">後續處理項目</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('proms') }}"  class="{{ request()->is('proms') ? 'active' : '' }}">後續處理設定</a>
                             </li>
                             <li>
                                 <a href="{{ route('venders') }}"  class="{{ request()->is('venders') ? 'active' : '' }}">廠商資料</a>

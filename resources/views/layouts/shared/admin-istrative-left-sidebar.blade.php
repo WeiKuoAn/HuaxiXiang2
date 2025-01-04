@@ -74,9 +74,7 @@
                             <li>
                                 <a href="{{ route('customer.create')}}"  class="{{ request()->is('customer.create') ? 'active' : '' }}">新增客戶</a>
                             </li>
-                            <li>
-                                <a href="{{ route('customer.group') }}"  class="{{ request()->is('customer.group') ? 'active' : '' }}">客戶群組</a>
-                            </li>
+                           
                             <li>
                                 <a href="{{ route('customer')}}"  class="{{ request()->is('customer') ? 'active' : '' }}">客戶列表</a>
                             </li>
@@ -330,19 +328,46 @@
                 <li>
                     <a href="#other" data-bs-toggle="collapse">
                         <i data-feather="database"></i>
-                        <span> 其他管理 </span>
+                        <span> 設定管理 </span>
                         <span class="menu-arrow"></span>
                     </a>
                     <div class="collapse" id="other">
                         <ul class="nav-second-level">
                             <li>
-                                <a href="{{ route('sources') }}"  class="{{ request()->is('sources') ? 'active' : '' }}">來源資料</a>
+                                <a href="{{ route('customer.group') }}"  class="{{ request()->is('customer.group') ? 'active' : '' }}">客戶群組設定</a>
                             </li>
                             <li>
-                                <a href="{{ route('plans') }}"  class="{{ request()->is('plans') ? 'active' : '' }}">方案資料</a>
+                                <a href="{{ route('contractTypes') }}"  class="{{ request()->is('contractTypes') ? 'active' : '' }}">合約類別設定</a>
                             </li>
                             <li>
-                                <a href="{{ route('proms') }}"  class="{{ request()->is('proms') ? 'active' : '' }}">後續處理</a>
+                                <a href="{{ route('lampTypes') }}"  class="{{ request()->is('lampTypes') ? 'active' : '' }}">平安燈類別設定</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('puja.types') }}"  class="{{ request()->is('puja.types') ? 'active' : '' }}">法會類別設定</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('puja.create') }}"  class="{{ request()->is('puja.create') ? 'active' : '' }}">法會場次設定</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('pay.sujects') }}"  class="{{ request()->is('pay.sujects') ? 'active' : '' }}">支出科目設定</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('income.sujects') }}"  class="{{ request()->is('income.sujects') ? 'active' : '' }}">收入科目設定</a>
+                            </li>
+                            <li>
+                                <a href="{{route('product.category')}}"  class="{{ request()->is('product.category') ? 'active' : '' }}">商品類別設定</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('sources') }}"  class="{{ request()->is('sources') ? 'active' : '' }}">來源資料設定</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('plans') }}"  class="{{ request()->is('plans') ? 'active' : '' }}">方案資料設定</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('prom_types') }}"  class="{{ request()->is('prom_types') ? 'active' : '' }}">後續處理項目</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('proms') }}"  class="{{ request()->is('proms') ? 'active' : '' }}">後續處理設定</a>
                             </li>
                             <li>
                                 <a href="{{ route('venders') }}"  class="{{ request()->is('venders') ? 'active' : '' }}">廠商資料</a>
