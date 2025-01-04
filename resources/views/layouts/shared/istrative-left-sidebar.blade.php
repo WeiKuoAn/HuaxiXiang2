@@ -150,6 +150,25 @@
                     </li>
 
                     <li>
+                        <a href="#lamp" data-bs-toggle="collapse">
+                            <i data-feather="smile"></i>
+                            <span> 平安燈管理 </span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="lamp">
+                            <ul class="nav-second-level">
+                                
+                                <li>
+                                    <a href="{{ route('lamps') }}"  class="{{ request()->is('lamps') ? 'active' : '' }}">平安燈管理</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('lamp.create') }}"  class="{{ request()->is('lamp.create') ? 'active' : '' }}">新增平安燈</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    
+                    <li>
                         <a href="#cash" data-bs-toggle="collapse">
                             <i data-feather="dollar-sign"></i>
                             <span> 零用金管理 </span>
