@@ -11,7 +11,7 @@
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">其他管理</a></li>
+                        <li class="breadcrumb-item"><a href="javascript: void(0);">設定管理</a></li>
                         <li class="breadcrumb-item active">後續處理列表</li>
                     </ol>
                 </div>
@@ -29,11 +29,11 @@
                         <div class="col-auto">
                             <form class="d-flex flex-wrap align-items-center" action="{{ route('proms') }}" method="GET">
                                 <div class="me-sm-3">
-                                    <select class="form-select my-1 my-lg-0" id="status-select" name="type">
+                                    <select class="form-select my-1 my-lg-0" id="status-select" name="type"  onchange="this.form.submit()">
                                         <option value="" selected>不限</option>
-                                        <option value="A" @if($request->type == 'A') selected @endif>安葬方式</option>
-                                        <option value="B" @if($request->type == 'B') selected @endif>後續處理</option>
-                                        <option value="C" @if($request->type == 'C') selected @endif>其他處理</option>
+                                        @foreach($prom_types as $prom_type)
+                                            <option value="{{ $prom_type->code }}" @if($request->type == $prom_type->code) selected @endif>{{ $prom_type->name }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="me-3">

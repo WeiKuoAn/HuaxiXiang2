@@ -15,6 +15,7 @@ class GdpaperInventoryData extends Model
         'inventory_no',
         'date',
         'state',
+        'type',
         'created_user_id',
         'update_user_id',
         'status'
