@@ -84,12 +84,12 @@ class LampController extends Controller
                 $datas = $datas->whereNotNull('close_date');
             }
 
-            $datas = $datas->orderby('end_date', 'asc')->paginate(50);
+            $datas = $datas->orderby('number', 'asc')->orderby('end_date', 'asc')->paginate(50);
 
             $condition = $request->all();
         } else {
             $condition = '';
-            $datas = $datas->orderby('start_date', 'asc')->paginate(50);
+            $datas = $datas->orderby('number', 'asc')->orderby('start_date', 'asc')->paginate(50);
         }
 
         foreach ($datas as $data) {
@@ -261,7 +261,7 @@ class LampController extends Controller
                 $datas = $datas->whereNotNull('close_date');
             }
 
-            $datas = $datas->orderby('end_date', 'asc')->get();
+            $datas = $datas->orderby('number', 'asc')->orderby('end_date', 'asc')->get();
 
             $condition = $request->all();
         } else {
