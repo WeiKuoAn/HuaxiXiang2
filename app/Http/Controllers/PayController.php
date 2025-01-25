@@ -26,6 +26,7 @@ class PayController extends Controller
         $pay->status = $request->status;
         $pay->suject_type = $request->suject_type;
         $pay->view_status = $request->view_status;
+        $pay->calculate = $request->calculate;
         $pay->comment = $request->comment;
         $pay->save();
         return redirect()->route('pay.sujects');
@@ -46,6 +47,7 @@ class PayController extends Controller
         $pay->comment = $request->comment;
         $pay->suject_type = $request->suject_type;
         $pay->view_status = $request->view_status;
+        $pay->calculate = $request->calculate;
         $pay->save();
         return redirect()->route('pay.sujects');
     }

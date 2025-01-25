@@ -17,6 +17,7 @@ class Pay extends Model
         'seq',
         'comment',
         'suject_type',
-        'view_status'
+        'view_status',
+        'calculate'
     ];
 }

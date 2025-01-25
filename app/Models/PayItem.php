@@ -17,6 +17,7 @@ class PayItem extends Model
         'pay_date',
         'invoice_number',
         'price',
+        'pay_id',
         'invoice_type',
         'vender_id',
         'comment',
