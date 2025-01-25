@@ -135,7 +135,7 @@ class LampController extends Controller
         $data->user_id = Auth::user()->id;
         $data->comment = $request->comment;
         $data->save();
-        return redirect()->route('lamps');
+        return redirect()->route('lamp.create');
     }
 
     public function show($id)
