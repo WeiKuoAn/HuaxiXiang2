@@ -98,6 +98,44 @@
                     </div>
                 </li>
 
+                <li>
+                    <a href="#contract" data-bs-toggle="collapse">
+                        <i data-feather="folder"></i>
+                        <span> 合約管理 </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="contract">
+                        <ul class="nav-second-level">
+                            
+                            <li>
+                                <a href="{{ route('contracts') }}"  class="{{ request()->is('contracts') ? 'active' : '' }}">合約管理</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('contract.create') }}"  class="{{ request()->is('contract.create') ? 'active' : '' }}">新增合約</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li>
+                    <a href="#lamp" data-bs-toggle="collapse">
+                        <i data-feather="smile"></i>
+                        <span> 平安燈管理 </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="lamp">
+                        <ul class="nav-second-level">
+                            
+                            <li>
+                                <a href="{{ route('lamps') }}"  class="{{ request()->is('lamps') ? 'active' : '' }}">平安燈管理</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('lamp.create') }}"  class="{{ request()->is('lamp.create') ? 'active' : '' }}">新增平安燈</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
                 {{-- <li>
                     <a href="#visit" data-bs-toggle="collapse">
                         <i data-feather="github"></i>
