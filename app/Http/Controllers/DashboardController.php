@@ -101,8 +101,13 @@ class DashboardController extends Controller
         // Sale_gdpaper::where('created_at','>=',$firstDay->format("Y-m-d"))->where('created_at','<=',$lastDay->format("Y-m-d"))->sum('gdpaper_total');
         
         //月支出
-        $pay_month = PayItem::where('status','1')->where('pay_date','>=',$firstDay->format("Y-m-d"))->where('pay_date','<=',$lastDay->format("Y-m-d"))->sum('price');
-        
+         $pay_month =PayItem::join('pay', 'pay_item.pay_id', '=', 'pay.id')
+                                                        ->where('pay_item.status', '1')
+                                                        ->where('pay_item.pay_date', '>=', $firstDay->format("Y-m-d"))
+                                                        ->where('pay_item.pay_date', '<=', $lastDay->format("Y-m-d"))
+                                                        ->where('pay.calculate', '!=', 1)
+                                                        ->select('pay_item.*') // 選擇 pay_item 的欄位
+                                                        ->sum('price');
         //營業淨利
         $net_income =  $price_month -  $pay_month;
 
