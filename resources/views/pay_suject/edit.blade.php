@@ -55,13 +55,6 @@
                                         </select>
                                     </div>
                                     <div class="mb-3">
-                                        <div class="mb-3">
-                                            <label class="form-label">排序<span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="seq"
-                                                value="{{ $data->seq }}" required>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
                                         <label for="project-priority" class="form-label">專員查看狀態<span
                                                 class="text-danger">*</span></label>
 
@@ -69,6 +62,22 @@
                                             <option value="0" @if ($data->view_status == '0') selected @endif>開啟</option>
                                             <option value="1" @if ($data->view_status == '1') selected @endif>關閉</option>
                                         </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="project-priority" class="form-label">是否列入報表計算<span
+                                                class="text-danger">*</span></label>
+
+                                        <select class="form-control" data-toggle="select" data-width="100%" name="calculate">
+                                            <option value="0" @if ($data->calculate == '0') selected @endif>開啟</option>
+                                            <option value="1" @if ($data->calculate == '1') selected @endif>關閉</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">排序<span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" name="seq"
+                                                value="{{ $data->seq }}" required>
+                                        </div>
                                     </div>
                                     <div class="mb-3">
                                         <label for="project-priority" class="form-label">科目狀態<span
@@ -79,15 +88,6 @@
                                             </option>
                                             <option value="down" @if ($data->status == 'down') selected @endif>下架
                                             </option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="project-priority" class="form-label">是否列入報表計算<span
-                                                class="text-danger">*</span></label>
-
-                                        <select class="form-control" data-toggle="select" data-width="100%" name="calculate">
-                                            <option value="0" @if ($data->calculate == '0') selected @endif>開啟</option>
-                                            <option value="1" @if ($data->calculate == '1') selected @endif>關閉</option>
                                         </select>
                                     </div>
                                     <div class="mb-3">

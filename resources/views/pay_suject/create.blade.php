@@ -55,13 +55,6 @@
                                         </select>
                                     </div>
                                     <div class="mb-3">
-                                        <div class="mb-3">
-                                            <label class="form-label">排序<span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="seq" value="0"
-                                                required>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
                                         <label for="project-priority" class="form-label">專員查看狀態<span
                                                 class="text-danger">*</span></label>
 
@@ -78,6 +71,13 @@
                                             <option value="0">是</option>
                                             <option value="1">否</option>
                                         </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">排序<span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" name="seq" value="0"
+                                                required>
+                                        </div>
                                     </div>
                                     <div class="mb-3">
                                         <label for="project-priority" class="form-label">科目狀態<span
