@@ -71,6 +71,15 @@
                                         </select>
                                     </div>
                                     <div class="mb-3">
+                                        <label for="project-priority" class="form-label">是否列入報表計算<span
+                                                class="text-danger">*</span></label>
+
+                                        <select class="form-control" data-toggle="select" data-width="100%" name="calculate">
+                                            <option value="0">是</option>
+                                            <option value="1">否</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
                                         <label for="project-priority" class="form-label">科目狀態<span
                                                 class="text-danger">*</span></label>
 

@@ -82,6 +82,15 @@
                                         </select>
                                     </div>
                                     <div class="mb-3">
+                                        <label for="project-priority" class="form-label">是否列入報表計算<span
+                                                class="text-danger">*</span></label>
+
+                                        <select class="form-control" data-toggle="select" data-width="100%" name="calculate">
+                                            <option value="0" @if ($data->calculate == '0') selected @endif>開啟</option>
+                                            <option value="1" @if ($data->calculate == '1') selected @endif>關閉</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
                                         <label class="form-label">備註</label>
                                         <textarea class="form-control" rows="3" placeholder="" name="comment">{{ $data->comment }}</textarea>
                                     </div>

@@ -50,6 +50,7 @@
                                     <th>專員查看狀態</th>
                                     <th>排序</th>
                                     <th>狀態</th>
+                                    <th>列入報表計算</th>
                                     <th>備註</th>
                                     <th>動作</th>
                                 </tr>
@@ -82,6 +83,13 @@
                                                 啟用
                                             @else
                                                 <b style="color:red;">停用</b>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($data->calculate == '0')
+                                                是
+                                            @else
+                                                <b style="color:red;">否</b>
                                             @endif
                                         </td>
                                         <td>{{ $data->comment }}</td>
