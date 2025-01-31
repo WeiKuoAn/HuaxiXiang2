@@ -100,6 +100,7 @@
                                                     <a class="dropdown-item" href="{{ route('user.edit',$user->id) }}"><i class="mdi mdi-clipboard-text-search me-2 font-18 text-muted vertical-middle"></i>查看個資</a>
                                                     <a class="dropdown-item" href="{{ route('user.work.index',$user->id) }}"><i class="mdi mdi-clock me-2 font-18 text-muted vertical-middle"></i>出勤紀錄</a>
                                                     <a class="dropdown-item" href="{{ route('user.leave_day',$user->id) }}"><i class="mdi mdi-clipboard-text-search me-2 font-18 text-muted vertical-middle"></i>查看假單</a>
+                                                    <a class="dropdown-item" href="{{ route('SeniorityPausess',$user->id) }}"><i class="mdi mdi-clipboard-text-search me-2 font-18 text-muted vertical-middle"></i>年資暫停</a>
                                                     <a class="dropdown-item" href="{{ route('user.pay',$user->id) }}"><i class="mdi mdi-clipboard-text-search me-2 font-18 text-muted vertical-middle"></i>查看收支紀錄</a>
                                                 </div>
                                             </div>

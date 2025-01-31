@@ -76,7 +76,7 @@
                             </li>
                            
                             <li>
-                                <a href="{{ route('customer')}}"  class="{{ request()->is('customer') ? 'active' : '' }}">客戶列表</a>
+                                <a href="{{ route('customer')}}"  class="{{ request()->is('customer') ? 'active' : '' }}">客戶資料</a>
                             </li>
                         </ul>
                     </div>

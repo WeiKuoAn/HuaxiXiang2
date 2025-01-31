@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ["page_title"=> "後續處理列表"])
+@extends('layouts.vertical', ["page_title"=> "後續處理細項"])
 
 @section('content')
 <!-- Start Content-->
@@ -12,10 +12,10 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="javascript: void(0);">設定管理</a></li>
-                        <li class="breadcrumb-item active">後續處理列表</li>
+                        <li class="breadcrumb-item active">後續處理細項</li>
                     </ol>
                 </div>
-                <h4 class="page-title">後續處理列表</h4>
+                <h4 class="page-title">後續處理細項</h4>
             </div>
         </div>
     </div>

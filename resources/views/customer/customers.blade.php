@@ -12,10 +12,10 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="javascript: void(0);">客戶管理</a></li>
-                        <li class="breadcrumb-item active">客戶列表</li>
+                        <li class="breadcrumb-item active">客戶資料</li>
                     </ol>
                 </div>
-                <h4 class="page-title">客戶列表</h4>
+                <h4 class="page-title">客戶資料</h4>
             </div>
         </div>
     </div>

@@ -19,7 +19,7 @@
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">其他管理</a></li>
+                        <li class="breadcrumb-item"><a href="javascript: void(0);">設定管理</a></li>
                         <li class="breadcrumb-item active">編輯廠商</li>
                     </ol>
                 </div>

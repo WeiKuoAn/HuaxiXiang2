@@ -48,6 +48,7 @@ class Rpg15Controller extends Controller
         }
         
         $datas = [];
+        $sums = [];
 
         $users = User::where('status', '0')->whereIn('job_id',[1,3,5])->get();
 
@@ -58,14 +59,17 @@ class Rpg15Controller extends Controller
                 $datas[$user->id]['months'][$key]['plan_1'] = Sale::where('user_id',$user->id)->where('plan_id',1)->where('sale_date', '>=' ,$month['start'])->where('sale_date', '<=' ,$month['end'])->where('status', '9')->whereIn('pay_id', ['A', 'C'])->count();
                 $datas[$user->id]['months'][$key]['plan_2'] = Sale::where('user_id',$user->id)->where('plan_id',2)->where('sale_date', '>=' ,$month['start'])->where('sale_date', '<=' ,$month['end'])->where('status', '9')->whereIn('pay_id', ['A', 'C'])->count();
                 $datas[$user->id]['months'][$key]['plan_3'] = Sale::where('user_id',$user->id)->where('plan_id',3)->where('sale_date', '>=' ,$month['start'])->where('sale_date', '<=' ,$month['end'])->where('status', '9')->whereIn('pay_id', ['A', 'C'])->count();
+                $sums[$key]['total_1'] = isset($sums[$key]['total_1']) ? $sums[$key]['total_1'] + $datas[$user->id]['months'][$key]['plan_1'] : $datas[$user->id]['months'][$key]['plan_1'];
+                $sums[$key]['total_2'] = isset($sums[$key]['total_2']) ? $sums[$key]['total_2'] + $datas[$user->id]['months'][$key]['plan_2'] : $datas[$user->id]['months'][$key]['plan_2'];
+                $sums[$key]['total_3'] = isset($sums[$key]['total_3']) ? $sums[$key]['total_3'] + $datas[$user->id]['months'][$key]['plan_3'] : $datas[$user->id]['months'][$key]['plan_3'];
             }
             $datas[$user->id]['total_1'] = Sale::where('user_id',$user->id)->where('plan_id',1)->where('sale_date', '>=' ,$currentYear.'-01-01')->where('sale_date', '<=' ,$currentYear.'-12-31')->where('status', '9')->whereIn('pay_id', ['A', 'C'])->count();
             $datas[$user->id]['total_2'] = Sale::where('user_id',$user->id)->where('plan_id',2)->where('sale_date', '>=' ,$currentYear.'-01-01')->where('sale_date', '<=' ,$currentYear.'-12-31')->where('status', '9')->whereIn('pay_id', ['A', 'C'])->count();
             $datas[$user->id]['total_3'] = Sale::where('user_id',$user->id)->where('plan_id',3)->where('sale_date', '>=' ,$currentYear.'-01-01')->where('sale_date', '<=' ,$currentYear.'-12-31')->where('status', '9')->whereIn('pay_id', ['A', 'C'])->count();
         }
 
-        // dd($datas);
+        // dd($sums);
         
-        return view('rpg15.index')->with('datas',$datas)->with('years',$years)->with('months',$months)->with('request',$request);
+        return view('rpg15.index')->with('datas',$datas)->with('years',$years)->with('months',$months)->with('request',$request)->with('sums',$sums);
     }
 }

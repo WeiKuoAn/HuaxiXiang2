@@ -20,10 +20,10 @@
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                             <li class="breadcrumb-item"><a href="javascript: void(0);">設定管理</a></li>
-                            <li class="breadcrumb-item active">新增來源</li>
+                            <li class="breadcrumb-item active">新增套裝</li>
                         </ol>
                     </div>
-                    <h4 class="page-title">新增來源</h4>
+                    <h4 class="page-title">新增套裝</h4>
                 </div>
             </div>
         </div>
@@ -33,20 +33,13 @@
             <div class="col-xl-6">
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{ route('source.create.data') }}" method="POST">
+                        <form action="{{ route('suit.create.data') }}" method="POST">
                             @csrf
                             <div class="row">
                                 <div class="col-xl-12">
                                     <div class="mb-3">
                                         <div class="mb-3">
-                                            <label class="form-label">來源代號<span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="code" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <div class="mb-3">
-                                            <label class="form-label">來源名稱<span class="text-danger">*</span></label>
+                                            <label class="form-label">套裝名稱<span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" name="name" required>
                                         </div>
                                     </div>

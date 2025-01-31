@@ -89,11 +89,12 @@
                                         <th>寶貝名</th>
                                         <th>方案</th>
                                         <th>業務價格</th>
+                                        <th>業務詳情</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr style="color:red;">
-                                        <td colspan="5"></td>
+                                        <td colspan="6"></td>
                                         <td align="center">總共：{{ number_format($sums['count']) }}單
                                         </td>
                                         <td align="center">總計：{{ number_format($sums['price']) }}元</td>
@@ -120,12 +121,16 @@
                                                     @endif
                                                 </td>
                                                 <td align="center">{{ number_format($item->pay_price) }}</td>
+                                                <td align="center"><a href="{{ route('sale.check',$item->id) }}" ><i class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i></a></td>
                                             </tr>
                                         @endforeach
                                         <tr class="mb-3">
-                                            <td colspan="5"></td>
+                                            <td colspan="3"></td>
                                             <td align="center"><b>共計：{{ number_format($data['count']) }}單</b></td>
+                                            <td align="center"><b>現金：{{ number_format($data['cash_total']) }}元</b></td>
+                                            <td align="center"><b>匯款：{{ number_format($data['transfer_total']) }}元</b></td>
                                             <td align="center"><b>小計：{{ number_format($data['price']) }}元</b></td>
+                                            <td></td>
                                         </tr>
                                     @endforeach
                                 </tbody>

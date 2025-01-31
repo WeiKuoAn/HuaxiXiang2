@@ -76,7 +76,7 @@
                             </li>
                             
                             <li>
-                                <a href="{{ route('customer')}}"  class="{{ request()->is('customer') ? 'active' : '' }}">客戶列表</a>
+                                <a href="{{ route('customer')}}"  class="{{ request()->is('customer') ? 'active' : '' }}">客戶資料</a>
                             </li>
                         </ul>
                     </div>
@@ -100,7 +100,7 @@
                                 <a href="{{ route('wait.sales') }}"  class="{{ request()->is('wait.sales') ? 'active' : '' }}">業務對帳確認</a>
                             </li>
                             <li>
-                                <a href="{{ route('sales.checkHistory') }}"  class="{{ request()->is('sales.checkHistory') ? 'active' : '' }}">查看對帳明細</a>
+                                <a href="{{ route('sales.checkHistory') }}"  class="{{ request()->is('sales.checkHistory') ? 'active' : '' }}">業務對帳明細</a>
                             </li>
                         </ul>
                     </div>
@@ -118,7 +118,10 @@
                                 <a href="{{ route('puja_data.create') }}"  class="{{ request()->is('puja_data.create') ? 'active' : '' }}">法會報名</a>
                             </li>
                             <li>
-                                <a href="{{ route('puja_datas') }}"  class="{{ request()->is('puja_datas') ? 'active' : '' }}">法會報名查詢</a>
+                                <a href="{{ route('puja_datas') }}"  class="{{ request()->is('puja_datas') ? 'active' : '' }}">法會管理</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('puja.create') }}"  class="{{ request()->is('puja.create') ? 'active' : '' }}">法會場次設定</a>
                             </li>
                             <li>
                                 <a href="{{ route('pujas') }}"  class="{{ request()->is('pujas') ? 'active' : '' }}">法會場次查詢</a>
@@ -314,6 +317,8 @@
                     </div>
                 </li>
 
+                
+
                 <li>
                     <a href="#other" data-bs-toggle="collapse">
                         <i data-feather="database"></i>
@@ -323,20 +328,18 @@
                     <div class="collapse" id="other">
                         <ul class="nav-second-level">
                             <li>
-                                <a href="{{ route('customer.group') }}"  class="{{ request()->is('customer.group') ? 'active' : '' }}">客戶群組設定</a>
+                                <a href="{{ route('customer.group') }}"  class="{{ request()->is('customer.group') ? 'active' : '' }}">客戶群組</a>
                             </li>
                             <li>
-                                <a href="{{ route('contractTypes') }}"  class="{{ request()->is('contractTypes') ? 'active' : '' }}">合約類別設定</a>
+                                <a href="{{ route('contractTypes') }}"  class="{{ request()->is('contractTypes') ? 'active' : '' }}">合約類別</a>
                             </li>
                             <li>
-                                <a href="{{ route('lampTypes') }}"  class="{{ request()->is('lampTypes') ? 'active' : '' }}">平安燈類別設定</a>
+                                <a href="{{ route('lampTypes') }}"  class="{{ request()->is('lampTypes') ? 'active' : '' }}">平安燈類別</a>
                             </li>
                             <li>
-                                <a href="{{ route('puja.types') }}"  class="{{ request()->is('puja.types') ? 'active' : '' }}">法會類別設定</a>
+                                <a href="{{ route('puja.types') }}"  class="{{ request()->is('puja.types') ? 'active' : '' }}">法會類別</a>
                             </li>
-                            <li>
-                                <a href="{{ route('puja.create') }}"  class="{{ request()->is('puja.create') ? 'active' : '' }}">法會場次設定</a>
-                            </li>
+                            
                             <li>
                                 <a href="{{ route('pay.sujects') }}"  class="{{ request()->is('pay.sujects') ? 'active' : '' }}">支出科目設定</a>
                             </li>
@@ -344,19 +347,25 @@
                                 <a href="{{ route('income.sujects') }}"  class="{{ request()->is('income.sujects') ? 'active' : '' }}">收入科目設定</a>
                             </li>
                             <li>
-                                <a href="{{route('product.category')}}"  class="{{ request()->is('product.category') ? 'active' : '' }}">商品類別設定</a>
+                                <a href="{{route('product.category')}}"  class="{{ request()->is('product.category') ? 'active' : '' }}">商品類別</a>
                             </li>
                             <li>
-                                <a href="{{ route('sources') }}"  class="{{ request()->is('sources') ? 'active' : '' }}">來源資料設定</a>
+                                <a href="{{ route('sources') }}"  class="{{ request()->is('sources') ? 'active' : '' }}">來源設定</a>
                             </li>
                             <li>
-                                <a href="{{ route('plans') }}"  class="{{ request()->is('plans') ? 'active' : '' }}">方案資料設定</a>
+                                <a href="{{ route('plans') }}"  class="{{ request()->is('plans') ? 'active' : '' }}">方案設定</a>
                             </li>
                             <li>
-                                <a href="{{ route('prom_types') }}"  class="{{ request()->is('prom_types') ? 'active' : '' }}">後續處理項目</a>
+                                <a href="{{ route('suits') }}"  class="{{ request()->is('suits') ? 'active' : '' }}">套裝設定</a>
                             </li>
                             <li>
-                                <a href="{{ route('proms') }}"  class="{{ request()->is('proms') ? 'active' : '' }}">後續處理設定</a>
+                                <a href="{{ route('targetCategories') }}"  class="{{ request()->is('targetCategories') ? 'active' : '' }}">達標類別設定</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('prom_types') }}"  class="{{ request()->is('prom_types') ? 'active' : '' }}">後續處理類別</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('proms') }}"  class="{{ request()->is('proms') ? 'active' : '' }}">後續處理細項</a>
                             </li>
                             <li>
                                 <a href="{{ route('venders') }}"  class="{{ request()->is('venders') ? 'active' : '' }}">廠商資料</a>
@@ -454,6 +463,9 @@
                                         <li>
                                             <a href="{{ route('rpg18') }}"  class="{{ request()->is('rpg18') ? 'active' : '' }}">法會收入統計</a>
                                         </li>
+                                        <li>
+                                            <a href="{{ route('rpg28') }}"  class="{{ request()->is('rpg28') ? 'active' : '' }}">平安燈收入統計</a>
+                                        </li>
                                     </ul>
                                 </div>
                             </li>
@@ -499,6 +511,25 @@
                     </div>
                 </li>
 
+                <li>
+                    <a href="#tatget" data-bs-toggle="collapse">
+                        <i data-feather="bar-chart"></i>
+                        <span> 達標管理 </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="tatget">
+                        <ul class="nav-second-level">
+                            
+                            <li>
+                                <a href="{{ route('target.create') }}"  class="{{ request()->is('target.create') ? 'active' : '' }}">新增達標</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('target') }}"  class="{{ request()->is('target') ? 'active' : '' }}">達標列表</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                
                 <li>
                     <li>
                         <a href="#sidebarEcommerce" data-bs-toggle="collapse">

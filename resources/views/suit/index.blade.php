@@ -12,10 +12,10 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="javascript: void(0);">設定管理</a></li>
-                        <li class="breadcrumb-item active">來源管理</li>
+                        <li class="breadcrumb-item active">套裝管理</li>
                     </ol>
                 </div>
-                <h4 class="page-title">來源管理</h4>
+                <h4 class="page-title">套裝管理</h4>
             </div>
         </div>
     </div>
@@ -33,8 +33,8 @@
                             </div> --}}
                         </div><!-- end col-->
                         <div class="col-sm-4 text-sm-end">
-                            <a href="{{ route('source.create') }}">
-                                <button type="button" class="btn btn-danger waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#custom-modal"><i class="mdi mdi-plus-circle me-1"></i>新增來源</button>
+                            <a href="{{ route('suit.create') }}">
+                                <button type="button" class="btn btn-danger waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#custom-modal"><i class="mdi mdi-plus-circle me-1"></i>新增套裝</button>
                             </a>
                         </div>
                     </div>
@@ -43,7 +43,6 @@
                                     <tr>
                                         <tr>
                                             <th>編號</th>
-                                            <th>代碼</th>
                                             <th>名稱</th>
                                             <th>排序</th>
                                             <th>狀態</th>
@@ -55,7 +54,6 @@
                                     @foreach ($datas as $key=>$data)
                                         <tr>
                                             <td>{{ $key+1 }}</td>
-                                            <td>{{ $data->code }}</td>
                                             <td>{{ $data->name }}</td>
                                             <td>{{ $data->seq }}</td>
                                             <td>
@@ -64,8 +62,8 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <a href="{{ route('source.edit',$data->id) }}" class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a>
-                                                <a href="{{ route('source.del',$data->id) }}" class="action-icon"> <i class="mdi mdi-trash-can-outline"></i></a>
+                                                <a href="{{ route('suit.edit',$data->id) }}" class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a>
+                                                <a href="{{ route('suit.del',$data->id) }}" class="action-icon"> <i class="mdi mdi-trash-can-outline"></i></a>
                                             </td>
                                         </tr>
                                     @endforeach
