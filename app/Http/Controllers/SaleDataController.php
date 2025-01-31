@@ -20,7 +20,9 @@ use App\Models\Product;
 use App\Models\CustGroup;
 use App\Models\SaleCompanyCommission;
 use App\Models\SalePlan;
+use App\Models\Suit;
 use Carbon\Carbon;
+use App\Models\SaleSouvenir;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -101,7 +103,7 @@ class SaleDataController extends Controller
             $customerId = $request->customer_id; // 確保變數名稱一致
             $pet_name = $request->pet_name;
             $output = '';
-            $data = Sale::where('customer_id', $customerId)->where('pet_name',$pet_name)->orderby('id', 'desc')->first();
+            $data = Sale::where('customer_id', $customerId)->where('pet_name', $pet_name)->orderby('id', 'desc')->first();
 
             // 使用 switch 語句來簡化條件判斷
             switch ($request->pay_id) {
@@ -157,11 +159,16 @@ class SaleDataController extends Controller
         $products = Product::where('status', 'up')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $customers = Customer::orderby('created_at', 'desc')->get();
         $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
+        $suits = Suit::where('status', 'up')->get();
+        $souvenirs = Prom::where('type', 'D')->where('status', 'up')->orderby('seq', 'asc')->get();
+        // dd($souvenirs);
         return view('sale.create')->with('products', $products)
             ->with('sources', $sources)
             ->with('plans', $plans)
             ->with('customers', $customers)
-            ->with('source_companys', $source_companys);
+            ->with('source_companys', $source_companys)
+            ->with('suits', $suits)
+            ->with('souvenirs', $souvenirs);
     }
 
     public function test()
@@ -192,6 +199,7 @@ class SaleDataController extends Controller
         $sale->customer_id = $request->cust_name_q;
         $sale->pet_name = $request->pet_name;
         $sale->kg = $request->kg;
+        $sale->suit_id = $request->suit_id;
         $sale->variety = $request->variety;
         $sale->type = $request->type;
         if ($request->type_list == 'memorial') {
@@ -283,6 +291,18 @@ class SaleDataController extends Controller
                 $prom->prom_id = $request->prom[$key];
                 $prom->prom_total = $request->prom_total[$key];
                 $prom->save();
+            }
+        }
+
+        foreach ($request->souvenir_ids as $key => $souvenir_id) {
+            if (isset($souvenir_id)) { //不等於空的話
+                $souvenir = new SaleSouvenir();
+                $souvenir->sale_id = $sale_id->id;
+                $souvenir->prom_id = $request->souvenir_ids[$key];
+                $souvenir->name = $request->souvenir_name[$key];
+                $souvenir->total = $request->souvenir_total[$key];
+                $souvenir->shape = $request->souvenir_shape[$key];
+                $souvenir->save();
             }
         }
 
@@ -659,6 +679,7 @@ class SaleDataController extends Controller
         $user = null;
         $afterDate = null;
         $beforeDate = null;
+        // dd($source_companys);
 
         if (isset($parsedUrl['query'])) {
             parse_str($parsedUrl['query'], $queryParameters);
@@ -1156,8 +1177,32 @@ class SaleDataController extends Controller
             $datas[$sale->sale_date]['items'] = $item_sales->orderby('sale_date', 'desc')->orderby('sale_on', 'desc')->get();
             $datas[$sale->sale_date]['count'] = $item_sales->count();
             $datas[$sale->sale_date]['price'] = $item_sales->sum('pay_price');
-        }
 
+            // 計算付款方式為現金的總金額
+            $cash_total = Sale::where('status', 9)
+                ->where('sale_date', $sale->sale_date)
+                ->where('pay_method', 'A')
+                ->sum('pay_price');
+
+            $transfer_total = Sale::where('status', 9)
+                ->where('sale_date', $sale->sale_date)
+                ->where('pay_method', 'B')
+                ->sum('pay_price');
+
+            $cash_transfer_cash_total = Sale::where('status', 9)
+                ->where('sale_date', $sale->sale_date)
+                ->where('pay_method', 'C')
+                ->sum('cash_price');
+
+            $cash_transfer_transfer_total = Sale::where('status', 9)
+                ->where('sale_date', $sale->sale_date)
+                ->where('pay_method', 'C')
+                ->sum('transfer_price');
+
+            $datas[$sale->sale_date]['cash_total'] = $cash_total + $cash_transfer_cash_total;
+            $datas[$sale->sale_date]['transfer_total'] = $transfer_total + $cash_transfer_transfer_total;
+        }
+        // dd($datas);
         // 使用 foreach 遍歷 $datas 並累計到 $sums
         foreach ($datas as $date => $data) {
             $sums['count'] += $data['count'];
