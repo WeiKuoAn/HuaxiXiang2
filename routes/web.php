@@ -57,6 +57,7 @@ use App\Http\Controllers\Rpg24Controller;
 use App\Http\Controllers\Rpg25Controller;
 use App\Http\Controllers\Rpg26Controller;
 use App\Http\Controllers\Rpg27Controller;
+use App\Http\Controllers\Rpg28Controller;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\LeaveDayController;
 use App\Http\Controllers\RestockController;
@@ -66,6 +67,11 @@ use App\Http\Controllers\LeaveSettingController;
 use App\Http\Controllers\LampController;
 use App\Http\Controllers\LampTypeController;
 use App\Http\Controllers\PromTypeController;
+use App\Http\Controllers\TargetCategoriesController;
+Use App\Http\Controllers\TargetController;
+Use App\Http\Controllers\TargetItemController;
+Use App\Http\Controllers\SuitController;
+Use App\Http\Controllers\SeniorityPausesController;
 use App\Models\Pay;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
@@ -310,6 +316,15 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/source/del/{id}', [SaleSourceController::class, 'delete'])->name('source.del');
     Route::post('/source/del/{id}', [SaleSourceController::class, 'destroy'])->name('source.del.data');
 
+    /*套裝管理*/
+    Route::get('/suits', [SuitController::class, 'index'])->name('suits');
+    Route::get('/suit/create', [SuitController::class, 'create'])->name('suit.create');
+    Route::post('/suit/create', [SuitController::class, 'store'])->name('suit.create.data');
+    Route::get('/suit/edit/{id}', [SuitController::class, 'show'])->name('suit.edit');
+    Route::post('/suit/edit/{id}', [SuitController::class, 'update'])->name('suit.edit.data');
+    Route::get('/suit/del/{id}', [SuitController::class, 'delete'])->name('suit.del');
+    Route::post('/suit/del/{id}', [SuitController::class, 'destroy'])->name('suit.del.data');
+
     /*方案管理*/
     Route::get('/plans', [PlanController::class, 'index'])->name('plans');
     Route::get('/plan/create', [PlanController::class, 'create'])->name('plan.create');
@@ -409,6 +424,15 @@ Route::group(['prefix' => '/'], function () {
     Route::post('/vacation/create', [VacationController::class, 'store'])->name('vacation.create.data');
     Route::get('/vacation/edit/{year}', [VacationController::class, 'show'])->name('vacation.edit');
     Route::post('/vacation/edit/{year}', [VacationController::class, 'update'])->name('vacation.edit.data');
+
+    //年資設定
+    Route::get('/SeniorityPauses/{user_id}', [SeniorityPausesController::class, 'index'])->name('SeniorityPausess');
+    Route::get('/SeniorityPauses/{user_id}/create', [SeniorityPausesController::class, 'create'])->name('SeniorityPauses.create');
+    Route::post('/SeniorityPauses/{user_id}/create', [SeniorityPausesController::class, 'store'])->name('SeniorityPauses.create.data');
+    Route::get('/SeniorityPauses/{user_id}/edit/{id}', [SeniorityPausesController::class, 'show'])->name('SeniorityPauses.edit');
+    Route::post('/SeniorityPauses/{user_id}/edit/{id}', [SeniorityPausesController::class, 'update'])->name('SeniorityPauses.edit.data');
+    Route::get('/SeniorityPauses/{user_id}/del/{id}', [SeniorityPausesController::class, 'delete'])->name('SeniorityPauses.del');
+    Route::post('/SeniorityPauses/{user_id}/del/{id}', [SeniorityPausesController::class, 'destroy'])->name('SeniorityPauses.del.data');
 
     /*法會類別管理*/
     Route::get('/puja/type', [PujaTypeController::class, 'index'])->name('puja.types');
@@ -510,6 +534,27 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/rpg/rpg25/{month}/{prom_id}/detail', [Rpg25Controller::class, 'detail'])->name('rpg25.detail');
     Route::get('/rpg/rpg26', [Rpg26Controller::class, 'rpg26'])->name('rpg26');
     // Route::get('/rpg/rpg26/{month}/{prom_id}/detail', [Rpg26Controller::class, 'rpg26'])->name('rpg26');
+    Route::get('/rpg/rpg28', [Rpg28Controller::class, 'rpg28'])->name('rpg28');
+
+    //達標類別
+    Route::get('/targetCategory', [TargetCategoriesController::class, 'index'])->name('targetCategories');
+    Route::get('/targetCategory/create', [TargetCategoriesController::class, 'create'])->name('targetCategory.create');
+    Route::post('/targetCategory/create', [TargetCategoriesController::class, 'store'])->name('targetCategory.create.data');
+    Route::get('/targetCategory/edit/{id}', [TargetCategoriesController::class, 'show'])->name('targetCategory.edit');
+    Route::post('/targetCategory/edit/{id}', [TargetCategoriesController::class, 'update'])->name('targetCategory.edit.data');
+    Route::get('/targetCategory/del/{id}', [TargetCategoriesController::class, 'delete'])->name('targetCategory.del');
+    Route::post('/targetCategory/del/{id}', [TargetCategoriesController::class, 'destroy'])->name('targetCategory.del.data');
+
+    //達標管理
+    Route::get('/target', [TargetController::class, 'index'])->name('target');
+    Route::get('/target/create', [TargetController::class, 'create'])->name('target.create');
+    Route::post('/target/create', [TargetController::class, 'store'])->name('target.create.data');
+    Route::get('/target/edit/{id}', [TargetController::class, 'show'])->name('target.edit');
+    Route::post('/target/edit/{id}', [TargetController::class, 'update'])->name('target.edit.data');
+    Route::get('/target/del/{id}', [TargetController::class, 'delete'])->name('target.del');
+    Route::post('/target/del/{id}', [TargetController::class, 'destroy'])->name('target.del.data');
+    Route::put('/target-item/{id}', [TargetItemController::class, 'update'])->name('target_item.update');
+
 
     Route::get('/liff', [LiffController::class, 'index'])->name('liff.index');
     Route::get('/api/banks/{bankCode}/branches', [BankController::class, 'getBranches']);
