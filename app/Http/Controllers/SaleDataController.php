@@ -199,7 +199,7 @@ class SaleDataController extends Controller
         $sale->customer_id = $request->cust_name_q;
         $sale->pet_name = $request->pet_name;
         $sale->kg = $request->kg;
-        $sale->suit_id = $request->suit_id;
+        // $sale->suit_id = $request->suit_id;
         $sale->variety = $request->variety;
         $sale->type = $request->type;
         if ($request->type_list == 'memorial') {
@@ -294,17 +294,17 @@ class SaleDataController extends Controller
             }
         }
 
-        foreach ($request->souvenir_ids as $key => $souvenir_id) {
-            if (isset($souvenir_id)) { //不等於空的話
-                $souvenir = new SaleSouvenir();
-                $souvenir->sale_id = $sale_id->id;
-                $souvenir->prom_id = $request->souvenir_ids[$key];
-                $souvenir->name = $request->souvenir_name[$key];
-                $souvenir->total = $request->souvenir_total[$key];
-                $souvenir->shape = $request->souvenir_shape[$key];
-                $souvenir->save();
-            }
-        }
+        // foreach ($request->souvenir_ids as $key => $souvenir_id) {
+        //     if (isset($souvenir_id)) { //不等於空的話
+        //         $souvenir = new SaleSouvenir();
+        //         $souvenir->sale_id = $sale_id->id;
+        //         $souvenir->prom_id = $request->souvenir_ids[$key];
+        //         $souvenir->name = $request->souvenir_name[$key];
+        //         $souvenir->total = $request->souvenir_total[$key];
+        //         $souvenir->shape = $request->souvenir_shape[$key];
+        //         $souvenir->save();
+        //     }
+        // }
 
         foreach ($request->gdpaper_ids as $key => $gdpaper_id) {
             if (isset($gdpaper_id)) {
