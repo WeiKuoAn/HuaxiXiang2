@@ -16,4 +16,9 @@ class Prom extends Model
         'status',
         'seq'
     ];
+
+    public function prom_type()
+    {
+        return $this->belongsTo('App\Models\PromType', 'type', 'code');
+    }
 }

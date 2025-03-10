@@ -1,29 +1,29 @@
-@extends('layouts.vertical', ["page_title"=> "CRM Customers"])
+@extends('layouts.vertical', ['page_title' => 'CRM Customers'])
 
 @section('content')
-<!-- Start Content-->
-<div class="container-fluid">
+    <!-- Start Content-->
+    <div class="container-fluid">
 
-    <!-- start page title -->
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box">
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">客戶管理</a></li>
-                        <li class="breadcrumb-item active">客戶【{{ $customer->name }}】業務列表</li>
-                    </ol>
+        <!-- start page title -->
+        <div class="row">
+            <div class="col-12">
+                <div class="page-title-box">
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
+                            <li class="breadcrumb-item"><a href="javascript: void(0);">客戶管理</a></li>
+                            <li class="breadcrumb-item active">客戶【{{ $customer->name }}】業務列表</li>
+                        </ol>
+                    </div>
+                    <h4 class="page-title">客戶【{{ $customer->name }}】業務列表</h4>
                 </div>
-                <h4 class="page-title">客戶【{{ $customer->name }}】業務列表</h4>
             </div>
         </div>
-    </div>
-    <!-- end page title -->
-                    <div class="row">
-                        <div class="col-12">
-                        <div class="card">
-                            <div class="card-body">
+        <!-- end page title -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
                         <div class="table-responsive ">
                             <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
                                 <thead class="table-light">
@@ -41,7 +41,7 @@
                                         <th>其他處理</th>
                                         <th>付款方式</th>
                                         {{-- <th>實收價格</th> --}}
-                                        {{-- @if($request->status == 'check')
+                                        {{-- @if ($request->status == 'check')
                                             <th>轉單</th>
                                             <th>對拆</th>
                                         @endif
@@ -50,14 +50,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                @foreach ($sales as $sale)
-                                    <tr>
-                                        <td>{{ $sale->sale_on }}</td>
-                                        <td>{{ $sale->user_name->name }}</td>
-                                        <td>{{ $sale->sale_date }}</td>
-                                        {{-- <td>
+                                    @foreach ($sales as $sale)
+                                        <tr>
+                                            <td>{{ $sale->sale_on }}</td>
+                                            <td>{{ $sale->user_name->name }}</td>
+                                            <td>{{ $sale->sale_date }}</td>
+                                            {{-- <td>
                                             @if (isset($sale->customer_id))
-                                                @if(isset($sale->cust_name))
+                                                @if (isset($sale->cust_name))
                                                     {{ $sale->cust_name->name }}
                                                 @else
                                                     {{ $sale->customer_id }}<b style="color: red;">（客戶姓名須重新登入）</b>
@@ -66,86 +66,86 @@
                                                 追思
                                             @endif
                                         </td> --}}
-                                        <td>
-                                            @if (isset($sale->pet_name))
-                                                {{ $sale->pet_name }}
-                                            @endif
-                                        </td>
-                                        {{-- <td>
+                                            <td>
+                                                @if (isset($sale->pet_name))
+                                                    {{ $sale->pet_name }}
+                                                @endif
+                                            </td>
+                                            {{-- <td>
                                             @if (isset($sale->type))
-                                                @if(isset($sale->source_type))
+                                                @if (isset($sale->source_type))
                                                     {{ $sale->source_type->name }}
                                                 @else
                                                     {{$sale->type}}
                                                 @endif
                                             @endif
                                         </td> --}}
-                                        <td>
-                                            @if (isset($sale->plan_id))
-                                                @if(isset($sale->plan_name))
-                                                    {{ $sale->plan_name->name }}
+                                            <td>
+                                                @if (isset($sale->plan_id))
+                                                    @if (isset($sale->plan_name))
+                                                        {{ $sale->plan_name->name }}
+                                                    @endif
                                                 @endif
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if(isset($sale->gdpapers))
-                                                @foreach ($sale->gdpapers as $gdpaper)
-                                                    @if (isset($gdpaper->gdpaper_id))
-                                                        @if(isset($gdpaper->gdpaper_name))
-                                                            {{ $gdpaper->gdpaper_name->name }}({{ number_format($gdpaper->gdpaper_total) }})元<br>
+                                            </td>
+                                            <td>
+                                                @if (isset($sale->gdpapers))
+                                                    @foreach ($sale->gdpapers as $gdpaper)
+                                                        @if (isset($gdpaper->gdpaper_id))
+                                                            @if (isset($gdpaper->gdpaper_name))
+                                                                {{ $gdpaper->gdpaper_name->name }}({{ number_format($gdpaper->gdpaper_total) }})元<br>
+                                                            @endif
+                                                        @else
+                                                            無
+                                                        @endif
+                                                    @endforeach
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if (isset($sale->before_prom_id))
+                                                    @if (isset($sale->PromA_name))
+                                                        {{ $sale->PromA_name->name }}-{{ number_format($sale->before_prom_price) }}
+                                                    @endif
+                                                @endif
+                                                @foreach ($sale->proms as $prom)
+                                                    @if ($prom->prom_type == 'A')
+                                                        @if (isset($prom->prom_id))
+                                                            {{ $prom->prom_name->name }}-{{ number_format($prom->prom_total) }}<br>
+                                                        @else
+                                                            無
+                                                        @endif
+                                                    @endif
+                                                @endforeach
+                                            </td>
+                                            <td>
+                                                @foreach ($sale->proms as $prom)
+                                                    @if ($prom->prom_type == 'B')
+                                                        @if (isset($prom->prom_id))
+                                                            {{ $prom->prom_name->name }}-{{ number_format($prom->prom_total) }}<br>
+                                                        @else
+                                                            無
+                                                        @endif
+                                                    @endif
+                                                @endforeach
+                                            </td>
+                                            <td>
+                                                @foreach ($sale->proms as $prom)
+                                                    @if ($prom->prom_type == 'C')
+                                                        @if (isset($prom->prom_id))
+                                                            {{ $prom->prom_name->name }}-{{ number_format($prom->prom_total) }}<br>
                                                         @endif
                                                     @else
                                                         無
                                                     @endif
                                                 @endforeach
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if(isset($sale->before_prom_id))
-                                                @if(isset($sale->PromA_name))
-                                                    {{ $sale->PromA_name->name }}-{{ number_format($sale->before_prom_price) }}
+                                            </td>
+                                            <td>
+                                                @if (isset($sale->pay_id))
+                                                    {{ $sale->pay_type() }}
                                                 @endif
-                                            @endif
-                                            @foreach ($sale->proms as $prom)
-                                                @if ($prom->prom_type == 'A')
-                                                    @if(isset($prom->prom_id))
-                                                        {{ $prom->prom_name->name }}-{{ number_format($prom->prom_total) }}<br>
-                                                    @else
-                                                        無
-                                                    @endif
-                                                @endif
-                                            @endforeach
-                                        </td>
-                                        <td>
-                                            @foreach ($sale->proms as $prom)
-                                                @if ($prom->prom_type == 'B')
-                                                    @if(isset($prom->prom_id))
-                                                        {{ $prom->prom_name->name }}-{{ number_format($prom->prom_total) }}<br>
-                                                    @else
-                                                        無
-                                                    @endif
-                                                @endif
-                                            @endforeach
-                                        </td>
-                                        <td>
-                                            @foreach ($sale->proms as $prom)
-                                                @if ($prom->prom_type == 'C')
-                                                    @if(isset($prom->prom_id))
-                                                        {{ $prom->prom_name->name }}-{{ number_format($prom->prom_total) }}<br>
-                                                    @endif
-                                                @else
-                                                    無
-                                                @endif
-                                            @endforeach
-                                        </td>
-                                        <td>
-                                            @if (isset($sale->pay_id))
-                                                {{ $sale->pay_type() }}
-                                            @endif
-                                        </td>
-                                        {{-- <td>{{ number_format($sale->pay_price) }}</td> --}}
-                    
-                                        {{-- <td> --}}
+                                            </td>
+                                            {{-- <td>{{ number_format($sale->pay_price) }}</td> --}}
+
+                                            {{-- <td> --}}
                                             {{-- @if ($sale->status != '9')
                                                 <a href="{{ route('edit-sale', $sale->id) }}"><button type="button"
                                                         class="btn btn-secondary btn-sm">修改</button></a>
@@ -176,10 +176,10 @@
                                                     </div>
                                                 </div>
                                             @endif --}}
-                                        {{-- </td> --}}
-                                        <td>{{ $sale->comm }}</td>
-                                    </tr>
-                                @endforeach
+                                            {{-- </td> --}}
+                                            <td>{{ $sale->comm }}</td>
+                                        </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -188,14 +188,15 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="text-center mb-3">
-                            <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
+                            <button type="button" class="btn w-sm btn-light waves-effect"
+                                onclick="history.go(-1)">回上一頁</button>
                         </div>
                     </div> <!-- end col -->
                 </div>
-                </div>
             </div>
+        </div>
 
-                    
 
-</div> <!-- container -->
+
+    </div> <!-- container -->
 @endsection

@@ -128,11 +128,13 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label">檔案預覽：</label>
-                                    <a href="{{ asset('storage/app/public/uploads' . $data->file) }}" id="filePreview"
-                                        target="_blank">點我預覽</a>
-                                </div>
+                                @if (isset($data->file))
+                                    <div class="mb-3">
+                                        <label class="form-label">檔案預覽：</label>
+                                        <a href="{{ asset('storage/app/public/uploads' . $data->file) }}"
+                                            id="filePreview" target="_blank">點我預覽</a>
+                                    </div>
+                                @endif
                                 <div class="mb-3">
                                     <label class="form-label">備註</label>
                                     <textarea class="form-control" rows="3" placeholder="" name="comment" readonly>{{ $data->comment }}</textarea>
@@ -210,5 +212,4 @@
     <!-- demo app -->
     <script src="{{ asset('assets/js/pages/form-pickers.init.js') }}"></script>
     <!-- end demo js-->
-    
 @endsection

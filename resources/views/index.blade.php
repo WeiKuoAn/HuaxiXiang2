@@ -149,6 +149,66 @@
             </div>
         </div> <!-- end col -->
     </div>
+
+    <div class="row p-2">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title mb-3">待提醒平安燈清單（兩個月內）</h4>
+
+                    <div class="table-responsive">
+                        <table class="table table-borderless table-hover table-nowrap table-centered m-0">
+
+                            <thead class="table-light">
+                                <tr>
+                                    <th>編號</th>
+                                    <th>合約類別</th>
+                                    <th>顧客名稱</th>
+                                    <th>電話</th>
+                                    <th>寶貝名稱</th>
+                                    <th>目前簽約年份</th>
+                                    <th>開始日期</th>
+                                    <th>結束日期</th>
+                                    <th>金額</th>
+                                    <th>續約</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($lamp_datas as $key => $lamp_data)
+                                    <tr>
+                                        <td>{{ $lamp_data->number }}</td>
+                                        <td>
+                                            <span
+                                                @if ($lamp_data->type == '1') class=" bg-soft-success text-success p-1" 
+                                        @elseif($lamp_data->type == '2') class=" bg-soft-danger text-danger p-1"
+                                        @elseif($lamp_data->type == '4') class=" bg-soft-warning text-warning p-1"
+                                        @else class=" bg-soft-blue text-blue p-1" @endif>
+                                                @if (isset($lamp_data->type_data))
+                                                    {{ $lamp_data->type_data->name }}
+                                                @endif
+                                            </span>
+                                        </td>
+                                        <td>{{ $lamp_data->cust_name->name }}</td>
+                                        <td>{{ $lamp_data->mobile }}</td>
+                                        <td>{{ $lamp_data->pet_name }}</td>
+                                        <td>第{{ $lamp_data->year }}年</td>
+                                        <td>{{ $lamp_data->getRocStartDateAttribute() }}</td>
+                                        <td>{{ $lamp_data->getRocEndDateAttribute() }}</td>
+                                        <td>{{ number_format($lamp_data->price) }}</td>
+                                        <td>
+                                            @if ($lamp_data->renew == '1')
+                                                是（{{ $lamp_data->renew_year }}年）
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- end col -->
+    </div>
 @endsection
 
 @section('script')

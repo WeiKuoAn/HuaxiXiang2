@@ -233,17 +233,19 @@ class WorkController extends Controller
     public function personwork(Request $request) //個人出勤紀錄
     {
         if ($request->startdate || $request->enddate) {
+            $startdate = $request->startdate.' 00:00:00';
+            $enddate = $request->enddate.' 23:59:59';
             if($request->startdate){
-                $works = Works::where('user_id',  Auth::user()->id)->where('worktime','>=',$request->startdate)->orderBy('id', 'desc')->paginate(30);
-                $work_sum = Works::where('user_id',  Auth::user()->id)->where('worktime','>=',$request->startdate)->sum('total');
+                $works = Works::where('user_id',  Auth::user()->id)->where('worktime','>=',$startdate)->orderBy('id', 'desc')->paginate(30);
+                $work_sum = Works::where('user_id',  Auth::user()->id)->where('worktime','>=',$startdate)->sum('total');
             }
             if($request->enddate){
-                $works = Works::where('user_id',  Auth::user()->id)->where('worktime','<=',$request->enddate)->orderBy('id', 'desc')->paginate(30);
-                $work_sum = Works::where('user_id',  Auth::user()->id)->where('worktime','<=',$request->enddate)->sum('total');
+                $works = Works::where('user_id',  Auth::user()->id)->where('worktime','<=',$enddate)->orderBy('id', 'desc')->paginate(30);
+                $work_sum = Works::where('user_id',  Auth::user()->id)->where('worktime','<=',$enddate)->sum('total');
             }
             if($request->startdate && $request->enddate){
-                $works = Works::where('user_id',  Auth::user()->id)->where('worktime','>=',$request->startdate)->where('worktime','<=',$request->enddate)->orderBy('id', 'desc')->paginate(30);
-                $work_sum = Works::where('user_id',  Auth::user()->id)->where('worktime','>=',$request->startdate)->where('worktime','<=',$request->enddate)->sum('total');
+                $works = Works::where('user_id',  Auth::user()->id)->where('worktime','>=',$startdate)->where('worktime','<=',$enddate)->orderBy('id', 'desc')->paginate(30);
+                $work_sum = Works::where('user_id',  Auth::user()->id)->where('worktime','>=',$startdate)->where('worktime','<=',$enddate)->sum('total');
             }
             $condition = $request->all();
         } else {

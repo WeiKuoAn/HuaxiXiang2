@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Works;
 use App\Models\Contract;
+use App\Models\Lamp;
 use App\Models\User;
 use App\Models\Sale;
 use App\Models\IncomeData;
@@ -16,6 +17,7 @@ use App\Models\PayItem;
 use App\Models\Sale_gdpaper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Models\TargetData;
 
 class DashboardController extends Controller
 {
@@ -29,8 +31,9 @@ class DashboardController extends Controller
         if(Auth::user()->status != 1){
             $work = Works::where('user_id', Auth::user()->id)->orderBy('id', 'desc')->first();
             $contract_datas = Contract::whereIn('renew',[0,1])->where('end_date','>=',$now_day)->where('end_date','<=',$two_month_day)->whereNull('close_date')->orderby('end_date','asc')->get();
+            $lamp_datas = Lamp::whereIn('renew',[0,1])->where('end_date','>=',$now_day)->where('end_date','<=',$two_month_day)->whereNull('close_date')->orderby('end_date','asc')->get();
             // dd($contract_datas);
-            return view('index')->with('now',$now)->with('work',$work)->with('contract_datas',$contract_datas);
+            return view('index')->with('now',$now)->with('work',$work)->with('contract_datas',$contract_datas)->with('lamp_datas',$lamp_datas);
         }else{
             return redirect('/');
         }
@@ -118,10 +121,42 @@ class DashboardController extends Controller
         $work = Works::where('user_id', Auth::user()->id)->orderBy('id', 'desc')->first();
         // dd($work);
         // dd($now);
+        //達標管理
+        $jobId = strval(Auth::user()->job_id); // 確保它是字串
+
+        $targetDatas = TargetData::join('target_item', 'target_data.id', '=', 'target_item.target_data_id')
+                                   ->where('target_item.start_date','>=',$firstDay->format("Y-m-d"))
+                                   ->where('target_item.end_date','<=',$lastDay->format("Y-m-d"))
+                                   ->whereJsonContains('target_data.job_id', $jobId)->get();
+        foreach($targetDatas as $targetData)
+        {
+            if($targetData->category_id == 1){//金紙銷售
+                $targetData->manual_achieved =DB::table('sale_data')
+                                                ->join('sale_gdpaper','sale_gdpaper.sale_id', '=' , 'sale_data.id')
+                                                ->where('sale_data.status','9')
+                                                ->where('sale_data.sale_date','>=',$firstDay->format("Y-m-d"))
+                                                ->where('sale_data.sale_date','<=',$lastDay->format("Y-m-d"))
+                                                ->sum('sale_gdpaper.gdpaper_total');
+                
+            }
+            if($targetData->target_condition == "金額"){
+                
+            }
+
+            if($targetData->target_condition == "數量"){
+                
+            }
+
+            if($targetData->target_condition == "金額+數量"){
+                
+            }
+            $targetData->percent = $targetData->target_amount == 0 ? 0 : round( intval($targetData->manual_achieved) / intval($targetData->target_amount)* 100, 2);
+        }
+        
         if(Auth::user()->status != 1){
             return view('dashboard')->with(['now' => $now, 'work' => $work , 'sale_today'=>$sale_today 
             , 'cust_nums'=>$cust_nums , 'check_sale'=>$check_sale , 'total_today_incomes'=>$total_today_incomes
-            , 'price_month'=>$price_month , 'pay_month'=>$pay_month , 'net_income'=>$net_income , 'gdpaper_month'=>$gdpaper_month]);
+            , 'price_month'=>$price_month , 'pay_month'=>$pay_month , 'net_income'=>$net_income , 'gdpaper_month'=>$gdpaper_month , 'targetDatas'=>$targetDatas]);
         }else{
             return view('auth.login');
         }

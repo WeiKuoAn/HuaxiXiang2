@@ -73,15 +73,7 @@
                             @foreach ($datas as $key=>$data)
                                 <tr>
                                     <td>{{ $key+1 }}</td>
-                                    <td>
-                                        @if($data->type == 'A')
-                                            安葬方式
-                                        @elseif($data->type == 'B')
-                                            後續處理
-                                        @else
-                                            其他處理
-                                        @endif
-                                    </td>
+                                    <td>{{ $data->prom_type->name }}</td>
                                     <td>{{ $data->name }}</td>
                                     <td>{{ $data->seq }}</td>
                                     <td>

@@ -67,9 +67,10 @@ class Rpg13Controller extends Controller
                                   ->where('puja.date','>=',$firstDay)
                                   ->where('puja.date','<=',$lastDay)
                                 //   ->where('product.type','set')
-                                  ->where('puja_data.status','1')
+                                //   ->where('puja_data.status','1')
                                   ->get();
 
+                                //   dd($puja_data_products);
         //計算商品賣出的數量
         $datas = [];
 
