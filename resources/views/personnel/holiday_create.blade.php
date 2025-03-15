@@ -41,7 +41,7 @@
                             <div class="mb-3">
                                 <div class="mb-3">
                                    <label class="form-label">年度<span class="text-danger">*</span></label>
-                                   <input type="text" class="form-control" name="year" value="{{ $year }}" readonly required>
+                                   <input type="text" class="form-control" name="year" value="{{ $year }}" required>
                                </div>
                            </div>
                             <div class="mb-3">
