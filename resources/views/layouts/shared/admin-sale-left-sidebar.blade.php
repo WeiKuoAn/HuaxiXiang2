@@ -75,9 +75,6 @@
                                 <a href="{{ route('customer.create')}}"  class="{{ request()->is('customer.create') ? 'active' : '' }}">新增客戶</a>
                             </li>
                             <li>
-                                <a href="{{ route('customer.group') }}"  class="{{ request()->is('customer.group') ? 'active' : '' }}">客戶群組</a>
-                            </li>
-                            <li>
                                 <a href="{{ route('customer')}}"  class="{{ request()->is('customer') ? 'active' : '' }}">客戶資料</a>
                             </li>
                         </ul>
@@ -162,9 +159,6 @@
                     <div class="collapse" id="lamp">
                         <ul class="nav-second-level">
                             <li>
-                                <a href="{{ route('lampTypes') }}"  class="{{ request()->is('lampTypes') ? 'active' : '' }}">平安燈類別</a>
-                            </li>
-                            <li>
                                 <a href="{{ route('lamps') }}"  class="{{ request()->is('lamps') ? 'active' : '' }}">平安燈管理</a>
                             </li>
                             <li>
@@ -197,9 +191,6 @@
                     </a>
                     <div class="collapse" id="product">
                         <ul class="nav-second-level">
-                            <li>
-                                <a href="{{route('product.category')}}"  class="{{ request()->is('product.category') ? 'active' : '' }}">商品類別</a>
-                            </li>
                             <li>
                                 <a href="{{ route('product.create') }}"  class="{{ request()->is('product.create') ? 'active' : '' }}">新增商品</a>
                             </li>

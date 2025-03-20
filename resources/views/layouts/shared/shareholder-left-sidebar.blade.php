@@ -84,9 +84,6 @@
                     <div class="collapse" id="pay">
                         <ul class="nav-second-level">
                             <li>
-                                <a href="{{ route('pay.sujects') }}"  class="{{ request()->is('pay.sujects') ? 'active' : '' }}">支出科目</a>
-                            </li>
-                            <li>
                                 <a href="{{ route('pays') }}"  class="{{ request()->is('pays') ? 'active' : '' }}">支出管理</a>
                             </li>
                             <li>
@@ -182,6 +179,9 @@
                                         </li>
                                         <li>
                                             <a href="{{ route('rpg18') }}"  class="{{ request()->is('rpg18') ? 'active' : '' }}">法會收入統計</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ route('rpg28') }}"  class="{{ request()->is('rpg28') ? 'active' : '' }}">平安燈收入統計</a>
                                         </li>
                                     </ul>
                                 </div>

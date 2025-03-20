@@ -74,9 +74,6 @@
                                     <a href="{{ route('customer.create')}}"  class="{{ request()->is('customer.create') ? 'active' : '' }}">新增客戶</a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('customer.group') }}"  class="{{ request()->is('customer.group') ? 'active' : '' }}">客戶群組</a>
-                                </li>
-                                <li>
                                     <a href="{{ route('customer')}}"  class="{{ request()->is('customer') ? 'active' : '' }}">客戶資料</a>
                                 </li>
                             </ul>
@@ -110,19 +107,16 @@
                         <div class="collapse" id="puja">
                             <ul class="nav-second-level">
                                 <li>
-                                    <a href="{{ route('puja.types') }}"  class="{{ request()->is('puja.types') ? 'active' : '' }}">法會類別設定</a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('puja.create') }}"  class="{{ request()->is('puja.create') ? 'active' : '' }}">法會設定</a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('pujas') }}"  class="{{ request()->is('pujas') ? 'active' : '' }}">法會管理</a>
-                                </li>
-                                <li>
                                     <a href="{{ route('puja_data.create') }}"  class="{{ request()->is('puja_data.create') ? 'active' : '' }}">法會報名</a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('puja_datas') }}"  class="{{ request()->is('puja_datas') ? 'active' : '' }}">法會報名查詢</a>
+                                    <a href="{{ route('puja_datas') }}"  class="{{ request()->is('puja_datas') ? 'active' : '' }}">法會管理</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('puja.create') }}"  class="{{ request()->is('puja.create') ? 'active' : '' }}">法會場次設定</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('pujas') }}"  class="{{ request()->is('pujas') ? 'active' : '' }}">法會場次查詢</a>
                                 </li>
                             </ul>
                         </div>
@@ -136,9 +130,6 @@
                         </a>
                         <div class="collapse" id="contract">
                             <ul class="nav-second-level">
-                                <li>
-                                    <a href="{{ route('contractTypes') }}"  class="{{ request()->is('contractTypes') ? 'active' : '' }}">合約類別</a>
-                                </li>
                                 <li>
                                     <a href="{{ route('contracts') }}"  class="{{ request()->is('contracts') ? 'active' : '' }}">合約管理</a>
                                 </li>
@@ -194,6 +185,9 @@
                     </a>
                     <div class="collapse" id="person">
                         <ul class="nav-second-level">
+                            <li>
+                                <a href="{{ route('person.last_leave_days') }}"  class="{{ request()->is('person.last_leave_days') ? 'active' : '' }}">剩餘假總覽</a>
+                            </li>
                             <li>
                                 <a href="{{ route('person.pays') }}"  class="{{ request()->is('person.pays') ? 'active' : '' }}">個人支出</a>
                             </li>
