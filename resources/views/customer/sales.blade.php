@@ -24,6 +24,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
+                        <h4 class="header-title">業務紀錄</h4>
                         <div class="table-responsive ">
                             <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
                                 <thead class="table-light">
@@ -185,18 +186,232 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-12">
-                        <div class="text-center mb-3">
-                            <button type="button" class="btn w-sm btn-light waves-effect"
-                                onclick="history.go(-1)">回上一頁</button>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="header-title">合約紀錄</h4>
+                        <div class="table-responsive ">
+                            <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>編號</th>
+                                        <th>合約類別</th>
+                                        <th>顧客名稱</th>
+                                        <th>電話</th>
+                                        <th>寶貝名稱</th>
+                                        <th>目前簽約年份</th>
+                                        <th>開始日期</th>
+                                        <th>結束日期</th>
+                                        <th>金額</th>
+                                        <th>續約</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (count($contract_datas) == 0)
+                                        <tr>
+                                            <td colspan="10" class="text-center">無資料</td>
+                                        </tr>
+                                    @else
+                                        @foreach ($contract_datas as $contract_data)
+                                            <tr>
+                                                <td>{{ $contract_data->number }}</td>
+                                                <td>
+                                                    <span
+                                                        @if ($contract_data->type == '1') class=" bg-soft-success text-success p-1" 
+                                            @elseif($contract_data->type == '2') class=" bg-soft-danger text-danger p-1"
+                                            @elseif($contract_data->type == '4') class=" bg-soft-warning text-warning p-1"
+                                            @else class=" bg-soft-blue text-blue p-1" @endif>
+                                                        {{ $contract_data->type_data->name }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ $contract_data->cust_name->name }}</td>
+                                                <td>{{ $contract_data->mobile }}</td>
+                                                <td>{{ $contract_data->pet_name }}</td>
+                                                <td>
+                                                    @if ($contract_data->type == '4')
+                                                        {{ $contract_data->year }}天
+                                                    @else
+                                                        第{{ $contract_data->year }}年
+                                                    @endif
+                                                </td>
+                                                <td>{{ $contract_data->getRocStartDateAttribute() }}</td>
+                                                @if (!isset($request->check_close) || $request->check_close == '1')
+                                                    <td>{{ $contract_data->getRocEndDateAttribute() }}</td>
+                                                @else
+                                                    <td>{{ $contract_data->getRocCloseDateAttribute() }}</td>
+                                                @endif
+                                                <td>{{ number_format($contract_data->price) }}</td>
+                                                <td>
+                                                    @if ($contract_data->renew == '1')
+                                                        是（{{ $contract_data->renew_year }}年）
+                                                    @endif
+                                                    @if (isset($contract_data->close_date))
+                                                        已結案
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
+                                </tbody>
+                            </table>
                         </div>
-                    </div> <!-- end col -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="header-title">平安燈紀錄</h4>
+                        <div class="table-responsive ">
+                            <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>編號</th>
+                                        <th>平安燈類別</th>
+                                        <th>顧客名稱</th>
+                                        <th>電話</th>
+                                        <th>寶貝名稱</th>
+                                        <th>目前簽約年份</th>
+                                        <th>開始日期</th>
+                                        <th>結束日期</th>
+                                        <th>金額</th>
+                                        <th>續約</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (count($lamp_datas) == 0)
+                                        <tr>
+                                            <td colspan="10" class="text-center">無資料</td>
+                                        </tr>
+                                    @else
+                                        @foreach ($lamp_datas as $key => $lamp_data)
+                                            <tr>
+                                                <td>{{ $lamp_data->number }}</td>
+                                                <td>
+                                                    <span
+                                                        @if ($lamp_data->type == '1') class=" bg-soft-success text-success p-1" 
+                                            @elseif($lamp_data->type == '2') class=" bg-soft-danger text-danger p-1"
+                                            @elseif($lamp_data->type == '4') class=" bg-soft-warning text-warning p-1"
+                                            @else class=" bg-soft-blue text-blue p-1" @endif>
+                                                        {{ $lamp_data->type_data->name }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ $lamp_data->cust_name->name }}</td>
+                                                <td>{{ $lamp_data->mobile }}</td>
+                                                <td>{{ $lamp_data->pet_name }}</td>
+                                                <td>第{{ $lamp_data->year }}年</td>
+                                                <td>{{ $lamp_data->getRocStartDateAttribute() }}</td>
+                                                @if (!isset($request->check_close) || $request->check_close == '1')
+                                                    <td>{{ $lamp_data->getRocEndDateAttribute() }}</td>
+                                                @else
+                                                    <td>{{ $lamp_data->getRocCloseDateAttribute() }}</td>
+                                                @endif
+                                                <td>{{ number_format($lamp_data->price) }}</td>
+                                                <td>
+                                                    @if ($lamp_data->renew == '1')
+                                                        是（{{ $lamp_data->renew_year }}年）
+                                                    @endif
+                                                    @if (isset($lamp_data->close_date))
+                                                        已結案
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="header-title">法會紀錄</h4>
+                        <div class="table-responsive ">
+                            <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>編號</th>
+                                        <th>報名類別</th>
+                                        <th>報名日期</th>
+                                        <th>法會名稱</th>
+                                        <th>顧客名稱</th>
+                                        <th>寶貝名稱</th>
+                                        <th>附加商品</th>
+                                        <th>付款方式</th>
+                                        <th>支付金額</th>
+                                        <th>備註</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (count($puja_datas) == 0)
+                                        <tr>
+                                            <td colspan="10" class="text-center">無資料</td>
+                                        </tr>
+                                    @else
+                                        @foreach ($puja_datas as $key => $puja_data)
+                                            <tr>
+                                                <td>{{ $key + 1 }}</td>
+                                                <td>{{ $puja_data->type() }}</td>
+                                                <td>{{ $puja_data->date }}</td>
+                                                <td>{{ $puja_data->puja_name->name }}</td>
+                                                <td>
+                                                    @if (isset($puja_data->customer_id))
+                                                        @if (isset($puja_data->cust_name))
+                                                            {{ $puja_data->cust_name->name }}
+                                                        @else
+                                                            {{ $puja_data->customer_id }}<b
+                                                                style="color: red;">（客戶姓名須重新登入）</b>
+                                                        @endif
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    {{ $puja_data->pet_name }}<br>
+                                                </td>
+                                                <td>
+                                                    @if (isset($puja_data->products))
+                                                        @foreach ($puja_data->products as $puja_data->product)
+                                                            {{ $product_name[$puja_data->product->product_id] }}-{{ $puja_data->product->product_num }}份<br>
+                                                        @endforeach
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (isset($puja_data->pay_id))
+                                                        {{ $puja_data->pay_type() }}
+                                                    @endif
+                                                </td>
+                                                <td>{{ number_format($puja_data->pay_price) }}</td>
+                                                <td>{{ $puja_data->comment }}</td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center mb-3">
+                    <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
+                </div>
+            </div> <!-- end col -->
+        </div>
 
     </div> <!-- container -->
 @endsection
