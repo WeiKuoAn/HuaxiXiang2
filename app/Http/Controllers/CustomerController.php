@@ -13,6 +13,9 @@ use App\Models\Sale_promB;
 use App\Models\Sale;
 use App\Models\User;
 use App\Models\CustGroup;
+use App\Models\PujaData;
+use App\Models\Contract;
+use App\Models\Lamp;
 use Illuminate\Support\Facades\Auth;
 
 class CustomerController extends Controller
@@ -348,7 +351,14 @@ class CustomerController extends Controller
     {
         $sales = Sale::whereIn('status', ['9', '100'])->where('customer_id', $id)->orderby('sale_date', 'desc')->get();
         $customer = Customer::where('id', $id)->first();
-        return view('customer.sales')->with('sales', $sales)->with('customer', $customer);
+        $contract_datas = Contract::where('customer_id', $id)->orderby('start_date','desc')->get();
+        $lamp_datas = Lamp::where('customer_id', $id)->orderby('start_date','desc')->get();
+        $puja_datas = PujaData::where('status','1')->where('customer_id', $id)->orderby('date', 'desc')->get();
+        return view('customer.sales')->with('sales', $sales)
+                                    ->with('customer', $customer)
+                                    ->with('contract_datas', $contract_datas)
+                                    ->with('lamp_datas', $lamp_datas)
+                                    ->with('puja_datas', $puja_datas);
     }
 
     public function export(Request $request)
