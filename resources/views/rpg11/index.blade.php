@@ -35,9 +35,9 @@
                                         <th scope="col">法會營收</th>
                                         <th scope="col">其他收入</th>
                                         <th scope="col">總營收</th>
-                                        <th scope="col">總支出</th>
+                                        <th scope="col">總支出<br>(未含股東分紅)</th>
                                         <th scope="col">淨利</th>
-                                        <th scope="col">成長比</th>
+                                        <th scope="col">股東分紅</th>
                                     </tr>
                                 </thead>
                                 <tbody align="center">
