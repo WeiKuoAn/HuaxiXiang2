@@ -35,7 +35,7 @@
                                         <th scope="col">法會營收</th>
                                         <th scope="col">其他收入</th>
                                         <th scope="col">總營收</th>
-                                        <th scope="col">總支出<br>(未含股東分紅)</th>
+                                        <th scope="col">總支出</th>
                                         <th scope="col">股東分紅</th>
                                         <th scope="col">淨利</th>
                                     </tr>
@@ -52,8 +52,8 @@
                                             <td>{{ number_format($data['total_income']) }}</td>
                                             <td>{{ number_format($data['pay_price']) }}</td>
                                             <td>
-                                                @if (isset($data['percent']))
-                                                    {{ $data['percent'] }}%
+                                                @if (isset($data['dividend']))
+                                                    {{ number_format($data['dividend']) }}
                                                 @endif
                                             </td>
                                             <td>{{ number_format($data['total']) }}</td>
@@ -69,8 +69,8 @@
                                     <th scope="col"></th>
                                     <th scope="col"></th>
                                     <th scope="col"></th>
-                                    <th scope="col" class="text-danger">{{ number_format($net_income) }}</th>
                                     <th scope="col"></th>
+                                    <th scope="col" class="text-danger">{{ number_format($net_income) }}</th>
                                 </tr>
                             </table><br>
                         </div>

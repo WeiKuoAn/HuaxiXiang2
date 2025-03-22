@@ -40,7 +40,8 @@ class Rpg11Controller extends Controller
             $datas[$year]['income_price'] = IncomeData::where('income_date','>=',$year.'-01-01')->where('income_date','<=',$year.'-12-31')->sum('price');
             $datas[$year]['pay_data_price'] = PayData::where('status','1')->where('pay_date','>=',$year.'-01-01')->where('pay_date','<=',$year.'-12-31')->where('created_at','<=','2023-01-08 14:22:21')->sum('price');//data總支出
             $datas[$year]['pay_item_price'] = PayItem::where('status','1')->where('pay_date','>=',$year.'-01-01')->where('pay_date','<=',$year.'-12-31')->whereNotIn('pay_id',['32'])->sum('price');//data總支出
-            $datas[$year]['pay_price'] = $datas[$year]['pay_data_price']+$datas[$year]['pay_item_price'];
+            $datas[$year]['dividend'] = PayItem::where('status','1')->where('pay_date','>=',$year.'-01-01')->where('pay_date','<=',$year.'-12-31')->where('pay_id','32')->sum('price');//data總支出
+            $datas[$year]['pay_price'] = $datas[$year]['pay_data_price']+$datas[$year]['pay_item_price']+$datas[$year]['dividend'];
             $datas[$year]['total_income'] = intval($datas[$year]['slae_price']) + intval($datas[$year]['puja_price']) + intval($datas[$year]['income_price']);//總收入
             $datas[$year]['total'] = intval($datas[$year]['total_income']) - intval($datas[$year]['pay_price']);
             
