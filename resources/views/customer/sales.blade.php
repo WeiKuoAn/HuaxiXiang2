@@ -200,8 +200,6 @@
                                     <tr>
                                         <th>編號</th>
                                         <th>合約類別</th>
-                                        <th>顧客名稱</th>
-                                        <th>電話</th>
                                         <th>寶貝名稱</th>
                                         <th>目前簽約年份</th>
                                         <th>開始日期</th>
@@ -213,7 +211,7 @@
                                 <tbody>
                                     @if (count($contract_datas) == 0)
                                         <tr>
-                                            <td colspan="10" class="text-center">無資料</td>
+                                            <td colspan="8" class="text-center">無資料</td>
                                         </tr>
                                     @else
                                         @foreach ($contract_datas as $contract_data)
@@ -228,8 +226,6 @@
                                                         {{ $contract_data->type_data->name }}
                                                     </span>
                                                 </td>
-                                                <td>{{ $contract_data->cust_name->name }}</td>
-                                                <td>{{ $contract_data->mobile }}</td>
                                                 <td>{{ $contract_data->pet_name }}</td>
                                                 <td>
                                                     @if ($contract_data->type == '4')
@@ -276,8 +272,6 @@
                                     <tr>
                                         <th>編號</th>
                                         <th>平安燈類別</th>
-                                        <th>顧客名稱</th>
-                                        <th>電話</th>
                                         <th>寶貝名稱</th>
                                         <th>目前簽約年份</th>
                                         <th>開始日期</th>
@@ -289,7 +283,7 @@
                                 <tbody>
                                     @if (count($lamp_datas) == 0)
                                         <tr>
-                                            <td colspan="10" class="text-center">無資料</td>
+                                            <td colspan="8" class="text-center">無資料</td>
                                         </tr>
                                     @else
                                         @foreach ($lamp_datas as $key => $lamp_data)
@@ -304,8 +298,6 @@
                                                         {{ $lamp_data->type_data->name }}
                                                     </span>
                                                 </td>
-                                                <td>{{ $lamp_data->cust_name->name }}</td>
-                                                <td>{{ $lamp_data->mobile }}</td>
                                                 <td>{{ $lamp_data->pet_name }}</td>
                                                 <td>第{{ $lamp_data->year }}年</td>
                                                 <td>{{ $lamp_data->getRocStartDateAttribute() }}</td>
@@ -347,7 +339,6 @@
                                         <th>報名類別</th>
                                         <th>報名日期</th>
                                         <th>法會名稱</th>
-                                        <th>顧客名稱</th>
                                         <th>寶貝名稱</th>
                                         <th>附加商品</th>
                                         <th>付款方式</th>
@@ -367,16 +358,6 @@
                                                 <td>{{ $puja_data->type() }}</td>
                                                 <td>{{ $puja_data->date }}</td>
                                                 <td>{{ $puja_data->puja_name->name }}</td>
-                                                <td>
-                                                    @if (isset($puja_data->customer_id))
-                                                        @if (isset($puja_data->cust_name))
-                                                            {{ $puja_data->cust_name->name }}
-                                                        @else
-                                                            {{ $puja_data->customer_id }}<b
-                                                                style="color: red;">（客戶姓名須重新登入）</b>
-                                                        @endif
-                                                    @endif
-                                                </td>
                                                 <td>
                                                     {{ $puja_data->pet_name }}<br>
                                                 </td>

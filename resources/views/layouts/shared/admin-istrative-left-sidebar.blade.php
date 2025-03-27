@@ -371,6 +371,12 @@
                                 <a href="{{ route('proms') }}"  class="{{ request()->is('proms') ? 'active' : '' }}">後續處理細項</a>
                             </li>
                             <li>
+                                <a href="{{ route('prom_types') }}"  class="{{ request()->is('prom_types') ? 'active' : '' }}">紀念品類別</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('proms') }}"  class="{{ request()->is('proms') ? 'active' : '' }}">紀念品細項</a>
+                            </li>
+                            <li>
                                 <a href="{{ route('venders') }}"  class="{{ request()->is('venders') ? 'active' : '' }}">廠商資料</a>
                             </li>
                         </ul>
@@ -432,7 +438,7 @@
                                             <a href="{{ route('rpg13') }}"  class="{{ request()->is('rpg13') ? 'active' : '' }}">每月金紙報表</a>
                                         </li>
                                         <li>
-                                            <a href="{{ route('rpg22') }}"  class="{{ request()->is('rpg22') ? 'active' : '' }}">每月紀念品銷售</a>
+                                            <a href="{{ route('rpg22') }}"  class="{{ request()->is('rpg22') ? 'active' : '' }}">年度紀念品</a>
                                         </li>
                                     </ul>
                                 </div>

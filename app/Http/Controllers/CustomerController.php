@@ -16,6 +16,7 @@ use App\Models\CustGroup;
 use App\Models\PujaData;
 use App\Models\Contract;
 use App\Models\Lamp;
+use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 
 class CustomerController extends Controller
@@ -354,11 +355,17 @@ class CustomerController extends Controller
         $contract_datas = Contract::where('customer_id', $id)->orderby('start_date','desc')->get();
         $lamp_datas = Lamp::where('customer_id', $id)->orderby('start_date','desc')->get();
         $puja_datas = PujaData::where('status','1')->where('customer_id', $id)->orderby('date', 'desc')->get();
+        $products = Product::where('status', 'up')->orderby('seq','asc')->orderby('price','desc')->get();
+        foreach($products as $product)
+        {
+            $product_name[$product->id] = $product->name;
+        }
         return view('customer.sales')->with('sales', $sales)
                                     ->with('customer', $customer)
                                     ->with('contract_datas', $contract_datas)
                                     ->with('lamp_datas', $lamp_datas)
-                                    ->with('puja_datas', $puja_datas);
+                                    ->with('puja_datas', $puja_datas)
+                                    ->with('product_name', $product_name);
     }
 
     public function export(Request $request)

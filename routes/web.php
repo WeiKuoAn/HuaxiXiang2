@@ -71,6 +71,8 @@ use App\Http\Controllers\TargetCategoriesController;
 Use App\Http\Controllers\TargetController;
 Use App\Http\Controllers\TargetItemController;
 Use App\Http\Controllers\SuitController;
+Use App\Http\Controllers\SouvenirTypeController;
+Use App\Http\Controllers\SouvenirController;
 Use App\Http\Controllers\SeniorityPausesController;
 use App\Models\Pay;
 use Illuminate\Support\Facades\Storage;
@@ -347,6 +349,22 @@ Route::group(['prefix' => '/'], function () {
     Route::post('/prom/create', [PromController::class, 'store'])->name('prom.create.data');
     Route::get('/prom/edit/{id}', [PromController::class, 'show'])->name('prom.edit');
     Route::post('/prom/edit/{id}', [PromController::class, 'update'])->name('prom.edit.data');
+
+    /*紀念品類別管理*/
+    Route::get('/souvenir_types', [SouvenirTypeController::class, 'index'])->name('souvenir_types');
+    Route::get('/souvenir_type/create', [SouvenirTypeController::class, 'create'])->name('souvenir_type.create');
+    Route::post('/souvenir_type/create', [SouvenirTypeController::class, 'store'])->name('souvenir_type.create.data');
+    Route::get('/souvenir_type/edit/{id}', [SouvenirTypeController::class, 'show'])->name('souvenir_type.edit');
+    Route::post('/souvenir_type/edit/{id}', [SouvenirTypeController::class, 'update'])->name('souvenir_type.edit.data');
+    Route::get('/souvenirType/search', [SouvenirTypeController::class, 'souvenirType_search'])->name('souvenirType.search');
+
+    /*紀念品管理*/
+    Route::get('/souvenirs', [SouvenirController::class, 'index'])->name('souvenirs');
+    Route::get('/souvenir/create', [SouvenirController::class, 'create'])->name('souvenir.create');
+    Route::post('/souvenir/create', [SouvenirController::class, 'store'])->name('souvenir.create.data');
+    Route::get('/souvenir/edit/{id}', [SouvenirController::class, 'show'])->name('souvenir.edit');
+    Route::post('/souvenir/edit/{id}', [SouvenirController::class, 'update'])->name('souvenir.edit.data');
+    Route::get('/souvenir/search', [SouvenirController::class, 'souvenir_search'])->name('souvenir.search');
 
     /*廠商管理 */
     Route::get('/venders', [VenderController::class, 'index'])->name('venders');

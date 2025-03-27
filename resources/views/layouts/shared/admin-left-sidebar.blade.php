@@ -368,6 +368,12 @@
                                 <a href="{{ route('proms') }}"  class="{{ request()->is('proms') ? 'active' : '' }}">後續處理細項</a>
                             </li>
                             <li>
+                                <a href="{{ route('souvenir_types') }}"  class="{{ request()->is('souvenir_types') ? 'active' : '' }}">紀念品類別</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('souvenirs') }}"  class="{{ request()->is('souvenirs') ? 'active' : '' }}">紀念品細項</a>
+                            </li>
+                            <li>
                                 <a href="{{ route('venders') }}"  class="{{ request()->is('venders') ? 'active' : '' }}">廠商資料</a>
                             </li>
                         </ul>
