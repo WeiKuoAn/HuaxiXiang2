@@ -1,6 +1,8 @@
 @extends('layouts.vertical', ['page_title' => '營收總表'])
 
 @section('content')
+
+
     <!-- Start Content-->
     <div class="container-fluid">
 
@@ -27,7 +29,7 @@
                     <div class="card-body">
                         <div class="row justify-content-between">
                             <div class="col-auto">
-                                <form class="d-flex flex-wrap align-items-center" action="{{ route('rpg09') }}"
+                                <form class="d-flex flex-wrap align-items-center" action="{{ route('rpg26') }}"
                                     method="GET">
                                     <label for="status-select" class="me-2">年度</label>
                                     <div class="me-sm-3">
