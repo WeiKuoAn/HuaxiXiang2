@@ -58,6 +58,7 @@ use App\Http\Controllers\Rpg25Controller;
 use App\Http\Controllers\Rpg26Controller;
 use App\Http\Controllers\Rpg27Controller;
 use App\Http\Controllers\Rpg28Controller;
+use App\Http\Controllers\Rpg29Controller;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\LeaveDayController;
 use App\Http\Controllers\RestockController;
@@ -553,6 +554,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/rpg/rpg26', [Rpg26Controller::class, 'rpg26'])->name('rpg26');
     // Route::get('/rpg/rpg26/{month}/{prom_id}/detail', [Rpg26Controller::class, 'rpg26'])->name('rpg26');
     Route::get('/rpg/rpg28', [Rpg28Controller::class, 'rpg28'])->name('rpg28');
+    Route::get('/rpg/rpg29', [Rpg29Controller::class, 'rpg29'])->name('rpg29');
 
     //達標類別
     Route::get('/targetCategory', [TargetCategoriesController::class, 'index'])->name('targetCategories');

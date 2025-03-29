@@ -470,6 +470,9 @@
                                             <a href="{{ route('rpg18') }}"  class="{{ request()->is('rpg18') ? 'active' : '' }}">法會收入統計</a>
                                         </li>
                                         <li>
+                                            <a href="{{ route('rpg29') }}"  class="{{ request()->is('rpg29') ? 'active' : '' }}">合約收入統計</a>
+                                        </li>
+                                        <li>
                                             <a href="{{ route('rpg28') }}"  class="{{ request()->is('rpg28') ? 'active' : '' }}">平安燈收入統計</a>
                                         </li>
                                     </ul>
