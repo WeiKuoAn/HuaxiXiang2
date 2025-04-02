@@ -39,14 +39,6 @@
                                 <div class="col-xl-12">
                                     <div class="mb-3">
                                         <div class="mb-3">
-                                            <label class="form-label">套裝代號<span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="code"
-                                                value="{{ $suit->code }}" readonly>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <div class="mb-3">
                                             <label class="form-label">套裝名稱<span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" name="name"
                                                 value="{{ $suit->name }}">

@@ -366,6 +366,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/souvenir/edit/{id}', [SouvenirController::class, 'show'])->name('souvenir.edit');
     Route::post('/souvenir/edit/{id}', [SouvenirController::class, 'update'])->name('souvenir.edit.data');
     Route::get('/souvenir/search', [SouvenirController::class, 'souvenir_search'])->name('souvenir.search');
+    
 
     /*廠商管理 */
     Route::get('/venders', [VenderController::class, 'index'])->name('venders');

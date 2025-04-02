@@ -115,13 +115,14 @@
                             <select class="form-control" data-toggle="select2" data-width="100%" name="source_company_name_q" id="source_company_name_q">
                                 <option value="">請選擇...</option>
                                 @foreach($source_companys as $source_company)
-                                    @if(isset($sale_company))
-                                        <option value="{{ $source_company->id }}" @if( $sale_company->company_id == $source_company->id) selected @endif>（{{$source_company->group->name}}）{{ $source_company->name }}（{{ $source_company->mobile }}）</option>
-                                    @else
-                                        <option value="">無</option>
-                                    @endif
+                                    <option 
+                                        value="{{ $source_company->id }}" 
+                                        @if(isset($sale_company) && $sale_company->company_id == $source_company->id) selected @endif>
+                                        （{{ $source_company->group->name }}）{{ $source_company->name }}（{{ $source_company->mobile }}）
+                                    </option>
                                 @endforeach
                             </select>
+                            
                         </div>
                         <div class="mb-3 col-md-4 not_memorial_show plan">
                             <label for="plan_id" class="form-label">方案選擇<span class="text-danger">*</span></label>
@@ -135,6 +136,16 @@
                         <div class="mb-3 col-md-4 not_final_show not_memorial_show">
                             <label for="plan_price" class="form-label">方案價格<span class="text-danger">*</span></label>
                             <input type="text" class="form-control total_number" id="plan_price" name="plan_price" value="{{ $data->plan_price }}" >
+                        </div>
+                        <div class="mb-3 col-md-4 not_final_show not_memorial_show">
+                            <label for="suit_id" class="form-label">套裝選擇<span
+                                    class="text-danger">*</span></label>
+                            <select id="suit_id" class="form-select" name="suit_id">
+                                <option value="">請選擇...</option>
+                                @foreach ($suits as $suit)
+                                    <option value="{{ $suit->id }}" @if($data->suit_id == $suit->id) selected @endif>{{ $suit->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="mb-3 col-md-4">
                             <label for="user_id" class="form-label">服務專員<span class="text-danger">*</span></label>
@@ -372,6 +383,108 @@
             </div> <!-- end card -->
         </div> <!-- end col -->
     </div>
+
+    {{-- <div class="row not_memorial_show" id="souvenir_div">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">紀念品選購</h5>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table id="tech-companies-1" class="table souvenir-list">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>類別<span class="text-danger">*</span></th>
+                                            <th>品項<span class="text-danger">*</span></th>
+                                            <th>金額<span class="text-danger">*</span></th>
+                                            <th>款式<span class="text-danger">*</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if(count($sale_souvenirs)>0)
+                                            @foreach($sale_souvenirs as $key=>$sale_souvenir)
+                                                <tr id="row-{{ $key }}">
+                                                    <td class="text-center">
+                                                        @if($key==0)
+                                                        <button type="button" class="ibtnAdd_souvenir demo-delete-row btn btn-primary btn-sm btn-icon"><i class="fa fas fa-plus"></i></button>                                                    
+                                                        @else
+                                                        <button type="button" class="ibtnDel_souvenir demo-delete-row btn btn-danger btn-sm btn-icon"><i class="fa fa-times"></i></button>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <select id="souvenir_type_id_{{ $key }}" alt="{{ $key }}" class="mobile form-select" name="souvenir_types[]">
+                                                            <option value="" selected>請選擇...</option>
+                                                            @foreach($souvenir_types as $souvenir_type)
+                                                                <option value="{{ $souvenir_type->id }}" @if($souvenir_type->id == $sale_souvenir->souvenir_type) selected @endif>{{ $souvenir_type->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select id="souvenir_id_{{ $key }}" class="mobile form-select" name="souvenir_ids[]">
+                                                            <option value="">請選擇</option>
+                                                            @foreach($souvenirs as $souvenir)
+                                                                <option value="{{ $souvenir->id }}" @if($souvenir->id == $sale_souvenir->souvenir_id) selected @endif >{{ $souvenir->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="mobile form-control total_number" id="souvenir_total_{{ $key }}" name="souvenir_totals[]" value="{{ $sale_souvenir->total }}">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="mobile form-control" id="souvenir_comment_{{ $key }}" name="souvenir_comments[]" value="{{ $sale_souvenir->comment }}">
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @else
+                                        @php $j = 0; @endphp
+                                        @for ($i = 0; $i < 1; $i++)
+                                            @php $j = $i+1; @endphp
+                                            <tr id="row-{{ $i }}">
+                                                <td class="text-center">
+                                                    @if ($j == 1)
+                                                        <button type="button" class="ibtnAdd_souvenir demo-delete-row btn btn-primary btn-sm btn-icon">
+                                                            <i class="fa fas fa-plus"></i>
+                                                        </button>
+                                                    @else
+                                                        <button type="button" class="ibtnDel_souvenir demo-delete-row btn btn-danger btn-sm btn-icon">
+                                                            <i class="fa fa-times"></i>
+                                                        </button>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <select id="souvenir_type_id_{{ $i }}" alt="{{ $i }}" class="mobile form-select" name="souvenir_types[]" onchange="chgSouvenirType(this)">
+                                                        <option value="" selected>請選擇...</option>
+                                                        @foreach ($souvenir_types as $souvenir_type)
+                                                            <option value="{{ $souvenir_type->id }}">
+                                                                {{ $souvenir_type->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select id="souvenir_id_{{ $i }}" class="mobile form-select" name="souvenir_ids[]">
+                                                        <option value="">請選擇</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="number" class="mobile form-control total_number" id="souvenir_total_{{ $i }}" name="souvenir_totals[]" value="">
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="mobile form-control" id="souvenir_comment_{{ $i }}" name="souvenir_comments[]" value="">
+                                                </td>
+                                            </tr>
+                                        @endfor
+                                        @endif
+                                    </tbody>
+                                </table>
+                            </div> <!-- end .table-responsive -->
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- end card -->
+        </div> <!-- end col -->
+    </div> --}}
 
     <div class="row">
         <div class="col-lg-12">
@@ -641,6 +754,7 @@
         $("#kg").prop('required', false);
         $("#variety").prop('required', false);
         $("#type").prop('required', false);
+        $("#suit_id").prop('required', false);
         $("#plan_id").prop('required', false);
         $("#plan_price").prop('required', false);
         $("#hospital_address").prop('required', false);
@@ -676,6 +790,7 @@
                 $("#connector_hospital_div").hide();
             }else{
                 $("#prom_div").show(300);
+                $("#souvenir_div").show(300);
                 $("#gdpaper_div").show(300);
                 $("#final_price").hide(300);
                 $(".not_final_show").show(300);
@@ -683,11 +798,13 @@
                 $("#kg").prop('required', true);
                 $("#variety").prop('required', true);
                 $("#type").prop('required', true);
+                $("#suit_id").prop('required', true);
                 $("#plan_id").prop('required', true);
                 $("#plan_price").prop('required', true);
                 if(payIdValue =='C'){
                     $("#prom_div").hide(300);
                     $("#gdpaper_div").hide(300);
+                    $("#souvenir_div").hide(300);
                 }
             }
     }
@@ -702,6 +819,7 @@
             $("#kg").prop('required', false);
             $("#variety").prop('required', false);
             $("#type").prop('required', false);
+            $("#suit_id").prop('required', false);
             $("#plan_id").prop('required', false);
             $("#plan_price").prop('required', false);
             $("#hospital_address").prop('required', false);
@@ -723,9 +841,11 @@
                 $("#kg").prop('required', false);
                 $("#variety").prop('required', false);
                 $("#type").prop('required', false);
+                $("#suit_id").prop('required', false);
                 $("#plan_price").prop('required', false);
             }else{
                 $("#prom_div").show(300);
+                $("#souvenir_div").show(300);
                 $("#gdpaper_div").show(300);
                 $("#final_price").hide(300);
                 $(".not_final_show").show(300);
@@ -733,10 +853,12 @@
                 $("#kg").prop('required', true);
                 $("#variety").prop('required', true);
                 $("#type").prop('required', true);
+                $("#suit_id").prop('required', true);
                 $("#plan_id").prop('required', true);
                 $("#plan_price").prop('required', true);
                 if(payIdValue =='C'){
                     $("#prom_div").hide(300);
+                    $("#souvenir_div").hide(300);
                     $("#gdpaper_div").hide(300);
                 }
             }
@@ -759,6 +881,7 @@
             $("#kg").prop('required', false);
             $("#variety").prop('required', false);
             $("#type").prop('required', false);
+            $("#suit_id").prop('required', false);
             // $("#plan_id").prop('required', false);
             $("#plan_price").prop('required', false);
             if(type_list == 'memorial'){
@@ -774,6 +897,7 @@
         }else{
             $("#prom_div").show(300);
             $("#gdpaper_div").show(300);
+            $("#souvenir_div").show(300);
             $("#final_price").hide(300);
             $("#send_div").show(300);
             $("#connector_div").show(300);
@@ -790,6 +914,7 @@
                 $("#kg").prop('required', true);
                 $("#variety").prop('required', true);
                 $("#type").prop('required', true);
+                $("#suit_id").prop('required', true);
                 $("#plan_id").prop('required', true);
                 $("#plan_price").prop('required', true);
                 $("#send_div").show();
@@ -797,6 +922,7 @@
                 $("#connector_hospital_div").show();
                 if($(this).val() =='C'){
                     $("#prom_div").hide(300);
+                    $("#souvenir_div").hide(300);
                     $("#gdpaper_div").hide(300);
                 }
             }
@@ -889,7 +1015,7 @@
         calculate_price();
     });
 
-    $(".total_number").on('input', function(){
+    $(document).on('input', '.total_number', function() {
         calculate_price();
     });
     
@@ -1035,7 +1161,100 @@
         newRow.append(cols);
         $("table.gdpaper-list tbody").append(newRow);
     });
+
+
+    $("table.souvenir-list tbody").on("click", ".ibtnAdd_souvenir", function() {
+            rowCount = $('table.souvenir-list tr').length - 1;
+            var newRow = $("<tr>");
+            var cols = '';
+            cols +=
+                '<td class="text-center"><button type="button" class="ibtnDel_souvenir demo-delete-row btn btn-danger btn-sm btn-icon"><i class="fa fa-times"></i></button></td>';
+            cols += '<td>';
+            cols += '<select id="souvenir_type_id_' + rowCount + '" alt="' + rowCount +
+                '" class="mobile form-select" name="souvenir_types[]" onchange="chgSouvenirType(this)">';
+            cols += '<option value="" selected>請選擇...</option>';
+            @foreach ($souvenir_types as $souvenir_type)
+                cols +=
+                    '<option value="{{ $souvenir_type->id }}">{{ $souvenir_type->name }}</option>';
+            @endforeach
+            cols += '</select>';
+            cols += '</td>';
+            cols += '<td>';
+            cols += '<select id="souvenir_id_' + rowCount + '"';
+            cols += ' class="mobile form-select" name="souvenir_ids[]">';
+            cols += ' <option value="">請選擇</option>';
+            cols += '</select>';
+            cols += '</td>';
+            cols += '<td>';
+            cols += '<input type="number" class="mobile form-control total_number" id="souvenir_total_' + rowCount + '" name="souvenir_totals[]" value="">';
+            cols += ' </td>';
+            cols += '<td>';
+            cols += '<input type="text" class="mobile form-control"';
+            cols += ' id="souvenir_comment_' + rowCount + '"';
+            cols += 'name="souvenir_comments[]" value="">';
+            cols += '</td>';
+            cols += '</tr>';
+            newRow.append(cols);
+            $("table.souvenir-list tbody").append(newRow);
+        });
+        
+
+        $("table.souvenir-list tbody").on("click", ".ibtnDel_souvenir", function() {
+            $(this).closest('tr').remove();
+        });
     
+        //紀念品專區
+        function chgSouvenirType(obj) {
+            $("#row_id").val($("#" + obj.id).attr('alt'));
+            row_id = $("#row_id").val();
+            $.ajax({
+                url: '{{ route('souvenirType.search') }}',
+                data: {
+                    'souvenir_type_id': $("#souvenir_type_id_" + row_id).val()
+                },
+                success: function(data) {
+                    $("#souvenir_id_" + row_id).html(data);
+                    // 當souvenirType變更後，再觸發chgSouvenir
+                    chgSouvenir(row_id);
+                }
+            });
+        }
+
+        //紀念品
+        $('select[name="souvenir_ids[]"]').on('mousedown', function(event) {
+        var selectElement = $(this);
+        var isLoaded = selectElement.data('loaded');
+
+        // 阻止原生的下拉行为，直到数据加载完成
+        if (!isLoaded) {
+            event.preventDefault(); // 阻止下拉菜单自动展开
+
+            var currentSelectedValue = selectElement.val();
+            var souvenirId = selectElement.closest('td').prev('td').find('select').val();
+
+            $.ajax({
+                url: '{{ route('souvenir.search') }}',
+                method: 'GET',
+                data: { 'souvenir_id': souvenirId },
+                success: function(response) {
+                    selectElement.html(response).find('option').each(function() {
+                        if ($(this).val() === currentSelectedValue) {
+                            $(this).prop('selected', true);
+                        }
+                    });
+
+                    selectElement.data('loaded', true);
+
+                    // 数据加载后重新触发 focus 事件，这次允许下拉展开
+                    selectElement.off('focus').trigger('focus');
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching prom options:', error);
+                }
+            });
+        }
+    });
+
     
     function calculate_price() {
         var total = 0;

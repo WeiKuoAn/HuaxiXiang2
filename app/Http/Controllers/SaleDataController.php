@@ -23,6 +23,8 @@ use App\Models\SalePlan;
 use App\Models\Suit;
 use Carbon\Carbon;
 use App\Models\SaleSouvenir;
+use App\Models\SouvenirType;
+use App\Models\Souvenir;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -160,7 +162,7 @@ class SaleDataController extends Controller
         $customers = Customer::orderby('created_at', 'desc')->get();
         $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
         $suits = Suit::where('status', 'up')->get();
-        $souvenirs = Prom::where('type', 'D')->where('status', 'up')->orderby('seq', 'asc')->get();
+        $souvenir_types = SouvenirType::where('status', 'up')->get();
         // dd($souvenirs);
         return view('sale.create')->with('products', $products)
             ->with('sources', $sources)
@@ -168,7 +170,7 @@ class SaleDataController extends Controller
             ->with('customers', $customers)
             ->with('source_companys', $source_companys)
             ->with('suits', $suits)
-            ->with('souvenirs', $souvenirs);
+            ->with('souvenir_types', $souvenir_types);
     }
 
     public function test()
@@ -199,7 +201,7 @@ class SaleDataController extends Controller
         $sale->customer_id = $request->cust_name_q;
         $sale->pet_name = $request->pet_name;
         $sale->kg = $request->kg;
-        // $sale->suit_id = $request->suit_id;
+        $sale->suit_id = $request->suit_id;
         $sale->variety = $request->variety;
         $sale->type = $request->type;
         if ($request->type_list == 'memorial') {
@@ -294,17 +296,20 @@ class SaleDataController extends Controller
             }
         }
 
+        // 業務key單紀念品專區
         // foreach ($request->souvenir_ids as $key => $souvenir_id) {
         //     if (isset($souvenir_id)) { //不等於空的話
         //         $souvenir = new SaleSouvenir();
         //         $souvenir->sale_id = $sale_id->id;
-        //         $souvenir->prom_id = $request->souvenir_ids[$key];
-        //         $souvenir->name = $request->souvenir_name[$key];
-        //         $souvenir->total = $request->souvenir_total[$key];
-        //         $souvenir->shape = $request->souvenir_shape[$key];
+        //         $souvenir->souvenir_type = $request->souvenir_types[$key];
+        //         $souvenir->souvenir_id = $request->souvenir_ids[$key];
+        //         $souvenir->total = $request->souvenir_totals[$key];
+        //         $souvenir->comment = $request->souvenir_comments[$key];
         //         $souvenir->save();
         //     }
         // }
+        // dd($request->souvenir_ids);
+
 
         foreach ($request->gdpaper_ids as $key => $gdpaper_id) {
             if (isset($gdpaper_id)) {
@@ -642,6 +647,11 @@ class SaleDataController extends Controller
         $sale_company = SaleCompanyCommission::where('sale_id', $id)->first();
         $sale_address = SaleAddress::where('sale_id', $id)->first();
         $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
+        $suits = Suit::where('status', 'up')->get();
+        $sale_souvenirs = SaleSouvenir::where('sale_id', $id)->get();
+        $souvenir_types = SouvenirType::where('status', 'up')->get();
+        $souvenirs = Souvenir::where('status', 'up')->get();
+
         return view('sale.edit')->with('data', $data)
             ->with('customers', $customers)
             ->with('plans', $plans)
@@ -652,7 +662,11 @@ class SaleDataController extends Controller
             ->with('sources', $sources)
             ->with('sale_company', $sale_company)
             ->with('sale_address', $sale_address)
-            ->with('source_companys', $source_companys);
+            ->with('source_companys', $source_companys)
+            ->with('suits', $suits)
+            ->with('souvenir_types', $souvenir_types)
+            ->with('sale_souvenirs', $sale_souvenirs)
+            ->with('souvenirs', $souvenirs);
     }
 
     public function check_show(Request $request, $id)
@@ -669,6 +683,11 @@ class SaleDataController extends Controller
         $sale_proms = Sale_prom::where('sale_id', $id)->get();
         $sale_company = SaleCompanyCommission::where('sale_id', $id)->first();
         $sale_address = SaleAddress::where('sale_id', $id)->first();
+        $suits = Suit::where('status', 'up')->get();
+        $sale_souvenirs = SaleSouvenir::where('sale_id', $id)->get();
+        $souvenir_types = SouvenirType::where('status', 'up')->get();
+        $souvenirs = Souvenir::where('status', 'up')->get();
+
         // 获取上一个页面的 URL
         // 从_previous中获取user参数的值
         // dd($request->session());
@@ -710,7 +729,11 @@ class SaleDataController extends Controller
             ->with('sources', $sources)
             ->with('sale_company', $sale_company)
             ->with('sale_address', $sale_address)
-            ->with('source_companys', $source_companys);
+            ->with('source_companys', $source_companys)
+            ->with('suits', $suits)
+            ->with('souvenirs', $souvenirs)
+            ->with('sale_souvenirs', $sale_souvenirs)
+            ->with('souvenir_types', $souvenir_types);
     }
 
     public function check_update(Request $request, $id)
@@ -807,6 +830,11 @@ class SaleDataController extends Controller
 
         $sale_change = SaleChange::where('sale_id', $id)->orderby('id', 'desc')->first();
         $sale_split = SaleSplit::where('sale_id', $id)->orderby('id', 'desc')->first();
+
+        $suits = Suit::where('status', 'up')->get();
+        $souvenirs = Prom::where('type', 'D')->where('status', 'up')->orderby('seq', 'asc')->get();
+        $sale_souvenirs = SaleSouvenir::where('sale_id', $id)->get();
+
         return view('sale.change')->with('data', $data)
             ->with('customers', $customers)
             ->with('plans', $plans)
@@ -818,7 +846,10 @@ class SaleDataController extends Controller
             ->with('sale_company', $sale_company)
             ->with('users', $users)
             ->with('sale_change', $sale_change)
-            ->with('sale_split', $sale_split);
+            ->with('sale_split', $sale_split)
+            ->with('suits', $suits)
+            ->with('souvenirs', $souvenirs)
+            ->with('sale_souvenirs', $sale_souvenirs);
     }
 
     public function change_plan_show($id)
@@ -931,10 +962,10 @@ class SaleDataController extends Controller
         $sale = Sale::where('id', $id)->first();
         $sale->sale_on = $request->sale_on;
         $sale->type_list = $request->type_list;
-        // $sale->user_id = Auth::user()->id;
         $sale->sale_date = $request->sale_date;
         $sale->customer_id = $request->cust_name_q;
         $sale->pet_name = $request->pet_name;
+        $sale->suit_id = $request->suit_id;
         $sale->kg = $request->kg;
         $sale->variety = $request->variety;
         $sale->type = $request->type;
@@ -982,6 +1013,7 @@ class SaleDataController extends Controller
         $sale_id = Sale::where('id', $id)->first();
         Sale_prom::where('sale_id', $sale_id->id)->delete();
         SaleAddress::where('sale_id', $sale_id->id)->delete();
+        SaleSouvenir::where('sale_id', $sale_id->id)->delete();
 
         //要為派件單且支付類別為一次跟訂金
         if ($request->type_list == 'dispatch' && $request->pay_id == 'A' || $request->pay_id == 'C') {
@@ -1033,6 +1065,19 @@ class SaleDataController extends Controller
                 }
             }
         }
+
+        // 業務key單紀念品專區
+        // foreach ($request->souvenir_ids as $key => $souvenir_id) {
+        //     if (isset($souvenir_id)) { //不等於空的話
+        //         $souvenir = new SaleSouvenir();
+        //         $souvenir->sale_id = $sale_id->id;
+        //         $souvenir->souvenir_type = $request->souvenir_types[$key];
+        //         $souvenir->souvenir_id = $request->souvenir_ids[$key];
+        //         $souvenir->total = $request->souvenir_totals[$key];
+        //         $souvenir->comment = $request->souvenir_comments[$key];
+        //         $souvenir->save();
+        //     }
+        // }
 
         Sale_gdpaper::where('sale_id', $sale_id->id)->delete();
         if (isset($request->gdpaper_ids)) {
@@ -1108,6 +1153,10 @@ class SaleDataController extends Controller
         $sale_proms = Sale_prom::where('sale_id', $id)->get();
         $sale_company = SaleCompanyCommission::where('sale_id', $id)->first();
         $sale_address = SaleAddress::where('sale_id', $id)->first();
+        $suits = Suit::where('status', 'up')->get();
+        $souvenirs = Prom::where('type', 'D')->where('status', 'up')->orderby('seq', 'asc')->get();
+        $sale_souvenirs = SaleSouvenir::where('sale_id', $id)->get();
+
         return view('sale.del')->with('data', $data)
             ->with('customers', $customers)
             ->with('plans', $plans)
@@ -1118,7 +1167,10 @@ class SaleDataController extends Controller
             ->with('sources', $sources)
             ->with('sale_company', $sale_company)
             ->with('sale_address', $sale_address)
-            ->with('source_companys', $source_companys);
+            ->with('source_companys', $source_companys)
+            ->with('suits', $suits)
+            ->with('souvenirs', $souvenirs)
+            ->with('sale_souvenirs', $sale_souvenirs);
     }
     public function destroy($id)
     {
@@ -1127,12 +1179,15 @@ class SaleDataController extends Controller
         $sale_promBs = Sale_prom::where('sale_id', $id);
         $sale_company = SaleCompanyCommission::where('sale_id', $id);
         $sale_address = SaleAddress::where('sale_id', $id);
-
+        $sale_souvenirs = SaleSouvenir::where('sale_id', $id);
+        
         $sale->delete();
         $sale_gdpapers->delete();
         $sale_promBs->delete();
         $sale_company->delete();
         $sale_address->delete();
+        $sale_souvenirs->delete();
+
         return redirect()->route('sales');
     }
 

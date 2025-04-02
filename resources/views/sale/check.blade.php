@@ -130,6 +130,16 @@
                             <label for="plan_price" class="form-label">收款金額<span class="text-danger">*</span></label>
                             <input type="text" class="form-control total_number"  name="final_price" value="{{ $data->pay_price }}" readonly >
                         </div>
+                        <div class="mb-3 col-md-4 not_final_show not_memorial_show">
+                            <label for="suit_id" class="form-label">套裝選擇<span
+                                    class="text-danger">*</span></label>
+                            <select id="suit_id" class="form-select" name="suit_id" disabled>
+                                <option value="">請選擇...</option>
+                                @foreach ($suits as $suit)
+                                    <option value="{{ $suit->id }}" @if($data->suit_id == $suit->id) selected @endif>{{ $suit->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="mb-3 col-md-4">
                             <label for="user_id" class="form-label">服務專員<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="user_id" name="user_id" value="{{ $data->user_name->name }}" readonly>
@@ -284,6 +294,108 @@
             </div> <!-- end card -->
         </div> <!-- end col -->
     </div>
+
+    {{-- <div class="row not_memorial_show" id="souvenir_div">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">紀念品選購</h5>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table id="tech-companies-1" class="table souvenir-list">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>類別<span class="text-danger">*</span></th>
+                                            <th>品項<span class="text-danger">*</span></th>
+                                            <th>金額<span class="text-danger">*</span></th>
+                                            <th>款式<span class="text-danger">*</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if(count($sale_souvenirs)>0)
+                                            @foreach($sale_souvenirs as $key=>$sale_souvenir)
+                                                <tr id="row-{{ $key }}">
+                                                    <td class="text-center">
+                                                        @if($key==0)
+                                                        <button type="button" class="ibtnAdd_souvenir demo-delete-row btn btn-primary btn-sm btn-icon"><i class="fa fas fa-plus"></i></button>                                                    
+                                                        @else
+                                                        <button type="button" class="ibtnDel_souvenir demo-delete-row btn btn-danger btn-sm btn-icon"><i class="fa fa-times"></i></button>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <select id="souvenir_type_id_{{ $key }}" alt="{{ $key }}" class="mobile form-select" name="souvenir_types[]" disabled>
+                                                            <option value="" selected>請選擇...</option>
+                                                            @foreach($souvenir_types as $souvenir_type)
+                                                                <option value="{{ $souvenir_type->id }}" @if($souvenir_type->id == $sale_souvenir->souvenir_type) selected @endif >{{ $souvenir_type->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select id="souvenir_id_{{ $key }}" class="mobile form-select" name="souvenir_ids[]" disabled>
+                                                            <option value="">請選擇</option>
+                                                            @foreach($souvenirs as $souvenir)
+                                                                <option value="{{ $souvenir->id }}" @if($souvenir->id == $sale_souvenir->souvenir_id) selected @endif >{{ $souvenir->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="mobile form-control total_number" id="souvenir_total_{{ $key }}" name="souvenir_totals[]" value="{{ $sale_souvenir->total }}" readonly>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="mobile form-control" id="souvenir_comment_{{ $key }}" name="souvenir_comments[]" value="{{ $sale_souvenir->comment }}" readonly>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @else
+                                        @php $j = 0; @endphp
+                                        @for ($i = 0; $i < 1; $i++)
+                                            @php $j = $i+1; @endphp
+                                            <tr id="row-{{ $i }}">
+                                                <td class="text-center">
+                                                    @if ($j == 1)
+                                                        <button type="button" class="ibtnAdd_souvenir demo-delete-row btn btn-primary btn-sm btn-icon">
+                                                            <i class="fa fas fa-plus"></i>
+                                                        </button>
+                                                    @else
+                                                        <button type="button" class="ibtnDel_souvenir demo-delete-row btn btn-danger btn-sm btn-icon">
+                                                            <i class="fa fa-times"></i>
+                                                        </button>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <select id="souvenir_type_id_{{ $i }}" alt="{{ $i }}" class="mobile form-select" name="souvenir_types[]" onchange="chgSouvenirType(this)">
+                                                        <option value="" selected>請選擇...</option>
+                                                        @foreach ($souvenir_types as $souvenir_type)
+                                                            <option value="{{ $souvenir_type->id }}">
+                                                                {{ $souvenir_type->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select id="souvenir_id_{{ $i }}" class="mobile form-select" name="souvenir_ids[]">
+                                                        <option value="">請選擇</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="number" class="mobile form-control total_number" id="souvenir_total_{{ $i }}" name="souvenir_totals[]" value="">
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="mobile form-control" id="souvenir_comment_{{ $i }}" name="souvenir_comments[]" value="">
+                                                </td>
+                                            </tr>
+                                        @endfor
+                                        @endif
+                                    </tbody>
+                                </table>
+                            </div> <!-- end .table-responsive -->
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- end card -->
+        </div> <!-- end col -->
+    </div> --}}
 
     <div class="row">
         <div class="col-lg-12">
@@ -575,6 +687,7 @@
                 $("#connector_hospital_div").hide();
             }else{
                 $("#prom_div").show(300);
+                $("#souvenir_div").show(300);
                 $("#gdpaper_div").show(300);
                 $("#final_price").hide(300);
                 $(".not_final_show").show(300);
@@ -586,6 +699,7 @@
                 $("#plan_price").prop('required', true);
                 if(payIdValue =='C'){
                     $("#prom_div").hide(300);
+                    $("#souvenir_div").hide(300);
                     $("#gdpaper_div").hide(300);
                 }
             }

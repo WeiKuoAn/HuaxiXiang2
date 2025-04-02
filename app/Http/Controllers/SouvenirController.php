@@ -13,12 +13,15 @@ class SouvenirController extends Controller
     {
         if ($request->ajax()) {
             $output = "";
-            $souvenir = Souvenir::where('id', $request->souvenir_id)->first();
 
-            if (isset($souvenir)) {
-                $output .=  $souvenir->price;
+            $souvenirs = Souvenir::where('type', $request->souvenir_id)->where('status', 'up')->orderby('seq', 'asc')->get();
+
+            if (isset($souvenirs)) {
+                foreach ($souvenirs as $key => $souvenir) {
+                    $output .=  '<option value="' . $souvenir->id . '">' . $souvenir->name . '</option>';
+                }
             } else {
-                $output .=  '0';
+                $output .=  '<option value="">請選擇...</option>';
             }
             return Response($output);
         }
