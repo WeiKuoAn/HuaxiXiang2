@@ -130,7 +130,7 @@
                             <label for="plan_price" class="form-label">收款金額<span class="text-danger">*</span></label>
                             <input type="text" class="form-control total_number"  name="final_price" value="{{ $data->pay_price }}" readonly >
                         </div>
-                        <div class="mb-3 col-md-4 not_final_show not_memorial_show">
+                        <div class="mb-3 col-md-4">
                             <label for="suit_id" class="form-label">套裝選擇<span
                                     class="text-danger">*</span></label>
                             <select id="suit_id" class="form-select" name="suit_id" disabled>
