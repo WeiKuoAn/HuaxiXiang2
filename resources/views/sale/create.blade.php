@@ -16,8 +16,8 @@
         }
 
         /* .bg-light {
-                        background-color: rgba(0,0,0,0.08) !important;
-                    } */
+                            background-color: rgba(0,0,0,0.08) !important;
+                        } */
     </style>
 
     <!-- Start Content-->
@@ -148,7 +148,7 @@
                                             class="text-danger">*</span></label>
                                     <input type="text" class="form-control total_number" name="final_price">
                                 </div>
-                                <div class="mb-3 col-md-4 not_final_show not_memorial_show">
+                                <div class="mb-3 col-md-4  not_memorial_show" id="suit_field">
                                     <label for="suit_id" class="form-label">套裝選擇<span
                                             class="text-danger">*</span></label>
                                     <select id="suit_id" class="form-select" name="suit_id">
@@ -599,6 +599,29 @@
             }
         });
 
+        //suit_id
+        // function toggleSuitField() {
+        //     var planId = $('#plan_id').val();
+        //     var typeList = $('#type_list').val();
+        //     var payId = $('#pay_id').val();
+
+        //     if (planId === '1' && typeList === 'dispatch' && (payId === 'A' || payId === 'D')) {
+        //         $('#suit_field').show();
+        //     } else {
+        //         $('#suit_field').hide();
+        //         $('#suit_id').val('');
+        //     }
+        // }
+        // $(document).ready(function() {
+        //     // 初始化狀態
+        //     toggleSuitField();
+
+        //     // 當任一欄位改變時重新檢查
+        //     $('#plan_id, #type_list, #pay_id').on('change', function() {
+        //         toggleSuitField();
+        //     });
+        // });
+
         //親送
         send = $('input[name="send"]').val();
         if (send == 1) {
@@ -710,7 +733,7 @@
                 $("#kg").prop('required', false);
                 $("#variety").prop('required', false);
                 $("#type").prop('required', false);
-                $("#suit_id").prop('required', false);
+                // $("#suit_id").prop('required', false);
                 $("#plan_id").prop('required', false);
                 $("#plan_price").prop('required', false);
                 $("#hospital_address").prop('required', false);
@@ -737,7 +760,7 @@
                     $("#kg").prop('required', false);
                     $("#variety").prop('required', false);
                     $("#type").prop('required', false);
-                    $("#suit_id").prop('required', false);
+                    // $("#suit_id").prop('required', false);
                     $("#plan_price").prop('required', false);
                     $("#send_div").hide();
                     $("#connector_div").hide();
@@ -749,7 +772,7 @@
                     $("#kg").prop('required', true);
                     $("#variety").prop('required', true);
                     $("#type").prop('required', true);
-                    $("#suit_id").prop('required', true);
+                    // $("#suit_id").prop('required', true);
                     $("#plan_id").prop('required', true);
                     $("#plan_price").prop('required', true);
                     $("#send_div").show(300);
@@ -780,7 +803,7 @@
                 $("#kg").prop('required', false);
                 $("#variety").prop('required', false);
                 $("#type").prop('required', false);
-                $("#suit_id").prop('required', false);
+                // $("#suit_id").prop('required', false);
                 // $("#plan_id").prop('required', false);
                 $("#plan_price").prop('required', false);
                 if (type_list == 'memorial') {
@@ -816,7 +839,7 @@
                     $("#kg").prop('required', true);
                     $("#variety").prop('required', true);
                     $("#type").prop('required', true);
-                    $("#suit_id").prop('required', true);
+                    // $("#suit_id").prop('required', true);
                     $("#plan_id").prop('required', true);
                     $("#plan_price").prop('required', true);
                     $("#send_div").show();
@@ -1050,7 +1073,7 @@
             $(this).closest('tr').remove();
         });
 
-        
+
 
         $("table.gdpaper-list tbody").on("click", ".ibtnAdd_gdpaper", function() {
             rowCount = $('table.gdpaper-list tr').length - 1;
@@ -1105,7 +1128,8 @@
             cols += '</select>';
             cols += '</td>';
             cols += '<td>';
-            cols += '<input type="number" class="mobile form-control total_number" id="souvenir_total_' + rowCount + '" name="souvenir_totals[]" value="">';
+            cols += '<input type="number" class="mobile form-control total_number" id="souvenir_total_' + rowCount +
+                '" name="souvenir_totals[]" value="">';
             cols += ' </td>';
             cols += '<td>';
             cols += '<input type="text" class="mobile form-control"';
@@ -1117,7 +1141,7 @@
             $("table.souvenir-list tbody").append(newRow);
         });
 
-        
+
 
         $("table.souvenir-list tbody").on("click", ".ibtnDel_souvenir", function() {
             $(this).closest('tr').remove();
