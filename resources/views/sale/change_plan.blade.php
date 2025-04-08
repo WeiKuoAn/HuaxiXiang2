@@ -54,7 +54,7 @@
                                         <div class="mt-2 row">
 
                                             <div class="col-auto">
-                                                <h4><label class="form-check-label" for="check_change">原方案：</label></h4>
+                                                <h4><label class="form-check-label" for="check_change">　　原方案：</label></h4>
                                             </div>
                                             <div class="col-3">
                                                 <select class="form-control" data-toggle="select2" data-width="100%"
@@ -93,7 +93,7 @@
                                         <div class="mt-2 row">
                                             @if ($data->pay_id != 'E' && $data->pay_id != 'D')
                                                 <div class="col-auto">
-                                                    <h4><label class="form-check-label" for="check_change">原價格：</label></h4>
+                                                    <h4><label class="form-check-label" for="check_change">原收款價格：</label></h4>
                                                 </div>
                                                 <div class="col-3">
                                                     <input type="text" class="form-control" name="old_pay_price"
