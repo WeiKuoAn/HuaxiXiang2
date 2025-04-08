@@ -148,9 +148,8 @@
                                             class="text-danger">*</span></label>
                                     <input type="text" class="form-control total_number" name="final_price">
                                 </div>
-                                <div class="mb-3 col-md-4  not_memorial_show" id="suit_field">
-                                    <label for="suit_id" class="form-label">套裝選擇<span
-                                            class="text-danger">*</span></label>
+                                <div class="mb-3 col-md-4" id="suit_field" style="display: none;">
+                                    <label for="suit_id" class="form-label">套裝選擇<span class="text-danger">*</span></label>
                                     <select id="suit_id" class="form-select" name="suit_id">
                                         <option value="">請選擇...</option>
                                         @foreach ($suits as $suit)
@@ -559,17 +558,16 @@
 
         //判斷尾款、訂金
         $("#final_price_display").hide();
-        $('#pay_id, #cust_name_q, #pet_name').on('change keyup', function() {
-            var payId = $('#pay_id').val();
-            var customerId = $('#cust_name_q').val();
-            var petName = $('#pet_name').val();
 
-            // 檢查兩者都已經選擇
+        //查詢尾款的ajax
+        function fetchFinalPriceData(callback) {
+            const payId = $('#pay_id').val();
+            const customerId = $('#cust_name_q').val();
+            const petName = $('#pet_name').val();
+
             if (payId && customerId && petName) {
-                console.log(petName);
-                // 發送 AJAX 請求
                 $.ajax({
-                    url: '{{ route('sales.final_price') }}', // 你的路徑
+                    url: '{{ route('sales.final_price') }}',
                     type: 'GET',
                     data: {
                         pay_id: payId,
@@ -577,52 +575,72 @@
                         pet_name: petName
                     },
                     success: function(response) {
-                        console.log(response);
-                        // 如果回應為 'OK'
-                        if (response.message === 'OK') {
-                            $('#final_price_display').hide(300); // 隱藏警告訊息
-                            $('#submit_btn').prop('disabled', false); // 啟用提交按鈕
-                        } else {
-                            // 顯示警告訊息，並禁止表單提交
-                            $('#final_price_display').show();
-                            $('#final_price_display').text(response.message);
-                            $('#submit_btn').prop('disabled', true); // 禁用提交按鈕
+                        console.log('final_price response:', response);
+
+                        if (typeof callback === 'function') {
+                            callback(response);
                         }
                     },
                     error: function(xhr, status, error) {
-                        // 處理錯誤
-                        console.error('Error: ', error);
+                        console.error('AJAX 錯誤:', error);
                     }
                 });
             } else {
-                console.log('payId 或 customerId 未選擇');
+                console.log('payId, customerId 或 petName 未填寫');
             }
+        }
+
+        //
+        $('#pay_id, #cust_name_q, #pet_name').on('change keyup', function() {
+            fetchFinalPriceData(function(response) {
+                if (response.message === 'OK') {
+                    $('#final_price_display').hide(300);
+                    $('#submit_btn').prop('disabled', false);
+                } else {
+                    $('#final_price_display').show();
+                    $('#final_price_display').text(response.message);
+                    $('#submit_btn').prop('disabled', true);
+                }
+
+                // ✅ 將 response 傳給 toggleSuitField
+                toggleSuitField(response);
+            });
         });
 
-        //suit_id
-        // function toggleSuitField() {
-        //     var planId = $('#plan_id').val();
-        //     var typeList = $('#type_list').val();
-        //     var payId = $('#pay_id').val();
 
-        //     if (planId === '1' && typeList === 'dispatch' && (payId === 'A' || payId === 'D')) {
-        //         $('#suit_field').show();
-        //     } else {
-        //         $('#suit_field').hide();
-        //         $('#suit_id').val('');
-        //     }
-        // }
-        // $(document).ready(function() {
-        //     // 初始化狀態
-        //     toggleSuitField();
+        function toggleSuitField(response) {
+            console.log('計算方案');
 
-        //     // 當任一欄位改變時重新檢查
-        //     $('#plan_id, #type_list, #pay_id').on('change', function() {
-        //         toggleSuitField();
-        //     });
-        // });
+            const planId = $('#plan_id').val();
+            const typeList = $('#type_list').val();
+            const payId = $('#pay_id').val();
+            console.log('planId:', planId);
+            if (typeList === 'dispatch' && (payId === 'A' || payId === 'D')) {
+                if (payId === 'D') {
+                    if (response && response.data && response.data.plan_id === '1') {
+                        $('#suit_id').prop('required', true);
+                        $('#suit_field').show(300);
+                    } else {
+                        $('#suit_field').hide(300);
+                        $('#suit_id').val('');
+                        $('#suit_id').prop('required', false);
+                    }
+                } else {
+                    $('#suit_id').prop('required', true);
+                    $('#suit_field').show();
+                }
+            } else {
+                $('#suit_field').hide(300);
+                $('#suit_id').val('');
+                $('#suit_id').prop('required', false);
+            }
+        }
 
-        //親送
+
+
+
+
+        //親送開始
         send = $('input[name="send"]').val();
         if (send == 1) {
             $("#connector_address_div").show();
@@ -641,6 +659,8 @@
                 $("#connector_hospital_div").show(300);
             }
         });
+        //親送結束
+
         //地址
         connector_address = $('input[name="connector_address"]').val();
         $("#connector_address").on("change", function() {
