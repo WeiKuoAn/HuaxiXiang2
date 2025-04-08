@@ -130,10 +130,9 @@
                             <label for="plan_price" class="form-label">收款金額<span class="text-danger">*</span></label>
                             <input type="text" class="form-control total_number"  name="final_price" value="{{ $data->pay_price }}" readonly >
                         </div>
-                        <div class="mb-3 col-md-4">
-                            <label for="suit_id" class="form-label">套裝選擇<span
-                                    class="text-danger">*</span></label>
-                            <select id="suit_id" class="form-select" name="suit_id" disabled>
+                        <div class="mb-3 col-md-4" id="suit_field" style="display: none;">
+                            <label for="suit_id" class="form-label">套裝選擇<span class="text-danger">*</span></label>
+                            <select id="suit_id" class="form-select" name="suit_id">
                                 <option value="">請選擇...</option>
                                 @foreach ($suits as $suit)
                                     <option value="{{ $suit->id }}" @if($data->suit_id == $suit->id) selected @endif>{{ $suit->name }}</option>
@@ -542,6 +541,63 @@
                 districtName: "district",
                 zipcodeName: "zipcode"
             });
+        }
+    });
+
+    $(document).ready(function () {
+        // 預設初始化
+        checkFinalAndSuit();
+
+        // 綁定欄位變更事件
+        $('#pay_id, #cust_name_q, #pet_name, #plan_id, #type_list').on('change keyup', function () {
+            checkFinalAndSuit();
+        });
+
+        function checkFinalAndSuit() {
+            const payId = $('#pay_id').val();
+            const customerId = $('#cust_name_q').val();
+            const petName = $('#pet_name').val();
+            const planId = $('#plan_id').val();
+            const typeList = $('#type_list').val();
+
+            if (payId && customerId && petName && planId) {
+                $.ajax({
+                    url: '{{ route('sales.final_price') }}',
+                    type: 'GET',
+                    data: {
+                        pay_id: payId,
+                        customer_id: customerId,
+                        pet_name: petName
+                    },
+                    success: function (response) {
+                        console.log('回傳結果:', response);
+
+                        // 控制 submit 按鈕
+                        if (response.message === 'OK') {
+                            $('#final_price_display').hide(300);
+                            $('#submit_btn').prop('disabled', false);
+                        } else {
+                            $('#final_price_display').show();
+                            $('#final_price_display').text(response.message);
+                            $('#submit_btn').prop('disabled', true);
+                        }
+
+                        if (planId === '1' &&typeList === 'dispatch' && (payId === 'A' || payId === 'D')) {
+                            $('#suit_field').show();
+                            $('#suit_id').prop('required', true);
+                        } else {
+                            $('#suit_field').hide();
+                            $('#suit_id').val('');
+                            $('#suit_id').prop('required', false);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('AJAX 錯誤:', error);
+                    }
+                });
+            } else {
+                console.log('payId / customerId / petName 未填');
+            }
         }
     });
 

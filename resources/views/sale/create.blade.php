@@ -591,7 +591,7 @@
         }
 
         //
-        $('#pay_id, #cust_name_q, #pet_name').on('change keyup', function() {
+        $('#pay_id, #cust_name_q, #pet_name ,#plan_id').on('change keyup', function() {
             fetchFinalPriceData(function(response) {
                 if (response.message === 'OK') {
                     $('#final_price_display').hide(300);
@@ -615,7 +615,7 @@
             const typeList = $('#type_list').val();
             const payId = $('#pay_id').val();
             console.log('planId:', planId);
-            if (typeList === 'dispatch' && (payId === 'A' || payId === 'D')) {
+            if (planId === '1' && typeList === 'dispatch' && (payId === 'A' || payId === 'D')) {
                 if (payId === 'D') {
                     if (response && response.data && response.data.plan_id === '1') {
                         $('#suit_id').prop('required', true);
