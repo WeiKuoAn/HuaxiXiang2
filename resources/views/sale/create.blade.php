@@ -615,19 +615,17 @@
             const typeList = $('#type_list').val();
             const payId = $('#pay_id').val();
             console.log('planId:', planId);
-            if (planId === '1' && typeList === 'dispatch' && (payId === 'A' || payId === 'D')) {
-                if (payId === 'D') {
-                    if (response && response.data && response.data.plan_id === '1') {
-                        $('#suit_id').prop('required', true);
-                        $('#suit_field').show(300);
-                    } else {
-                        $('#suit_field').hide(300);
-                        $('#suit_id').val('');
-                        $('#suit_id').prop('required', false);
-                    }
-                } else {
+            if (typeList === 'dispatch' && (payId === 'A' || payId === 'D')) {
+                if(planId === '1' && payId === 'A'){
                     $('#suit_id').prop('required', true);
-                    $('#suit_field').show();
+                    $('#suit_field').show(300);
+                } else if(response && response.data && response.data.plan_id === '1' && payId === 'D'){
+                    $('#suit_id').prop('required', true);
+                    $('#suit_field').show(300);
+                } else {
+                    $('#suit_field').hide(300);
+                    $('#suit_id').val('');
+                    $('#suit_id').prop('required', false);
                 }
             } else {
                 $('#suit_field').hide(300);
