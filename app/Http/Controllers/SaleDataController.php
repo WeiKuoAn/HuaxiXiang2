@@ -356,7 +356,7 @@ class SaleDataController extends Controller
 
     public function index(Request $request)
     {
-        $check_users = User::where('status', '0')->whereIn('job_id', [1, 2, 8, 9 , 10])->orderby('seq')->get();
+        $check_users = User::where('status', '0')->whereIn('job_id', [1, 2, 8, 9 ])->orderby('seq')->get();
         if ($request) {
             $status = $request->status;
             if (!isset($status) || $status == 'not_check') {
@@ -555,7 +555,7 @@ class SaleDataController extends Controller
             $sales = $sales->orderby('sale_date', 'desc')->orderby('user_id', 'desc')->orderby('sale_on', 'desc');
         }
         $sales = $sales->get();
-        $users = User::where('status', '0')->whereIn('job_id', [3, 5])->get();
+        $users = User::where('status', '0')->whereIn('job_id', [3, 5,10])->get();
 
         $total = 0;
         foreach ($sales as $sale) {
@@ -1272,7 +1272,7 @@ class SaleDataController extends Controller
             $sums['price'] += $data['price'];
         }
 
-        $check_users = User::where('status', '0')->whereIn('job_id', [1, 2, 8, 9 , 10])->orderby('seq')->get();
+        $check_users = User::where('status', '0')->whereIn('job_id', [1, 2, 8, 9 ])->orderby('seq')->get();
 
         return view('sale.check_history')->with('sales', $sales)->with('years', $years)
             ->with('users', $users)
