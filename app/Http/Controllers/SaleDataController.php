@@ -105,8 +105,14 @@ class SaleDataController extends Controller
             $customerId = $request->customer_id; // 確保變數名稱一致
             $pet_name = $request->pet_name;
             $output = '';
-            $data = Sale::where('customer_id', $customerId)->where('pet_name', $pet_name)->orderby('id', 'desc')->first();
+            $data = Sale::where('customer_id', $customerId)->where('pet_name', $pet_name);
 
+            if(isset($request->current_id)){
+                $data = $data->where('id', '<>', $request->current_id)->first();
+            }else{
+                $data =  $data->orderby('id', 'desc')->first();
+            }
+            
             // 使用 switch 語句來簡化條件判斷
             switch ($request->pay_id) {
                 case 'D':
@@ -146,11 +152,13 @@ class SaleDataController extends Controller
                     break;
             }
 
-            return response()->json(['message' => $output]);
+            return response()->json(['message' => $output , 'data' => $data]);
         }
 
         return response()->json(['message' => '無效的請求'], 400);
     }
+
+    
 
 
 
@@ -348,7 +356,7 @@ class SaleDataController extends Controller
 
     public function index(Request $request)
     {
-        $check_users = User::where('status', '0')->whereIn('job_id', [1, 2, 8, 9])->orderby('seq')->get();
+        $check_users = User::where('status', '0')->whereIn('job_id', [1, 2, 8, 9 , 10])->orderby('seq')->get();
         if ($request) {
             $status = $request->status;
             if (!isset($status) || $status == 'not_check') {
@@ -1264,7 +1272,7 @@ class SaleDataController extends Controller
             $sums['price'] += $data['price'];
         }
 
-        $check_users = User::where('status', '0')->whereIn('job_id', [1, 2, 8, 9])->orderby('seq')->get();
+        $check_users = User::where('status', '0')->whereIn('job_id', [1, 2, 8, 9 , 10])->orderby('seq')->get();
 
         return view('sale.check_history')->with('sales', $sales)->with('years', $years)
             ->with('users', $users)

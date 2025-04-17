@@ -551,6 +551,7 @@
     </div>
     <input type="hidden" id="row_id" name="row_id" value="">
     <input type="hidden" id="original_pay_id" value="{{ $data->pay_id ?? '' }}">
+    <input type="hidden" id="sale_id" value="{{ $data->id ?? '' }}">
 
 
 </form>
@@ -612,87 +613,72 @@
     $("#final_price_display").hide();
     
     $(document).ready(function () {
-    let originalPayId = $('#original_pay_id').val(); // 原始 pay_id
+        // 預設初始化
+        checkFinalAndSuit();
 
-    // 頁面載入先判斷一次 suit 顯示（不驗證是否重複）
-    handleSuitField();
+        // 綁定欄位變更事件
+        $('#pay_id, #cust_name_q, #pet_name, #plan_id, #type_list').on('change keyup', function () {
+            checkFinalAndSuit();
+        });
 
-    // 綁定欄位變更事件
-    $('#pay_id, #cust_name_q, #pet_name').on('change keyup', function () {
-        const currentPayId = $('#pay_id').val();
-        console.log('當前 pay_id:', currentPayId, '原始 pay_id:', originalPayId);
+        function checkFinalAndSuit() {
+            const payId = $('#pay_id').val();
+            const customerId = $('#cust_name_q').val();
+            const petName = $('#pet_name').val();
+            const planId = $('#plan_id').val();
+            const typeList = $('#type_list').val();
+            const saleId = $('#sale_id').val();
 
-        if (currentPayId !== originalPayId) {
-            console.log('偵測到 pay_id 變動，執行檢查...');
-            checkFinalAndSuit(); // 執行重複驗證 + suit 判斷
-        } else {
-            console.log('pay_id 未變動，略過驗證');
-        }
-    });
+            if (payId && customerId && petName || planId) {
+                $.ajax({
+                    url: '{{ route('sales.final_price') }}',
+                    type: 'GET',
+                    data: {
+                        pay_id: payId,
+                        customer_id: customerId,
+                        pet_name: petName,
+                        current_id: saleId
+                    },
+                    success: function (response) {
+                        console.log('回傳結果:', response);
 
-    $('#plan_id, #type_list').on('change keyup', function () {
-        console.log('plan_id 或 type_list 變更，重新判斷 suit 顯示...');
-        handleSuitField();
-    });
+                        // 控制 submit 按鈕
+                        if (response.message === 'OK') {
+                            $('#final_price_display').hide(300);
+                            $('#submit_btn').prop('disabled', false);
+                        } else {
+                            $('#final_price_display').show();
+                            $('#final_price_display').text(response.message);
+                            $('#submit_btn').prop('disabled', true);
+                        }
 
-    // ✅ 顯示/隱藏 suit 欄位邏輯
-    function handleSuitField() {
-        const payId = $('#pay_id').val();
-        const planId = $('#plan_id').val();
-        const typeList = $('#type_list').val();
-
-        if (planId === '1' && typeList === 'dispatch' && (payId === 'A' || payId === 'D')) {
-            $('#suit_field').show();
-            $('#suit_id').prop('required', true);
-        } else {
-            $('#suit_field').hide();
-            $('#suit_id').val('');
-            $('#suit_id').prop('required', false);
-        }
-    }
-
-    // ✅ 檢查訂金是否重複（僅在 pay_id 有變動時執行）
-    function checkFinalAndSuit() {
-        const payId = $('#pay_id').val();
-        const customerId = $('#cust_name_q').val();
-        const petName = $('#pet_name').val();
-        const planId = $('#plan_id').val();
-        const typeList = $('#type_list').val();
-        const saleId = $('#sale_id').val();
-
-        if (payId && customerId && petName && planId) {
-            $.ajax({
-                url: '{{ route('sales.final_price') }}',
-                type: 'GET',
-                data: {
-                    pay_id: payId,
-                    customer_id: customerId,
-                    pet_name: petName,
-                    sale_id: saleId
-                },
-                success: function (response) {
-                    console.log('回傳結果:', response);
-
-                    if (response.message === 'OK') {
-                        $('#final_price_display').hide(300);
-                        $('#submit_btn').prop('disabled', false);
-                    } else {
-                        $('#final_price_display').show().text(response.message);
-                        $('#submit_btn').prop('disabled', true);
+                        if (typeList === 'dispatch' && (payId === 'A' || payId === 'D')) {
+                            if(planId === '1' && payId === 'A'){
+                                $('#suit_id').prop('required', true);
+                                $('#suit_field').show(300);
+                            } else if(response && response.data && response.data.plan_id === '1' && payId === 'D'){
+                                $('#suit_id').prop('required', true);
+                                $('#suit_field').show(300);
+                            } else {
+                                $('#suit_field').hide(300);
+                                $('#suit_id').val('');
+                                $('#suit_id').prop('required', false);
+                            }
+                        } else {
+                            $('#suit_field').hide(300);
+                            $('#suit_id').val('');
+                            $('#suit_id').prop('required', false);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('AJAX 錯誤:', error);
                     }
-
-                    // 無論回傳成功與否，都判斷一次 suit 欄位
-                    handleSuitField();
-                },
-                error: function (xhr, status, error) {
-                    console.error('AJAX 錯誤:', error);
-                }
-            });
-        } else {
-            console.log('欄位未填完整，略過檢查');
+                });
+            } else {
+                console.log('payId / customerId / petName 未填');
+            }
         }
-    }
-});
+    });
 
 
 

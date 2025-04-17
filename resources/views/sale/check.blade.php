@@ -55,7 +55,7 @@
                         </div>
                         <div class="mb-3 col-md-4">
                             <label for="pay_id" class="form-label">支付類別<span class="text-danger">*</span></label>
-                            <select class="form-select" name="pay_id" required disabled>
+                            <select class="form-select" name="pay_id"  id="pay_id" required disabled>
                                 <option value="" selected>請選擇</option>
                                 <option value="A" @if($data->pay_id == 'A') selected @endif>一次付清</option>
                                 <option value="C" @if($data->pay_id == 'C') selected @endif>訂金</option>
@@ -73,7 +73,7 @@
                         </div>
                         <div class="mb-3 col-md-4">
                             <label for="customer_id" class="form-label">客戶名稱<span class="text-danger required">*</span></label>
-                            <select id="type" class="form-select" name="customer_id" disabled >
+                            <select  class="form-select" name="cust_name_q" id="cust_name_q" disabled >
                                 <option value="">請選擇...</option>
                                 @foreach ($customers as $customer)
                                     <option value="{{ $customer->id }}" @if($data->customer_id == $customer->id) selected @endif readonly>{{ $customer->name }}</option>
@@ -132,7 +132,7 @@
                         </div>
                         <div class="mb-3 col-md-4" id="suit_field" style="display: none;">
                             <label for="suit_id" class="form-label">套裝選擇<span class="text-danger">*</span></label>
-                            <select id="suit_id" class="form-select" name="suit_id">
+                            <select id="suit_id" class="form-select" name="suit_id" disabled>
                                 <option value="">請選擇...</option>
                                 @foreach ($suits as $suit)
                                     <option value="{{ $suit->id }}" @if($data->suit_id == $suit->id) selected @endif>{{ $suit->name }}</option>
@@ -486,6 +486,7 @@
         </div> <!-- end col -->
     </div>
     <input type="hidden" id="row_id" name="row_id" value="">
+    <input type="hidden" id="sale_id" value="{{ $data->id ?? '' }}">
 
 </form>
 
@@ -559,15 +560,17 @@
             const petName = $('#pet_name').val();
             const planId = $('#plan_id').val();
             const typeList = $('#type_list').val();
+            const saleId = $('#sale_id').val();
 
-            if (payId && customerId && petName && planId) {
+            if (payId && customerId && petName || planId) {
                 $.ajax({
                     url: '{{ route('sales.final_price') }}',
                     type: 'GET',
                     data: {
                         pay_id: payId,
                         customer_id: customerId,
-                        pet_name: petName
+                        pet_name: petName,
+                        current_id: saleId
                     },
                     success: function (response) {
                         console.log('回傳結果:', response);
@@ -582,11 +585,20 @@
                             $('#submit_btn').prop('disabled', true);
                         }
 
-                        if (planId === '1' &&typeList === 'dispatch' && (payId === 'A' || payId === 'D')) {
-                            $('#suit_field').show();
-                            $('#suit_id').prop('required', true);
+                        if (typeList === 'dispatch' && (payId === 'A' || payId === 'D')) {
+                            if(planId === '1' && payId === 'A'){
+                                $('#suit_id').prop('required', true);
+                                $('#suit_field').show(300);
+                            } else if(response && response.data && response.data.plan_id === '1' && payId === 'D'){
+                                $('#suit_id').prop('required', true);
+                                $('#suit_field').show(300);
+                            } else {
+                                $('#suit_field').hide(300);
+                                $('#suit_id').val('');
+                                $('#suit_id').prop('required', false);
+                            }
                         } else {
-                            $('#suit_field').hide();
+                            $('#suit_field').hide(300);
                             $('#suit_id').val('');
                             $('#suit_id').prop('required', false);
                         }
