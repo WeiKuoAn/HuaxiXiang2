@@ -35,8 +35,8 @@
                                         <th scope="col">其他收入</th>
                                         <th scope="col">總營收</th>
                                         <th scope="col">總支出</th>
-                                        <th scope="col">建設成本</th>
                                         <th scope="col">法會支出</th>
+                                        <th scope="col">建設成本</th>
                                         <th scope="col">股東分紅</th>
                                         <th scope="col">淨利</th>
                                     </tr>
@@ -52,13 +52,13 @@
                                             <td>{{ number_format($data['total_income']) }}</td>
                                             <td>{{ number_format($data['pay_price']) }}</td>
                                             <td>
-                                                @if (isset($data['build_cost']))
-                                                    {{ number_format($data['build_cost']) }}
+                                                @if (isset($data['puja_pay']))
+                                                    {{ number_format($data['puja_pay']) }}
                                                 @endif
                                             </td>
                                             <td>
-                                                @if (isset($data['puja_pay']))
-                                                    {{ number_format($data['puja_pay']) }}
+                                                @if (isset($data['build_cost']))
+                                                    {{ number_format($data['build_cost']) }}
                                                 @endif
                                             </td>
                                             <td>
