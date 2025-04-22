@@ -89,11 +89,25 @@
                                         <td>{{ number_format($sums['total_price_amount']) }}</td>
                                     </tr>
                                     <tr>
-                                        <td>支出</td>
+                                        <td>營業費用</td>
                                         @foreach ($datas as $data)
-                                            <td>{{ number_format($data['cur_pay_price']) }}</td>
+                                            <td>{{ number_format($data['cur_pay_item_price_0']) }}</td>
                                         @endforeach
-                                        <td>{{ number_format($sums['total_pay_price']) }}</td>
+                                        <td>{{ number_format($sums['total_pay_item_price_0']) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>營業成本</td>
+                                        @foreach ($datas as $data)
+                                            <td>{{ number_format($data['cur_pay_item_price_1']) }}</td>
+                                        @endforeach
+                                        <td>{{ number_format($sums['total_pay_item_price_1']) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>其他費用</td>
+                                        @foreach ($datas as $data)
+                                            <td>{{ number_format($data['cur_pay_item_price_2']) }}</td>
+                                        @endforeach
+                                        <td>{{ number_format($sums['total_pay_item_price_2']) }}</td>
                                     </tr>
                                     <tr>
                                         <td scope="col">業務單量</td>

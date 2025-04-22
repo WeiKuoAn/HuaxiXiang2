@@ -108,14 +108,31 @@ class Rpg26Controller extends Controller
             //支出
             $datas[$key]['cur_pay_data_price'] = PayData::where('status','1')->where('pay_date','>=',$month['start_date'])->where('pay_date','<=',$month['end_date'])->where('created_at','<=','2023-01-08 14:22:21')->sum('price');
             // $datas[$key]['cur_pay_item_price'] = PayItem::where('status','1')->where('pay_date','>=',$month['start_date'])->where('pay_date','<=',$month['end_date'])->whereNotIn('pay_id',['23'])->sum('price');
-            $datas[$key]['cur_pay_item_price'] = PayItem::join('pay', 'pay_item.pay_id', '=', 'pay.id')
+            $datas[$key]['cur_pay_item_price_0'] = PayItem::join('pay', 'pay_item.pay_id', '=', 'pay.id')
                                                     ->where('pay_item.status', '1')
                                                     ->where('pay_item.pay_date', '>=', $month['start_date'])
                                                     ->where('pay_item.pay_date', '<=', $month['end_date'])
                                                     ->where('pay.calculate', '!=', 1)
                                                     ->select('pay_item.*') // 選擇 pay_item 的欄位
+                                                    ->where('pay.suject_type', 0)
                                                     ->sum('price');
-            $datas[$key]['cur_pay_price'] = $datas[$key]['cur_pay_data_price']+$datas[$key]['cur_pay_item_price'];
+            $datas[$key]['cur_pay_item_price_1'] = PayItem::join('pay', 'pay_item.pay_id', '=', 'pay.id')
+                                                    ->where('pay_item.status', '1')
+                                                    ->where('pay_item.pay_date', '>=', $month['start_date'])
+                                                    ->where('pay_item.pay_date', '<=', $month['end_date'])
+                                                    ->where('pay.calculate', '!=', 1)
+                                                    ->select('pay_item.*') // 選擇 pay_item 的欄位
+                                                    ->where('pay.suject_type', 1)
+                                                    ->sum('price');
+            $datas[$key]['cur_pay_item_price_2'] = PayItem::join('pay', 'pay_item.pay_id', '=', 'pay.id')
+                                                    ->where('pay_item.status', '1')
+                                                    ->where('pay_item.pay_date', '>=', $month['start_date'])
+                                                    ->where('pay_item.pay_date', '<=', $month['end_date'])
+                                                    ->where('pay.calculate', '!=', 1)
+                                                    ->select('pay_item.*') // 選擇 pay_item 的欄位
+                                                    ->where('pay.suject_type', 2)
+                                                    ->sum('price');
+            $datas[$key]['cur_pay_price'] = $datas[$key]['cur_pay_data_price']+$datas[$key]['cur_pay_item_price_0']+$datas[$key]['cur_pay_item_price_1']+$datas[$key]['cur_pay_item_price_2'];
             $datas[$key]['cur_month_total'] = $datas[$key]['cur_price_amount'] - $datas[$key]['cur_pay_price'];
         }
 
@@ -128,6 +145,9 @@ class Rpg26Controller extends Controller
         $sums['total_plan_price'] = 0;
         $sums['total_pay_price'] = 0;
         $sums['total_month_total'] = 0;
+        $sums['total_pay_item_price_0'] = 0;
+        $sums['total_pay_item_price_1'] = 0;
+        $sums['total_pay_item_price_2'] = 0;
 
         foreach($datas as $data)
         {
@@ -138,7 +158,9 @@ class Rpg26Controller extends Controller
             $sums['total_gdpaper_price'] += $data['gdpaper_price'];
             $sums['total_price_amount'] += $data['cur_price_amount'];
             $sums['total_plan_price'] += $data['plan_price'];
-            $sums['total_pay_price'] += $data['cur_pay_price'];
+            $sums['total_pay_item_price_0'] += $data['cur_pay_item_price_0'];
+            $sums['total_pay_item_price_1'] += $data['cur_pay_item_price_1'];
+            $sums['total_pay_item_price_2'] += $data['cur_pay_item_price_2'];
             $sums['total_month_total'] += $data['cur_month_total'];
         }
 
