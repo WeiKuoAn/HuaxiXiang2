@@ -39,11 +39,20 @@ class Rpg11Controller extends Controller
             }
             $datas[$year]['income_price'] = IncomeData::where('income_date','>=',$year.'-01-01')->where('income_date','<=',$year.'-12-31')->sum('price');
             $datas[$year]['pay_data_price'] = PayData::where('status','1')->where('pay_date','>=',$year.'-01-01')->where('pay_date','<=',$year.'-12-31')->where('created_at','<=','2023-01-08 14:22:21')->sum('price');//data總支出
-            $datas[$year]['pay_item_price'] = PayItem::where('status','1')->where('pay_date','>=',$year.'-01-01')->where('pay_date','<=',$year.'-12-31')->whereNotIn('pay_id',['32'])->sum('price');//data總支出
-            $datas[$year]['dividend'] = PayItem::where('status','1')->where('pay_date','>=',$year.'-01-01')->where('pay_date','<=',$year.'-12-31')->where('pay_id','32')->sum('price');//data總支出
+            $datas[$year]['pay_item_price'] = PayItem::where('status','1')->where('pay_date','>=',$year.'-01-01')->where('pay_date','<=',$year.'-12-31')->whereNotIn('pay_id',['32','23','34'])->sum('price');//data總支出
+            
+            //股東分紅
+            $datas[$year]['dividend'] = PayItem::where('status','1')->where('pay_date','>=',$year.'-01-01')->where('pay_date','<=',$year.'-12-31')->where('pay_id','32')->sum('price');
+            //法會支出
+            $datas[$year]['puja_pay'] = PayItem::where('status','1')->where('pay_date','>=',$year.'-01-01')->where('pay_date','<=',$year.'-12-31')->where('pay_id','23')->sum('price');
+            //建設成本
+            $datas[$year]['build_cost'] = PayItem::where('status','1')->where('pay_date','>=',$year.'-01-01')->where('pay_date','<=',$year.'-12-31')->where('pay_id','34')->sum('price');
+
             $datas[$year]['pay_price'] = $datas[$year]['pay_data_price']+$datas[$year]['pay_item_price'];
             $datas[$year]['total_income'] = intval($datas[$year]['slae_price']) + intval($datas[$year]['puja_price']) + intval($datas[$year]['income_price']);//總收入
-            $datas[$year]['total'] = intval($datas[$year]['total_income']) - intval($datas[$year]['pay_price']) - intval($datas[$year]['dividend']);
+            $datas[$year]['total'] = intval($datas[$year]['total_income']) - intval($datas[$year]['pay_price']) - intval($datas[$year]['dividend']) - intval($datas[$year]['puja_pay']) - intval($datas[$year]['build_cost']);
+
+            
             
 
         }
