@@ -27,11 +27,13 @@ class DashboardController extends Controller
         $now = Carbon::now()->locale('zh-tw');
         $now_day = Carbon::now()->subMonths(1)->format("Y-m-d");
         $two_month_day = Carbon::now()->addMonths(2)->format("Y-m-d");
+        $one_month_day = Carbon::now()->addMonths(1)->format("Y-m-d");
+        // dd($one_month_day);
         // dd(Auth::user());
         if(Auth::user()->status != 1){
             $work = Works::where('user_id', Auth::user()->id)->orderBy('id', 'desc')->first();
             $contract_datas = Contract::whereIn('renew',[0,1])->where('end_date','>=',$now_day)->where('end_date','<=',$two_month_day)->whereNull('close_date')->orderby('end_date','asc')->get();
-            $lamp_datas = Lamp::whereIn('renew',[0,1])->where('end_date','>=',$now_day)->where('end_date','<=',$two_month_day)->whereNull('close_date')->orderby('end_date','asc')->get();
+            $lamp_datas = Lamp::whereIn('renew',[0,1])->where('end_date','>=',$now_day)->where('end_date','<=',$one_month_day)->whereNull('close_date')->orderby('end_date','asc')->get();
             // dd($contract_datas);
             return view('index')->with('now',$now)->with('work',$work)->with('contract_datas',$contract_datas)->with('lamp_datas',$lamp_datas);
         }else{

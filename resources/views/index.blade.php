@@ -154,7 +154,7 @@
         <div class="col-xl-12">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="header-title mb-3">待提醒平安燈清單（兩個月內）</h4>
+                    <h4 class="header-title mb-3">待提醒平安燈清單（一個月內）</h4>
 
                     <div class="table-responsive">
                         <table class="table table-borderless table-hover table-nowrap table-centered m-0">
