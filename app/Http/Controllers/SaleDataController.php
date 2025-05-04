@@ -108,7 +108,7 @@ class SaleDataController extends Controller
             $data = Sale::where('customer_id', $customerId)->where('pet_name', $pet_name);
 
             if(isset($request->current_id)){
-                $data = $data->where('id', '<>', $request->current_id)->first();
+                $data = $data->where('id', '<>', $request->current_id)->orderby('id', 'desc')->first();
             }else{
                 $data =  $data->orderby('id', 'desc')->first();
             }
