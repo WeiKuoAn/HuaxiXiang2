@@ -548,6 +548,8 @@
                 </div> <!-- end col -->
             </div>
             <input type="hidden" id="row_id" name="row_id" value="">
+            <input type="hidden" id="original_pay_id" value="{{ $data->pay_id ?? '' }}">
+            <input type="hidden" id="sale_id" value="{{ $data->id ?? '' }}">
 
         </form>
 
@@ -564,19 +566,17 @@
 
 
     <script>
-        $("#cash_price_div").hide();
-        $("#transfer_price_div").hide();
-        $("#transfer_number_div").hide();
-
-        $(document).ready(function() {
+        type_list = $('select[name="type_list"]').val();
+        payIdValue = $('select[name="pay_id"]').val();
+        payMethod = $('select[name="pay_method"]').val();
+        $(document).ready(function(){
             var saleAddress = <?php echo json_encode(isset($sale_address) ? $sale_address : null); ?>;
             // Check if $sale_address exists
             connector_address = $('input[name="connector_address"]').val();
-            console.log(connector_address);
             if (connector_address != 0) {
                 // If $sale_address exists, initialize twzipcode with preselected values
                 $(".twzipcode").twzipcode({
-                    css: ["twzipcode-select", "twzipcode-select", "twzipcode-select"],
+                    css: ["twzipcode-select", "twzipcode-select" , "twzipcode-select"],
                     countyName: "county",
                     districtName: "district",
                     zipcodeName: "zipcode",
@@ -586,46 +586,130 @@
             } else {
                 // If $sale_address doesn't exist, initialize twzipcode without preselected values
                 $(".twzipcode").twzipcode({
-                    css: ["twzipcode-select", "twzipcode-select", "twzipcode-select"],
+                    css: ["twzipcode-select", "twzipcode-select" , "twzipcode-select"],
                     countyName: "county",
                     districtName: "district",
                     zipcodeName: "zipcode"
                 });
             }
         });
-
-
+    
+        //判斷尾款、訂金
+        $("#final_price_display").hide();
+        
+        $(document).ready(function () {
+            // 預設初始化
+            checkFinalAndSuit();
+    
+            // 綁定欄位變更事件
+            $('#pay_id, #cust_name_q, #pet_name, #plan_id, #type_list').on('change keyup', function () {
+                checkFinalAndSuit();
+            });
+    
+            function checkFinalAndSuit() {
+                const payId = $('#pay_id').val();
+                const customerId = $('#cust_name_q').val();
+                const petName = $('#pet_name').val();
+                const planId = $('#plan_id').val();
+                const typeList = $('#type_list').val();
+                const saleId = $('#sale_id').val();
+    
+                if (payId && customerId && petName || planId) {
+                    $.ajax({
+                        url: '{{ route('sales.final_price') }}',
+                        type: 'GET',
+                        data: {
+                            pay_id: payId,
+                            customer_id: customerId,
+                            pet_name: petName,
+                            current_id: saleId
+                        },
+                        success: function (response) {
+                            console.log('回傳結果:', response);
+    
+                            // 控制 submit 按鈕
+                            if (response.message === 'OK') {
+                                $('#final_price_display').hide(300);
+                                $('#submit_btn').prop('disabled', false);
+                            } else {
+                                $('#final_price_display').show();
+                                $('#final_price_display').text(response.message);
+                                $('#submit_btn').prop('disabled', true);
+                            }
+    
+                            if (typeList === 'dispatch' && (payId === 'A' || payId === 'D')) {
+                                if(planId === '1' && payId === 'A'){
+                                    $('#suit_id').prop('required', true);
+                                    $('#suit_field').show(300);
+                                } else if(response && response.data && response.data.plan_id === '1' && payId === 'D'){
+                                    $('#suit_id').prop('required', true);
+                                    $('#suit_field').show(300);
+                                } else {
+                                    $('#suit_field').hide(300);
+                                    $('#suit_id').val('');
+                                    $('#suit_id').prop('required', false);
+                                }
+                            } else {
+                                $('#suit_field').hide(300);
+                                $('#suit_id').val('');
+                                $('#suit_id').prop('required', false);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('AJAX 錯誤:', error);
+                        }
+                    });
+                } else {
+                    console.log('payId / customerId / petName 未填');
+                }
+            }
+        });
+    
+    
+    
+    
+    
         //親送
         send = $('input[name="send"]').val();
         console.log(send);
-        if (send == 1) {
+        if(send == 1){
             $("#connector_div").hide();
-        } else {
+            $("#connector_hospital_div").hide();
+        }else{
             $("#connector_div").show();
+            $("#connector_hospital_div").show();
         }
         $("#send").on("change", function() {
             if ($(this).is(':checked')) {
                 $(this).val(1);
                 $("#connector_div").hide(300);
-            } else {
+                $("#connector_hospital_div").hide();
+            }
+            else {
                 $(this).val(0);
                 $("#connector_div").show(300);
+                $("#connector_hospital_div").show(300);
             }
         });
+    
         //地址
         connector_address = $('input[name="connector_address"]').val();
-        if (connector_address == 1) {
-            $("#connector_address_div").show();
-
-        } else {
+        if(connector_address == 1){
+            $("#send_div").hide();
+            $("#connector_hospital_div").hide();
+            $("#connector_div").show();
+        }else{
+            $("#send_div").show();
+            // $("#connector_hospital_div").show();
             $("#connector_address_div").hide();
         }
         $("#connector_address").on("change", function() {
             if ($(this).is(':checked')) {
                 $("#connector_address_div").show(300);
                 $("#send_div").hide(300);
+                $("#connector_hospital_div").hide(300);
                 $(this).val(1);
-                $('#your-form').submit(function(event) {
+                $('#your-form').submit(function(event){
                     var county = $('select[name="county"]').val();
                     if (county == '') {
                         alert('接體縣市不得為空！');
@@ -633,25 +717,28 @@
                     }
                 });
                 $("#address").prop('required', true);
-            } else {
+            }
+            else {
                 $("#connector_address_div").hide(300);
                 $("#send_div").show(300);
+                $("#connector_hospital_div").show(300);
                 $(this).val(0);
                 $('#your-form').off('submit');
                 // Remove pet name required attribute
                 $("#address").prop('required', false);
             }
         });
+    
         //醫院地址
         connector_hospital_address = $('input[name="connector_hospital_address"]').val();
-        if (connector_hospital_address == 1) {
+        console.log(connector_hospital_address);
+        if(connector_hospital_address  ==  1){
             $("#connector_hospital_address_div").show();
             $("#connector_div").hide();
             $("#send_div").hide();
-        } else {
+        }else{
             $("#connector_hospital_address_div").hide();
         }
-        connector_hospital_address = $('input[name="connector_hospital_address"]').val();
         $("#connector_hospital_address").on("change", function() {
             if ($(this).is(':checked')) {
                 $("#connector_hospital_address_div").show(300);
@@ -659,14 +746,15 @@
                 $("#send_div").hide(300);
                 $(this).val(1);
                 $("#hospital_address").prop('required', true);
-                $('#your-form').submit(function(event) {
+                $('#your-form').submit(function(event){
                     var hospital_address = $('input[name="hospital_address"]').val();
                     if (hospital_address == '') {
                         alert('接體醫院不得為空！');
                         event.preventDefault();
                     }
                 });
-            } else {
+            }
+            else {
                 $("#connector_hospital_address_div").hide(300);
                 $("#connector_address_div").hide();
                 $("#connector_div").show(300);
@@ -677,125 +765,56 @@
                 $("#hospital_address").prop('required', false);
             }
         });
-
-        payMethod = $('select[name="pay_method"]').val();
-        if (payMethod == 'C') {
-            $("#cash_price_div").show(300);
-            $("#transfer_price_div").show(300);
-            $("#transfer_number_div").show(300);
-            $("#transfer_channel_div").show(300);
-            $("#pay_price").prop('required', false);
-            $("#cash_price").prop('required', true);
-            $("#transfer_price").prop('required', true);
-            $("#transfer_channel").prop('required', true);
-        } else if (payMethod == 'B') {
-            $("#transfer_number_div").show(300);
-            $("#transfer_channel_div").show(300);
-            $("#pay_price").prop('required', true);
-            $("#cash_price").prop('required', false);
-            $("#transfer_price").prop('required', false);
-            $("#transfer_channel").prop('required', true);
-        } else {
-            $("#cash_price_div").hide(300);
-            $("#transfer_price_div").hide(300);
-            $("#transfer_number_div").hide(300);
-            $("#transfer_channel_div").hide(300);
-            $("#pay_price").prop('required', true);
-            $("#cash_price").prop('required', false);
-            $("#transfer_price").prop('required', false);
-            $("#transfer_channel").prop('required', false);
-        }
-        $('select[name="pay_method"]').on('change', function() {
-            if ($(this).val() == 'C') {
-                $("#cash_price_div").show(300);
-                $("#transfer_price_div").show(300);
-                $("#transfer_number_div").show(300);
-                $("#transfer_channel_div").show(300);
-                $("#pay_price").prop('required', false);
-                $("#cash_price").prop('required', true);
-                $("#transfer_price").prop('required', true);
-                $("#transfer_channel").prop('required', true);
-            } else if ($(this).val() == 'B') {
-                $("#transfer_number_div").show(300);
-                $("#transfer_channel_div").show(300);
-                $("#pay_price").prop('required', true);
-                $("#cash_price").prop('required', false);
-                $("#transfer_price").prop('required', false);
-                $("#transfer_channel").prop('required', true);
-            } else {
-                $("#cash_price_div").hide(300);
-                $("#transfer_price_div").hide(300);
-                $("#transfer_number_div").hide(300);
-                $("#transfer_channel_div").hide(300);
-                $("#pay_price").prop('required', true);
-                $("#cash_price").prop('required', false);
-                $("#transfer_price").prop('required', false);
-                $("#transfer_channel").prop('required', false);
-            }
-        });
-
-        type_list = $('select[name="type_list"]').val();
-        payIdValue = $('select[name="pay_id"]').val();
-        console.log(payIdValue);
-
+    
+    
+    
         //案件單類別
-        if (type_list == 'memorial') {
+        if(type_list == 'memorial'){
             $(".not_memorial_show").hide(300);
+            $("#final_price").hide(300);
             $("#cust_name_q").prop('required', false);
-            $("#pet_name").prop('required', false);
+            // $("#pet_name").prop('required', false);
             $("#kg").prop('required', false);
             $("#variety").prop('required', false);
             $("#type").prop('required', false);
             $("#suit_id").prop('required', false);
             $("#plan_id").prop('required', false);
-        } else if (type_list == 'dispatch') {
-            $(".not_memorial_show").show(300);
-            if (payIdValue == 'D' || payIdValue == 'E') {
-                $("#final_price").show(300);
-                $(".not_final_show").hide();
-                $("#pet_name").prop('required', false);
-                $("#kg").prop('required', false);
-                $("#variety").prop('required', false);
-                $("#type").prop('required', false);
-                $("#suit_id").prop('required', false);
-                $("#plan_id").prop('required', false);
-                $("#plan_price").prop('required', false);
-            } else {
-                $("#final_price").hide(300);
-                $(".not_final_show").show(300);
-                $("#pet_name").prop('required', true);
-                $("#kg").prop('required', true);
-                $("#variety").prop('required', true);
-                $("#type").prop('required', true);
-                $("#suit_id").prop('required', true);
-                $("#plan_id").prop('required', true);
-                $("#plan_price").prop('required', true);
-            }
-        }
-
-        $('select[name="type_list"]').on('change', function() {
-            if ($(this).val() == 'memorial') {
+            $("#plan_price").prop('required', false);
+            $("#hospital_address").prop('required', false);
+            $("#send_div").hide(300);
+            $("#connector_div").hide(300);
+            $("#connector_hospital_div").hide(300);
+            $(".required").hide();
+            if(payIdValue == 'A' || payIdValue =='C'){
                 $(".not_memorial_show").hide(300);
-                $("#cust_name_q").prop('required', false);
-                $("#pet_name").prop('required', false);
-                $("#kg").prop('required', false);
-                $("#variety").prop('required', false);
-                $("#type").prop('required', false);
-                $("#suit_id").prop('required', false);
-                $("#plan_id").prop('required', false);
-            } else if ($(this).val() == 'dispatch') {
+            }
+            
+        }else if(type_list == 'dispatch'){
                 $(".not_memorial_show").show(300);
-                if (payIdValue == 'D' || payIdValue == 'E') {
+                $("#cust_name_q").prop('required', true);
+                $(".required").show();
+                if(payIdValue == 'D' || payIdValue =='E'){
                     $("#final_price").show(300);
                     $(".not_final_show").hide();
-                    $("#pet_name").prop('required', false);
+                    if(payIdValue =='D'){
+                        $(".plan").hide(300);
+                        $("#plan_id").prop('required', false);
+                    }else{
+                        $(".plan").show(300);
+                        $("#plan_id").prop('required', true);
+                    }
                     $("#kg").prop('required', false);
                     $("#variety").prop('required', false);
                     $("#type").prop('required', false);
-                    $("#suit_id").prop('required', false);
                     $("#plan_id").prop('required', false);
                     $("#plan_price").prop('required', false);
-                } else {
+                    $("#send_div").hide();
+                    $("#connector_div").hide();
+                    $("#connector_hospital_div").hide();
+                }else{
+                    $("#prom_div").show(300);
+                    $("#souvenir_div").show(300);
+                    $("#gdpaper_div").show(300);
                     $("#final_price").hide(300);
                     $(".not_final_show").show(300);
                     $("#pet_name").prop('required', true);
@@ -805,205 +824,522 @@
                     $("#suit_id").prop('required', true);
                     $("#plan_id").prop('required', true);
                     $("#plan_price").prop('required', true);
+                    if(payIdValue =='C'){
+                        $("#prom_div").hide(300);
+                        $("#gdpaper_div").hide(300);
+                        $("#souvenir_div").hide(300);
+                    }
                 }
-            }
-        });
-
-        $('select[name="pay_id"]').on('change', function() {
-            if ($(this).val() == 'D' || $(this).val() == 'E') {
-                $(".not_final_show").hide();
-                $("#pet_name").prop('required', false);
+        }
+    
+        $('select[name="type_list"]').on('change', function() {
+            payIdValue = $('select[name="pay_id"]').val();
+            if($(this).val() == 'memorial'){
+                $(".not_memorial_show").hide(300);
+                $("#final_price").hide(300);
+                $("#cust_name_q").prop('required', false);
+                // $("#pet_name").prop('required', false);
                 $("#kg").prop('required', false);
                 $("#variety").prop('required', false);
                 $("#type").prop('required', false);
                 $("#suit_id").prop('required', false);
                 $("#plan_id").prop('required', false);
                 $("#plan_price").prop('required', false);
-                if (type_list == memorial) {
-                    $("#final_price").hide();
-                } else {
+                $("#hospital_address").prop('required', false);
+                $(".required").hide();
+            }else if($(this).val() == 'dispatch'){
+                $(".not_memorial_show").show(300);
+                $("#cust_name_q").prop('required', true);
+                $(".required").show();
+                if(payIdValue == 'D' || payIdValue =='E'){
                     $("#final_price").show(300);
+                    $(".not_final_show").hide();
+                    if(payIdValue =='D'){
+                        $(".plan").hide(300);
+                        $("#plan_id").prop('required', false);
+                    }else{
+                        $(".plan").show(300);
+                        $("#plan_id").prop('required', true);
+                    }
+                    $("#kg").prop('required', false);
+                    $("#variety").prop('required', false);
+                    $("#type").prop('required', false);
+                    $("#suit_id").prop('required', false);
+                    $("#plan_price").prop('required', false);
+                }else{
+                    $("#prom_div").show(300);
+                    $("#souvenir_div").show(300);
+                    $("#gdpaper_div").show(300);
+                    $("#final_price").hide(300);
+                    $(".not_final_show").show(300);
+                    $("#pet_name").prop('required', true);
+                    $("#kg").prop('required', true);
+                    $("#variety").prop('required', true);
+                    $("#type").prop('required', true);
+                    $("#suit_id").prop('required', true);
+                    $("#plan_id").prop('required', true);
+                    $("#plan_price").prop('required', true);
+                    if(payIdValue =='C'){
+                        $("#prom_div").hide(300);
+                        $("#souvenir_div").hide(300);
+                        $("#gdpaper_div").hide(300);
+                    }
                 }
-            } else {
-                $("#final_price").hide(300);
-                $(".not_final_show").show(300);
-                $("#pet_name").prop('required', true);
-                $("#kg").prop('required', true);
-                $("#variety").prop('required', true);
-                $("#type").prop('required', true);
-                $("#suit_id").prop('required', true);
-                $("#plan_id").prop('required', true);
-                $("#plan_price").prop('required', true);
             }
         });
-
-
-        $("#final_price").on('input', function() {
+    
+        $('select[name="pay_id"]').on('change', function() {
+            type_list = $('select[name="type_list"]').val();
+            var a = $(this).val();
+                console.log(a);
+            if($(this).val() == 'D' || $(this).val() =='E'){
+                $(".not_final_show").hide(300);
+                if($(this).val() =='D'){
+                    $(".plan").hide(300);
+                    $("#plan_id").prop('required', false);
+                }else{
+                    $(".plan").show(300);
+                    $("#plan_id").prop('required', true);
+                }
+                $("#kg").prop('required', false);
+                $("#variety").prop('required', false);
+                $("#type").prop('required', false);
+                $("#suit_id").prop('required', false);
+                // $("#plan_id").prop('required', false);
+                $("#plan_price").prop('required', false);
+                if(type_list == 'memorial'){
+                    $("#final_price").hide();
+                    $(".not_memorial_show").hide();
+                    $("#send_div").hide(300);
+                    $("#connector_div").hide(300);
+                    $("#connector_hospital_div").hide(300);
+                }
+                $("#send_div").hide();
+                $("#connector_div").hide();
+                $("#connector_hospital_div").hide();
+            }else{
+                $("#prom_div").show(300);
+                $("#gdpaper_div").show(300);
+                $("#souvenir_div").show(300);
+                $("#final_price").hide(300);
+                $("#send_div").show(300);
+                $("#connector_div").show(300);
+                $("#connector_hospital_div").show(300);
+                if(type_list == 'memorial'){
+                    $("#final_price").hide();
+                    $(".not_memorial_show").hide();
+                    $("#send_div").hide();
+                    $("#connector_div").hide();
+                    $("#connector_hospital_div").hide();
+                }else{
+                    $(".not_memorial_show").show();
+                    $("#pet_name").prop('required', true);
+                    $("#kg").prop('required', true);
+                    $("#variety").prop('required', true);
+                    $("#type").prop('required', true);
+                    $("#suit_id").prop('required', true);
+                    $("#plan_id").prop('required', true);
+                    $("#plan_price").prop('required', true);
+                    $("#send_div").show();
+                    $("#connector_div").show();
+                    $("#connector_hospital_div").show();
+                    if($(this).val() =='C'){
+                        $("#prom_div").hide(300);
+                        $("#souvenir_div").hide(300);
+                        $("#gdpaper_div").hide(300);
+                    }
+                }
+            }
+        });
+    
+        type = $('select[name="type"]').val();
+        if(type == 'H' || type == 'B' || type == 'Salon' || type == 'G' || type == 'dogpark' || type == 'other'){
+            $("#source_company").show(300);
+            $("#source_company_name_q").prop('required', true);
+        }else{
+            $("#source_company").hide(300);
+            $("#source_company_name_q").prop('required', false);
+        }
+    
+        $('select[name="type"]').on('change', function() {
+            if($(this).val() == 'H' || $(this).val() == 'B' || $(this).val() == 'Salon' || $(this).val() == 'G' || $(this).val() == 'dogpark' || $(this).val() == 'other'){
+                $("#source_company").show(300);
+                $("#source_company_name_q").prop('required', true);
+            }else{
+                $("#source_company").hide(300);
+                $("#source_company_name_q").prop('required', false);
+                $("#source_company_name_q").val('null');
+            }
+        });
+    
+        $("#cash_price_div").hide();
+        $("#transfer_price_div").hide();
+        $("#transfer_number_div").hide();
+        $("#transfer_channel_div").hide();
+        if(payMethod == 'C'){
+                $("#cash_price_div").show(300);
+                $("#transfer_price_div").show(300);
+                $("#transfer_number_div").show(300);
+                $("#transfer_channel_div").show(300);
+                $("#pay_price").prop('required', false);
+                $("#cash_price").prop('required', true);
+                $("#transfer_price").prop('required', true);
+            }else if(payMethod == 'B'){
+                $("#cash_price_div").hide(300);
+                $("#transfer_price_div").hide(300);
+                $("#transfer_number_div").show(300);
+                $("#transfer_channel_div").show(300);
+                $("#pay_price").prop('required', true);
+                $("#cash_price").prop('required', false);
+                $("#transfer_price").prop('required', false);
+            }else{
+                $("#cash_price_div").hide(300);
+                $("#transfer_price_div").hide(300);
+                $("#transfer_number_div").hide(300);
+                $("#transfer_channel_div").hide(300);
+                $("#pay_price").prop('required', true);
+                $("#cash_price").prop('required', false);
+                $("#transfer_price").prop('required', false);
+            }
+        $('select[name="pay_method"]').on('change', function() {
+            if($(this).val() == 'C'){
+                $("#cash_price_div").show(300);
+                $("#transfer_price_div").show(300);
+                $("#transfer_number_div").show(300);
+                $("#transfer_channel_div").show(300);
+                $("#pay_price").prop('required', false);
+                $("#cash_price").prop('required', true);
+                $("#transfer_price").prop('required', true);
+            }else if($(this).val() == 'B'){
+                $("#cash_price_div").hide(300);
+                $("#transfer_price_div").hide(300);
+                $("#transfer_number_div").show(300);
+                $("#transfer_channel_div").show(300);
+                $("#pay_price").prop('required', true);
+                $("#cash_price").prop('required', false);
+                $("#transfer_price").prop('required', false);
+            }else{
+                $("#cash_price_div").hide(300);
+                $("#transfer_price_div").hide(300);
+                $("#transfer_number_div").hide(300);
+                $("#transfer_channel_div").hide(300);
+                $("#pay_price").prop('required', true);
+                $("#cash_price").prop('required', false);
+                $("#transfer_price").prop('required', false);
+            }
+        });
+    
+        
+        $("#final_price").on('input', function(){
             calculate_price();
         });
-
-        $("#plan_price").on('input', function() {
+        
+        $("#plan_price").on('input', function(){
             calculate_price();
         });
-
-        $(".total_number").on('input', function() {
+    
+        $(document).on('input', '.total_number', function() {
             calculate_price();
         });
-
-
-        function chgItems(obj) {
-            $("#row_id").val($("#" + obj.id).attr('alt'));
+        
+    
+        function chgItems(obj){
+            $("#row_id").val($("#"+ obj.id).attr('alt'));
             row_id = $("#row_id").val();
             $.ajax({
-                url: '{{ route('prom.search') }}',
-                data: {
-                    'select_prom': $("#select_prom_" + row_id).val()
-                },
-                success: function(data) {
-                    $("#prom_" + row_id).html(data);
-                    $("#prom_total_" + row_id).on('input', function() {
+                url : '{{ route('prom.search') }}',
+                data:{'select_prom':$("#select_prom_"+row_id).val()},
+                success:function(data){
+                    $("#prom_"+row_id).html(data);
+                    $("#prom_total_"+row_id).on('input', function(){
                         calculate_price();
                     });
                 }
             });
         }
-
+    
+        $('select[name="prom[]"]').on('mousedown', function(event) {
+            var selectElement = $(this);
+            var isLoaded = selectElement.data('loaded');
+    
+            // 阻止原生的下拉行为，直到数据加载完成
+            if (!isLoaded) {
+                event.preventDefault(); // 阻止下拉菜单自动展开
+    
+                var currentSelectedValue = selectElement.val();
+                var promType = selectElement.closest('td').prev('td').find('select').val();
+    
+                $.ajax({
+                    url: '{{ route('prom.search') }}',
+                    method: 'GET',
+                    data: { 'select_prom': promType },
+                    success: function(response) {
+                        selectElement.html(response).find('option').each(function() {
+                            if ($(this).val() === currentSelectedValue) {
+                                $(this).prop('selected', true);
+                            }
+                        });
+    
+                        selectElement.data('loaded', true);
+    
+                        // 数据加载后重新触发 focus 事件，这次允许下拉展开
+                        selectElement.off('focus').trigger('focus');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching prom options:', error);
+                    }
+                });
+            }
+        });
+    
+        function chgPapers(obj){
+            var row_id = $(obj).attr('alt'); // 取得行 ID
+    
+            $.ajax({
+                url: '{{ route('gdpaper.search') }}', // AJAX 查詢
+                data: {'gdpaper_id': $("#gdpaper_id_" + row_id).val()},
+                success: function(data){
+                    var gdpaper_num = $("#gdpaper_num_" + row_id).val();
+                    
+                    // 如果數量為空或 <= 0，預設設置為 1
+                    if (!gdpaper_num) {
+                        gdpaper_num = 1;
+                        $("#gdpaper_num_" + row_id).val(gdpaper_num);
+                    }
+                    
+                    // 計算金額並更新總金額欄位
+                    $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
+                    calculate_price();
+                    
+                    // 監聽數量變化，動態更新金額
+                    $("#gdpaper_num_" + row_id).on('change', function() {
+                        gdpaper_num = $(this).val();
+                       
+                        $("#gdpaper_total_" + row_id).val(gdpaper_num * data); // 更新金額
+                        calculate_price();
+                    });
+                }
+            });
+        }
+    
         function chgNums(obj) {
-            $("#row_id").val($("#" + obj.id).attr('alt'));
-            row_id = $("#row_id").val();
+            var row_id = $(obj).attr('alt'); // 取得行 ID
+    
             $.ajax({
-                url: '{{ route('gdpaper.search') }}',
-                data: {
-                    'gdpaper_id': $("#gdpaper_id_" + row_id).val()
-                },
+                url: '{{ route('gdpaper.search') }}', // AJAX 查詢
+                data: {'gdpaper_id': $("#gdpaper_id_" + row_id).val()},
                 success: function(data) {
+                    var gdpaper_num = $("#gdpaper_num_" + row_id).val();
+                    
+                    // 防止數量為 0 或空值，設置最小值為 1
+                    if (!gdpaper_num) {
+                        gdpaper_num = 1;
+                        $("#gdpaper_num_" + row_id).val(gdpaper_num);
+                    }
+                    
+                    // 更新總金額
+                    $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
+                    calculate_price();
+    
+                    // 監聽數量變更事件，動態更新金額
                     $("#gdpaper_num_" + row_id).on('change', function() {
-                        var gdpaper_num = $("#gdpaper_num_" + row_id).val();
-                        $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
+                        gdpaper_num = $(this).val();
+                       
+                        $("#gdpaper_total_" + row_id).val(gdpaper_num * data); // 更新總金額
                         calculate_price();
                     });
                 }
             });
         }
-
-        function chgPapers(obj) {
-            $("#row_id").val($("#" + obj.id).attr('alt'));
-            row_id = $("#row_id").val();
-            $.ajax({
-                url: '{{ route('gdpaper.search') }}',
-                data: {
-                    'gdpaper_id': $("#gdpaper_id_" + row_id).val()
-                },
-                success: function(data) {
-                    $("#gdpaper_num_" + row_id).on('change', function() {
-                        var gdpaper_num = $("#gdpaper_num_" + row_id).val();
-                        $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
-                        calculate_price();
-                    });
-                }
-            });
-        }
-
-
+        
+    
         $("table.prom-list tbody").on("click", ".ibtnDel_prom", function() {
             $(this).closest('tr').remove();
-        });
-
+        });  
+    
         $("table.gdpaper-list tbody").on("click", ".ibtnDel_gdpaper", function() {
             $(this).closest('tr').remove();
         });
-
+    
         $("table.gdpaper-list tbody").on("click", ".ibtnAdd_gdpaper", function() {
             rowCount = $('table.gdpaper-list tr').length - 1;
             var newRow = $("<tr>");
             var cols = '';
-            cols +=
-                '<td class="text-center"><button type="button" class="ibtnDel_gdpaper demo-delete-row btn btn-danger btn-sm btn-icon"><i class="fa fa-times"></i></button></td>';
+            cols += '<td class="text-center"><button type="button" class="ibtnDel_gdpaper demo-delete-row btn btn-danger btn-sm btn-icon"><i class="fa fa-times"></i></button></td>';
             cols += '<td>';
-            cols += '<select id="gdpaper_id_' + rowCount + '" alt="' + rowCount +
-                '" class="mobile form-select" name="gdpaper_ids[]" onchange="chgPapers(this)">';
+            cols += '<select id="gdpaper_id_'+rowCount+'" alt="'+rowCount+'" class="mobile form-select" name="gdpaper_ids[]" onchange="chgNums(this)" onclick="chgNums(this)" onkeydown="chgNums(this)">';
             cols += '<option value="" selected>請選擇...</option>';
-            @foreach ($products as $product)
-                cols +=
-                    '<option value="{{ $product->id }}">{{ $product->name }}({{ $product->price }})</option>';
-            @endforeach
+                @foreach($products as $product)
+                    cols += '<option value="{{ $product->id }}">{{ $product->name }}({{ $product->price }})</option>';
+                @endforeach
             cols += '</select>';
             cols += '</td>';
             cols += '<td>';
-            cols += '<input type="number" class="mobile form-control" id="gdpaper_num_' + rowCount +
-                '" name="gdpaper_num[]" value="">';
+            cols += '<input type="number" class="mobile form-control"  min="0"  id="gdpaper_num_'+rowCount+'" name="gdpaper_num[]" value="">';
             cols += '</td>';
             cols += '<td>';
-            cols += '<input type="text" class="mobile form-control total_number" id="gdpaper_total_' + rowCount +
-                '" name="gdpaper_total[]">';
+            cols += '<input type="text" class="mobile form-control total_number" id="gdpaper_total_'+rowCount+'" name="gdpaper_total[]">';
             cols += '</td>';
             cols += '</tr>';
             newRow.append(cols);
             $("table.gdpaper-list tbody").append(newRow);
         });
-
-
+    
+    
+        $("table.souvenir-list tbody").on("click", ".ibtnAdd_souvenir", function() {
+                rowCount = $('table.souvenir-list tr').length - 1;
+                var newRow = $("<tr>");
+                var cols = '';
+                cols +=
+                    '<td class="text-center"><button type="button" class="ibtnDel_souvenir demo-delete-row btn btn-danger btn-sm btn-icon"><i class="fa fa-times"></i></button></td>';
+                cols += '<td>';
+                cols += '<select id="souvenir_type_id_' + rowCount + '" alt="' + rowCount +
+                    '" class="mobile form-select" name="souvenir_types[]" onchange="chgSouvenirType(this)">';
+                cols += '<option value="" selected>請選擇...</option>';
+                @foreach ($souvenir_types as $souvenir_type)
+                    cols +=
+                        '<option value="{{ $souvenir_type->id }}">{{ $souvenir_type->name }}</option>';
+                @endforeach
+                cols += '</select>';
+                cols += '</td>';
+                cols += '<td>';
+                cols += '<select id="souvenir_id_' + rowCount + '"';
+                cols += ' class="mobile form-select" name="souvenir_ids[]">';
+                cols += ' <option value="">請選擇</option>';
+                cols += '</select>';
+                cols += '</td>';
+                cols += '<td>';
+                cols += '<input type="number" class="mobile form-control total_number" id="souvenir_total_' + rowCount + '" name="souvenir_totals[]" value="">';
+                cols += ' </td>';
+                cols += '<td>';
+                cols += '<input type="text" class="mobile form-control"';
+                cols += ' id="souvenir_comment_' + rowCount + '"';
+                cols += 'name="souvenir_comments[]" value="">';
+                cols += '</td>';
+                cols += '</tr>';
+                newRow.append(cols);
+                $("table.souvenir-list tbody").append(newRow);
+            });
+            
+    
+            $("table.souvenir-list tbody").on("click", ".ibtnDel_souvenir", function() {
+                $(this).closest('tr').remove();
+            });
+        
+            //紀念品專區
+            function chgSouvenirType(obj) {
+                $("#row_id").val($("#" + obj.id).attr('alt'));
+                row_id = $("#row_id").val();
+                $.ajax({
+                    url: '{{ route('souvenirType.search') }}',
+                    data: {
+                        'souvenir_type_id': $("#souvenir_type_id_" + row_id).val()
+                    },
+                    success: function(data) {
+                        $("#souvenir_id_" + row_id).html(data);
+                        // 當souvenirType變更後，再觸發chgSouvenir
+                        chgSouvenir(row_id);
+                    }
+                });
+            }
+    
+            //紀念品
+            $('select[name="souvenir_ids[]"]').on('mousedown', function(event) {
+            var selectElement = $(this);
+            var isLoaded = selectElement.data('loaded');
+    
+            // 阻止原生的下拉行为，直到数据加载完成
+            if (!isLoaded) {
+                event.preventDefault(); // 阻止下拉菜单自动展开
+    
+                var currentSelectedValue = selectElement.val();
+                var souvenirId = selectElement.closest('td').prev('td').find('select').val();
+    
+                $.ajax({
+                    url: '{{ route('souvenir.search') }}',
+                    method: 'GET',
+                    data: { 'souvenir_id': souvenirId },
+                    success: function(response) {
+                        selectElement.html(response).find('option').each(function() {
+                            if ($(this).val() === currentSelectedValue) {
+                                $(this).prop('selected', true);
+                            }
+                        });
+    
+                        selectElement.data('loaded', true);
+    
+                        // 数据加载后重新触发 focus 事件，这次允许下拉展开
+                        selectElement.off('focus').trigger('focus');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching prom options:', error);
+                    }
+                });
+            }
+        });
+    
+        
         function calculate_price() {
             var total = 0;
-            $(".total_number").each(function() {
+            $(".total_number").each(function(){
                 var value = parseFloat($(this).val());
-                if (!isNaN(value)) {
+                if(!isNaN(value)) {
                     total += value;
                 }
             });
             $("#total").val(total);
-            console.log(total);
+            $("#total_text").html(total);
         }
-
-
-
-
-        $("#cust_name_q").keydown(function() {
-            $value = $(this).val();
-            $.ajax({
-                type: 'get',
-                url: '{{ route('customer.search') }}',
-                data: {
-                    'cust_name': $value
-                },
-                success: function(data) {
+    
+        $( "#cust_name_q" ).keydown(function() {
+                $value=$(this).val();
+                $.ajax({
+                type : 'get',
+                url : '{{ route('customer.search') }}',
+                data:{'cust_name':$value},
+                success:function(data){
                     $('#cust_name_list_q').html(data);
                 }
+                });
             });
-            console.log($value);
-        });
-
-        $(".ibtnAdd_prom").click(function() {
-            $rowCount = $('table.prom-list tr').length - 1;
-            var newRow = $("<tr>");
-            var cols = '';
-            cols +=
-                '<td class="text-center"><button type="button" class="ibtnDel_prom demo-delete-row btn btn-danger btn-sm btn-icon"><i class="fa fa-times"></i></button></td>';
-            cols += '<td>';
-            cols += '<select id="select_prom_' + $rowCount + '" alt="' + $rowCount +
-                '" class="mobile form-select" name="select_proms[]" onchange="chgItems(this)">';
-            cols += '<option value="" selected>請選擇...</option>';
-            cols += '<option value="A">安葬處理</option>';
-            cols += '<option value="B">後續處理</option>';
-            cols += '</select>';
-            cols += '</td>';
-            cols += '<td>';
-            cols += '<select id="prom_' + $rowCount + '" class="mobile form-select" name="prom[]">';
-            cols += '<option value="">請選擇...</option>';
-            cols += '</select>';
-            cols += '</td>';
-            cols += '<td>';
-            cols += '<input type="text" class="mobile form-control total_number" id="prom_total_' + $rowCount +
-                '" name="prom_total[]">';
-            cols += '</td>';
-            cols += '</tr>';
-            newRow.append(cols);
-            $("table.prom-list tbody").append(newRow);
-        });
-        $.ajaxSetup({
-            headers: {
-                'csrftoken': '{{ csrf_token() }}'
-            }
-        });
+    
+            $( ".source_company_name" ).keydown(function() {
+                $value=$(this).val();
+                $.ajax({
+                type : 'get',
+                url : '{{ route('company.search') }}',
+                data:{'cust_name':$value},
+                success:function(data){
+                    $('#source_company_name_list_q').html(data);
+                }
+                });
+            });
+    
+            $(".ibtnAdd_prom").click(function(){
+                $rowCount = $('table.prom-list tr').length - 1;
+                var newRow = $("<tr>");
+                var cols = '';
+                cols += '<td class="text-center"><button type="button" class="ibtnDel_prom demo-delete-row btn btn-danger btn-sm btn-icon"><i class="fa fa-times"></i></button></td>';
+                cols += '<td>';
+                cols += '<select id="select_prom_'+$rowCount+'" alt="'+$rowCount+'" class="mobile form-select" name="select_proms[]" onchange="chgItems(this)">';
+                cols += '<option value="" selected>請選擇...</option>';
+                cols += '<option value="A">安葬處理</option>';
+                cols += '<option value="B">後續處理</option>';
+                cols += '<option value="C">其他處理</option>';
+                cols += '</select>';
+                cols += '</td>';
+                cols += '<td>';
+                cols += '<select id="prom_'+$rowCount+'" class="mobile form-select" name="prom[]">';
+                cols += '<option value="">請選擇...</option>';
+                cols += '</select>';
+                cols += '</td>';
+                cols += '<td>';
+                cols += '<input type="text" class="mobile form-control total_number" id="prom_total_'+$rowCount+'" name="prom_total[]">';
+                cols += '</td>';
+                cols += '</tr>';
+                newRow.append(cols);
+                $("table.prom-list tbody").append(newRow);
+            });
+            $.ajaxSetup({ headers: { 'csrftoken' : '{{ csrf_token() }}' } });
     </script>
 @endsection

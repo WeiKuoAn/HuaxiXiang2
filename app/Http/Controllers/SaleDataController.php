@@ -1149,6 +1149,7 @@ class SaleDataController extends Controller
 
     public function delete($id)
     {
+        $souvenir_types = SouvenirType::where('status', 'up')->get();
         $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
@@ -1177,7 +1178,8 @@ class SaleDataController extends Controller
             ->with('source_companys', $source_companys)
             ->with('suits', $suits)
             ->with('souvenirs', $souvenirs)
-            ->with('sale_souvenirs', $sale_souvenirs);
+            ->with('sale_souvenirs', $sale_souvenirs)
+            ->with('souvenir_types', $souvenir_types);
     }
     public function destroy($id)
     {
