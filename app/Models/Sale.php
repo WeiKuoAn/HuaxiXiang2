@@ -91,6 +91,11 @@ class Sale extends Model
         return $this->hasOne('App\Models\Plan', 'id', 'plan_id');
     }
 
+    public function suit_name()
+    {
+        return $this->hasOne('App\Models\Suit', 'id', 'suit_id');
+    }
+
     public function change_plan()
     {
         return $this->hasOne('App\Models\SalePlan', 'sale_id', 'id');

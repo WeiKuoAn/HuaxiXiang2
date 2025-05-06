@@ -112,7 +112,6 @@ class SaleDataController extends Controller
             }else{
                 $data =  $data->orderby('id', 'desc')->first();
             }
-            
             // 使用 switch 語句來簡化條件判斷
             switch ($request->pay_id) {
                 case 'D':
@@ -1457,7 +1456,7 @@ class SaleDataController extends Controller
             "Expires"             => "0"
         );
         $header = array('日期', $after_date . '~',  $before_date);
-        $columns = array('案件單類別', '單號', '專員', '日期', '客戶', '寶貝名', '類別', '原方案', '金紙', '金紙總賣價', '安葬方式', '後續處理', '其他處理', '付款方式', '實收價格', '狀態', '備註', '更改後方案', '確認對帳人員', '確認對帳時間');
+        $columns = array('案件單類別', '單號', '專員', '日期', '客戶', '寶貝名', '類別', '原方案', '套裝', '金紙', '金紙總賣價', '安葬方式', '後續處理', '其他處理', '付款方式', '實收價格', '狀態', '備註', '更改後方案', '確認對帳人員', '確認對帳時間');
         // ,'轉單','轉單後人員','對拆人員',
 
         $callback = function () use ($sales, $columns, $header) {
@@ -1506,6 +1505,14 @@ class SaleDataController extends Controller
                     }
                 } else {
                     $row['方案'] = '';
+                }
+                $row['套裝'] = '';
+                if (isset($sale->suit_id)) {
+                    if (isset($sale->suit_name)) {
+                        $row['套裝'] = $sale->suit_name->name;
+                    }
+                } else {
+                    $row['套裝'] = '';
                 }
                 $row['金紙'] = '';
                 $row['金紙總價格'] = 0;
@@ -1606,6 +1613,7 @@ class SaleDataController extends Controller
                     $row['寶貝名'],
                     $row['類別'],
                     $row['方案'],
+                    $row['套裝'],
                     $row['金紙'],
                     $row['金紙總價格'],
                     $row['安葬方式'],
