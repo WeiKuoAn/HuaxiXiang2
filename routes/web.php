@@ -59,6 +59,7 @@ use App\Http\Controllers\Rpg26Controller;
 use App\Http\Controllers\Rpg27Controller;
 use App\Http\Controllers\Rpg28Controller;
 use App\Http\Controllers\Rpg29Controller;
+use App\Http\Controllers\Rpg30Controller;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\LeaveDayController;
 use App\Http\Controllers\RestockController;
@@ -71,6 +72,7 @@ use App\Http\Controllers\PromTypeController;
 use App\Http\Controllers\TargetCategoriesController;
 Use App\Http\Controllers\TargetController;
 Use App\Http\Controllers\TargetItemController;
+Use App\Http\Controllers\TaskController;
 Use App\Http\Controllers\SuitController;
 Use App\Http\Controllers\SouvenirTypeController;
 Use App\Http\Controllers\SouvenirController;
@@ -556,6 +558,7 @@ Route::group(['prefix' => '/'], function () {
     // Route::get('/rpg/rpg26/{month}/{prom_id}/detail', [Rpg26Controller::class, 'rpg26'])->name('rpg26');
     Route::get('/rpg/rpg28', [Rpg28Controller::class, 'rpg28'])->name('rpg28');
     Route::get('/rpg/rpg29', [Rpg29Controller::class, 'rpg29'])->name('rpg29');
+    Route::get('/rpg/rpg30', [Rpg30Controller::class, 'rpg30'])->name('rpg30');
 
     //達標類別
     Route::get('/targetCategory', [TargetCategoriesController::class, 'index'])->name('targetCategories');
@@ -575,6 +578,15 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/target/del/{id}', [TargetController::class, 'delete'])->name('target.del');
     Route::post('/target/del/{id}', [TargetController::class, 'destroy'])->name('target.del.data');
     Route::put('/target-item/{id}', [TargetItemController::class, 'update'])->name('target_item.update');
+
+    //待辦管理
+    Route::get('/task', [TaskController::class, 'index'])->name('task');
+    Route::get('/task/create', [TaskController::class, 'create'])->name('task.create');
+    Route::post('/task/create', [TaskController::class, 'store'])->name('task.create.data');
+    Route::get('/task/edit/{id}', [TaskController::class, 'show'])->name('task.edit');
+    Route::post('/task/edit/{id}', [TaskController::class, 'update'])->name('task.edit.data');
+    Route::get('/task/del/{id}', [TaskController::class, 'delete'])->name('task.del');
+    Route::post('/task/del/{id}', [TaskController::class, 'destroy'])->name('task.del.data');
 
 
     Route::get('/liff', [LiffController::class, 'index'])->name('liff.index');

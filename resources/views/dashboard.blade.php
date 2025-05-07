@@ -196,6 +196,177 @@
                 </div> <!-- end widget-rounded-circle-->
             </div> <!-- end col-->
         </div>
+        @if (Auth::user()->level != 2)
+            <div class="row">
+                <div class="col-12">
+                    <div class="page-title-box">
+                        <h4 class="page-title">月獎金統計（僅供參考）</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 col-xl-4">
+                    <div class="widget-rounded-circle card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="avatar-lg rounded-circle bg-soft-primary border-primary border">
+                                        <i class="fe-dollar-sign font-22 avatar-title text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-end">
+                                        <h3 class="text-dark mt-1">$<span
+                                                data-plugin="counterup">{{ number_format($gdpaper_month) }}</span>元</h3>
+                                        <p class="text-muted mb-1 text-truncate">金紙（金紙的賣出總額）</p>
+                                    </div>
+                                </div>
+                            </div> <!-- end row-->
+                        </div>
+                    </div> <!-- end widget-rounded-circle-->
+                </div> <!-- end col-->
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="widget-rounded-circle card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="avatar-lg rounded-circle bg-soft-primary border-primary border">
+                                        <i class="fe-dollar-sign font-22 avatar-title text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-end">
+                                        <h3 class="text-dark mt-1"><span
+                                                data-plugin="counterup">{{ number_format($flower_month) }}</span>個</h3>
+                                        <p class="text-muted mb-1 text-truncate">花樹葬（花樹葬的數量）</p>
+                                    </div>
+                                </div>
+                            </div> <!-- end row-->
+                        </div>
+                    </div> <!-- end widget-rounded-circle-->
+                </div> <!-- end col-->
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="widget-rounded-circle card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="avatar-lg rounded-circle bg-soft-primary border-primary border">
+                                        <i class="fe-dollar-sign font-22 avatar-title text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-end">
+                                        <h3 class="text-dark mt-1"><span
+                                                data-plugin="counterup">{{ number_format($potted_plant_month) }}</span>個
+                                        </h3>
+                                        <p class="text-muted mb-1 text-truncate">盆栽（盆栽的數量）</p>
+                                    </div>
+                                </div>
+                            </div> <!-- end row-->
+                        </div>
+                    </div> <!-- end widget-rounded-circle-->
+                </div> <!-- end col-->
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="widget-rounded-circle card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="avatar-lg rounded-circle bg-soft-primary border-primary border">
+                                        <i class="fe-dollar-sign font-22 avatar-title text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-end">
+                                        <h3 class="text-dark mt-1">$<span
+                                                data-plugin="counterup">{{ number_format($urn_month) }}</span>元</h3>
+                                        <p class="text-muted mb-1 text-truncate">骨灰罐（骨灰罐的總額）</p>
+                                    </div>
+                                </div>
+                            </div> <!-- end row-->
+                        </div>
+                    </div> <!-- end widget-rounded-circle-->
+                </div> <!-- end col-->
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="widget-rounded-circle card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="avatar-lg rounded-circle bg-soft-primary border-primary border">
+                                        <i class="fe-dollar-sign font-22 avatar-title text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-end">
+                                        <h3 class="text-dark mt-1">$<span
+                                                data-plugin="counterup">{{ number_format($specify_month) }}</span>元</h3>
+                                        <p class="text-muted mb-1 text-truncate">指定款獎金（VVG+拍拍+寵物花忠+vvg紀念品+指定款紀念品+玉罐大理石罐）加總
+                                        </p>
+                                    </div>
+                                </div>
+                            </div> <!-- end row-->
+                        </div>
+                    </div> <!-- end widget-rounded-circle-->
+                </div> <!-- end col-->
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="page-title-box">
+                        <h4 class="page-title">季獎金統計（僅供參考）</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 col-xl-4">
+                    <div class="widget-rounded-circle card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="avatar-lg rounded-circle bg-soft-primary border-primary border">
+                                        <i class="fe-dollar-sign font-22 avatar-title text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-end">
+                                        <h3 class="text-dark mt-1"><span
+                                                data-plugin="counterup">{{ number_format($suit_season) }}</span>個</h3>
+                                        <p class="text-muted mb-1 text-truncate">季獎金（火化套裝）</p>
+                                    </div>
+                                </div>
+                            </div> <!-- end row-->
+                        </div>
+                    </div> <!-- end widget-rounded-circle-->
+                </div> <!-- end col-->
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="widget-rounded-circle card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="avatar-lg rounded-circle bg-soft-primary border-primary border">
+                                        <i class="fe-dollar-sign font-22 avatar-title text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-end">
+                                        <h3 class="text-dark mt-1">$<span
+                                                data-plugin="counterup">{{ number_format($urn_souvenir_season) }}</span>元
+                                        </h3>
+                                        <p class="text-muted mb-1 text-truncate">季獎金（骨灰罐＋紀念品）</p>
+                                    </div>
+                                </div>
+                            </div> <!-- end row-->
+                        </div>
+                    </div> <!-- end widget-rounded-circle-->
+                </div> <!-- end col-->
+            </div>
+        @endif
+
 
         <!-- start page title -->
         {{-- <div class="row">

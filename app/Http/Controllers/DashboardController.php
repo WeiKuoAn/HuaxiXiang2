@@ -9,6 +9,7 @@ use App\Models\Contract;
 use App\Models\Lamp;
 use App\Models\User;
 use App\Models\Sale;
+use App\Models\Sale_prom;
 use App\Models\IncomeData;
 use App\Models\Customer;
 use App\Models\Pay;
@@ -97,12 +98,7 @@ class DashboardController extends Controller
         $sale_month = Sale::where('status','9')->where('sale_date','>=',$firstDay->format("Y-m-d"))->where('sale_date','<=',$lastDay->format("Y-m-d"))->sum('pay_price');
         $income_month = IncomeData::where('income_date','>=',$firstDay->format("Y-m-d"))->where('income_date','<=',$lastDay->format("Y-m-d"))->sum('price');
         $price_month = $sale_month + $income_month;
-        $gdpaper_month = DB::table('sale_data')
-                             ->join('sale_gdpaper','sale_gdpaper.sale_id', '=' , 'sale_data.id')
-                             ->where('sale_data.sale_date','>=',$firstDay->format("Y-m-d"))
-                             ->where('sale_data.sale_date','<=',$lastDay->format("Y-m-d"))
-                             ->where('sale_data.status','9')
-                             ->sum('sale_gdpaper.gdpaper_total');
+        
         // Sale_gdpaper::where('created_at','>=',$firstDay->format("Y-m-d"))->where('created_at','<=',$lastDay->format("Y-m-d"))->sum('gdpaper_total');
         
         //月支出
@@ -123,44 +119,128 @@ class DashboardController extends Controller
         $work = Works::where('user_id', Auth::user()->id)->orderBy('id', 'desc')->first();
         // dd($work);
         // dd($now);
-        //達標管理
-        $jobId = strval(Auth::user()->job_id); // 確保它是字串
 
-        $targetDatas = TargetData::join('target_item', 'target_data.id', '=', 'target_item.target_data_id')
-                                   ->where('target_item.start_date','>=',$firstDay->format("Y-m-d"))
-                                   ->where('target_item.end_date','<=',$lastDay->format("Y-m-d"))
-                                   ->whereJsonContains('target_data.job_id', $jobId)->get();
-        foreach($targetDatas as $targetData)
-        {
-            if($targetData->category_id == 1){//金紙銷售
-                $targetData->manual_achieved =DB::table('sale_data')
-                                                ->join('sale_gdpaper','sale_gdpaper.sale_id', '=' , 'sale_data.id')
-                                                ->where('sale_data.status','9')
-                                                ->where('sale_data.sale_date','>=',$firstDay->format("Y-m-d"))
-                                                ->where('sale_data.sale_date','<=',$lastDay->format("Y-m-d"))
-                                                ->sum('sale_gdpaper.gdpaper_total');
-                
-            }
-            if($targetData->target_condition == "金額"){
-                
-            }
+        
 
-            if($targetData->target_condition == "數量"){
-                
-            }
+        //專員看到的獎金統計
+        //1.金紙（金紙的賣出總額）
+        $gdpaper_month = DB::table('sale_data')
+                            ->join('sale_gdpaper','sale_gdpaper.sale_id', '=' , 'sale_data.id')
+                            ->where('sale_data.sale_date','>=',$firstDay->format("Y-m-d"))
+                            ->where('sale_data.sale_date','<=',$lastDay->format("Y-m-d"))
+                            ->where('sale_data.status','9')
+                            ->sum('sale_gdpaper.gdpaper_total');
+        // //2.花樹葬（花樹葬的數量）
+        $flower_month = DB::table('sale_data')
+                            ->join('sale_prom','sale_prom.sale_id', '=' , 'sale_data.id')
+                            ->where('sale_data.sale_date','>=',$firstDay->format("Y-m-d"))
+                            ->where('sale_data.sale_date','<=',$lastDay->format("Y-m-d"))
+                            ->where('sale_data.status','9')
+                            ->where('sale_prom.prom_id','15')
+                            ->whereNotNull('sale_prom.prom_id')
+                            ->where('sale_prom.prom_id', '<>', '')
+                            ->count();
+        // //3.盆栽（盆栽的數量）
+        $potted_plant_month = DB::table('sale_data')
+                            ->join('sale_prom','sale_prom.sale_id', '=' , 'sale_data.id')
+                            ->where('sale_data.sale_date','>=',$firstDay->format("Y-m-d"))
+                            ->where('sale_data.sale_date','<=',$lastDay->format("Y-m-d"))
+                            ->where('sale_data.status','9')
+                            ->where('sale_prom.prom_id','16')
+                            ->whereNotNull('sale_prom.prom_id')
+                            ->where('sale_prom.prom_id', '<>', '')
+                            ->count();
 
-            if($targetData->target_condition == "金額+數量"){
-                
-            }
-            $targetData->percent = $targetData->target_amount == 0 ? 0 : round( intval($targetData->manual_achieved) / intval($targetData->target_amount)* 100, 2);
-        }
+        //4.骨灰罐（骨灰罐的總額）
+        $urn_month = DB::table('sale_data')
+                            ->join('sale_prom','sale_prom.sale_id', '=' , 'sale_data.id')
+                            ->where('sale_data.sale_date','>=',$firstDay->format("Y-m-d"))
+                            ->where('sale_data.sale_date','<=',$lastDay->format("Y-m-d"))
+                            ->where('sale_data.status','9')
+                            ->where('sale_prom.prom_id','14')
+                            ->whereNotNull('sale_prom.prom_id')
+                            ->where('sale_prom.prom_id', '<>', '')
+                            ->sum('sale_prom.prom_total');
+        
+        // dd($flower_month);
+
+        //5.指定款獎金（VVG+拍拍+寵物花忠+vvg紀念品+指定款紀念品+[玉罐+大理石罐]）加總
+        $specify_month = DB::table('sale_data')
+                            ->join('sale_prom','sale_prom.sale_id', '=' , 'sale_data.id')
+                            ->where('sale_data.sale_date','>=',$firstDay->format("Y-m-d"))
+                            ->where('sale_data.sale_date','<=',$lastDay->format("Y-m-d"))
+                            ->where('sale_data.status','9')
+                            ->whereIn('sale_prom.prom_id',[28,20,24,32])
+                            ->whereNotNull('sale_prom.prom_id')
+                            ->where('sale_prom.prom_id', '<>', '')
+                            ->sum('sale_prom.prom_total');
+
+        // 取得本季起訖
+        $start_season = $today->copy()->firstOfQuarter()->toDateString(); // e.g. '2025-04-01'
+        $end_season   = $today->copy()->lastOfQuarter()->toDateString();  // e.g. '2025-06-30'
+        //6.季獎金（火化套裝）
+        $suit_season = DB::table('sale_data')
+                            ->where('sale_data.sale_date', '>=', $start_season)
+                            ->where('sale_data.sale_date', '<=', $end_season)
+                            ->where('sale_data.status', '9')
+                            ->whereNotIn('sale_data.suit_id', [1])
+                            ->whereNotNull('sale_data.suit_id')
+                            // 排除空字串，如果是數值型別改用 ->where('sale_data.suit_id', '>', 0)
+                            ->where('sale_data.suit_id', '<>', '')
+                            ->count();
+    
+        //7.季獎金（骨灰罐＋紀念品）
+        $urn_souvenir_season = DB::table('sale_data')
+                            ->join('sale_prom','sale_prom.sale_id', '=' , 'sale_data.id')
+                            ->where('sale_data.sale_date','>=',$start_season)
+                            ->where('sale_data.sale_date','<=',$end_season)
+                            ->where('sale_data.status','9')
+                            ->whereIn('sale_prom.prom_id',[14,4])
+                            ->whereNotNull('sale_prom.prom_id')
+                            ->where('sale_prom.prom_id', '<>', '')
+                            ->sum('sale_prom.prom_total');
         
         if(Auth::user()->status != 1){
             return view('dashboard')->with(['now' => $now, 'work' => $work , 'sale_today'=>$sale_today 
             , 'cust_nums'=>$cust_nums , 'check_sale'=>$check_sale , 'total_today_incomes'=>$total_today_incomes
-            , 'price_month'=>$price_month , 'pay_month'=>$pay_month , 'net_income'=>$net_income , 'gdpaper_month'=>$gdpaper_month , 'targetDatas'=>$targetDatas]);
+            , 'price_month'=>$price_month , 'pay_month'=>$pay_month , 'net_income'=>$net_income , 'gdpaper_month'=>$gdpaper_month
+            , 'flower_month'=>$flower_month , 'potted_plant_month'=>$potted_plant_month , 'urn_month'=>$urn_month
+            ,'specify_month'=>$specify_month , 'suit_season'=>$suit_season , 'urn_souvenir_season'=>$urn_souvenir_season
+        ]);
         }else{
             return view('auth.login');
         }
     }
 }
+
+//達標管理
+// $jobId = strval(Auth::user()->job_id); // 確保它是字串
+
+// $targetDatas = TargetData::join('target_item', 'target_data.id', '=', 'target_item.target_data_id')
+//                            ->where('target_item.start_date','>=',$firstDay->format("Y-m-d"))
+//                            ->where('target_item.end_date','<=',$lastDay->format("Y-m-d"))
+//                            ->whereJsonContains('target_data.job_id', $jobId)->get();
+// foreach($targetDatas as $targetData)
+// {
+//     if($targetData->category_id == 1){//金紙銷售
+//         $targetData->manual_achieved =DB::table('sale_data')
+//                                         ->join('sale_gdpaper','sale_gdpaper.sale_id', '=' , 'sale_data.id')
+//                                         ->where('sale_data.status','9')
+//                                         ->where('sale_data.sale_date','>=',$firstDay->format("Y-m-d"))
+//                                         ->where('sale_data.sale_date','<=',$lastDay->format("Y-m-d"))
+//                                         ->sum('sale_gdpaper.gdpaper_total');
+        
+//     }
+//     if($targetData->target_condition == "金額"){
+        
+//     }
+
+//     if($targetData->target_condition == "數量"){
+        
+//     }
+
+//     if($targetData->target_condition == "金額+數量"){
+        
+//     }
+//     $targetData->percent = $targetData->target_amount == 0 ? 0 : round( intval($targetData->manual_achieved) / intval($targetData->target_amount)* 100, 2);
+// }

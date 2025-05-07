@@ -58,6 +58,12 @@
                         <span> 當月總表 </span>
                     </a>
                 </li>
+                {{-- <li>
+                    <a href="{{ route('task') }}">
+                        <i data-feather="airplay"></i>
+                        <span> 待辦管理 </span>
+                    </a>
+                </li> --}}
 
                 
 
@@ -512,6 +518,9 @@
                                         </li>
                                         <li>
                                             <a href="{{ route('rpg06') }}"  class="{{ request()->is('rpg06') ? 'active' : '' }}">套組法會查詢</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ route('rpg30') }}"  class="{{ request()->is('rpg30') ? 'active' : '' }}">月/季獎金統計</a>
                                         </li>
                                     </ul>
                                 </div>
