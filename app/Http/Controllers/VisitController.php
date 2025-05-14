@@ -320,7 +320,7 @@ class VisitController extends Controller
                 $customer->bank_number = $request->bank_number;
             }
             $customer->commission = $request->commission;
-            $customer->visit = $request->visit;
+            $customer->visit_status = $request->visit_status;
         } else {
             if (isset($data)) {
                 return view('visit.company_create')->with(['hint' => '1', 'company_type' => $request->company_type]);
