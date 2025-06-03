@@ -17,8 +17,8 @@
         }
 
         /* .bg-light {
-            background-color: rgba(0,0,0,0.08) !important;
-        } */
+                    background-color: rgba(0,0,0,0.08) !important;
+                } */
     </style>
 
     <!-- Start Content-->
@@ -221,18 +221,16 @@
         function chgInvoice(obj) {
             $number = $(obj).attr("alt");
             var invoice_type = $("#pay_invoice_type-" + $number).val();
+
             if (invoice_type == 'FreeUniform') {
-                $("#vendor-" + $number).show(300);
-                $("#vendor-" + $number).prop('required', true);
-                $("#pay_invoice-" + $number).hide(300);
+                $("#vendor-" + $number).show(300).prop('required', true);
+                $("#pay_invoice-" + $number).hide(300).prop('required', false);
             } else if (invoice_type == 'Uniform') {
-                $("#pay_invoice-" + $number).show(300);
-                $("#vendor-" + $number).show(300);
-                $("#pay_invoice-" + $number).prop('required', true);
-                $("#vendor-" + $number).prop('required', true);
+                $("#pay_invoice-" + $number).show(300).prop('required', true);
+                $("#vendor-" + $number).show(300).prop('required', true);
             } else {
-                $("#pay_invoice-" + $number).hide(300);
-                $("#vendor-" + $number).hide(300);
+                $("#pay_invoice-" + $number).hide(300).prop('required', false);
+                $("#vendor-" + $number).hide(300).prop('required', false);
             }
             console.log(invoice_type);
         }

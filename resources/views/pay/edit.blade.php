@@ -208,7 +208,7 @@
             $("#add_row").click(function() {
                 let rowCount = $('#cart tr').length;
                 console.log(rowCount);
-                
+
                 let lastRow = $("#cart tr:last");
 
                 let newRow = `
@@ -278,21 +278,23 @@
         }
 
         function chgInvoice(obj) {
-            let number = $(obj).attr("alt");
-            let invoice_type = $("#pay_invoice_type-" + number).val();
+            $number = $(obj).attr("alt");
+            var invoice_type = $("#pay_invoice_type-" + $number).val();
 
             if (invoice_type == 'FreeUniform') {
-                $("#vendor-" + number).show(300).prop('required', true);
-                $("#pay_invoice-" + number).hide(300);
+                $("#vendor-" + $number).show(300).prop('required', true);
+                $("#pay_invoice-" + $number).hide(300).prop('required', false);
             } else if (invoice_type == 'Uniform') {
-                $("#vendor-" + number).show(300).prop('required', true);
-                $("#pay_invoice-" + number).show(300).prop('required', true);
+                $("#pay_invoice-" + $number).show(300).prop('required', true);
+                $("#vendor-" + $number).show(300).prop('required', true);
             } else {
-                $("#vendor-" + number).hide(300).prop('required', false);
-                $("#pay_invoice-" + number).hide(300).prop('required', false);
+                $("#pay_invoice-" + $number).hide(300).prop('required', false);
+                $("#vendor-" + $number).hide(300).prop('required', false);
             }
+            console.log(invoice_type);
         }
     </script>
+
     <script type="text/javascript">
         $(document).ready(function() {
             rowCount = $('#cart tr').length - 1;
