@@ -201,7 +201,7 @@
             // Ensure the correct invoice visibility on page load
             for (let i = 0; i < rowCount; i++) {
                 invoice_type = $("#pay_invoice_type-" + i).val();
-                chgInvoice("#pay_invoice_type-" + i); // Update visibility based on the invoice type
+                chgInvoice(document.getElementById("pay_invoice_type-" + i));
             }
 
             // Add new row event
@@ -278,19 +278,23 @@
         }
 
         function chgInvoice(obj) {
-            $number = $(obj).attr("alt");
-            var invoice_type = $("#pay_invoice_type-" + $number).val();
+            const id = obj.id; // e.g., "pay_invoice_type-3"
+            const number = id.split('-').pop(); // 取得 "3"
+            console.log(number + 'aa');
+
+            const invoice_type = $("#pay_invoice_type-" + number).val();
 
             if (invoice_type == 'FreeUniform') {
-                $("#vendor-" + $number).show(300).prop('required', true);
-                $("#pay_invoice-" + $number).hide(300).prop('required', false);
+                $("#vendor-" + number).show(300).prop('required', true);
+                $("#pay_invoice-" + number).hide(300).prop('required', false);
             } else if (invoice_type == 'Uniform') {
-                $("#pay_invoice-" + $number).show(300).prop('required', true);
-                $("#vendor-" + $number).show(300).prop('required', true);
+                $("#pay_invoice-" + number).show(300).prop('required', true);
+                $("#vendor-" + number).show(300).prop('required', true);
             } else {
-                $("#pay_invoice-" + $number).hide(300).prop('required', false);
-                $("#vendor-" + $number).hide(300).prop('required', false);
+                $("#pay_invoice-" + number).hide(300).prop('required', false);
+                $("#vendor-" + number).hide(300).prop('required', false);
             }
+
             console.log(invoice_type);
         }
     </script>
