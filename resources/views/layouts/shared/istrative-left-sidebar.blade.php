@@ -123,6 +123,36 @@
                     </li>
 
                     <li>
+                    <a href="#visit" data-bs-toggle="collapse">
+                        <i data-feather="github"></i>
+                        <span> 拜訪管理 </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="visit">
+                        <ul class="nav-second-level">
+                            <li>
+                                <a href="{{route('hospitals')}}"  class="{{ request()->is('hospitals') ? 'active' : '' }}">醫院紀錄</a>
+                            </li>
+                            <li>
+                                <a href="{{route('etiquettes')}}"  class="{{ request()->is('etiquettes') ? 'active' : '' }}">禮儀社紀錄</a>
+                            </li>
+                            <li>
+                                <a href="{{route('reproduces')}}"  class="{{ request()->is('reproduces') ? 'active' : '' }}">繁殖場紀錄</a>
+                            </li>
+                            <li>
+                                <a href="{{route('dogparks')}}"  class="{{ request()->is('dogparks') ? 'active' : '' }}">狗園紀錄</a>
+                            </li>
+                            <li>
+                                <a href="{{route('salons')}}"  class="{{ request()->is('salons') ? 'active' : '' }}">美容院紀錄</a>
+                            </li>
+                            <li>
+                                <a href="{{route('others')}}"  class="{{ request()->is('others') ? 'active' : '' }}">其他業者紀錄</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                    <li>
                         <a href="#contract" data-bs-toggle="collapse">
                             <i data-feather="folder"></i>
                             <span> 合約管理 </span>
