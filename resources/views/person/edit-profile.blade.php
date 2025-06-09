@@ -31,7 +31,7 @@
 
 
         <div class="row">
-            <div class="col-lg-12">
+            {{-- <div class="col-lg-12">
                 @if ($hint == '1')
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         恭喜你修改個人資料成功！@if (Auth::user()->level == 2)
@@ -49,7 +49,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
-            </div>
+            </div> --}}
             <div class="col-lg-6">
                 <div class="card">
 
@@ -70,13 +70,13 @@
                         <input type="text" class="form-control" name="name" value="0">
                     </div> --}}
 
-                            <div class="mb-3">
+                            {{-- <div class="mb-3">
                                 <label for="project-priority" class="form-label">分館<span
                                         class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="job_id"
                                     @if (isset($user->branch_data)) value="{{ $user->branch_data->name }}" @endif
                                     readonly>
-                            </div>
+                            </div> --}}
 
                             <div class="mb-3">
                                 <label for="project-priority" class="form-label">職稱<span
@@ -242,18 +242,18 @@
         </div>
         <!-- end row -->
 
-        @if ($user->state == 1 || Auth::user()->level == 0 || Auth::user()->level == 1)
-            <div class="row">
-                <div class="col-12">
-                    <div class="text-center mb-3">
-                        <button type="submit" class="btn w-sm btn-success waves-effect waves-light">修改</button>
-                        <button type="button" class="btn w-sm btn-secondary waves-effect"
-                            onclick="history.go(-1)">回上一頁</button>
-                        {{-- <button type="submit" class="btn w-sm btn-danger waves-effect waves-light">Delete</button> --}}
-                    </div>
-                </div> <!-- end col -->
-            </div>
-        @endif
+        {{-- @if ($user->state == 1 || Auth::user()->level == 0 || Auth::user()->level == 1) --}}
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center mb-3">
+                    <button type="submit" class="btn w-sm btn-success waves-effect waves-light">修改</button>
+                    <button type="button" class="btn w-sm btn-secondary waves-effect"
+                        onclick="history.go(-1)">回上一頁</button>
+                    {{-- <button type="submit" class="btn w-sm btn-danger waves-effect waves-light">Delete</button> --}}
+                </div>
+            </div> <!-- end col -->
+        </div>
+        {{-- @endif --}}
         </form>
         <!-- end row -->
 
