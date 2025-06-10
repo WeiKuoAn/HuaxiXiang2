@@ -124,7 +124,7 @@
                                 <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">其他設定</h5>
                                 <div class="col-xl-12">
                                     <div class="mb-3">
-                                        <label for="project-priority" class="form-label">是否有傭金<span
+                                        <label for="project-priority" class="form-label">是否有佣金<span
                                                 class="text-danger">*</span></label>
                                         <select class="form-control" data-toggle="select" data-width="100%"
                                             name="commission">

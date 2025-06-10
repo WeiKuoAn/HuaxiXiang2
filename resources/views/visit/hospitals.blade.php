@@ -62,7 +62,7 @@
                                     </div>
                                     <div class="me-sm-1">
                                         <select class="form-select my-1 my-lg-0" id="status-select" name="commission" onchange="this.form.submit()">
-                                            <option value="null" @if (is_null($request->commission)) selected @endif>是否有傭金</option>
+                                            <option value="null" @if (is_null($request->commission)) selected @endif>是否有佣金</option>
                                             <option value="1" @if ($request->commission === 1) selected @endif>有</option>
                                             <option value="0" @if ($request->commission === 0) selected @endif>沒有</option>
                                         </select>
@@ -108,7 +108,7 @@
                                         <th>電話</th>
                                         <th>寶貝名稱</th>
                                         <th>群組</th>
-                                        <th>傭金</th>
+                                        <th>佣金</th>
                                         <th>拜訪</th>
                                         <th>拜訪次數</th>
                                         <th>新增時間</th>
