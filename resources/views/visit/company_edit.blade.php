@@ -78,23 +78,54 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-lg-4">
+                                        <div class="col-lg-3">
                                             <!-- Date View -->
                                             <div class="mb-3">
-                                                <label class="form-label">匯款帳戶<span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" value="{{ $data->bank_id }}"
-                                                    placeholder="銀行代碼" name="bank_id">
+                                                <label for="bank">薪資帳戶</label>
+                                                <select id="bank" name="bank" class="form-control"
+                                                    onchange="updateBranches()">
+                                                    <option value="">請選擇銀行</option>
+                                                    @foreach ($groupedBanks as $bankCode => $branches)
+                                                        <option value="{{ $bankCode }}"
+                                                            @if ($data->bank == $bankCode) selected @endif>
+                                                            {{ $branches->first()['金融機構名稱'] }}
+                                                            ({{ $bankCode }})
+                                                        </option>
+                                                    @endforeach
+                                                </select>
                                             </div>
+
                                         </div>
 
-                                        <div class="col-lg-8">
-                                            <!-- Date View -->
+                                        <div class="col-lg-3">
                                             <div class="mb-3">
-                                                <label class="form-label">&nbsp;</label>
-                                                <input type="text" class="form-control"name="bank_number"
-                                                    value="{{ $data->bank_number }}" placeholder="帳戶號碼">
+                                                <div class="form-group">
+                                                    <label for="branch">選擇分行</label>
+                                                    <select id="branch" name="branch" class="form-control">
+                                                        @if ($data->bank)
+                                                            @foreach ($groupedBanks[$data->bank] as $branch)
+                                                                <option value="{{ $branch['分支機構代號'] }}"
+                                                                    @if ($data->branch == $branch['分支機構代號']) selected @endif>
+                                                                    {{ $branch['分支機構名稱'] }}
+                                                                </option>
+                                                            @endforeach
+                                                        @else
+                                                            <option value="">請先選擇銀行</option>
+                                                        @endif
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
+                                        <div class="col-lg-6">
+                                            <!-- Date View -->
+                                            <div class="mb-3">
+                                                <label for="bank_number">帳戶號碼</label>
+                                                <input type="text" class="form-control" name="bank_number"
+                                                    value="{{ $data->bank_number }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
                                         <div class="row">
                                             <label class="form-label">舊地址<span class="text-danger">*</span></label>
                                             <div class="mb-3 mt-1">
@@ -102,10 +133,7 @@
                                                     placeholder="輸入地址" value="{{ $data->address }}">
                                             </div>
                                         </div>
-
-
                                     </div> <!-- end col-->
-
                                 </div>
                                 <!-- end row -->
 
@@ -128,8 +156,10 @@
                                                 class="text-danger">*</span></label>
                                         <select class="form-control" data-toggle="select" data-width="100%"
                                             name="commission">
-                                            <option value="1" @if($data->commission == '1') selected @endif>有</option>
-                                            <option value="0" @if($data->commission == '0' || $data->visit==null) selected @endif>無</option>
+                                            <option value="1" @if ($data->commission == '1') selected @endif>有
+                                            </option>
+                                            <option value="0" @if ($data->commission == '0' || $data->visit == null) selected @endif>無
+                                            </option>
                                         </select>
                                     </div>
 
@@ -138,11 +168,13 @@
                                                 class="text-danger">*</span></label>
                                         <select class="form-control" data-toggle="select" data-width="100%"
                                             name="visit_status">
-                                            <option value="1" @if($data->visit_status == '1') selected @endif>有</option>
-                                            <option value="0" @if($data->visit_status == '0' || $data->visit_status==null) selected @endif>無</option>
+                                            <option value="1" @if ($data->visit_status == '1') selected @endif>有
+                                            </option>
+                                            <option value="0" @if ($data->visit_status == '0' || $data->visit_status == null) selected @endif>無
+                                            </option>
                                         </select>
                                     </div>
-                                    
+
                                 </div>
                                 <!-- end row -->
                             </div> <!-- end card-body -->
@@ -190,4 +222,46 @@
             <!-- demo app -->
             <script src="{{ asset('assets/js/pages/create-project.init.js') }}"></script>
             <!-- end demo js-->
+            <script>
+                function updateBranches() {
+                    const bankCode = document.getElementById('bank').value;
+                    const branchSelect = document.getElementById('branch');
+
+                    // 清空舊的分行選項
+                    branchSelect.innerHTML = '<option value="">載入中...</option>';
+
+                    if (bankCode) {
+                        fetch(`/api/banks/${bankCode}/branches`)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                console.log(data);
+                                branchSelect.innerHTML = '<option value="">請選擇分行</option>';
+
+                                // 確認數據格式
+                                if (Array.isArray(data)) {
+                                    data.forEach(branch => {
+                                        const option = document.createElement('option');
+                                        option.value = branch['分支機構代號'];
+                                        option.textContent = `${branch['分支機構名稱']} (${branch['分支機構代號']})`;
+                                        branchSelect.appendChild(option);
+                                    });
+                                } else {
+                                    console.error('Data format error:', data);
+                                    branchSelect.innerHTML = '<option value="">數據格式錯誤</option>';
+                                }
+                            })
+                            .catch((error) => {
+                                console.error('Fetch error:', error);
+                                branchSelect.innerHTML = '<option value="">載入失敗</option>';
+                            });
+                    } else {
+                        branchSelect.innerHTML = '<option value="">請先選擇銀行</option>';
+                    }
+                }
+            </script>
         @endsection

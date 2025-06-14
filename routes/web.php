@@ -120,6 +120,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('dashboard', [DashboardController::class, 'loginSuccess'])->name('index');
     Route::post('/dashboard', [DashboardController::class, 'store'])->name('index.worktime');
     Route::get('dashboard_info', [DashboardController::class, 'index'])->name('dashboard.info');
+    Route::get('sale_dashboard', [DashboardController::class, 'sale_index'])->name('sale.dashboard.info');
 
     /*用戶管理*/
     Route::get('users', [UserController::class, 'index'])->name('users');
@@ -213,6 +214,8 @@ Route::group(['prefix' => '/'], function () {
     Route::get('dogparks', [VisitController::class, 'dogparks'])->name('dogparks');//狗園
     Route::get('salons', [VisitController::class, 'salons'])->name('salons');//美容院
     Route::get('others', [VisitController::class, 'others'])->name('others');//其他合作廠商
+    Route::get('source/sales/{id}', [VisitController::class, 'source_sale'])->name('visit.source.sale');//來源銷售
+    
     Route::get('visit/{id}', [VisitController::class, 'index'])->name('visits');
     Route::get('visit/create/{id}', [VisitController::class, 'create'])->name('visit.create');
     Route::post('visit/create/{id}', [VisitController::class, 'store'])->name('visit.create.data');
@@ -224,6 +227,7 @@ Route::group(['prefix' => '/'], function () {
     Route::post('visit/company/create', [VisitController::class, 'company_store'])->name('visit.company.create.data');
     Route::get('visit/company/edit/{id}', [VisitController::class, 'company_edit'])->name('visit.company.edit');
     Route::post('visit/company/edit/{id}', [VisitController::class, 'company_update'])->name('visit.company.edit.data');
+
 
 
     /*客戶群組管理*/
@@ -583,6 +587,8 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/task', [TaskController::class, 'index'])->name('task');
     Route::get('/task/create', [TaskController::class, 'create'])->name('task.create');
     Route::post('/task/create', [TaskController::class, 'store'])->name('task.create.data');
+    Route::post('/task/ajax/create', [TaskController::class, 'ajax_store'])->name('task.ajax.create.data');
+    Route::post('/task/check', [TaskController::class, 'check'])->name('task.create.check');
     Route::get('/task/edit/{id}', [TaskController::class, 'show'])->name('task.edit');
     Route::post('/task/edit/{id}', [TaskController::class, 'update'])->name('task.edit.data');
     Route::get('/task/del/{id}', [TaskController::class, 'delete'])->name('task.del');

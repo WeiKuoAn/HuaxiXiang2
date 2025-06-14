@@ -79,21 +79,40 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-lg-4">
+                                        <div class="col-lg-3">
                                             <!-- Date View -->
                                             <div class="mb-3">
-                                                <label class="form-label">匯款帳戶<span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" value="" placeholder="銀行代碼"
-                                                    name="bank_id">
+                                                <label for="bank">匯款帳戶</label>
+                                                <select id="bank" name="bank" class="form-control" data-toggle="select2" data-width="100%"
+                                                    onchange="updateBranches()">
+                                                    <option value="">請選擇銀行</option>
+                                                    @foreach ($groupedBanks as $bankCode => $branches)
+                                                        <option value="{{ $bankCode }}">
+                                                            {{ $branches->first()['金融機構名稱'] }}
+                                                            ({{ $bankCode }})
+                                                        </option>
+                                                    @endforeach
+                                                </select>
                                             </div>
+
                                         </div>
 
-                                        <div class="col-lg-8">
+                                        <div class="col-lg-3">
+                                            <div class="mb-3">
+                                                <div class="form-group">
+                                                    <label for="branch">選擇分行</label>
+                                                    <select id="branch" name="branch" class="form-control" data-toggle="select2" data-width="100%">
+                                                        <option value="">請選擇分行</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
                                             <!-- Date View -->
                                             <div class="mb-3">
-                                                <label class="form-label">&nbsp;</label>
-                                                <input type="text" class="form-control"name="bank_number" value=""
-                                                    placeholder="帳戶號碼">
+                                                <label for="bank_number">帳戶號碼</label>
+                                                <input type="text" class="form-control" name="bank_number"
+                                                    value="">
                                             </div>
                                         </div>
                                     </div>
@@ -134,7 +153,8 @@
                                 <div class="mb-3">
                                     <label for="project-priority" class="form-label">是否拜訪過<span
                                             class="text-danger">*</span></label>
-                                    <select class="form-control" data-toggle="select" data-width="100%" name="visit_status">
+                                    <select class="form-control" data-toggle="select" data-width="100%"
+                                        name="visit_status">
                                         <option value="1">有</option>
                                         <option value="0" selected>無</option>
                                     </select>
@@ -186,7 +206,48 @@
             });
         });
     </script>
+    <script>
+        function updateBranches() {
+            const bankCode = document.getElementById('bank').value;
+            const branchSelect = document.getElementById('branch');
 
+            // 清空舊的分行選項
+            branchSelect.innerHTML = '<option value="">載入中...</option>';
+
+            if (bankCode) {
+                fetch(`/api/banks/${bankCode}/branches`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log(data);
+                        branchSelect.innerHTML = '<option value="">請選擇分行</option>';
+
+                        // 確認數據格式
+                        if (Array.isArray(data)) {
+                            data.forEach(branch => {
+                                const option = document.createElement('option');
+                                option.value = branch['分支機構代號'];
+                                option.textContent = `${branch['分支機構名稱']} (${branch['分支機構代號']})`;
+                                branchSelect.appendChild(option);
+                            });
+                        } else {
+                            console.error('Data format error:', data);
+                            branchSelect.innerHTML = '<option value="">數據格式錯誤</option>';
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Fetch error:', error);
+                        branchSelect.innerHTML = '<option value="">載入失敗</option>';
+                    });
+            } else {
+                branchSelect.innerHTML = '<option value="">請先選擇銀行</option>';
+            }
+        }
+    </script>
     <script src="{{ asset('assets/js/twzipcode-1.4.1-min.js') }}"></script>
     <script src="{{ asset('assets/js/twzipcode.js') }}"></script>
     <script src="{{ asset('assets/libs/dropzone/dropzone.min.js') }}"></script>

@@ -24,4 +24,20 @@ class SaleCompanyCommission extends Model
     {
         return $this->hasOne('App\Models\Customer', 'id', 'company_id');
     }
+
+    public function proms()
+    {
+        return $this->hasMany('App\Models\Sale_prom', 'sale_id', 'id');
+    }
+
+    public function gdpapers()
+    {
+        return $this->hasMany('App\Models\Sale_gdpaper', 'sale_id', 'id');
+    }
+
+    public function pay_type()
+    {
+        $pay_type = ['A' => '結清', 'B' => '結清', 'C' => '訂金', 'D' => '尾款', 'E' => '追加'];
+        return $pay_type[$this->pay_id];
+    }
 }

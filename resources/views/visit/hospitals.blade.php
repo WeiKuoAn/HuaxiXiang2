@@ -61,19 +61,25 @@
                                         </select>
                                     </div>
                                     <div class="me-sm-1">
-                                        <select class="form-select my-1 my-lg-0" id="status-select" name="commission" onchange="this.form.submit()">
-                                            <option value="null" @if (is_null($request->commission)) selected @endif>是否有佣金</option>
-                                            <option value="1" @if ($request->commission === 1) selected @endif>有</option>
-                                            <option value="0" @if ($request->commission === 0) selected @endif>沒有</option>
+                                        <select class="form-select my-1 my-lg-0" id="status-select" name="commission"
+                                            onchange="this.form.submit()">
+                                            <option value="null" @if (is_null($request->commission)) selected @endif>是否有佣金
+                                            </option>
+                                            <option value="1" @if ($request->commission === 1) selected @endif>有
+                                            </option>
+                                            <option value="0" @if ($request->commission === 0) selected @endif>沒有
+                                            </option>
                                         </select>
                                     </div>
-                                    
+
                                     <div class="me-sm-1">
                                         <select class="form-select my-1 my-lg-0" id="status-select" name="seq"
                                             onchange="this.form.submit()">
                                             <option value="null" selected>排序方式</option>
-                                            <option value="desc" @if ($request->seq == "desc") selected @endif>依最新時間</option>
-                                            <option value="asc" @if ($request->seq == "asc") selected @endif>依最舊時間</option>
+                                            <option value="desc" @if ($request->seq == 'desc') selected @endif>依最新時間
+                                            </option>
+                                            <option value="asc" @if ($request->seq == 'asc') selected @endif>依最舊時間
+                                            </option>
                                         </select>
                                     </div>
                                     <div class="me-2">
@@ -106,12 +112,13 @@
                                         <th>編號</th>
                                         <th>姓名</th>
                                         <th>電話</th>
-                                        <th>寶貝名稱</th>
-                                        <th>群組</th>
+                                        <th>匯款帳號</th>
+                                        <th>新增時間</th>
                                         <th>佣金</th>
                                         <th>拜訪</th>
                                         <th>拜訪次數</th>
-                                        <th>新增時間</th>
+                                        <th>叫件次數</th>
+                                        <th>最近叫件日期</th>
                                         <th>拜訪紀錄</th>
                                     </tr>
                                 </thead>
@@ -119,21 +126,19 @@
                                     @foreach ($datas as $key => $data)
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
-                                            <td class="table-user"><img src="{{ asset('assets/images/users/user-4.jpg') }}"
-                                                    alt="table-user" class="me-2 rounded-circle">{{ $data->name }}</td>
+                                            <td>{{ $data->name }}<br>
+                                            </td>
                                             <td>{{ $data->mobile }}</td>
                                             <td>
-                                                @if (isset($data->sale_datas))
-                                                    @foreach ($data->sale_datas as $sale_data)
-                                                        {{ $sale_data->pet_name }}<br>
-                                                    @endforeach
+                                                @if (isset($data->bank))
+                                                    銀行：{{ $data->bank_name }}（{{ $data->bank }}）<br>
+                                                    分行：{{ $data->branch_name }}（{{ $data->branch }}）<br>
+                                                    帳號：{{ $data->bank_number }}<br>
+                                                @else
+                                                    -
                                                 @endif
                                             </td>
-                                            <td>
-                                                @if (isset($data->group))
-                                                    {{ $data->group->name }}
-                                                @endif
-                                            </td>
+                                            <td>{{ date('Y-m-d', strtotime($data->created_at)) }}</td>
                                             <td>
                                                 @if ($data->commission == 1)
                                                     有
@@ -149,7 +154,14 @@
                                                 @endif
                                             </td>
                                             <td>{{ $data->visit_count }}次</td>
-                                            <td>{{ date('Y-m-d', strtotime($data->created_at)) }}</td>
+                                            <td>{{ $data->sale_count }}次</td>
+                                            <td>
+                                                @if (isset($data->recently_date))
+                                                    {{ $data->recently_date }}
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
                                             <td>
                                                 <div class="btn-group dropdown">
                                                     <a href="javascript: void(0);"
@@ -161,8 +173,8 @@
                                                             href="{{ route('visit.company.edit', $data->id) }}"><i
                                                                 class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
                                                         <a class="dropdown-item"
-                                                            href="{{ route('customer.sales', $data->id) }}"><i
-                                                                class="mdi mdi-clipboard-text-search me-2 font-18 text-muted vertical-middle"></i>業務紀錄</a>
+                                                            href="{{ route('visit.source.sale', $data->id) }}"><i
+                                                                class="mdi mdi-clipboard-text-search me-2 font-18 text-muted vertical-middle"></i>叫件紀錄</a>
                                                         <a class="dropdown-item" href="{{ route('visits', $data->id) }}"><i
                                                                 class="mdi mdi-file-document me-2 font-18 text-muted vertical-middle"></i>查看拜訪</a>
                                                         <a class="dropdown-item"
