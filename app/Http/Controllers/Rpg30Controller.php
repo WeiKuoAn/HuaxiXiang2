@@ -56,6 +56,7 @@ class Rpg30Controller extends Controller
                 ->where('sale_data.sale_date', '>=', $month['start_date'])
                 ->where('sale_data.sale_date', '<=', $month['end_date'])
                 ->where('sale_data.status', '9')
+                ->where('sale_data.type_list', 'dispatch')
                 ->sum('sale_gdpaper.gdpaper_total');
             // //2.花樹葬（花樹葬的數量）
             $datas[$key]['flower_month'] = DB::table('sale_data')
