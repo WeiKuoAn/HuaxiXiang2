@@ -45,11 +45,7 @@ class Rpg30Controller extends Controller
         $datas = [];
         foreach ($months as $key => $month) {
             $datas[$key]['month'] = $month['month'];
-            $datas[$key]['gdpaper_month'] = DB::table('sale_data')
-                ->where('sale_data.sale_date', '>=', $month['start_date'])
-                ->where('sale_data.sale_date', '<=', $month['end_date'])
-                ->where('sale_data.status', '9')
-                ->count();
+
             //1.金紙（金紙的賣出總額）
             $datas[$key]['gdpaper_month'] = DB::table('sale_data')
                 ->join('sale_gdpaper', 'sale_gdpaper.sale_id', '=', 'sale_data.id')
