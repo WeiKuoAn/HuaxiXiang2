@@ -217,7 +217,7 @@ class PayDataController extends Controller
         $PayData->price = $request->price;
         $PayData->comment = $request->comment;
         //是行政主管或行政就直接通過
-        if ($user->job_id == '1' || $user->job_id == '2' || $user->job_id == '7') {
+        if ($user->job_id == '1' || $user->job_id == '2') {
             $PayData->status = 1;
         } else {
             $PayData->status = 0;
