@@ -171,13 +171,20 @@
                         </div>
                     </div>
 
+                    <div class="mb-3 mt-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="restock" name="restock">
+                            <label class="form-check-label" for="restock"><b>此產品不須紀錄進貨</b></label>
+                        </div>
+                    </div>
+                    
                     <div class="mb-3 mt-3" id="check_commission_div">
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" id="commission" name="commission">
                             <label class="form-check-label" for="commission"><b>此產品不列入專員獎金</b></label>
                         </div>
                         {{-- <div class="mt-2 col-md-4">
-                            <input type="number" class="form-control" id="commission" name="commission" placeholder="抽傭％數">
+                            <input type="number" class="form-control" id="commission" name="commission" placeholder="抽佣％數">
                         </div> --}}
                     </div>
 
@@ -295,6 +302,14 @@
     });
 
     $('#stock').change(function() {
+        if ($(this).is(':checked')) {
+            $(this).val(0);
+        } else {
+            $(this).val(1);
+        }
+    });
+
+    $('#restock').change(function() {
         if ($(this).is(':checked')) {
             $(this).val(0);
         } else {

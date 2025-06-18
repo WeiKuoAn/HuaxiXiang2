@@ -24,7 +24,8 @@ class Product extends Model
         'commission',
         'status',
         'cost',
-        'stock'
+        'stock',
+        'restock'
     ];
 
     public function category_data()

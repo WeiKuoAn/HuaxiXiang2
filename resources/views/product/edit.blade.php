@@ -182,14 +182,21 @@
 
                     <div class="mb-3 mt-3">
                         <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="stock" name="stock" @if($data->stock == 0)  checked  @endif>
+                            <input type="checkbox" class="form-check-input" id="stock" name="stock" @if($data->stock == 0)  value="0" checked  @endif>
                             <label class="form-check-label" for="stock"><b>此產品不須紀錄至庫存盤點</b></label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 mt-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="restock" name="restock" @if($data->restock == 0) value="0"  checked  @endif>
+                            <label class="form-check-label" for="restock"><b>此產品不須紀錄進貨</b></label>
                         </div>
                     </div>
 
                     <div class="mb-3 mt-3" id="check_commission_div">
                         <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="commission" name="commission"  @if($data->commission == 1)  checked  @endif>
+                            <input type="checkbox" class="form-check-input" id="commission" name="commission"  @if($data->commission == 1) value="1"  checked  @endif>
                             <label class="form-check-label" for="commission"><b>此產品不列入專員獎金</b></label>
                         </div>
                     </div>
@@ -249,7 +256,6 @@
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/smoothness/jquery-ui.css" />
 {{-- <script src="{{asset('assets/js/pages/foo-tables.init.js')}}"></script> --}}
 <script>
-    
     //產生亂數產品代碼
     function generateRandomString(length) {
     var result = '';
@@ -310,8 +316,17 @@
             $("#cost").hide(300);
         }
     });
+    console.log($('#stock').val());
 
     $('#stock').change(function() {
+        if ($(this).is(':checked')) {
+            $(this).val(0);
+        } else {
+            $(this).val(1);
+        }
+    });
+
+    $('#restock').change(function() {
         if ($(this).is(':checked')) {
             $(this).val(0);
         } else {
@@ -330,7 +345,6 @@
 
     //製作Ajax產品帶入表單
     var lims_product_code = {!! json_encode($products) !!};
-    console.log({!! json_encode($products) !!})
 
     $("#lims_productcodeSearch").autocomplete({
         source: function(request, response) {

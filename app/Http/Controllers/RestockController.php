@@ -52,7 +52,7 @@ class RestockController extends Controller
 
     public function create()
     {
-        $products = Product::where('status', 'up')->orderby('seq','asc')->orderby('price','desc')->get();
+        $products = Product::where('status', 'up')->orderby('seq','asc')->where('restock',1)->orderby('price','desc')->get();
         return view('restock.create')->with('products', $products);
     }
 

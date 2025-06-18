@@ -184,6 +184,13 @@
                         </div>
                     </div>
 
+                     <div class="mb-3 mt-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="restock" name="restock" @if($data->restock == 0)  checked  @endif>
+                            <label class="form-check-label" for="restock"><b>此產品不須紀錄進貨</b></label>
+                        </div>
+                    </div>
+
                     <div class="mb-3 mt-3" id="check_commission_div">
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" id="commission" name="commission"  @if($data->commission == 1)  checked  @endif>
@@ -309,6 +316,14 @@
     });
 
     $('#stock').change(function() {
+        if ($(this).is(':checked')) {
+            $(this).val(0);
+        } else {
+            $(this).val(1);
+        }
+    });
+
+    $('#restock').change(function() {
         if ($(this).is(':checked')) {
             $(this).val(0);
         } else {

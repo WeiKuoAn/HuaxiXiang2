@@ -123,7 +123,7 @@ class InventoryController extends Controller
           'gdpaper_inventory_id' => $inventory_no,  // 關聯的單號
           'product_id' => $product->id,  // 產品 ID
           'type' => $request->category_id,  // 分類 ID
-          'old_num' => $oldInventory->old_num ?? 0,  // 舊庫存，沒有則預設為 0
+          'old_num' => $this->calculateCurrentStock($product->id),  // 舊庫存，沒有則預設為 0
           'new_num' => null,  // 新庫存預設為 null
         ]);
       }
@@ -311,5 +311,73 @@ class InventoryController extends Controller
     }
 
     return $restocks;
+  }
+
+  public function calculateCurrentStock($productId)
+  {
+    // 取得商品資訊
+    $product = Product::find($productId);
+    if (!$product) return 0;
+
+    // 取得最近一筆盤點（已完成）
+    $inventory_item = GdpaperInventoryItem::where('product_id', $productId)
+      ->join('gdpaper_inventory_data', 'gdpaper_inventory_item.gdpaper_inventory_id', '=', 'gdpaper_inventory_data.inventory_no')
+      ->where('gdpaper_inventory_data.state', '1')
+      ->where('gdpaper_inventory_item.created_at', '>', '2023-06-09 11:59:59')
+      ->orderBy('gdpaper_inventory_item.updated_at', 'desc')
+      ->first();
+
+    if ($inventory_item) {
+      $base_stock = $inventory_item->new_num ?? $inventory_item->old_num ?? 0;
+      $base_date = $inventory_item->created_at;
+    } else {
+      $base_stock = 0;
+      $base_date = '2023-06-09 11:59:59';
+    }
+
+    $restock_amount = ProductRestockItem::where('product_id', $productId)
+      ->where('created_at', '>', $base_date)
+      ->sum('product_num');
+
+    $direct_sale = Sale_gdpaper::where('gdpaper_id', $productId)
+      ->where('created_at', '>', $base_date)
+      ->sum('gdpaper_num');
+
+    // 組合用掉的
+    $combo_used = 0;
+    $combo_relations = ComboProduct::where('include_product_id', $productId)->get();
+
+    foreach ($combo_relations as $rel) {
+      $combo_id = $rel->product_id;
+      $used_qty = $rel->num;
+
+      $combo_sales = Sale_gdpaper::where('gdpaper_id', $combo_id)
+        ->where('created_at', '>', $base_date)
+        ->sum('gdpaper_num');
+
+      $combo_used += $combo_sales * $used_qty;
+    }
+
+    $puja_direct_used = PujaDataAttchProduct::where('product_id', $productId)
+      ->where('created_at', '>', $base_date)
+      ->sum('product_num');
+
+    $puja_combo_used = 0;
+    foreach ($combo_relations as $rel) {
+      $combo_id = $rel->product_id;
+      $used_qty = $rel->num;
+
+      $combo_puja_sales = PujaDataAttchProduct::where('product_id', $combo_id)
+        ->where('created_at', '>', $base_date)
+        ->sum('product_num');
+
+      $puja_combo_used += $combo_puja_sales * $used_qty;
+    }
+
+    $total_sold = $direct_sale + $combo_used + $puja_direct_used + $puja_combo_used;
+
+    $current_stock = intval($base_stock) + intval($restock_amount) - intval($total_sold);
+
+    return $current_stock;
   }
 }
