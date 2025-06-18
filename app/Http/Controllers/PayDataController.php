@@ -246,7 +246,7 @@ class PayDataController extends Controller
                 } else {
                     $Pay_Item->invoice_number = null;
                 }
-                if ($user->job_id == '1' || $user->job_id == '2' || $user->job_id == '7') {
+                if ($user->job_id == '1' || $user->job_id == '2') {
                     $Pay_Item->status = 1;
                 } else {
                     $Pay_Item->status = 0;
