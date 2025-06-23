@@ -77,6 +77,8 @@ Use App\Http\Controllers\SuitController;
 Use App\Http\Controllers\SouvenirTypeController;
 Use App\Http\Controllers\SouvenirController;
 Use App\Http\Controllers\SeniorityPausesController;
+Use App\Http\Controllers\MenuController;
+Use App\Http\Controllers\JobMenuController;
 use App\Models\Pay;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
@@ -254,6 +256,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/product/cost_product_search', [ProductController::class, 'cost_product_search'])->name('product.cost_product_search');
     Route::get('/product/delete/{id}', [ProductController::class, 'delete'])->name('product.del');
     Route::post('/product/delete/{id}', [ProductController::class, 'destroy'])->name('product.del.data');
+    Route::get('/product/prom_product_search', [ProductController::class, 'prom_product_search'])->name('product.prom_product_search');
 
     /*商品進貨*/
     Route::get('/product/cost_search', [RestockController::class, 'product_cost_search'])->name('gdpaper.cost.search');
@@ -539,9 +542,10 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/rpg/rpg12', [Rpg12Controller::class, 'rpg12'])->name('rpg12');
     Route::get('/rpg/rpg13', [Rpg13Controller::class, 'rpg13'])->name('rpg13');
     Route::get('/rpg/rpg14', [Rpg14Controller::class, 'rpg14'])->name('rpg14');
+    Route::get('/rpg/rpg14/detail/{date}/{source_code}', [Rpg14Controller::class, 'detail'])->middleware(['auth'])->name('rpg14.detail');
+    Route::get('/rpg/rpg14/month/detail/{month}/{source_code}', [Rpg14Controller::class, 'month_detail'])->middleware(['auth'])->name('rpg14.month.detail');
     Route::get('/rpg/rpg27', [Rpg27Controller::class, 'rpg27'])->name('rpg27');
     Route::get('/rpg/rpg27/{month}/{source_id}/detail', [Rpg27Controller::class, 'detail'])->name('rpg27.detail');
-    Route::get('/rpg/rpg14/detail/{date}/{source_code}', [Rpg14Controller::class, 'detail'])->middleware(['auth'])->name('rpg14.detail');
     Route::get('/rpg/rpg15', [Rpg15Controller::class, 'rpg15'])->name('rpg15');
     Route::get('/rpg/rpg16', [Rpg16Controller::class, 'rpg16'])->name('rpg16');
     Route::get('/rpg/rpg16/{month}/{prom_id}/detail', [Rpg16Controller::class, 'detail'])->name('rpg16.detail');
@@ -594,6 +598,21 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/task/del/{id}', [TaskController::class, 'delete'])->name('task.del');
     Route::post('/task/del/{id}', [TaskController::class, 'destroy'])->name('task.del.data');
 
+    //選單管理
+    Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
+    Route::get('/menu/create', [MenuController::class, 'create'])->name('menu.create');
+    Route::post('/menu/create', [MenuController::class, 'store'])->name('menu.create.data');
+    Route::get('/menu/edit/{id}', [MenuController::class, 'show'])->name('menu.edit');
+    Route::post('/menu/edit/{id}', [MenuController::class, 'update'])->name('menu.edit.data');
+    Route::get('/menu/del/{id}', [MenuController::class, 'delete'])->name('menu.del');
+    Route::post('/menu/del/{id}', [MenuController::class, 'destroy'])->name('menu.del.data');
+
+    //權限選單管理
+    Route::get('/job-menu', [JobMenuController::class, 'index'])->name('job.menu.index');
+    Route::get('/job-menu/create', [JobMenuController::class, 'create'])->name('job.menu.create');
+    Route::post('/job-menu/create', [JobMenuController::class, 'store'])->name('job.menu.create.data');
+    Route::get('/job-menu/edit/{id}', [JobMenuController::class, 'show'])->name('job.menu.edit');
+    Route::post('/job-menu/edit/{id}', [JobMenuController::class, 'update'])->name('job.menu.edit.data');
 
     Route::get('/liff', [LiffController::class, 'index'])->name('liff.index');
     Route::get('/api/banks/{bankCode}/branches', [BankController::class, 'getBranches']);
