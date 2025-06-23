@@ -13,6 +13,16 @@ use Whoops\Run;
 use App\Models\CustGroup;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
+use App\Models\Sale;
+use App\Models\User;
+use App\Models\PujaData;
+use App\Models\Contract;
+use App\Models\Lamp;
+use App\Models\Plan;
+use App\Models\Product;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+use App\Models\SaleCompanyCommission;
 
 class VisitController extends Controller
 {
@@ -120,6 +130,8 @@ class VisitController extends Controller
 
     public function hospitals(Request $request)
     {
+
+
         $datas = Customer::where('group_id', 2);
         if ($request) {
             $name = $request->name;
@@ -167,9 +179,6 @@ class VisitController extends Controller
         }
         $datas = $datas->orderby('name', 'desc')->paginate(50);
 
-        foreach ($datas as $data) {
-            $data->visit_count = Visit::where('customer_id', $data->id)->count();
-        }
         $data_countys = Customer::where('group_id', 2)->get();
         foreach ($data_countys as $data_county) {
             $countys[] = $data_county->county;
@@ -186,7 +195,19 @@ class VisitController extends Controller
             $districts[] = $data_district->district;
         }
         $districts = array_unique($districts);
-        // dd($districts);
+
+        $bankData = $this->getFlatBankData(); // flat 結構的銀行分行 JSON
+        foreach ($datas as $data) {
+            $data->visit_count = Visit::where('customer_id', $data->id)->count();
+
+            // 新增銀行/分行中文欄位
+            $data->bank_name = $this->getBankNameFromFlatJson($data->bank, $bankData);
+            $data->branch_name = $this->getBranchNameFromFlatJson($data->bank, $data->branch, $bankData);
+
+            //叫件次數
+            $data->sale_count = SaleCompanyCommission::where('company_id', $data->id)->count();
+            $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
+        }
 
         return view('visit.hospitals')->with('datas', $datas)->with('request', $request)->with('countys', $countys)->with('districts', $districts);
     }
@@ -208,6 +229,19 @@ class VisitController extends Controller
         }
         $datas = $datas->paginate(50);
 
+        $bankData = $this->getFlatBankData(); // flat 結構的銀行分行 JSON
+        foreach ($datas as $data) {
+            $data->visit_count = Visit::where('customer_id', $data->id)->count();
+
+            // 新增銀行/分行中文欄位
+            $data->bank_name = $this->getBankNameFromFlatJson($data->bank, $bankData);
+            $data->branch_name = $this->getBranchNameFromFlatJson($data->bank, $data->branch, $bankData);
+
+            //叫件次數
+            $data->sale_count = SaleCompanyCommission::where('company_id', $data->id)->count();
+            $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
+        }
+
 
         return view('visit.etiquettes')->with('datas', $datas)->with('request', $request);
     }
@@ -228,6 +262,19 @@ class VisitController extends Controller
             }
         }
         $datas = $datas->paginate(50);
+
+        $bankData = $this->getFlatBankData(); // flat 結構的銀行分行 JSON
+        foreach ($datas as $data) {
+            $data->visit_count = Visit::where('customer_id', $data->id)->count();
+
+            // 新增銀行/分行中文欄位
+            $data->bank_name = $this->getBankNameFromFlatJson($data->bank, $bankData);
+            $data->branch_name = $this->getBranchNameFromFlatJson($data->bank, $data->branch, $bankData);
+
+            //叫件次數
+            $data->sale_count = SaleCompanyCommission::where('company_id', $data->id)->count();
+            $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
+        }
         return view('visit.reproduces')->with('datas', $datas)->with('request', $request);
     }
 
@@ -247,6 +294,19 @@ class VisitController extends Controller
             }
         }
         $datas = $datas->paginate(50);
+
+        $bankData = $this->getFlatBankData(); // flat 結構的銀行分行 JSON
+        foreach ($datas as $data) {
+            $data->visit_count = Visit::where('customer_id', $data->id)->count();
+
+            // 新增銀行/分行中文欄位
+            $data->bank_name = $this->getBankNameFromFlatJson($data->bank, $bankData);
+            $data->branch_name = $this->getBranchNameFromFlatJson($data->bank, $data->branch, $bankData);
+
+            //叫件次數
+            $data->sale_count = SaleCompanyCommission::where('company_id', $data->id)->count();
+            $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
+        }
         return view('visit.dogparks')->with('datas', $datas)->with('request', $request);
     }
 
@@ -266,6 +326,19 @@ class VisitController extends Controller
             }
         }
         $datas = $datas->paginate(50);
+
+        $bankData = $this->getFlatBankData(); // flat 結構的銀行分行 JSON
+        foreach ($datas as $data) {
+            $data->visit_count = Visit::where('customer_id', $data->id)->count();
+
+            // 新增銀行/分行中文欄位
+            $data->bank_name = $this->getBankNameFromFlatJson($data->bank, $bankData);
+            $data->branch_name = $this->getBranchNameFromFlatJson($data->bank, $data->branch, $bankData);
+
+            //叫件次數
+            $data->sale_count = SaleCompanyCommission::where('company_id', $data->id)->count();
+            $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
+        }
         return view('visit.salons')->with('datas', $datas)->with('request', $request);
     }
 
@@ -285,16 +358,31 @@ class VisitController extends Controller
             }
         }
         $datas = $datas->paginate(50);
+
+        $bankData = $this->getFlatBankData(); // flat 結構的銀行分行 JSON
+        foreach ($datas as $data) {
+            $data->visit_count = Visit::where('customer_id', $data->id)->count();
+
+            // 新增銀行/分行中文欄位
+            $data->bank_name = $this->getBankNameFromFlatJson($data->bank, $bankData);
+            $data->branch_name = $this->getBranchNameFromFlatJson($data->bank, $data->branch, $bankData);
+
+            //叫件次數
+            $data->sale_count = SaleCompanyCommission::where('company_id', $data->id)->count();
+            $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
+        }
         return view('visit.others')->with('datas', $datas)->with('request', $request);
     }
 
     //新增公司
     public function company_create(Request $request)
     {
+        $json = file_get_contents(public_path('assets/data/banks.json'));
+        $banks = collect(json_decode($json, true));
+        $groupedBanks = $banks->groupBy('銀行代號/總機構代碼');
         $company_type = $request->headers->get('referer');
-        // dd($company_type);
 
-        return View('visit.company_create')->with('hint', 0)->with('company_type', $company_type);
+        return View('visit.company_create')->with('hint', 0)->with('company_type', $company_type)->with('groupedBanks', $groupedBanks);
     }
 
     public function company_store(Request $request)
@@ -315,8 +403,9 @@ class VisitController extends Controller
             $customer->county = $request->county;
             $customer->district = $request->district;
             $customer->address = $request->address;
-            if (!empty($request->bank_id) || !empty($request->bank_number)) {
-                $customer->bank_id = $request->bank_id;
+            if (!empty($request->bank) || !empty($request->branch) || !empty($request->bank_number)) {
+                $customer->bank = $request->bank;
+                $customer->branch = $request->branch;
                 $customer->bank_number = $request->bank_number;
             }
             $customer->commission = $request->commission;
@@ -334,8 +423,9 @@ class VisitController extends Controller
                     $customer->county = $request->county;
                     $customer->district = $request->district;
                     $customer->address = $request->address;
-                    if (!empty($request->bank_id) || !empty($request->bank_number)) {
-                        $customer->bank_id = $request->bank_id;
+                    if (!empty($request->bank) || !empty($request->branch) || !empty($request->bank_number)) {
+                        $customer->bank = $request->bank;
+                        $customer->branch = $request->branch;
                         $customer->bank_number = $request->bank_number;
                     }
                     $customer->commission = $request->commission;
@@ -380,10 +470,18 @@ class VisitController extends Controller
     //編輯公司
     public function company_edit($id, Request $request)
     {
+        $json = file_get_contents(public_path('assets/data/banks.json'));
+        $banks = collect(json_decode($json, true));
+        $groupedBanks = $banks->groupBy('銀行代號/總機構代碼');
         $company_type = $request->headers->get('referer');
         $data = Customer::where('id', $id)->first();
         $groups = CustGroup::get();
-        return View('visit.company_edit')->with('hint', 0)->with('data', $data)->with('company_type', $company_type)->with('groups', $groups);
+        return View('visit.company_edit')
+            ->with('hint', 0)
+            ->with('data', $data)
+            ->with('company_type', $company_type)
+            ->with('groups', $groups)
+            ->with('groupedBanks', $groupedBanks);
     }
 
     public function company_update($id, Request $request)
@@ -402,7 +500,8 @@ class VisitController extends Controller
         $data->district = $request->district;
         $data->address = $request->address;
         $data->group_id = $request->group_id;
-        $data->bank_id = $request->bank_id;
+        $data->bank = $request->bank;
+        $data->branch = $request->branch;
         $data->bank_number = $request->bank_number;
         $data->commission = $request->commission;
         $data->visit_status = $request->visit_status;
@@ -421,5 +520,71 @@ class VisitController extends Controller
         } elseif ($others_type) {
             return redirect()->route('others');
         }
+    }
+
+    public function company_delete($id, Request $request)
+    {
+        $company_type = $request->headers->get('referer');
+        $data = Customer::where('id', $id)->first();
+        return View('visit.company_del')->with('data', $data)->with('company_type', $company_type);
+    }
+
+    public function source_sale($id, Request $request) //叫件紀錄
+    {
+        $sales = SaleCompanyCommission::where('company_id', $id)
+            ->leftJoin('sale_data', 'sale_data.id', '=', 'sale_company_commission.sale_id')
+            ->orderby('sale_company_commission.sale_date', 'desc')
+            ->orderby('sale_data.sale_on', 'desc')
+            ->get();
+        $customer = Customer::where('id', $id)->first();
+
+        foreach ($sales as $sale) {
+            $sale->user_name = User::where('id', $sale->user_id)->value('name');
+            $sale->plan_name = Plan::where('id', $sale->plan_id)->value('name');
+            $sale->customer_name = Customer::where('id', $sale->customer_id)->value('name');
+        }
+        // dd($sales);
+        return view('visit.source_sales')->with('sales', $sales)
+            ->with('customer', $customer);
+    }
+
+
+    // 讀取 flat 結構的 JSON
+    protected function getFlatBankData()
+    {
+        $filePath = public_path('assets/data/banks.json');
+
+        if (!file_exists($filePath)) {
+            Log::error("找不到銀行資料檔案：$filePath");
+            return [];
+        }
+
+        return json_decode(file_get_contents($filePath), true) ?? [];
+    }
+
+    // 找出銀行名稱
+    protected function getBankNameFromFlatJson($bankCode, $bankData)
+    {
+        foreach ($bankData as $row) {
+            if (isset($row['銀行代號/總機構代碼']) && $row['銀行代號/總機構代碼'] == $bankCode) {
+                return $row['金融機構名稱'] ?? '未知銀行';
+            }
+        }
+        return '未知銀行';
+    }
+
+    // 找出分行名稱
+    protected function getBranchNameFromFlatJson($bankCode, $branchCode, $bankData)
+    {
+        foreach ($bankData as $row) {
+            if (
+                isset($row['銀行代號/總機構代碼'], $row['分支機構代號']) &&
+                $row['銀行代號/總機構代碼'] == $bankCode &&
+                $row['分支機構代號'] == $branchCode
+            ) {
+                return $row['分支機構名稱'] ?? '未知分行';
+            }
+        }
+        return '未知分行';
     }
 }

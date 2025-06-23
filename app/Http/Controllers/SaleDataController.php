@@ -338,7 +338,11 @@ class SaleDataController extends Controller
             $CompanyCommission->sale_id = $sale_id->id;
             $CompanyCommission->company_id = $request->source_company_name_q;
             $CompanyCommission->plan_price = $request->plan_price;
-            $CompanyCommission->commission = $request->plan_price / 2;
+            if($request->plan_price / 2 > 2500){
+                $CompanyCommission->commission = 2500;
+            }else{
+                $CompanyCommission->commission = $request->plan_price / 2;
+            }
             $CompanyCommission->save();
         }
 
@@ -1115,7 +1119,11 @@ class SaleDataController extends Controller
                 $sale_company->sale_id = $sale_id->id;
                 $sale_company->company_id = $request->source_company_name_q;
                 $sale_company->plan_price = $request->plan_price;
-                $sale_company->commission = $request->plan_price / 2;
+                if($request->plan_price / 2 > 2500){
+                    $sale_company->commission = 2500;
+                }else{
+                    $sale_company->commission = $request->plan_price / 2;
+                }
                 $sale_company->save();
             } else {
                 $CompanyCommission = new SaleCompanyCommission();
@@ -1125,7 +1133,11 @@ class SaleDataController extends Controller
                 $CompanyCommission->sale_id = $sale_id->id;
                 $CompanyCommission->company_id = $request->source_company_name_q;
                 $CompanyCommission->plan_price = $request->plan_price;
-                $CompanyCommission->commission = $request->plan_price / 2;
+                if($request->plan_price / 2 > 2500){
+                    $CompanyCommission->commission = 2500;
+                }else{
+                    $CompanyCommission->commission = $request->plan_price / 2;
+                }
                 $CompanyCommission->save();
             }
         }
