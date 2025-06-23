@@ -31,7 +31,7 @@ class Rpg14Controller extends Controller
         $periods = CarbonPeriod::create($firstDay, $lastDay);
 
         //單純有拜訪的
-        $visit_sources = SaleSource::where('status', 'up')->whereIn('code',['H','Salon','B','G','dogpark','other'])->orderby('id')->get();
+        $visit_sources = SaleSource::where('status', 'up')->whereIn('code', ['H', 'Salon', 'B', 'G', 'dogpark', 'other'])->orderby('id')->get();
 
 
         $sources = SaleSource::where('status', 'up')->orderby('id')->get();
@@ -89,7 +89,6 @@ class Rpg14Controller extends Controller
         $datas = Sale::whereBetween('sale_data.sale_date', [$firstDay, $lastDay])
             ->join('sale_company_commission', 'sale_company_commission.sale_id', '=', 'sale_data.id')
             ->join('customer', 'customer.id', '=', 'sale_company_commission.company_id')
-            ->whereBetween('sale_data.sale_date', [$firstDay, $lastDay])
             ->where('sale_data.status', '9')
             ->whereIn('sale_data.pay_id', ['A', 'C'])
             ->where('sale_data.type', $source_code)
@@ -98,10 +97,10 @@ class Rpg14Controller extends Controller
                 'customer.name',
                 DB::raw('count(*) as total')
             )
-            ->groupBy('sale_company_commission.company_id')
+            ->groupBy('sale_company_commission.company_id', 'customer.name')
             ->orderByDesc('total')
             ->get();
-        
+
         return view('rpg14.month_detail')->with('datas', $datas)
             ->with('source_name', $source_name)
             ->with('month', $month)
