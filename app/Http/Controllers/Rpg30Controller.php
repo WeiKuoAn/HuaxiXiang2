@@ -7,6 +7,8 @@ use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;
+use App\Models\Suit;
+use App\Models\Sale;
 
 class Rpg30Controller extends Controller
 {
@@ -123,6 +125,8 @@ class Rpg30Controller extends Controller
         }
 
         $season_datas = [];
+        //套裝：
+        $suits = Suit::where('status', 'up')->whereNotIn('id', [1])->get();
         foreach ($seasons as $key => $season) {
             $season_datas[$key]['month'] = $season['month'];
             $season_datas[$key]['suit_season'] = DB::table('sale_data')
@@ -134,6 +138,20 @@ class Rpg30Controller extends Controller
                 // 排除空字串，如果是數值型別改用 ->where('sale_data.suit_id', '>', 0)
                 ->where('sale_data.suit_id', '<>', '')
                 ->count();
+            foreach ($suits as $suit) {
+                if (!isset($season_datas[$key]['suit_seasons']) || !is_array($season_datas[$key]['suit_seasons'])) {
+                    $season_datas[$key]['suit_seasons'] = [];
+                }
+                $season_datas[$key]['suit_seasons'][$suit->id]['name'] = $suit->name;
+                $season_datas[$key]['suit_seasons'][$suit->id]['count'] = DB::table('sale_data')
+                    ->where('sale_data.sale_date', '>=', $season['start_date'])
+                    ->where('sale_data.sale_date', '<=', $season['end_date'])
+                    ->where('sale_data.status', '9')
+                    ->where('sale_data.suit_id', $suit->id)
+                    ->whereNotNull('sale_data.suit_id')
+                    ->where('sale_data.suit_id', '<>', '')
+                    ->count();
+            }
             $season_datas[$key]['urn_souvenir_season'] = DB::table('sale_data')
                 ->join('sale_prom', 'sale_prom.sale_id', '=', 'sale_data.id')
                 ->where('sale_data.sale_date', '>=', $season['start_date'])
@@ -144,9 +162,7 @@ class Rpg30Controller extends Controller
                 ->where('sale_prom.prom_id', '<>', '')
                 ->sum('sale_prom.prom_total');
         }
-        // dd($season_datas);
         $sums = [];
-
 
 
         return view('rpg30.index')->with('datas', $datas)
@@ -156,5 +172,125 @@ class Rpg30Controller extends Controller
             ->with('sums', $sums)
             ->with('months', $months)
             ->with('season_datas', $season_datas);
+    }
+
+    public function detail(Request $request, $month, $type)
+    {
+        $datas =  [];
+        $search_year = $request->year;
+        if (!isset($search_year)) {
+            $search_year = Carbon::now()->year;
+        }
+        $startOfMonth = Carbon::create($search_year, $month, 1)->startOfMonth();
+        $endOfMonth = $startOfMonth->copy()->endOfMonth();
+
+        if ($type == 'gdpaper') {
+            $datas = Sale::with([
+                'gdpapers' => function ($q) use ($startOfMonth, $endOfMonth) {
+                    // $q->whereBetween('created_at', [$startOfMonth, $endOfMonth]);
+                    $q->where('gdpaper_total', '>', 0);
+                }
+            ])
+                ->whereHas('gdpapers', function ($q) {
+                    $q->where('gdpaper_total', '>', 0);
+                })
+                ->where('sale_date', '>=', $startOfMonth)
+                ->where('sale_date', '<=', $endOfMonth)
+                ->where('status', '9')
+                ->where('type_list', 'dispatch')
+                ->get();
+        } else if ($type == 'flower') {
+            $datas = Sale::with(['proms' => function ($q) {
+                $q->where('prom_id', '15')
+                    ->whereNotNull('prom_id')
+                    ->where('prom_id', '<>', '');
+            }])
+                ->whereHas('proms', function ($q) {
+                    $q->where('prom_id', '15')
+                        ->whereNotNull('prom_id')
+                        ->where('prom_id', '<>', '');
+                })
+                ->where('sale_date', '>=', $startOfMonth)
+                ->where('sale_date', '<=', $endOfMonth)
+                ->where('status', '9')
+                ->get();
+        } else if ($type == 'potted_plant') {
+            $datas = Sale::join('sale_prom', 'sale_prom.sale_id', '=', 'sale_data.id')
+                ->where('sale_data.sale_date', '>=', $startOfMonth)
+                ->where('sale_data.sale_date', '<=', $endOfMonth)
+                ->where('sale_data.status', '9')
+                ->where('sale_prom.prom_id', '16')
+                ->whereNotNull('sale_prom.prom_id')
+                ->where('sale_prom.prom_id', '<>', '')
+                ->get();
+        } else if ($type == 'beautify') {
+            $datas = Sale::with(['proms' => function ($q) {
+                $q->where('prom_id', '30')
+                    ->whereNotNull('prom_id')
+                    ->where('prom_id', '<>', '');
+            }])
+                ->whereHas('proms', function ($q) {
+                    $q->where('prom_id', '30')
+                        ->whereNotNull('prom_id')
+                        ->where('prom_id', '<>', '');
+                })
+                ->where('sale_date', '>=', $startOfMonth)
+                ->where('sale_date', '<=', $endOfMonth)
+                ->where('status', '9')
+                ->get();
+        } else if ($type == 'lamp') {
+            $target_prom_ids = [41, 42];
+
+            $datas = Sale::with(['proms' => function ($q) use ($target_prom_ids) {
+                $q->whereIn('prom_id', $target_prom_ids)
+                    ->whereNotNull('prom_id')
+                    ->where('prom_id', '<>', '');
+            }])
+                ->whereHas('proms', function ($q) use ($target_prom_ids) {
+                    $q->whereIn('prom_id', $target_prom_ids)
+                        ->whereNotNull('prom_id')
+                        ->where('prom_id', '<>', '');
+                })
+                ->where('sale_date', '>=', $startOfMonth)
+                ->where('sale_date', '<=', $endOfMonth)
+                ->where('status', '9')
+                ->get();
+        } else if ($type == 'urn') {
+            $target_prom_id = 14;
+
+            $datas = Sale::with(['proms' => function ($q) use ($target_prom_id) {
+                $q->where('prom_id', $target_prom_id)
+                    ->whereNotNull('prom_id')
+                    ->where('prom_id', '<>', '');
+            }])
+                ->whereHas('proms', function ($q) use ($target_prom_id) {
+                    $q->where('prom_id', $target_prom_id)
+                        ->whereNotNull('prom_id')
+                        ->where('prom_id', '<>', '');
+                })
+                ->where('sale_date', '>=', $startOfMonth)
+                ->where('sale_date', '<=', $endOfMonth)
+                ->where('status', '9')
+                ->get();
+        } else if ($type == 'specify') {
+            $target_prom_ids = [28, 31, 46, 47, 20, 24, 32];
+
+            $datas = Sale::with(['proms' => function ($q) use ($target_prom_ids) {
+                $q->whereIn('prom_id', $target_prom_ids)
+                    ->whereNotNull('prom_id')
+                    ->where('prom_id', '<>', '');
+            }])
+                ->whereHas('proms', function ($q) use ($target_prom_ids) {
+                    $q->whereIn('prom_id', $target_prom_ids)
+                        ->whereNotNull('prom_id')
+                        ->where('prom_id', '<>', '');
+                })
+                ->where('sale_date', '>=', $startOfMonth)
+                ->where('sale_date', '<=', $endOfMonth)
+                ->where('status', '9')
+                ->get();
+        }
+        // dd($datas);
+        return view('rpg30.detail')->with('datas', $datas)->with('year', $search_year)->with('month', $month)->with('type', $type);
     }
 }

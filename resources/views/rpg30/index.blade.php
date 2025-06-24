@@ -77,18 +77,20 @@
                                         <tr>
 
                                             <td>{{ $data['month'] }}</td>
-                                            <td>{{ number_format($data['gdpaper_month']) }}</td>
-                                            <td>{{ number_format($data['flower_month']) }}</td>
-                                            <td>{{ number_format($data['potted_plant_month']) }}</td>
-                                            <td>{{ number_format($data['beautify_month']) }}</td>
-                                            <td>{{ number_format($data['lamp_month']) }}</td>
-                                            <td>{{ number_format($data['urn_month']) }}</td>
-                                            <td>{{ number_format($data['specify_month']) }}</td>
+                                            <td><a href="{{ route('rpg30.detail', ['year'=>$request->year ,'month'=>$key, 'type'=>'gdpaper']) }}">{{number_format($data['gdpaper_month']) }}</a></td>
+                                            <td><a href="{{ route('rpg30.detail', ['year'=>$request->year ,'month'=>$key, 'type'=>'flower']) }}">{{ number_format($data['flower_month']) }}</a></td>
+                                            <td><a href="{{ route('rpg30.detail', ['year'=>$request->year ,'month'=>$key, 'type'=>'potted_plant']) }}">{{ number_format($data['potted_plant_month']) }}</a></td>
+                                            <td><a href="{{ route('rpg30.detail', ['year'=>$request->year ,'month'=>$key, 'type'=>'beautify']) }}">{{ number_format($data['beautify_month']) }}</a></td>
+                                            <td><a href="{{ route('rpg30.detail', ['year'=>$request->year ,'month'=>$key, 'type'=>'lamp']) }}">{{ number_format($data['lamp_month']) }}</a></td>
+                                            <td><a href="{{ route('rpg30.detail', ['year'=>$request->year ,'month'=>$key, 'type'=>'urn']) }}">{{ number_format($data['urn_month']) }}</a></td>
+                                            <td><a href="{{ route('rpg30.detail', ['year'=>$request->year ,'month'=>$key, 'type'=>'specify']) }}">{{ number_format($data['specify_month']) }}</a></td>
                                             {{-- 只在每 3 筆的第一筆輸出合併 cell --}}
                                             @if ($loop->iteration % 3 === 1)
                                                 <td rowspan="3">
-                                                    @if (isset($season_datas[$key]['suit_season']))
-                                                        {{ number_format($season_datas[$key]['suit_season']) }}
+                                                    @if (isset($season_datas[$key]['suit_seasons']))
+                                                        @foreach ($season_datas[$key]['suit_seasons'] as $suit_season)
+                                                            {{ $suit_season['name'] }}：{{ number_format($suit_season['count']) }}個<br>
+                                                        @endforeach
                                                     @endif
                                                 </td>
                                                 <td rowspan="3">

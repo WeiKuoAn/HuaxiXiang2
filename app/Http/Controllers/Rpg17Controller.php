@@ -116,7 +116,7 @@ class Rpg17Controller extends Controller
                     ->get();
                     // dd($datas);
 
-        return view('rpg16.detail')->with('datas',$datas)->with('prom',$prom)->with('year',$search_year)->with('month',$month);
+        return view('rpg17.detail')->with('datas',$datas)->with('prom',$prom)->with('year',$search_year)->with('month',$month);
     }
 
     private function date_text($date)//民國顯示
