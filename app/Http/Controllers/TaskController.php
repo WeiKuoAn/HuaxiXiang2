@@ -200,4 +200,20 @@ class TaskController extends Controller
 
         return redirect()->route('task')->with('success', '任務已成功更新！');
     }
+
+    public function delete($id)
+    {
+        $data = Task::findOrFail($id);
+        $now = Carbon::now()->format('Y-m-d');
+        $users = User::where('status', '0')->get();
+        return view('task.del')->with('users', $users)->with('now', $now)->with('data', $data);
+    }
+
+    public function destroy($id)
+    {
+        $task = Task::findOrFail($id);
+        $task->delete();
+
+        return redirect()->route('task')->with('success', '任務已成功刪除！');
+    }
 }

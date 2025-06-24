@@ -46,7 +46,7 @@
                                     </div>
                                     <div class="me-3">
                                         <label for="status" class="form-label">狀態</label>
-                                        <select name="status" class="form-select"  onchange="this.form.submit()">
+                                        <select name="status" class="form-select" onchange="this.form.submit()">
                                             <option value="" selected>全部</option>
                                             <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>已完成
                                             </option>
@@ -115,6 +115,8 @@
                                             <td>
                                                 <a href="{{ route('task.edit', $data->id) }}" class="action-icon"> <i
                                                         class="mdi mdi-square-edit-outline"></i></a>
+                                                <a href="{{ route('task.del', $data->id) }}" class="action-icon"> <i
+                                                        class="mdi mdi-delete"></i></a>
                                             </td>
                                         </tr>
                                     @endforeach
