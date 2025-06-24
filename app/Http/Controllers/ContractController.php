@@ -286,7 +286,7 @@ class ContractController extends Controller
         );
 
         $header = array('合約起始日期', $start_date_start.'~' ,$start_date_end,'合約結束日期', $end_date_start.'~' ,$end_date_end);
-        $columns = array('編號', '合約類別', '顧客名稱', '電話', '寶貝名稱', '目前簽約年份', '開始日期', '結束日期', '金額', '續約');
+        $columns = array('編號', '合約類別', '顧客名稱', '電話', '寶貝名稱', '目前簽約年份', '開始日期', '結束日期', '金額', '續約','備註');
 
         $callback = function() use($datas, $columns,$header,$request) {
             
@@ -318,8 +318,9 @@ class ContractController extends Controller
                 }else{
                     $row['續約'] = '';
                 }
+                $row['備註'] = $data->comment;
                 fputcsv($file, array($row['編號'],$row['合約類別'],$row['顧客名稱'],$row['電話'],$row['寶貝名稱'],$row['目前簽約年份']
-                                    ,$row['開始日期'],$row['結束日期'],$row['金額'],$row['續約']));
+                                    ,$row['開始日期'],$row['結束日期'],$row['金額'],$row['續約'],$row['備註']));
             }
 
             fclose($file);
