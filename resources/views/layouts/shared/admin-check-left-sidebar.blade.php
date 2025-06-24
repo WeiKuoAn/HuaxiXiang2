@@ -51,17 +51,15 @@
                 <li>
                     <a href="{{ route('index') }}">
                         <i data-feather="home"></i>
-                        <span> 線上打卡 </span>
+                        <span> 資訊總覽 </span>
                     </a>
                 </li>
-                {{-- <li>
-                    <a href="{{ route('dashboard.info') }}">
-                        <i data-feather="airplay"></i>
-                        <span> 當月總表 </span>
+                <li>
+                    <a href="{{ route('task') }}">
+                        <i data-feather="message-circle"></i>
+                        <span> 待辦管理 </span>
                     </a>
-                </li> --}}
-
-
+                </li>
 
                 <li class="menu-title mt-2">Apps</li>
 

@@ -64,6 +64,8 @@
                                         <th scope="col">金紙總額</th>
                                         <th scope="col">花樹葬總數</th>
                                         <th scope="col">盆栽總數</th>
+                                        <th scope="col">美化總數</th>
+                                        <th scope="col">平安燈總數</th>
                                         <th scope="col">骨灰罐總額</th>
                                         <th scope="col">指定款總額</th>
                                         <th scope="col">火化套裝（季）</th>
@@ -78,6 +80,8 @@
                                             <td>{{ number_format($data['gdpaper_month']) }}</td>
                                             <td>{{ number_format($data['flower_month']) }}</td>
                                             <td>{{ number_format($data['potted_plant_month']) }}</td>
+                                            <td>{{ number_format($data['beautify_month']) }}</td>
+                                            <td>{{ number_format($data['lamp_month']) }}</td>
                                             <td>{{ number_format($data['urn_month']) }}</td>
                                             <td>{{ number_format($data['specify_month']) }}</td>
                                             {{-- 只在每 3 筆的第一筆輸出合併 cell --}}

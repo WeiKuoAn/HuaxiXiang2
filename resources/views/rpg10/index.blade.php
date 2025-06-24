@@ -94,7 +94,7 @@
                                     <th>金紙名稱</th>
                                     <th>金紙數量</th>
                                     <th>小計</th>
-                                    <th>傭金</th>
+                                    <th>佣金</th>
                                 </tr>
                             </thead>
                             <thead >
@@ -102,7 +102,7 @@
                                     <th colspan="5"></th>
                                     <th>總共：{{ $sums['total_num'] }}份</th>
                                     <th>總計：{{ number_format($sums['total_price']) }}元</th>
-                                    <th>傭金總計：{{ number_format($sums['total_comm_price']) }}元</th>
+                                    <th>佣金總計：{{ number_format($sums['total_comm_price']) }}元</th>
                                 </tr>
                             </thead>
                             @foreach($datas as $user_name => $data)
@@ -135,7 +135,7 @@
                                        <td colspan="5"></td>
                                        <td align="right">共：{{ number_format($data['total_num']) }}份</td>
                                        <td align="right">小計：{{ number_format($data['total_price']) }}元</td>
-                                       <td align="right">傭金小計：{{ number_format($data['total_comm_price']) }}元</td>
+                                       <td align="right">佣金小計：{{ number_format($data['total_comm_price']) }}元</td>
                                    </tr>
                                 </tbody>
                             @endforeach

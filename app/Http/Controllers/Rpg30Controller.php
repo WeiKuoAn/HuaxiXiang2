@@ -54,6 +54,7 @@ class Rpg30Controller extends Controller
                 ->where('sale_data.status', '9')
                 ->where('sale_data.type_list', 'dispatch')
                 ->sum('sale_gdpaper.gdpaper_total');
+
             // //2.花樹葬（花樹葬的數量）
             $datas[$key]['flower_month'] = DB::table('sale_data')
                 ->join('sale_prom', 'sale_prom.sale_id', '=', 'sale_data.id')
@@ -64,6 +65,7 @@ class Rpg30Controller extends Controller
                 ->whereNotNull('sale_prom.prom_id')
                 ->where('sale_prom.prom_id', '<>', '')
                 ->count();
+
             // //3.盆栽（盆栽的數量）
             $datas[$key]['potted_plant_month'] = DB::table('sale_data')
                 ->join('sale_prom', 'sale_prom.sale_id', '=', 'sale_data.id')
@@ -86,18 +88,38 @@ class Rpg30Controller extends Controller
                 ->where('sale_prom.prom_id', '<>', '')
                 ->sum('sale_prom.prom_total');
 
-            // dd($flower_month);
-
             //5.指定款獎金（VVG+拍拍+寵物花忠+vvg紀念品+指定款紀念品+[玉罐+大理石罐]）加總
             $datas[$key]['specify_month'] = DB::table('sale_data')
                 ->join('sale_prom', 'sale_prom.sale_id', '=', 'sale_data.id')
                 ->where('sale_data.sale_date', '>=', $month['start_date'])
                 ->where('sale_data.sale_date', '<=', $month['end_date'])
                 ->where('sale_data.status', '9')
-                ->whereIn('sale_prom.prom_id', [28, 20, 24, 32])
+                ->whereIn('sale_prom.prom_id', [28, 31, 46, 47, 20, 24, 32])
                 ->whereNotNull('sale_prom.prom_id')
                 ->where('sale_prom.prom_id', '<>', '')
                 ->sum('sale_prom.prom_total');
+
+            //6.本月平安燈數量
+            $datas[$key]['lamp_month'] = DB::table('sale_data')
+                ->join('sale_prom', 'sale_prom.sale_id', '=', 'sale_data.id')
+                ->where('sale_data.sale_date', '>=', $month['start_date'])
+                ->where('sale_data.sale_date', '<=', $month['end_date'])
+                ->where('sale_data.status', '9')
+                ->whereIn('sale_prom.prom_id', [41, 42])
+                ->whereNotNull('sale_prom.prom_id')
+                ->where('sale_prom.prom_id', '<>', '')
+                ->count();
+
+            //7.本月美化數量
+            $datas[$key]['beautify_month'] = DB::table('sale_data')
+                ->join('sale_prom', 'sale_prom.sale_id', '=', 'sale_data.id')
+                ->where('sale_data.sale_date', '>=', $month['start_date'])
+                ->where('sale_data.sale_date', '<=', $month['end_date'])
+                ->where('sale_data.status', '9')
+                ->where('sale_prom.prom_id', 30)
+                ->whereNotNull('sale_prom.prom_id')
+                ->where('sale_prom.prom_id', '<>', '')
+                ->count();
         }
 
         $season_datas = [];

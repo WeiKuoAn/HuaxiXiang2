@@ -5,9 +5,11 @@
 
         <!-- User box -->
         <div class="user-box text-center">
-            <img src="{{asset('assets/images/users/user-9.jpg')}}" alt="user-img" title="Mat Helme" class="rounded-circle avatar-md">
+            <img src="{{ asset('assets/images/users/user-9.jpg') }}" alt="user-img" title="Mat Helme"
+                class="rounded-circle avatar-md">
             <div class="dropdown">
-                <a href="javascript: void(0);" class="text-dark dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown">James Kennedy</a>
+                <a href="javascript: void(0);" class="text-dark dropdown-toggle h5 mt-2 mb-1 d-block"
+                    data-bs-toggle="dropdown">James Kennedy</a>
                 <div class="dropdown-menu user-pro-dropdown">
 
                     <!-- item-->
@@ -49,9 +51,16 @@
                 <li>
                     <a href="{{ route('index') }}">
                         <i data-feather="home"></i>
-                        <span> 線上打卡 </span>
+                        <span> 資訊總覽 </span>
                     </a>
                 </li>
+
+                {{-- <li>
+                    <a href="{{ route('sale.dashboard.info') }}">
+                        <i data-feather="airplay"></i>
+                        <span> 當月總表 </span>
+                    </a>
+                </li> --}}
 
 
                 <li class="menu-title mt-2">Apps</li>
@@ -65,10 +74,12 @@
                     <div class="collapse" id="customer">
                         <ul class="nav-second-level">
                             <li>
-                                <a href="{{ route('customer.create')}}"  class="{{ request()->is('customer.create') ? 'active' : '' }}">新增客戶</a>
+                                <a href="{{ route('customer.create') }}"
+                                    class="{{ request()->is('customer.create') ? 'active' : '' }}">新增客戶</a>
                             </li>
                             <li>
-                                <a href="{{ route('customer')}}"  class="{{ request()->is('customer') ? 'active' : '' }}">客戶資料</a>
+                                <a href="{{ route('customer') }}"
+                                    class="{{ request()->is('customer') ? 'active' : '' }}">客戶資料</a>
                             </li>
                         </ul>
                     </div>
@@ -83,13 +94,16 @@
                     <div class="collapse" id="sale">
                         <ul class="nav-second-level">
                             <li>
-                                <a href="{{ route('person.sales') }}"  class="{{ request()->is('person.sales') ? 'active' : '' }}">業務管理</a>
+                                <a href="{{ route('person.sales') }}"
+                                    class="{{ request()->is('person.sales') ? 'active' : '' }}">業務管理</a>
                             </li>
                             <li>
-                                <a href="{{ route('sale.create') }}"  class="{{ request()->is('sale.create') ? 'active' : '' }}">業務Key單</a>
+                                <a href="{{ route('sale.create') }}"
+                                    class="{{ request()->is('sale.create') ? 'active' : '' }}">業務Key單</a>
                             </li>
                             <li>
-                                <a href="{{ route('person.wait.sales') }}"  class="{{ request()->is('person.wait.sales') ? 'active' : '' }}">業務對帳確認</a>
+                                <a href="{{ route('person.wait.sales') }}"
+                                    class="{{ request()->is('person.wait.sales') ? 'active' : '' }}">業務對帳確認</a>
                             </li>
                         </ul>
                     </div>
@@ -103,12 +117,14 @@
                     </a>
                     <div class="collapse" id="contract">
                         <ul class="nav-second-level">
-                            
+
                             <li>
-                                <a href="{{ route('contracts') }}"  class="{{ request()->is('contracts') ? 'active' : '' }}">合約管理</a>
+                                <a href="{{ route('contracts') }}"
+                                    class="{{ request()->is('contracts') ? 'active' : '' }}">合約管理</a>
                             </li>
                             <li>
-                                <a href="{{ route('contract.create') }}"  class="{{ request()->is('contract.create') ? 'active' : '' }}">新增合約</a>
+                                <a href="{{ route('contract.create') }}"
+                                    class="{{ request()->is('contract.create') ? 'active' : '' }}">新增合約</a>
                             </li>
                         </ul>
                     </div>
@@ -122,12 +138,14 @@
                     </a>
                     <div class="collapse" id="lamp">
                         <ul class="nav-second-level">
-                            
+
                             <li>
-                                <a href="{{ route('lamps') }}"  class="{{ request()->is('lamps') ? 'active' : '' }}">平安燈管理</a>
+                                <a href="{{ route('lamps') }}"
+                                    class="{{ request()->is('lamps') ? 'active' : '' }}">平安燈管理</a>
                             </li>
                             <li>
-                                <a href="{{ route('lamp.create') }}"  class="{{ request()->is('lamp.create') ? 'active' : '' }}">新增平安燈</a>
+                                <a href="{{ route('lamp.create') }}"
+                                    class="{{ request()->is('lamp.create') ? 'active' : '' }}">新增平安燈</a>
                             </li>
                         </ul>
                     </div>
@@ -172,7 +190,8 @@
                     <div class="collapse" id="product">
                         <ul class="nav-second-level">
                             <li>
-                                <a href="{{ route('person.inventory') }}"  class="{{ request()->is('person.inventory') ? 'active' : '' }}">庫存盤點</a>
+                                <a href="{{ route('person.inventory') }}"
+                                    class="{{ request()->is('person.inventory') ? 'active' : '' }}">庫存盤點</a>
                             </li>
                         </ul>
                     </div>
@@ -187,10 +206,12 @@
                     <div class="collapse" id="rpg">
                         <ul class="nav-second-level">
                             <li>
-                                <a href="{{ route('preson.sale_statistics') }}"  class="{{ request()->is('preson.sale_statistics') ? 'active' : '' }}">專員各單量統計</a>
+                                <a href="{{ route('preson.sale_statistics') }}"
+                                    class="{{ request()->is('preson.sale_statistics') ? 'active' : '' }}">專員各單量統計</a>
                             </li>
                             <li>
-                                <a href="{{ route('rpg07') }}"  class="{{ request()->is('rpg07') ? 'active' : '' }}">團火查詢</a>
+                                <a href="{{ route('rpg07') }}"
+                                    class="{{ request()->is('rpg07') ? 'active' : '' }}">團火查詢</a>
                             </li>
                         </ul>
                     </div>
@@ -205,16 +226,20 @@
                     <div class="collapse" id="person">
                         <ul class="nav-second-level">
                             <li>
-                                <a href="{{ route('person.last_leave_days') }}"  class="{{ request()->is('person.last_leave_days') ? 'active' : '' }}">剩餘假總覽</a>
+                                <a href="{{ route('person.last_leave_days') }}"
+                                    class="{{ request()->is('person.last_leave_days') ? 'active' : '' }}">剩餘假總覽</a>
                             </li>
                             <li>
-                                <a href="{{ route('person.pays') }}"  class="{{ request()->is('person.pays') ? 'active' : '' }}">個人支出</a>
+                                <a href="{{ route('person.pays') }}"
+                                    class="{{ request()->is('person.pays') ? 'active' : '' }}">個人支出</a>
                             </li>
                             <li>
-                                <a href="{{ route('person.leave_days') }}"  class="{{ request()->is('person.leave_days') ? 'active' : '' }}">個人假單</a>
+                                <a href="{{ route('person.leave_days') }}"
+                                    class="{{ request()->is('person.leave_days') ? 'active' : '' }}">個人假單</a>
                             </li>
                             <li>
-                                <a href="{{ route('user-profile') }}"  class="{{ request()->is('user-profile') ? 'active' : '' }}">個人資料</a>
+                                <a href="{{ route('user-profile') }}"
+                                    class="{{ request()->is('user-profile') ? 'active' : '' }}">個人資料</a>
                             </li>
                         </ul>
                     </div>

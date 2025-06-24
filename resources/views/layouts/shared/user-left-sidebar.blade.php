@@ -49,7 +49,7 @@
                 <li>
                     <a href="{{ route('index') }}">
                         <i data-feather="airplay"></i>
-                        <span> 線上打卡 </span>
+                        <span> 資訊總覽 </span>
                     </a>
                 </li>
                 <li class="menu-title mt-2">Apps</li>
