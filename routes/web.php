@@ -567,6 +567,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/rpg/rpg28', [Rpg28Controller::class, 'rpg28'])->name('rpg28');
     Route::get('/rpg/rpg29', [Rpg29Controller::class, 'rpg29'])->name('rpg29');
     Route::get('/rpg/rpg30', [Rpg30Controller::class, 'rpg30'])->name('rpg30');
+    Route::get('/rpg/rpg30/detail/{month}/{type}', [Rpg30Controller::class, 'detail'])->name('rpg30.detail');
 
     //達標類別
     Route::get('/targetCategory', [TargetCategoriesController::class, 'index'])->name('targetCategories');
