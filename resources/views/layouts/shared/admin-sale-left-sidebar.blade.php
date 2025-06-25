@@ -52,12 +52,12 @@
                         <span> 資訊總覽 </span>
                     </a>
                 </li>
-                {{-- <li>確認後再開
+                <li>
                     <a href="{{ route('sale.dashboard.info') }}">
                         <i data-feather="airplay"></i>
                         <span> 當月總表 </span>
                     </a>
-                </li> --}}
+                </li>
                 <li>
                     <a href="{{ route('task') }}">
                         <i data-feather="message-circle"></i>

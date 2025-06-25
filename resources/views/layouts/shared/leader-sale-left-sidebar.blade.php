@@ -52,6 +52,12 @@
                         <span> 資訊總覽 </span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('sale.dashboard.info') }}">
+                        <i data-feather="airplay"></i>
+                        <span> 當月總表 </span>
+                    </a>
+                </li>
 
 
                 <li class="menu-title mt-2">Apps</li>
