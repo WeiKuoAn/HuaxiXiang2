@@ -9,12 +9,14 @@ use App\Models\Category;
 use Intervention\Image\Facades\Image;
 use App\Models\ProductRestockItem;
 use App\Models\GdpaperInventoryItem;
+use App\Models\Prom;
 use App\Models\Sale_gdpaper;
 use App\Models\PujaProduct;
 use App\Models\PujaData;
 use App\Models\PujaDataAttchProduct;
 use Carbon\Carbon;
 use PhpParser\Node\Expr\Print_;
+use App\Models\PromType;
 
 class ProductController extends Controller
 {
@@ -27,6 +29,13 @@ class ProductController extends Controller
         return Response($product);
     }
 
+    public function prom_product_search(Request $request)
+    {
+        $query = $request->get('prom_id'); // 获取搜索关键字
+        $products = Product::where('prom_id', $query)->get(); // 根据关键字查询数据库
+        return response()->json($products);
+    }
+    /*ajax*/
 
     public function index(Request $request)
     {
@@ -68,14 +77,15 @@ class ProductController extends Controller
             // 🔹 1. 取得最近一筆盤點紀錄
             $inventory_item = GdpaperInventoryItem::where('product_id', $data->id)
                 ->join('gdpaper_inventory_data', 'gdpaper_inventory_item.gdpaper_inventory_id', '=', 'gdpaper_inventory_data.inventory_no')
-                ->where('gdpaper_inventory_data.state','1')
+                ->where('gdpaper_inventory_data.state', '1')
                 ->where('gdpaper_inventory_item.created_at', '>', '2023-06-09 11:59:59')
                 ->orderBy('gdpaper_inventory_item.updated_at', 'desc')
+                ->select('gdpaper_inventory_item.*', 'gdpaper_inventory_data.date as inventory_date')
                 ->first();
 
             if ($inventory_item) {
                 $base_stock = $inventory_item->new_num ?? $inventory_item->old_num ?? 0;
-                $base_date = $inventory_item->created_at;
+                $base_date = $inventory_item->inventory_date;
             } else {
                 $base_stock = 0;
                 $base_date = '2023-06-09 11:59:59';
@@ -249,8 +259,8 @@ class ProductController extends Controller
             $data[] = $product->name;
         }
         $categorys = Category::where('status', 'up')->get();
-
-        return view('product.create')->with('products', $data)->with('categorys', $categorys);
+        $promTypes = PromType::where('status', 'up')->get();
+        return view('product.create')->with('products', $data)->with('categorys', $categorys)->with('promTypes', $promTypes);
     }
 
     public function store(Request $request)
@@ -267,6 +277,7 @@ class ProductController extends Controller
         $data->cost = $request->cost;
         $data->alarm_num = $request->alarm_num;
         $data->status = $request->status;
+        // $data->prom_id = $request->prom_id;
         if (isset($request->commission)) {
             $data->commission = $request->commission;
         } else {
@@ -319,10 +330,14 @@ class ProductController extends Controller
         $categorys = Category::where('status', 'up')->get();
 
         $data = Product::where('id', $id)->first();
-
         $combo_datas = ComboProduct::where('product_id', $id)->get();
-
-        return view('product.edit')->with('products', $datas)->with('categorys', $categorys)->with('data', $data)->with('combo_datas', $combo_datas);
+        $promTypes = PromType::where('status', 'up')->get();
+        if (isset($data->prom_id)) {
+            $proms = Prom::where('type', $data->prom_data->type)->get();
+        } else {
+            $proms = [];
+        }
+        return view('product.edit')->with('products', $datas)->with('categorys', $categorys)->with('data', $data)->with('combo_datas', $combo_datas)->with('promTypes', $promTypes)->with('proms', $proms);
     }
 
     public function update(Request $request, $id)
@@ -337,7 +352,7 @@ class ProductController extends Controller
         $data->seq = $request->seq;
         $data->cost = $request->cost;
         $data->alarm_num = $request->alarm_num;
-        $data->status = $request->status;
+        // $data->prom_id = $request->prom_id;
         if (isset($request->commission)) {
             $data->commission = $request->commission;
         } else {

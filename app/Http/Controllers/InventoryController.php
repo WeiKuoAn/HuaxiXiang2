@@ -91,7 +91,7 @@ class InventoryController extends Controller
     $InventoryData = GdpaperInventoryData::create([
       'inventory_no' => $inventory_no,  // 自動生成的單號
       'type' => $request->category_id,  // 分類 ID
-      'date' => Carbon::now()->locale('zh-tw')->format('Y-m-d'),  // 當前日期，格式為 '2023-12-25'
+      'date' => Carbon::now()->locale('zh-tw')->format('Y-m-d H:i:s'),  // 當前日期，格式為 '2023-12-25 12:00:00'
       'state' => 0,  // 初始狀態設為 0 (未修改)
       'created_user_id' => Auth::id(),  // 登入用戶的 ID
       'update_user_id' => $request->update_user_id,  // 更新該筆資料的用戶 ID
@@ -325,11 +325,12 @@ class InventoryController extends Controller
       ->where('gdpaper_inventory_data.state', '1')
       ->where('gdpaper_inventory_item.created_at', '>', '2023-06-09 11:59:59')
       ->orderBy('gdpaper_inventory_item.updated_at', 'desc')
+      ->select('gdpaper_inventory_item.*', 'gdpaper_inventory_data.date as inventory_date')
       ->first();
 
     if ($inventory_item) {
       $base_stock = $inventory_item->new_num ?? $inventory_item->old_num ?? 0;
-      $base_date = $inventory_item->created_at;
+      $base_date = $inventory_item->inventory_date;
     } else {
       $base_stock = 0;
       $base_date = '2023-06-09 11:59:59';
