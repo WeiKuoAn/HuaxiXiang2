@@ -112,7 +112,6 @@ class TaskController extends Controller
             'end_date'    => 'nullable|date|after_or_equal:start_date',
             'end_time'    => 'nullable|date_format:H:i',
             'status'      => 'required|in:0,1',
-            'note'        => 'nullable|string',
         ]);
 
         $start = Carbon::createFromFormat(
@@ -135,7 +134,6 @@ class TaskController extends Controller
             'start_date'  => $start,
             'end_date'    => $end,
             'status'      => $v['status'],
-            'note'        => $v['note'],
             'created_by'  => Auth::id(),
         ]);
 
@@ -145,6 +143,8 @@ class TaskController extends Controller
             $task->save();
         }
 
+        // 順便帶 user 名稱
+        $task->load('created_users');
 
         // 回傳新建立的 Task
         return response()->json([
@@ -156,6 +156,7 @@ class TaskController extends Controller
                 'end_date' => optional($task->end_date)->timezone('Asia/Taipei')->format('Y-m-d H:i:s'),
                 'status' => $task->status,
                 'note' => $task->note,
+                'created_by_name' => $task->created_users ? $task->created_users->name : '',
             ]
         ]);
     }

@@ -124,7 +124,7 @@
 
                             <thead class="table-light">
                                 <tr align="center">
-                                    <th>編號</th>
+                                    <th>立案人</th>
                                     <th>待辦事項</th>
                                     <th>預計結束日期</th>
                                     <th>待辦事項說明</th>
@@ -135,10 +135,10 @@
                             <tbody id="tasksTableBody">
                                 @forelse($tasks as $key => $task)
                                     <tr align="center">
-                                        <td>{{ $key + 1 }}</td>
+                                        <td>{{ $task->created_users->name }}</td>
                                         <td>{{ $task->title }}</td>
                                         <td>{{ optional($task->end_date)->format('Y-m-d H:i') }}</td>
-                                        <td>{{ $task->note }}</td>
+                                        <td>{{ $task->description }}</td>
                                         <td>
                                             @if ($task->status == 1)
                                                 已完成
@@ -320,10 +320,6 @@
                                 <textarea name="description" class="form-control" rows="4"></textarea>
                             </div>
                             <div class="col-md-12 mb-3">
-                                <label>備註</label>
-                                <input type="text" name="note" class="form-control">
-                            </div>
-                            <div class="col-md-12 mb-3">
                                 <label>狀態</label>
                                 <select name="status" class="form-select">
                                     <option value="0">待辦</option>
@@ -388,10 +384,10 @@
 
                         let newRow = `
                     <tr align="center">
-                      <td>${idx}</td>
+                      <td>${t.created_by_name}</td>
                       <td>${t.title}</td>
                       <td>${end}</td>
-                      <td>${t.note || ''}</td>
+                      <td>${t.description || ''}</td>
                       <td>${statusLabel}</td>
                       <td>
                         <button class="btn-sm btn btn-danger waves-effect waves-light mt-1 btn-complete"
