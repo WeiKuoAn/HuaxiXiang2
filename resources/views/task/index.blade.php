@@ -97,7 +97,7 @@
                                             <td>{{ $data->title }}</td>
                                             {{-- <td>{{ substr($data->start_date, 0, 16) }}</td> --}}
                                             <td>{{ substr($data->end_date, 0, 16) }}</td>
-                                            <td>{{ $data->note }}</td>
+                                            <td>{{ $data->description }}</td>
                                             <td>{{ $data->created_users->name }}</td>
                                             <td>
                                                 @if ($data->status == '1')
