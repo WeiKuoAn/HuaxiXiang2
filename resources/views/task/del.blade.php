@@ -72,10 +72,6 @@
                                     <textarea name="description" class="form-control" rows="5">{{ $data->description }}</textarea>
                                 </div>
                                 <div class="col-md-12 mb-3">
-                                    <label>備註</label>
-                                    <input type="text" name="note" class="form-control" value="{{ $data->note }}">
-                                </div>
-                                <div class="col-md-12 mb-3">
                                     <label>狀態</label>
                                     <select name="status" class="form-select">
                                         <option value="0" {{ $data->status == 0 ? 'selected' : '' }}>待辦</option>
@@ -85,7 +81,7 @@
                                 <div class="col-md-12 ">
                                     <label>結案人</label>
                                     <select name="close_by" class="form-select">
-                                        <option value="null">請選擇</option>
+                                        <option value="">請選擇</option>
                                         @foreach($users as $user)
                                             <option value="{{ $user->id }}" {{ $data->close_by == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
                                         @endforeach

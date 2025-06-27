@@ -46,11 +46,11 @@
                                     <div class="row g-2">
                                         <div class="col-md">
                                             <input type="date" name="start_date" class="form-control"
-                                                value="{{ substr($data->start_date, 0, 10) }}"  required>
+                                                value="{{ optional($data->start_date)->format('Y-m-d') }}"  required>
                                         </div>
                                         <div class="col-md">
                                             <input type="time" name="start_time" class="form-control"
-                                                value="{{ substr($data->start_date, 11, 8) }}" required>
+                                                value="{{ optional($data->start_date)->format('H:i') }}" required>
                                         </div>
                                     </div>
                                 </div> --}}
@@ -59,11 +59,11 @@
                                     <div class="row g-2">
                                         <div class="col-md">
                                             <input type="date" name="end_date" class="form-control"
-                                                value="{{ substr($data->end_date, 0, 10) }}" required>
+                                                value="{{ optional($data->end_date)->format('Y-m-d') }}">
                                         </div>
                                         <div class="col-md">
                                             <input type="time" name="end_time" class="form-control"
-                                                value="{{ substr($data->end_date, 11, 8) }}" required>
+                                                value="{{ optional($data->end_date)->format('H:i') }}">
                                         </div>
                                     </div>
                                 </div>
@@ -72,20 +72,25 @@
                                     <textarea name="description" class="form-control" rows="5">{{ $data->description }}</textarea>
                                 </div>
                                 <div class="col-md-12 mb-3">
-                                    <label>備註</label>
-                                    <input type="text" name="note" class="form-control" value="{{ $data->note }}">
-                                </div>
-                                <div class="col-md-12 mb-3">
                                     <label>狀態</label>
                                     <select name="status" class="form-select">
                                         <option value="0" {{ $data->status == 0 ? 'selected' : '' }}>待辦</option>
                                         <option value="1" {{ $data->status == 1 ? 'selected' : '' }}>已完成</option>
                                     </select>
                                 </div>
+                                <div class="col-md-12 mb-3">
+                                    <label>指派給</label>
+                                    <select name="assigned_to" class="form-select">
+                                        <option value="">不指定</option>
+                                        @foreach($users as $user)
+                                            <option value="{{ $user->id }}" {{ $data->assigned_to == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 <div class="col-md-12 ">
                                     <label>結案人</label>
                                     <select name="close_by" class="form-select">
-                                        <option value="null">請選擇</option>
+                                        <option value="">請選擇</option>
                                         @foreach($users as $user)
                                             <option value="{{ $user->id }}" {{ $data->close_by == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
                                         @endforeach

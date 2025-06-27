@@ -71,4 +71,9 @@ class User extends Authenticatable
     {
         return $this->hasOne('App\Models\Branch', 'id', 'branch_id');
     }
+
+    public function tasks()
+    {
+        return $this->hasMany('App\Models\Task', 'assigned_to', 'id');
+    }
 }

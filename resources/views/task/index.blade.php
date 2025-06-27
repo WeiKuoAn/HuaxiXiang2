@@ -54,6 +54,15 @@
                                             </option>
                                         </select>
                                     </div>
+                                    <div class="me-3">
+                                        <label for="assigned_to" class="form-label">指派給</label>
+                                        <select name="assigned_to" class="form-select" onchange="this.form.submit()">
+                                            <option value="">全部</option>
+                                            @foreach($users as $user)
+                                                <option value="{{ $user->id }}" {{ request('assigned_to') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     <div class="me-3 mt-4">
                                         <button type="submit" class="btn btn-success waves-effect waves-light me-1"><i
                                                 class="fe-search me-1"></i>搜尋</button>
@@ -81,11 +90,12 @@
                             <table class="table table-centered table-nowrap table-hover mb-0">
                                 <thead class="table-light">
                                     <tr>
+                                        <th>立案人</th>
                                         <th>待辦事項</th>
                                         {{-- <th>待辦開始日期</th> --}}
+                                        <th>指派給</th>
                                         <th>預計結束日期</th>
                                         <th>待辦事項說明</th>
-                                        <th>立案人</th>
                                         <th>狀態</th>
                                         <th>結案人/結案日</th>
                                         <th>動作</th>
@@ -94,11 +104,11 @@
                                 <tbody>
                                     @foreach ($datas as $key => $data)
                                         <tr>
+                                            <td>{{ $data->created_users->name ?? '' }}</td>
                                             <td>{{ $data->title }}</td>
-                                            {{-- <td>{{ substr($data->start_date, 0, 16) }}</td> --}}
+                                            <td>{{ $data->assigned_users->name ?? '' }}</td>
                                             <td>{{ substr($data->end_date, 0, 16) }}</td>
                                             <td>{{ $data->description }}</td>
-                                            <td>{{ $data->created_users->name }}</td>
                                             <td>
                                                 @if ($data->status == '1')
                                                     已完成

@@ -17,6 +17,7 @@ class Task extends Model
         'time',
         'status',
         'note',
+        'assigned_to',
         'close_by',
         'created_by'
     ];
@@ -43,5 +44,10 @@ class Task extends Model
     public function close_users()
     {
         return $this->belongsTo('App\Models\User', 'close_by', 'id');
+    }
+
+    public function assigned_users()
+    {
+        return $this->belongsTo('App\Models\User', 'assigned_to', 'id');
     }
 }

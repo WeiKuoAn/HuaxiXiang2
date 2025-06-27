@@ -17,6 +17,7 @@ class TaskController extends Controller
         $start_date = $request->input('start_date');
         $end_date = $request->input('end_date');
         $status = $request->input('status');
+        $assigned_to = $request->input('assigned_to');
 
         // 如果有 status 篩選
         if ($status !== null) {
@@ -30,6 +31,11 @@ class TaskController extends Controller
             $datas = $datas->where('title', 'like', '%' . $title . '%');
         }
 
+        // 如果有 assigned_to 篩選
+        if ($assigned_to) {
+            $datas = $datas->where('assigned_to', $assigned_to);
+        }
+
         // 如果有日期篩選
         if ($start_date && $end_date) {
             $datas = $datas->whereBetween('start_date', [$start_date . ' 00:00:00', $end_date . ' 23:59:59']);
@@ -39,15 +45,16 @@ class TaskController extends Controller
             $datas = $datas->where('end_date', '<=', $end_date . ' 23:59:59');
         }
 
-        $datas = $datas->paginate(50);
+        $datas = $datas->with('created_users', 'close_users', 'assigned_users')->paginate(50);
+        $users = User::where('status','0')->get();
 
-        return view('task.index')->with('datas', $datas);
+        return view('task.index')->with('datas', $datas)->with('users', $users);
     }
 
     public function create()
     {
         $now = Carbon::now()->format('Y-m-d');
-        $users = User::all();
+        $users = User::where('status','0')->get();
         return view('task.create')->with('users', $users)->with('now', $now);
     }
 
@@ -60,9 +67,8 @@ class TaskController extends Controller
             'start_date'  => 'required|date',          // Y-m-d
             'start_time'  => 'required|date_format:H:i', // H:i
             'end_date'    => 'nullable|date|after_or_equal:start_date',
-            'end_time'    => 'nullable|date_format:H:i',
-            'status'      => 'required|in:0,1',
-            'note'        => 'nullable|string',
+            'end_time'    => 'nullable|date_format:H:i', // 移除 status 驗證
+            'assigned_to' => 'nullable|exists:users,id',
         ]);
 
 
@@ -86,15 +92,10 @@ class TaskController extends Controller
             'description' => $validated['description'] ?? null,
             'start_date'  => $start,
             'end_date'    => $end,
-            'status'      => $validated['status'],
-            'note'        => $validated['note'] ?? null,
+            'status'      => 0, // 新增任務預設為待辦 (0)
             'created_by'  => Auth::id(),
+            'assigned_to' => $validated['assigned_to'] ?? null,
         ];
-
-        // 如果一進來就是已完成，就同時記錄關閉者
-        if ($validated['status'] == 1) {
-            $data['close_by'] = Auth::id();
-        }
 
         // 儲存（假設你用 Todo 模型）
         Task::create($data);
@@ -111,7 +112,8 @@ class TaskController extends Controller
             'start_time'  => 'required|date_format:H:i',
             'end_date'    => 'nullable|date|after_or_equal:start_date',
             'end_time'    => 'nullable|date_format:H:i',
-            'status'      => 'required|in:0,1',
+            // 'status'      => 'required|in:0,1', // 移除 status 驗證
+            'assigned_to' => 'nullable|exists:users,id',
         ]);
 
         $start = Carbon::createFromFormat(
@@ -130,21 +132,16 @@ class TaskController extends Controller
         // 1. 先建立最基本的欄位
         $task = Task::create([
             'title'       => $v['title'],
-            'description' => $v['description'],
+            'description' => $v['description'] ?? null,
             'start_date'  => $start,
             'end_date'    => $end,
-            'status'      => $v['status'],
+            'status'      => 0, // 新增任務預設為待辦 (0)
             'created_by'  => Auth::id(),
+            'assigned_to' => $v['assigned_to'] ?? null,
         ]);
 
-        // 2. 如果一進來就是已完成，就再單獨更新 close_by
-        if ($v['status'] == 1) {
-            $task->close_by = Auth::id();
-            $task->save();
-        }
-
         // 順便帶 user 名稱
-        $task->load('created_users');
+        $task->load('created_users', 'assigned_users');
 
         // 回傳新建立的 Task
         return response()->json([
@@ -155,8 +152,8 @@ class TaskController extends Controller
                 'start_date' => optional($task->start_date)->timezone('Asia/Taipei')->format('Y-m-d H:i:s'),
                 'end_date' => optional($task->end_date)->timezone('Asia/Taipei')->format('Y-m-d H:i:s'),
                 'status' => $task->status,
-                'note' => $task->note,
                 'created_by_name' => $task->created_users ? $task->created_users->name : '',
+                'assigned_to_name' => $task->assigned_users ? $task->assigned_users->name : '',
             ]
         ]);
     }
@@ -183,19 +180,32 @@ class TaskController extends Controller
 
     public function update($id, Request $request)
     {
-
         $task = Task::findOrFail($id);
+
+        $request->validate([
+            'title'       => 'required|string|max:255',
+            'description' => 'nullable|string',
+            // start_time is not submitted from the edit form, so its validation is removed.
+            'end_date'    => 'nullable|date|after_or_equal:'.$task->start_date->format('Y-m-d'),
+            'end_time'    => 'nullable|date_format:H:i',
+            'status'      => 'required|boolean',
+            'assigned_to' => 'nullable|exists:users,id',
+            'close_by'    => 'nullable|exists:users,id',
+        ]);
+
         $task->title       = $request->title;
         $task->description = $request->description ?? null;
-        $task->start_date = Carbon::parse($request->start_date . ' ' . $request->start_time);
-        $task->end_date   = Carbon::parse($request->end_date   . ' ' . $request->end_time);
-
+        $task->end_date   = ($request->end_date && $request->end_time) ? Carbon::parse($request->end_date . ' ' . $request->end_time) : null;
+        $task->assigned_to = $request->assigned_to;
         $task->status      = $request->status;
-        $task->note        = $request->note ?? null;
-        if (isset($request->close_by)) {
-            $task->close_by = $request->close_by;
+
+        // If status is 'completed' (1), set the closer.
+        // If status is 'pending' (0), clear the closer.
+        if ($request->status == 1) {
+            // If a closer is not specified, set the current user as the closer.
+            $task->close_by = $request->close_by ?? Auth::id();
         } else {
-            $task->close_by = null; // 如果沒有關閉者，則設為 null
+            $task->close_by = null;
         }
         $task->save();
 
