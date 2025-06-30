@@ -50,7 +50,7 @@ class Rpg15Controller extends Controller
         $datas = [];
         $sums = [];
 
-        $users = User::where('status', '0')->whereIn('job_id',[1,3,5])->get();
+        $users = User::where('status', '0')->whereIn('job_id',[1,3,5,10])->get();
 
         foreach($users as $user) {
             $datas[$user->id] = [];

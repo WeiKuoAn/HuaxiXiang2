@@ -47,7 +47,7 @@ class Rpg21Controller extends Controller
         }
         $datas = [];
 
-        $users = User::where('status', '0')->whereIn('job_id',[1,3,5])->get();
+        $users = User::where('status', '0')->whereIn('job_id',[1,3,5,10])->get();
 
         foreach($users as $user) {
             $totalSales = 0; // 初始化用于累加销售额的变量

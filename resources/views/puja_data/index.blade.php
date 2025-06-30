@@ -147,7 +147,9 @@
                                                     <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-outline-secondary waves-effect" data-bs-toggle="dropdown" aria-expanded="false">動作 <i class="mdi mdi-arrow-down-drop-circle"></i></a>
                                                     <div class="dropdown-menu dropdown-menu-end">
                                                         <a class="dropdown-item" href="{{ route('puja_data.edit',$data->id) }}"><i class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
+                                                        @if (Auth::user()->level != 2)
                                                         <a class="dropdown-item" href="{{ route('puja_data.del',$data->id) }}"><i class="mdi mdi-delete me-2 font-18 text-muted vertical-middle"></i>刪除</a>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </td>

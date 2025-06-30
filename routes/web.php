@@ -60,6 +60,7 @@ use App\Http\Controllers\Rpg27Controller;
 use App\Http\Controllers\Rpg28Controller;
 use App\Http\Controllers\Rpg29Controller;
 use App\Http\Controllers\Rpg30Controller;
+use App\Http\Controllers\Rpg31Controller;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\LeaveDayController;
 use App\Http\Controllers\RestockController;
@@ -70,19 +71,21 @@ use App\Http\Controllers\LampController;
 use App\Http\Controllers\LampTypeController;
 use App\Http\Controllers\PromTypeController;
 use App\Http\Controllers\TargetCategoriesController;
-Use App\Http\Controllers\TargetController;
-Use App\Http\Controllers\TargetItemController;
-Use App\Http\Controllers\TaskController;
-Use App\Http\Controllers\SuitController;
-Use App\Http\Controllers\SouvenirTypeController;
-Use App\Http\Controllers\SouvenirController;
-Use App\Http\Controllers\SeniorityPausesController;
-Use App\Http\Controllers\MenuController;
-Use App\Http\Controllers\JobMenuController;
+use App\Http\Controllers\TargetController;
+use App\Http\Controllers\TargetItemController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\SuitController;
+use App\Http\Controllers\SouvenirTypeController;
+use App\Http\Controllers\SouvenirController;
+use App\Http\Controllers\SeniorityPausesController;
+use App\Http\Controllers\MenuController;
+use App\Http\Controllers\JobMenuController;
 use App\Models\Pay;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\OnlineColumbariumController;
+
 
 
 /*
@@ -114,7 +117,7 @@ require __DIR__ . '/auth.php';
 
 
 Route::group(['prefix' => '/'], function () {
-    Route::get('', function ()    {
+    Route::get('', function () {
         Auth::logout();
         return view('auth.login');
     });
@@ -192,7 +195,7 @@ Route::group(['prefix' => '/'], function () {
     Route::post('personnel/leaveSetting/store', [LeaveSettingController::class, 'store'])->name('personnel.leavesitting.create.data');
     Route::get('personnel/leaveSetting/edit/{id}', [LeaveSettingController::class, 'edit'])->name('personnel.leavesitting.edit');
     Route::post('personnel/leaveSetting/edit/{id}', [LeaveSettingController::class, 'update'])->name('personnel.leavesitting.edit.data');
-    
+
 
     /*客戶管理 */
     Route::get('customers', [CustomerController::class, 'index'])->name('customer');
@@ -208,16 +211,16 @@ Route::group(['prefix' => '/'], function () {
     Route::get('customers/export', [CustomerController::class, 'export'])->name('customer.export');
 
     /*拜訪管理*/
-    Route::get('search_district', [VisitController::class, 'search_district'])->name('search.district');//ajax搜尋區域
+    Route::get('search_district', [VisitController::class, 'search_district'])->name('search.district'); //ajax搜尋區域
 
-    Route::get('hospitals', [VisitController::class, 'hospitals'])->name('hospitals');//醫院
-    Route::get('etiquettes', [VisitController::class, 'etiquettes'])->name('etiquettes');//禮儀社
-    Route::get('reproduces', [VisitController::class, 'reproduces'])->name('reproduces');//繁殖場
-    Route::get('dogparks', [VisitController::class, 'dogparks'])->name('dogparks');//狗園
-    Route::get('salons', [VisitController::class, 'salons'])->name('salons');//美容院
-    Route::get('others', [VisitController::class, 'others'])->name('others');//其他合作廠商
-    Route::get('source/sales/{id}', [VisitController::class, 'source_sale'])->name('visit.source.sale');//來源銷售
-    
+    Route::get('hospitals', [VisitController::class, 'hospitals'])->name('hospitals'); //醫院
+    Route::get('etiquettes', [VisitController::class, 'etiquettes'])->name('etiquettes'); //禮儀社
+    Route::get('reproduces', [VisitController::class, 'reproduces'])->name('reproduces'); //繁殖場
+    Route::get('dogparks', [VisitController::class, 'dogparks'])->name('dogparks'); //狗園
+    Route::get('salons', [VisitController::class, 'salons'])->name('salons'); //美容院
+    Route::get('others', [VisitController::class, 'others'])->name('others'); //其他合作廠商
+    Route::get('source/sales/{id}', [VisitController::class, 'source_sale'])->name('visit.source.sale'); //來源銷售
+
     Route::get('visit/{id}', [VisitController::class, 'index'])->name('visits');
     Route::get('visit/create/{id}', [VisitController::class, 'create'])->name('visit.create');
     Route::post('visit/create/{id}', [VisitController::class, 'store'])->name('visit.create.data');
@@ -375,7 +378,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/souvenir/edit/{id}', [SouvenirController::class, 'show'])->name('souvenir.edit');
     Route::post('/souvenir/edit/{id}', [SouvenirController::class, 'update'])->name('souvenir.edit.data');
     Route::get('/souvenir/search', [SouvenirController::class, 'souvenir_search'])->name('souvenir.search');
-    
+
 
     /*廠商管理 */
     Route::get('/venders', [VenderController::class, 'index'])->name('venders');
@@ -532,8 +535,8 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/rpg/rpg02/detail/{after_date}/{before_date}/{pay_id}', [Rpg02Controller::class, 'detail'])->name('rpg02.detail');
     Route::get('/rpg/rpg04', [Rpg04Controller::class, 'rpg04'])->name('rpg04');
     Route::get('/rpg/rpg05', [Rpg05Controller::class, 'rpg05'])->name('rpg05');
-    Route::get('/rpg/rpg06', [Rpg06Controller::class, 'rpg06'])->name('rpg06');//舊法會查詢
-    Route::get('/rpg/rpg06/export', [Rpg06Controller::class, 'export'])->name('rpg06.export');//舊法會查詢
+    Route::get('/rpg/rpg06', [Rpg06Controller::class, 'rpg06'])->name('rpg06'); //舊法會查詢
+    Route::get('/rpg/rpg06/export', [Rpg06Controller::class, 'export'])->name('rpg06.export'); //舊法會查詢
     Route::get('/rpg/group', [Rpg07Controller::class, 'rpg07'])->name('rpg07');
     Route::get('/rpg/group/export', [Rpg07Controller::class, 'export'])->name('rpg07.export');
     Route::get('/rpg/rpg09', [Rpg09Controller::class, 'rpg09'])->name('rpg09');
@@ -568,6 +571,8 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/rpg/rpg29', [Rpg29Controller::class, 'rpg29'])->name('rpg29');
     Route::get('/rpg/rpg30', [Rpg30Controller::class, 'rpg30'])->name('rpg30');
     Route::get('/rpg/rpg30/detail/{month}/{type}', [Rpg30Controller::class, 'detail'])->name('rpg30.detail');
+    Route::get('/rpg/rpg31', [Rpg31Controller::class, 'rpg31'])->name('rpg31');
+    Route::get('/rpg/rpg31/{month}/{lamp_type}/detail', [Rpg31Controller::class, 'detail'])->name('rpg31.detail');
 
     //達標類別
     Route::get('/targetCategory', [TargetCategoriesController::class, 'index'])->name('targetCategories');
@@ -619,10 +624,12 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/api/banks/{bankCode}/branches', [BankController::class, 'getBranches']);
 
 
-    Route::get('image', function()
-    {
+
+    Route::get('/online-columbarium', [OnlineColumbariumController::class, 'index'])->name('columbarium.index');
+
+
+    Route::get('image', function () {
         $img = Image::make('https://images.pexels.com/photos/4273439/pexels-photo-4273439.jpeg')->resize(300, 200); // 這邊可以隨便用網路上的image取代
         return $img->response('jpg');
     });
-
 });
