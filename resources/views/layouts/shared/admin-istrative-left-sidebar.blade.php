@@ -446,6 +446,9 @@
                                         <li>
                                             <a href="{{ route('rpg22') }}"  class="{{ request()->is('rpg22') ? 'active' : '' }}">年度紀念品</a>
                                         </li>
+                                        <li>
+                                            <a href="{{ route('rpg31') }}"  class="{{ request()->is('rpg31') ? 'active' : '' }}">年度平安燈</a>
+                                        </li>
                                     </ul>
                                 </div>
                             </li>
