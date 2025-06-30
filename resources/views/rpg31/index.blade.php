@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ['page_title' => '年度來源統計'])
+@extends('layouts.vertical', ['page_title' => '年度平安燈統計'])
 
 @section('content')
     <!-- Start Content-->
@@ -12,10 +12,10 @@
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                             <li class="breadcrumb-item"><a href="javascript: void(0);">報表管理</a></li>
-                            <li class="breadcrumb-item active">年度來源統計</li>
+                            <li class="breadcrumb-item active">年度平安燈統計</li>
                         </ol>
                     </div>
-                    <h4 class="page-title">年度來源統計</h4>
+                    <h4 class="page-title">年度平安燈統計</h4>
                 </div>
             </div>
         </div>
@@ -27,7 +27,7 @@
                     <div class="card-body">
                         <div class="row justify-content-between">
                             <div class="col-auto">
-                                <form class="d-flex flex-wrap align-items-center" action="{{ route('rpg27') }}"
+                                <form class="d-flex flex-wrap align-items-center" action="{{ route('rpg31') }}"
                                     method="GET">
                                     <div class="me-sm-3">
                                         <select class="form-select my-1 my-lg-0" id="status-select" name="year"
@@ -96,11 +96,11 @@
                                         @foreach ($months as $key => $month)
                                             <tr align="center">
                                                 <td>{{ $month['monthName'] }}</td>
-                                                @foreach ($datas as $source_id => $data)
+                                                @foreach ($datas as $lamp_type => $data)
                                                     <td>
                                                         @if (isset($data['name']))
                                                             <a
-                                                                href="{{ route('rpg27.detail', ['year' => $request->year, 'month' => $key + 1, 'source_id' => $source_id]) }}">
+                                                                href="{{ route('rpg31.detail', ['year' => $request->year, 'month' => $key + 1, 'lamp_type' => $lamp_type]) }}">
                                                                 {{ number_format($data['months'][$key]['count']) }}
                                                             </a>
                                                         @endif

@@ -7,14 +7,14 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
-use App\Models\Prom;
+use App\Models\Lamp;
 use App\Models\Sale;
 use App\Models\Plan;
-use App\Models\SaleSource;
+use App\Models\LampType;
 
-class Rpg27Controller extends Controller
+class Rpg31Controller extends Controller
 {
-    public function rpg27(Request $request)
+    public function rpg31(Request $request)
     {
         $years = range(Carbon::now()->year, 2022);
         // dd($request);
@@ -62,31 +62,27 @@ class Rpg27Controller extends Controller
         $datas = [];
         $sums = [];
 
-        $sources = SaleSource::where('status', 'up')->orderby('id')->get();
+        $lampTypes = LampType::where('status', 'up')->orderby('id')->get();
 
         foreach ($months as $key => $month) {
             // $datas[$key]['monthName'] = $month['monthName'];
-            foreach ($sources as $source) {
-                $datas[$source->code]['name'] = $source->name;
-                $datas[$source->code]['months'][$key]['count'] = 0;
-                $sums[$source->code]['count'] = 0;
+            foreach ($lampTypes as $lampType) {
+                $datas[$lampType->id]['name'] = $lampType->name;
+                $datas[$lampType->id]['months'][$key]['count'] = 0;
+                $sums[$lampType->id]['count'] = 0;
             }
-            $sales = Sale::where('sale_date', '>=', $month['start'])
-                ->where('sale_date', '<=', $month['end'])
-                ->whereNotNull('type')
-                ->where('type', '!=', '')
-                ->where('status', '9')
-                ->whereIn('pay_id', ['A', 'C'])
+            $lamps = Lamp::where('start_date', '>=', $month['start'])
+                ->where('start_date', '<=', $month['end'])
                 ->get();
 
-            foreach ($sales as $sale) {
-                if (!isset($datas[$sale->type]['months'][$key]['count'])) {
-                    $datas[$sale->type]['months'][$key]['count'] = 0;
+            foreach ($lamps as $lamp) {
+                if (!isset($datas[$lamp->type]['months'][$key]['count'])) {
+                    $datas[$lamp->type]['months'][$key]['count'] = 0;
                 }
-                $datas[$sale->type]['months'][$key]['count']++;
-                $datas[$sale->type]['months'][$key]['data'][] = $sale->id;
+                $datas[$lamp->type]['months'][$key]['count']++;
             }
         }
+        // dd($datas);
 
         foreach ($datas as $key => $data) {
             $sums[$key]['count'] = 0;
@@ -96,19 +92,19 @@ class Rpg27Controller extends Controller
         }
 
 
-        return view('rpg27.index')->with('datas', $datas)
+        return view('rpg31.index')->with('datas', $datas)
             ->with('sums', $sums)
-            ->with('sources', $sources)
+            ->with('lampTypes', $lampTypes)
             ->with('years', $years)
             ->with('request', $request)
             ->with('months', $months);
     }
 
-    public function detail(Request $request, $month, $source_id)
+    public function detail(Request $request, $month, $lamp_type)
     {
-        $sources = SaleSource::where('status', 'up')->orderby('id')->get();
-        foreach ($sources as $source) {
-            $source_name[$source->code] = $source->name;
+        $lampTypes = LampType::where('status', 'up')->orderby('id')->get();
+        foreach ($lampTypes as $lampType) {
+            $lampType_name[$lampType->id] = $lampType->name;
         }
         $search_year = $request->year;
         if (!isset($search_year)) {
@@ -117,12 +113,13 @@ class Rpg27Controller extends Controller
 
         $startOfMonth = Carbon::create($search_year, $month, 1)->startOfMonth();
         $endOfMonth = $startOfMonth->copy()->endOfMonth();
-        $sources = SaleSource::where('status', 'up')->orderby('id')->get();
-        foreach ($sources as $source) {
-            $source_name[$source->code] = $source->name;
-        }
-        $datas = Sale::where('sale_date', '>=', $startOfMonth)->where('sale_date', '<=', $endOfMonth)->where('type', $source_id)->where('status', '9')->whereIn('pay_id', ['A', 'C'])->get();
-        return view('rpg27.detail')->with('datas', $datas)
-            ->with('source_name', $source_name);
+
+        $datas = Lamp::where('start_date', '>=', $startOfMonth)
+            ->where('start_date', '<=', $endOfMonth)
+            ->where('type', $lamp_type)
+            ->get();
+
+        return view('rpg31.detail')->with('datas', $datas)
+            ->with('lampType_name', $lampType_name);
     }
 }
