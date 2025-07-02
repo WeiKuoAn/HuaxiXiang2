@@ -116,10 +116,14 @@
                                         <label for="project-priority" class="form-label">請假單位<span
                                                 class="text-danger">*</span></label>
                                         <select class="form-control" data-toggle="select" data-width="100%"
-                                            name="unit">
+                                            name="unit" disabled>
                                             <option value="day" @if ($data->unit == 'day') selected @endif>天
                                             </option>
                                             <option value="hour" @if ($data->unit == 'hour') selected @endif>小時
+                                            </option>
+                                            <option value="week" @if ($data->unit == 'week') selected @endif>週
+                                            </option>
+                                            <option value="month" @if ($data->unit == 'month') selected @endif>月
                                             </option>
                                         </select>
                                     </div>

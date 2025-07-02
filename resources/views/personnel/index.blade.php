@@ -54,6 +54,7 @@
                         <table class="table table-centered table-nowrap table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
+                                    <th>員工編號</th>
                                     <th>姓名</th>
                                     {{-- <th>職稱</th> --}}
                                     <th>入職時間</th>
@@ -71,6 +72,7 @@
                             <tbody>
                             @foreach ($users as $user)
                                 <tr>
+                                    <td>{{ $user->seq }}</td>
                                     <td class="table-user"><img src="{{asset('assets/images/users/user-4.jpg')}}" alt="table-user" class="me-2 rounded-circle">{{ $user->name }}</td>
                                     {{-- <td>
                                         @if(isset($user->job_data))

@@ -81,17 +81,17 @@
                                             </td>
                                             <td width="10%">{{ $data->seq }}</td>
                                             <td width="10%">
-                                                @if ($data->fixed == 0)
+                                                @if ($data->fixed == '0')
                                                     有
                                                 @else
                                                     沒有
                                                 @endif
                                             </td>
                                             <td width="10%">
-                                                @if ($data->status == 0)
+                                                @if ($data->status == '0')
                                                     啟用
                                                 @else
-                                                    停用
+                                                    <b class="text-danger">停用</b>
                                                 @endif
                                             </td>
                                             <td width="35%" align="left">

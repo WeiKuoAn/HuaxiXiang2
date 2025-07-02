@@ -42,7 +42,7 @@ class LeaveController extends Controller
         $users = User::where('status','0')->whereIn('job_id',[3,4,5])->orderby('job_id')->get();
         $year_holiday = Vacation::where('year',$year)->sum('day');//取放假天數
         // dd($year_holiday);
-        $datas = Leaves::where('status',0)->orderby('seq')->get();
+        $datas = Leaves::orderby('status')->orderby('seq')->get();
 
         return view('personnel.leaves')->with('months',$months)->with('years',$years)->with('request',$request)->with('datas',$datas);
     }
@@ -74,6 +74,7 @@ class LeaveController extends Controller
 
     public function update(Request $request , $id)
     {
+        // dd($request->all());
         $data = Leaves::where('id',$id)->first();
         $data->name = $request->name;
         $data->seq = $request->seq;
