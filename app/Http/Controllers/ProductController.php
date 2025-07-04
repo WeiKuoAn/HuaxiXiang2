@@ -352,6 +352,7 @@ class ProductController extends Controller
         $data->seq = $request->seq;
         $data->cost = $request->cost;
         $data->alarm_num = $request->alarm_num;
+        $data->status = $request->status;
         // $data->prom_id = $request->prom_id;
         if (isset($request->commission)) {
             $data->commission = $request->commission;
