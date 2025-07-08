@@ -85,6 +85,7 @@ use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\OnlineColumbariumController;
+use App\Http\Controllers\DeregistrationController;
 
 
 
@@ -627,6 +628,14 @@ Route::group(['prefix' => '/'], function () {
 
     Route::get('/online-columbarium', [OnlineColumbariumController::class, 'index'])->name('columbarium.index');
 
+
+    Route::get('/deregistration', [DeregistrationController::class, 'index'])->name('deregistration.index');
+    Route::get('/deregistration/create', [DeregistrationController::class, 'create'])->name('deregistration.create');
+    Route::post('/deregistration/create', [DeregistrationController::class, 'store'])->name('deregistration.create.data');
+    Route::get('/deregistration/edit/{id}', [DeregistrationController::class, 'edit'])->name('deregistration.edit');
+    Route::post('/deregistration/edit/{id}', [DeregistrationController::class, 'update'])->name('deregistration.edit.data');
+    Route::get('/deregistration/del/{id}', [DeregistrationController::class, 'delete'])->name('deregistration.del');
+    Route::post('/deregistration/del/{id}', [DeregistrationController::class, 'destroy'])->name('deregistration.del.data');
 
     Route::get('image', function () {
         $img = Image::make('https://images.pexels.com/photos/4273439/pexels-photo-4273439.jpeg')->resize(300, 200); // 這邊可以隨便用網路上的image取代
