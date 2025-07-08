@@ -10,8 +10,36 @@ class DeregistrationController extends Controller
 {
     public function index(Request $request)
     {
-        $datas = Deregistration::paginate(50); // 獲取所有除戶資料        
-
+        // 初始化查詢建構器
+        $query = Deregistration::query();
+        
+        // 處理客戶姓名搜尋
+        $cust_name = $request->cust_name;
+        if ($cust_name) {
+            $customers = Customer::where('name', 'like', '%' . $cust_name . '%')->get();
+            foreach ($customers as $customer) {
+                $query->orWhere('customer_id', $customer->id);
+            }
+        }
+        
+        // 處理申請人搜尋
+        $registrant = $request->registrant;
+        if ($registrant) {
+            $query->where('registrant', 'like', '%' . $registrant . '%');
+        }
+        
+        // 處理身分證號搜尋
+        $ic_card = $request->ic_card;
+        if ($ic_card) {
+            $query->where('ic_card', 'like', '%' . $ic_card . '%');
+        }
+        
+        // 執行分頁查詢
+        $datas = $query->paginate(50);
+        
+        // 將搜尋參數合併到請求中，以便在視圖中保持搜尋條件
+        $request->merge(['cust_name' => $cust_name, 'registrant' => $registrant, 'ic_card' => $ic_card]);
+        
         return view('deregistration.index')->with('datas', $datas)->with('request', $request); // 返回除戶管理的視圖
     }
 

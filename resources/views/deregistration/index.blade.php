@@ -28,17 +28,20 @@
                     <div class="card-body">
                         <div class="row justify-content-between">
                             <div class="col-auto">
-                                <form class="d-flex flex-wrap align-items-center" action="{{ route('hospitals') }}"
-                                    method="GET">
+                                <form class="d-flex flex-wrap align-items-center"
+                                    action="{{ route('deregistration.index') }}" method="GET">
                                     <div class="me-1">
                                         <input type="search" class="form-control my-1 my-lg-0" id="inputPassword2"
-                                            name="name" placeholder="姓名" value="{{ $request->name }}">
+                                            name="registrant" placeholder="登記飼主" value="{{ $request->name }}">
                                     </div>
                                     <div class="me-1">
                                         <input type="search" class="form-control my-1 my-lg-0" id="inputPassword2"
-                                            name="mobile" placeholder="電話" value="{{ $request->mobile }}">
+                                            name="cust_name" placeholder="客戶姓名" value="{{ $request->name }}">
                                     </div>
-
+                                    <div class="me-1">
+                                        <input type="search" class="form-control my-1 my-lg-0" id="inputPassword2"
+                                            name="ic_card" placeholder="身分證" value="{{ $request->mobile }}">
+                                    </div>
                                     <div class="me-2">
                                         <button type="submit" class="btn btn-success waves-effect waves-light me-1"><i
                                                 class="fe-search me-1"></i>搜尋</button>
@@ -73,6 +76,7 @@
                                         <th>#</th>
                                         <th>晶片號碼</th>
                                         <th>登記飼主</th>
+                                        <th>客戶姓名</th>
                                         <th>身分證</th>
                                         <th>寶貝名</th>
                                         <th>品種</th>
@@ -83,18 +87,19 @@
                                 <tbody>
                                     @foreach ($datas as $key => $data)
                                         <tr>
-                                            <td>{{$key+1}}</td>
+                                            <td>{{ $key + 1 }}</td>
                                             <td>{{ $data->number }}</td>
                                             <td>{{ $data->registrant }}</td>
+                                            <td>{{ $data->customer->name }}</td>
                                             <td>{{ $data->ic_card }}</td>
                                             <td>{{ $data->pet_name }}</td>
                                             <td>{{ $data->variety }}</td>
                                             <td>{{ $data->comment }}</td>
                                             <td>
-                                                <a href="{{ route('deregistration.edit', $data->id) }}" class="action-icon"> <i
-                                                        class="mdi mdi-square-edit-outline"></i></a>
-                                                <a href="{{ route('deregistration.del', $data->id) }}" class="action-icon"> <i
-                                                        class="mdi mdi-trash-can-outline"></i></a>
+                                                <a href="{{ route('deregistration.edit', $data->id) }}"
+                                                    class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a>
+                                                <a href="{{ route('deregistration.del', $data->id) }}" class="action-icon">
+                                                    <i class="mdi mdi-trash-can-outline"></i></a>
                                             </td>
                                         </tr>
                                     @endforeach
