@@ -270,6 +270,27 @@
                 </li>
 
                 <li>
+                    <a href="#deregistration" data-bs-toggle="collapse">
+                        <i data-feather="slack"></i>
+                        <span> 除戶管理 </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="deregistration">
+                        <ul class="nav-second-level">
+
+                            <li>
+                                <a href="{{ route('deregistration.index') }}"
+                                    class="{{ request()->is('deregistration.index') ? 'active' : '' }}">除戶管理</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('deregistration.create') }}"
+                                    class="{{ request()->is('deregistration.create') ? 'active' : '' }}">新增除戶</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li>
                     <a href="#cash" data-bs-toggle="collapse">
                         <i data-feather="dollar-sign"></i>
                         <span> 零用金管理 </span>
@@ -433,6 +454,14 @@
                             <li>
                                 <a href="{{ route('venders') }}"
                                     class="{{ request()->is('venders') ? 'active' : '' }}">廠商資料</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('menu.index') }}"
+                                    class="{{ request()->is('menu.index') ? 'active' : '' }}">選單設定</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('job.menu.index') }}"
+                                    class="{{ request()->is('job.menu.index') ? 'active' : '' }}">權限選單</a>
                             </li>
                         </ul>
                     </div>

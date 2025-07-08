@@ -202,6 +202,27 @@
                 </li>
 
                 <li>
+                    <a href="#deregistration" data-bs-toggle="collapse">
+                        <i data-feather="slack"></i>
+                        <span> 除戶管理 </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="deregistration">
+                        <ul class="nav-second-level">
+
+                            <li>
+                                <a href="{{ route('deregistration.index') }}"
+                                    class="{{ request()->is('deregistration.index') ? 'active' : '' }}">除戶管理</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('deregistration.create') }}"
+                                    class="{{ request()->is('deregistration.create') ? 'active' : '' }}">新增除戶</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li>
                     <a href="#holiday" data-bs-toggle="collapse">
                         <i data-feather="users"></i>
                         <span> 人事管理 </span>
