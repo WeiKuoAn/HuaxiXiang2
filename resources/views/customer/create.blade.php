@@ -74,14 +74,23 @@
                                             <input type="text" class="form-control" name="address" placeholder="輸入地址">
                                         </div>
                                     </div>
-                                    <div class="mb-3 mt-3">
+
+                                    <div class="row">
+                                        <label class="form-label">備註</label>
+                                        <div class="mb-3 mt-1">
+                                            <textarea class="form-control" rows="3" placeholder="" name="comment"></textarea>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="mb-1 mt-1">
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="not_mobile"
                                                 name="not_mobile">
                                             <label class="form-check-label" for="not_mobile"><b>未提供電話</b></label>
                                         </div>
                                     </div>
-                                    <div class="mb-3 mt-3">
+                                    <div class="mb-1 mt-1">
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="not_address"
                                                 name="not_address">

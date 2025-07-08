@@ -24,7 +24,8 @@ class Customer extends Model
         'bank_id',
         'bank_number',
         'commission',
-        'visit_status'
+        'visit_status',
+        'comment'
     ];
     public function group()
     {

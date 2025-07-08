@@ -103,7 +103,7 @@
                                         <th>寶貝名稱</th>
                                         <th>地址</th>
                                         <th>群組</th>
-                                        <th>新增時間</th>
+                                        <th>備註</th>
                                         <th>動作</th>
                                     </tr>
                                 </thead>
@@ -134,7 +134,7 @@
                                             {{ $customer->group->name }}
                                             @endif
                                         </td>
-                                        <td>{{ date('Y-m-d', strtotime($customer->created_at)) }}</td>
+                                        <td>{{ $customer->comment }}</td>
                                         <td>
                                             <div class="btn-group dropdown">
                                                 <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-outline-secondary waves-effect" data-bs-toggle="dropdown" aria-expanded="false">動作 <i class="mdi mdi-arrow-down-drop-circle"></i></a>
