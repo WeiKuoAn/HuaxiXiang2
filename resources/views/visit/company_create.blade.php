@@ -83,8 +83,8 @@
                                             <!-- Date View -->
                                             <div class="mb-3">
                                                 <label for="bank">匯款帳戶</label>
-                                                <select id="bank" name="bank" class="form-control" data-toggle="select2" data-width="100%"
-                                                    onchange="updateBranches()">
+                                                <select id="bank" name="bank" class="form-control"
+                                                    data-toggle="select2" data-width="100%" onchange="updateBranches()">
                                                     <option value="">請選擇銀行</option>
                                                     @foreach ($groupedBanks as $bankCode => $branches)
                                                         <option value="{{ $bankCode }}">
@@ -101,7 +101,8 @@
                                             <div class="mb-3">
                                                 <div class="form-group">
                                                     <label for="branch">選擇分行</label>
-                                                    <select id="branch" name="branch" class="form-control" data-toggle="select2" data-width="100%">
+                                                    <select id="branch" name="branch" class="form-control"
+                                                        data-toggle="select2" data-width="100%">
                                                         <option value="">請選擇分行</option>
                                                     </select>
                                                 </div>
@@ -115,14 +116,24 @@
                                                     value="">
                                             </div>
                                         </div>
+
                                     </div>
-                                    <div class="mb-3 mt-3">
+
+                                    <div class="row">
+                                        <label class="form-label">備註</label>
+                                        <div class="mb-3">
+                                            <textarea class="form-control" rows="3" placeholder="" name="comment"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-1 mt-1">
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="not_mobile"
                                                 name="not_mobile">
                                             <label class="form-check-label" for="not_mobile"><b>未提供電話</b></label>
                                         </div>
                                     </div>
+
 
                                 </div> <!-- end col-->
 

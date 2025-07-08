@@ -85,7 +85,7 @@
                                     <div class="row">
                                         <label class="form-label">備註</label>
                                         <div class="mb-3 mt-1">
-                                            <textarea class="form-control" rows="3" placeholder="" name="comment" value="{{ $customer->comment }}"></textarea>
+                                            <textarea class="form-control" rows="3" placeholder="" name="comment">{{ $customer->comment }}</textarea>
                                         </div>
                                     </div>
                                 </div> <!-- end col-->

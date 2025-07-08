@@ -134,11 +134,14 @@
                                             </div>
                                         </div>
                                     </div> <!-- end col-->
+                                    <div class="row">
+                                        <label class="form-label">備註</label>
+                                        <div class="mb-3">
+                                            <textarea class="form-control" rows="3" placeholder="" name="comment">{{ $data->comment }}</textarea>
+                                        </div>
+                                    </div>
                                 </div>
                                 <!-- end row -->
-
-
-
                             </div> <!-- end card-body -->
                     </div> <!-- end card-->
                 </div> <!-- end col-->
@@ -146,38 +149,36 @@
             <div class="col-lg-6">
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{ route('visit.company.edit.data', $data->id) }}" method="POST">
-                            @csrf
-                            <div class="row">
-                                <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">其他設定</h5>
-                                <div class="col-xl-12">
-                                    <div class="mb-3">
-                                        <label for="project-priority" class="form-label">是否有佣金<span
-                                                class="text-danger">*</span></label>
-                                        <select class="form-control" data-toggle="select" data-width="100%"
-                                            name="commission">
-                                            <option value="1" @if ($data->commission == '1') selected @endif>有
-                                            </option>
-                                            <option value="0" @if ($data->commission == '0' || $data->visit == null) selected @endif>無
-                                            </option>
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="project-priority" class="form-label">是否拜訪過<span
-                                                class="text-danger">*</span></label>
-                                        <select class="form-control" data-toggle="select" data-width="100%"
-                                            name="visit_status">
-                                            <option value="1" @if ($data->visit_status == '1') selected @endif>有
-                                            </option>
-                                            <option value="0" @if ($data->visit_status == '0' || $data->visit_status == null) selected @endif>無
-                                            </option>
-                                        </select>
-                                    </div>
-
+                        <div class="row">
+                            <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">其他設定</h5>
+                            <div class="col-xl-12">
+                                <div class="mb-3">
+                                    <label for="project-priority" class="form-label">是否有佣金<span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-control" data-toggle="select" data-width="100%"
+                                        name="commission">
+                                        <option value="1" @if ($data->commission == '1') selected @endif>有
+                                        </option>
+                                        <option value="0" @if ($data->commission == '0' || $data->commission == null) selected @endif>無
+                                        </option>
+                                    </select>
                                 </div>
-                                <!-- end row -->
-                            </div> <!-- end card-body -->
+
+                                <div class="mb-3">
+                                    <label for="project-priority" class="form-label">是否拜訪過<span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-control" data-toggle="select" data-width="100%"
+                                        name="visit_status">
+                                        <option value="1" @if ($data->visit_status == '1') selected @endif>有
+                                        </option>
+                                        <option value="0" @if ($data->visit_status == '0' || $data->visit_status == null) selected @endif>無
+                                        </option>
+                                    </select>
+                                </div>
+
+                            </div>
+                            <!-- end row -->
+                        </div> <!-- end card-body -->
 
                     </div> <!-- end card-->
                 </div>
