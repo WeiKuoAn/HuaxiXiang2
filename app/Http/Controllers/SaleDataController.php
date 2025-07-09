@@ -105,16 +105,19 @@ class SaleDataController extends Controller
             $customerId = $request->customer_id; // 確保變數名稱一致
             $pet_name = $request->pet_name;
             $output = '';
-            $data = Sale::where('customer_id', $customerId)->where('pet_name', $pet_name);
-
-            if(isset($request->current_id)){
-                $data = $data->where('id', '<>', $request->current_id)->orderby('id', 'desc')->first();
-            }else{
-                $data =  $data->orderby('id', 'desc')->first();
-            }
-            // 使用 switch 語句來簡化條件判斷
+            
+            // 根據不同的支付類型，查詢不同的相關單據
             switch ($request->pay_id) {
-                case 'D':
+                case 'D': // 尾款 - 需要找到對應的訂金單
+                    $data = Sale::where('customer_id', $customerId)
+                        ->where('pet_name', $pet_name)
+                        ->where('pay_id', 'C'); // 只查詢訂金單
+                    
+                    if(isset($request->current_id)){
+                        $data = $data->where('id', '<>', $request->current_id);
+                    }
+                    $data = $data->orderby('id', 'desc')->first();
+                    
                     if (isset($data->pay_id) && $data->pay_id == 'C') {
                         $output = 'OK';
                     } else {
@@ -122,15 +125,33 @@ class SaleDataController extends Controller
                     }
                     break;
 
-                case 'E':
-                    if (isset($data->pay_id) && $data->pay_id == 'C') {
-                        $output = '此客戶尚未完成尾款，請先完成尾款單';
-                    } else {
+                case 'E': // 追加 - 需要找到訂金單或尾款單
+                    $data = Sale::where('customer_id', $customerId)
+                        ->where('pet_name', $pet_name)
+                        ->whereIn('pay_id', ['C', 'D']); // 查詢訂金單或尾款單
+                    
+                    if(isset($request->current_id)){
+                        $data = $data->where('id', '<>', $request->current_id);
+                    }
+                    $data = $data->orderby('id', 'desc')->first();
+                    
+                    if (isset($data->pay_id) && in_array($data->pay_id, ['C', 'D'])) {
                         $output = 'OK';
+                    } else {
+                        $output = '此客戶尚未建立訂金或尾款，請先建立訂金';
                     }
                     break;
 
-                case 'A':
+                case 'A': // 一次付清 - 檢查是否已有訂金單
+                    $data = Sale::where('customer_id', $customerId)
+                        ->where('pet_name', $pet_name)
+                        ->where('pay_id', 'C'); // 只查詢訂金單
+                    
+                    if(isset($request->current_id)){
+                        $data = $data->where('id', '<>', $request->current_id);
+                    }
+                    $data = $data->orderby('id', 'desc')->first();
+                    
                     if (isset($data->pay_id) && $data->pay_id == 'C') {
                         $output = '此客戶已建立訂金，請先完成尾款';
                     } else {
@@ -138,7 +159,16 @@ class SaleDataController extends Controller
                     }
                     break;
 
-                case 'C':
+                case 'C': // 訂金 - 檢查是否已有訂金單
+                    $data = Sale::where('customer_id', $customerId)
+                        ->where('pet_name', $pet_name)
+                        ->where('pay_id', 'C'); // 只查詢訂金單
+                    
+                    if(isset($request->current_id)){
+                        $data = $data->where('id', '<>', $request->current_id);
+                    }
+                    $data = $data->orderby('id', 'desc')->first();
+                    
                     if (isset($data->pay_id) && $data->pay_id == 'C') {
                         $output = '此客戶已建立訂金，請勿重複建立';
                     } else {
@@ -148,6 +178,7 @@ class SaleDataController extends Controller
 
                 default:
                     $output = '無效的支付狀態';
+                    $data = null;
                     break;
             }
 
