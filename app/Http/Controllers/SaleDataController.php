@@ -108,26 +108,45 @@ class SaleDataController extends Controller
             
             // 根據不同的支付類型，查詢不同的相關單據
             switch ($request->pay_id) {
-                case 'D': // 尾款 - 需要找到對應的訂金單
-                    $data = Sale::where('customer_id', $customerId)
+                case 'D': // 尾款 - 需要找到對應的訂金單，且不能重複建立尾款
+                    // 先檢查是否已有尾款單
+                    $existing_tail = Sale::where('customer_id', $customerId)
                         ->where('pet_name', $pet_name)
-                        ->where('pay_id', 'C'); // 只查詢訂金單
+                        ->where('type_list', '!=', 'memorial') // 排除追思單
+                        ->where('pay_id', 'D'); // 查詢尾款單
                     
                     if(isset($request->current_id)){
-                        $data = $data->where('id', '<>', $request->current_id);
+                        $existing_tail = $existing_tail->where('id', '<>', $request->current_id);
                     }
-                    $data = $data->orderby('id', 'desc')->first();
+                    $existing_tail = $existing_tail->orderby('id', 'desc')->first();
                     
-                    if (isset($data->pay_id) && $data->pay_id == 'C') {
-                        $output = 'OK';
+                    if (isset($existing_tail->pay_id) && $existing_tail->pay_id == 'D') {
+                        $output = '此客戶已建立尾款，請勿重複建立';
+                        $data = $existing_tail;
                     } else {
-                        $output = '此客戶尚未建立訂金，請先建立訂金';
+                        // 檢查是否有訂金單
+                        $data = Sale::where('customer_id', $customerId)
+                            ->where('pet_name', $pet_name)
+                            ->where('type_list', '!=', 'memorial') // 排除追思單
+                            ->where('pay_id', 'C'); // 只查詢訂金單
+                        
+                        if(isset($request->current_id)){
+                            $data = $data->where('id', '<>', $request->current_id);
+                        }
+                        $data = $data->orderby('id', 'desc')->first();
+                        
+                        if (isset($data->pay_id) && $data->pay_id == 'C') {
+                            $output = 'OK';
+                        } else {
+                            $output = '此客戶尚未建立訂金，請先建立訂金';
+                        }
                     }
                     break;
 
                 case 'E': // 追加 - 需要找到訂金單或尾款單
                     $data = Sale::where('customer_id', $customerId)
                         ->where('pet_name', $pet_name)
+                        ->where('type_list', '!=', 'memorial') // 排除追思單
                         ->whereIn('pay_id', ['C', 'D']); // 查詢訂金單或尾款單
                     
                     if(isset($request->current_id)){
@@ -145,6 +164,7 @@ class SaleDataController extends Controller
                 case 'A': // 一次付清 - 檢查是否已有訂金單
                     $data = Sale::where('customer_id', $customerId)
                         ->where('pet_name', $pet_name)
+                        ->where('type_list', '!=', 'memorial') // 排除追思單
                         ->where('pay_id', 'C'); // 只查詢訂金單
                     
                     if(isset($request->current_id)){
@@ -162,6 +182,7 @@ class SaleDataController extends Controller
                 case 'C': // 訂金 - 檢查是否已有訂金單
                     $data = Sale::where('customer_id', $customerId)
                         ->where('pet_name', $pet_name)
+                        ->where('type_list', '!=', 'memorial') // 排除追思單
                         ->where('pay_id', 'C'); // 只查詢訂金單
                     
                     if(isset($request->current_id)){
