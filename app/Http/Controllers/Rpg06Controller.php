@@ -116,7 +116,7 @@ class Rpg06Controller extends Controller
             "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
             "Expires"             => "0"
         );
-        $columns = array('編號','報名日期', '客戶姓名', '客戶電話', '寶貝名稱' , '客戶地址' ,'法會費用');
+        $columns = array('編號','報名日期', '客戶姓名', '寶貝名稱' , '客戶電話' ,'法會費用');
 
         $callback = function() use($datas, $columns) {
             
@@ -128,12 +128,11 @@ class Rpg06Controller extends Controller
                 $row['編號'] = $key+1;
                 $row['報名日期'] = date('Y-m-d',strtotime($data->created_at));
                 $row['客戶姓名'] = $data->sale_data->cust_name->name;
-                $row['客戶電話'] = $data->sale_data->cust_name->mobile;
                 $row['寶貝名稱'] = $data->sale_data->pet_name;
-                $row['客戶地址'] = $data->sale_data->cust_name->county.$data->sale_data->cust_name->district.$data->sale_data->cust_name->address;
+                $row['客戶電話'] = $data->sale_data->cust_name->mobile;
                 $row['法會費用'] = number_format($data->prom_total);
-                fputcsv($file, array($row['編號'],$row['報名日期'],$row['客戶姓名']
-                                    ,$row['客戶電話'],$row['寶貝名稱'], $row['客戶地址'], $row['法會費用']));
+                fputcsv($file, array($row['編號'],$row['報名日期'],$row['客戶姓名'],$row['寶貝名稱']
+                                    ,$row['客戶電話'], $row['法會費用']));
             }
 
             fclose($file);
