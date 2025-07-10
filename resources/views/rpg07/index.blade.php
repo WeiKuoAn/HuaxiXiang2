@@ -63,7 +63,7 @@
                             @if (Auth::user()->level != 2)
                                 <div class="col-auto">
                                     <div class="text-lg-end my-1 my-lg-0">
-                                        <h3><span class="text-danger">共計{{ number_format($total_price) }}元</span></h3>
+                                        <h3><span class="text-danger">共{{ number_format($kgs,2) }}公斤，共計{{ number_format($total_price) }}元</span></h3>
                                     </div>
                                 </div><!-- end col-->
                             @endif

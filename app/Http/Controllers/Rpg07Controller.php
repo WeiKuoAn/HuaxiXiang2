@@ -39,14 +39,15 @@ class Rpg07Controller extends Controller
         }
         // dd($datas);
         $total_price = 0;
+        $kgs = 0;
         foreach ($datas as $data)
         {
             $total_price+=$data->plan_price;
+            $kgs += floatval($data->kg) ?? 0;
         }
-        // dd($datas);
-        // dd($datas);
         return view('rpg07.index')->with('datas', $datas)
                                   ->with('total_price',$total_price)
+                                  ->with('kgs',$kgs)
                                   ->with('request', $request);
     }
 
