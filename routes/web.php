@@ -572,6 +572,9 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/rpg/rpg29', [Rpg29Controller::class, 'rpg29'])->name('rpg29');
     Route::get('/rpg/rpg30', [Rpg30Controller::class, 'rpg30'])->name('rpg30');
     Route::get('/rpg/rpg30/detail/{month}/{type}', [Rpg30Controller::class, 'detail'])->name('rpg30.detail');
+    Route::get('/rpg/rpg30/detail/suit/{season_start}/{season_end}/{suit_id}', [Rpg30Controller::class, 'season_suit_detail'])->name('rpg30.season.suit.detail');
+    Route::get('/rpg/rpg30/detail/urn-souvenir/{season_start}/{season_end}/{urn_souvenir}', [Rpg30Controller::class, 'season_urn_souvenir_detail'])->name('rpg30.season.urn_souvenir.detail');
+
     Route::get('/rpg/rpg31', [Rpg31Controller::class, 'rpg31'])->name('rpg31');
     Route::get('/rpg/rpg31/{month}/{lamp_type}/detail', [Rpg31Controller::class, 'detail'])->name('rpg31.detail');
 
@@ -607,12 +610,13 @@ Route::group(['prefix' => '/'], function () {
 
     //選單管理
     Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
+    Route::get('/menu/sub/{parentId}', [MenuController::class, 'subMenu'])->name('menu.sub');
     Route::get('/menu/create', [MenuController::class, 'create'])->name('menu.create');
     Route::post('/menu/create', [MenuController::class, 'store'])->name('menu.create.data');
     Route::get('/menu/edit/{id}', [MenuController::class, 'show'])->name('menu.edit');
     Route::post('/menu/edit/{id}', [MenuController::class, 'update'])->name('menu.edit.data');
-    Route::get('/menu/del/{id}', [MenuController::class, 'delete'])->name('menu.del');
-    Route::post('/menu/del/{id}', [MenuController::class, 'destroy'])->name('menu.del.data');
+    Route::post('/menu/update-order', [MenuController::class, 'updateOrder'])->name('menu.updateOrder');
+    Route::post('/menu/delete/{id}', [MenuController::class, 'destroy'])->name('menu.delete');
 
     //權限選單管理
     Route::get('/job-menu', [JobMenuController::class, 'index'])->name('job.menu.index');
