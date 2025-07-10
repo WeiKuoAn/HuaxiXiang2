@@ -143,22 +143,9 @@ class SaleDataController extends Controller
                     }
                     break;
 
-                case 'E': // 追加 - 需要找到訂金單或尾款單
-                    $data = Sale::where('customer_id', $customerId)
-                        ->where('pet_name', $pet_name)
-                        ->where('type_list', '!=', 'memorial') // 排除追思單
-                        ->whereIn('pay_id', ['C', 'D']); // 查詢訂金單或尾款單
-                    
-                    if(isset($request->current_id)){
-                        $data = $data->where('id', '<>', $request->current_id);
-                    }
-                    $data = $data->orderby('id', 'desc')->first();
-                    
-                    if (isset($data->pay_id) && in_array($data->pay_id, ['C', 'D'])) {
-                        $output = 'OK';
-                    } else {
-                        $output = '此客戶尚未建立訂金或尾款，請先建立訂金';
-                    }
+                case 'E': // 追加 - 允許直接新增
+                    $output = 'OK';
+                    $data = null;
                     break;
 
                 case 'A': // 一次付清 - 檢查是否已有訂金單
