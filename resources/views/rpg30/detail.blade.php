@@ -15,7 +15,13 @@
                             <li class="breadcrumb-item active">每月來源報表</li>
                         </ol>
                     </div>
-                    <h4 class="page-title">{{ $year . '-' . $month }}</h4>
+                    <h4 class="page-title">
+                        @if (isset($season_start) && isset($season_end))
+                            {{ $season_start . '~' . $season_end }}
+                        @else
+                            {{ $year . '-' . $month }}
+                        @endif
+                    </h4>
                 </div>
             </div>
         </div>
@@ -41,6 +47,9 @@
                                             <td>合計</td>
                                         @elseif ($type == 'specify')
                                             <td>明細</td>
+                                            <td>合計</td>
+                                        @elseif ($type == 'urn_souvenir')
+                                            <td>品項</td>
                                             <td>合計</td>
                                         @endif
 
@@ -73,7 +82,8 @@
                                                         @endif
                                                     @endforeach
                                                 </td>
-                                                <td>{{ number_format($sale->proms->where('prom_type', 'C')->count()) }}</td>
+                                                <td>{{ number_format($sale->proms->where('prom_type', 'C')->count()) }}
+                                                </td>
                                             @elseif ($type == 'urn')
                                                 <td>
                                                     @foreach ($sale->proms as $prom)
@@ -87,6 +97,19 @@
                                                     @endforeach
                                                 </td>
                                             @elseif ($type == 'specify')
+                                                <td>
+                                                    @foreach ($sale->proms as $prom)
+                                                        @if (isset($prom->prom_id))
+                                                            {{ $prom->prom_name->name }}-{{ number_format($prom->prom_total) }}<br>
+                                                        @else
+                                                            無
+                                                        @endif
+                                                    @endforeach
+                                                </td>
+                                                <td>
+                                                    {{ number_format($sale->proms->sum('prom_total')) }}
+                                                </td>
+                                            @elseif ($type == 'urn_souvenir')
                                                 <td>
                                                     @foreach ($sale->proms as $prom)
                                                         @if (isset($prom->prom_id))

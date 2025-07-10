@@ -88,14 +88,14 @@
                                             @if ($loop->iteration % 3 === 1)
                                                 <td rowspan="3">
                                                     @if (isset($season_datas[$key]['suit_seasons']))
-                                                        @foreach ($season_datas[$key]['suit_seasons'] as $suit_season)
-                                                            {{ $suit_season['name'] }}：{{ number_format($suit_season['count']) }}個<br>
+                                                        @foreach ($season_datas[$key]['suit_seasons'] as $suit_id=>$suit_season)
+                                                           {{ $suit_season['name'] }}：<a href="{{ route('rpg30.season.suit.detail', ['season_start'=>$season_datas[$key]['start_date'], 'season_end'=>$season_datas[$key]['end_date'], 'suit_id'=>$suit_id]) }}">{{ number_format($suit_season['count']) }}</a>個<br>
                                                         @endforeach
                                                     @endif
                                                 </td>
                                                 <td rowspan="3">
                                                     @if (isset($season_datas[$key]['urn_souvenir_season']))
-                                                        {{ number_format($season_datas[$key]['urn_souvenir_season']) }}
+                                                        <a href="{{ route('rpg30.season.urn_souvenir.detail', ['season_start'=>$season_datas[$key]['start_date'], 'season_end'=>$season_datas[$key]['end_date'], 'urn_souvenir'=>'urn_souvenir']) }}">{{ number_format($season_datas[$key]['urn_souvenir_season']) }}</a>
                                                     @endif
                                                 </td>
                                             @endif

@@ -128,6 +128,8 @@ class Rpg30Controller extends Controller
         //套裝：
         $suits = Suit::where('status', 'up')->whereNotIn('id', [1])->get();
         foreach ($seasons as $key => $season) {
+            $season_datas[$key]['start_date'] = $season['start_date'];
+            $season_datas[$key]['end_date'] = $season['end_date'];
             $season_datas[$key]['month'] = $season['month'];
             $season_datas[$key]['suit_season'] = DB::table('sale_data')
                 ->where('sale_data.sale_date', '>=', $season['start_date'])
@@ -292,5 +294,37 @@ class Rpg30Controller extends Controller
         }
         // dd($datas);
         return view('rpg30.detail')->with('datas', $datas)->with('year', $search_year)->with('month', $month)->with('type', $type);
+    }
+    
+    public function season_suit_detail(Request $request, $season_start, $season_end, $suit_id)
+    {
+        $suit_data = Suit::where('id', $suit_id)->first();
+        $datas = Sale::where('sale_date', '>=', $season_start)->where('sale_date', '<=', $season_end)->where('suit_id', $suit_id)->where('status', '9')->get();
+        return view('rpg30.detail')->with('datas', $datas)->with('season_start', $season_start)->with('season_end', $season_end)->with('suit_id', $suit_id)->with('type', 'suit')->with('suit_data', $suit_data);
+    }
+
+    public function season_urn_souvenir_detail(Request $request, $season_start, $season_end, $urn_souvenir)
+    {
+        $datas = Sale::with(['proms' => function ($q) {
+                $q->whereIn('prom_id', [14, 4])
+                    ->whereNotNull('prom_id')
+                    ->where('prom_id', '<>', '');
+            }])
+            ->whereHas('proms', function ($q) {
+                $q->whereIn('prom_id', [14, 4])
+                    ->whereNotNull('prom_id')
+                    ->where('prom_id', '<>', '');
+            })
+            ->where('sale_date', '>=', $season_start)
+            ->where('sale_date', '<=', $season_end)
+            ->where('status', '9')
+            ->get();
+        
+        
+        return view('rpg30.detail')
+            ->with('datas', $datas)
+            ->with('season_start', $season_start)
+            ->with('season_end', $season_end)
+            ->with('type', 'urn_souvenir');
     }
 }
