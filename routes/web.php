@@ -302,6 +302,9 @@ Route::group(['prefix' => '/'], function () {
     Route::post('/sale/del/{id}', [SaleDataController::class, 'destroy'])->name('sale.data.del');
     Route::get('/sale/check/history', [SaleDataController::class, 'checkHistory'])->name('sales.checkHistory');
     Route::get('/sale/history/{id}', [SaleDataController::class, 'history'])->name('sale.history');
+
+    Route::get('/sale/scrapped/create', [SaleDataController::class, 'scrapped_create'])->name('sale.scrapped.create');
+    Route::post('/sale/scrapped/create', [SaleDataController::class, 'scrapped_store'])->name('sale.scrapped.create.data');
     //業務確認對帳
     Route::get('/sale/check/{id}', [SaleDataController::class, 'check_show'])->name('sale.check');
     Route::post('/sale/check/{id}', [SaleDataController::class, 'check_update'])->name('sale.data.check');
@@ -319,6 +322,8 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/gdpaper/search', [SaleDataController::class, 'gdpaper_search'])->name('gdpaper.search');
     Route::get('/customer/search', [SaleDataController::class, 'customer_search'])->name('customer.search');
     Route::get('/company/search', [SaleDataController::class, 'company_search'])->name('company.search');
+    Route::get('/sale/check_sale_on', [SaleDataController::class, 'check_sale_on'])->name('sale.check_sale_on');
+    Route::get('/sale/statistics', [SaleDataController::class, 'getOrderStatistics'])->name('sale.statistics');
     Route::get('wait/sales', [SaleDataController::class, 'wait_index'])->name('wait.sales');
 
     Route::get('user/{id}/sale', [SaleDataController::class, 'user_sale'])->name('user.sale');
