@@ -99,12 +99,53 @@ class SaleDataController extends Controller
         }
     }
 
+    public function check_sale_on(Request $request)
+    {
+        if ($request->ajax()) {
+            $sale_on = $request->sale_on;
+            $current_id = $request->current_id ?? null;
+            
+            // 正規化單號格式，統一轉換為小寫並移除空格
+            $normalized_sale_on = strtolower(trim($sale_on));
+            
+            // 查詢資料庫，使用正規化後的單號進行比較
+            $query = Sale::whereRaw('LOWER(TRIM(sale_on)) = ?', [$normalized_sale_on]);
+            
+            // 如果是編輯模式，排除當前記錄
+            if ($current_id) {
+                $query->where('id', '!=', $current_id);
+            }
+            
+            $existing_sale = $query->first();
+            
+            if ($existing_sale) {
+                return response()->json([
+                    'exists' => true,
+                    'message' => '此單號已存在，請檢查是否重複輸入'
+                ]);
+            } else {
+                return response()->json([
+                    'exists' => false,
+                    'message' => '單號可用'
+                ]);
+            }
+        }
+        
+        return response()->json(['error' => '無效的請求'], 400);
+    }
+
     public function final_price(Request $request)
     {
         if ($request->ajax()) {
             $customerId = $request->customer_id; // 確保變數名稱一致
             $pet_name = $request->pet_name;
+            $type_list = $request->type_list; // 新增 type_list 參數
             $output = '';
+            
+            // 如果是追思單，直接允許新增
+            if ($type_list == 'memorial') {
+                return response()->json(['message' => 'OK', 'data' => null]);
+            }
             
             // 根據不同的支付類型，查詢不同的相關單據
             switch ($request->pay_id) {
@@ -393,6 +434,25 @@ class SaleDataController extends Controller
         $sale_history->save();
 
         return redirect()->route('sale.create');
+    }
+
+    public function scrapped_create()
+    {
+        $date = date('Y-m-d');
+        return view('sale.scrapped_create')->with('date', $date);
+    }
+
+    public function scrapped_store(Request $request)
+    {
+        $sale = new Sale();
+        $sale->sale_on = $request->sale_on;
+        $sale->sale_date = $request->sale_date;
+        $sale->type_list = 'scrapped';
+        $sale->comm = $request->comm;
+        $sale->user_id = Auth::user()->id;
+        $sale->save();
+
+        return redirect()->route('sale.scrapped.create');
     }
 
 

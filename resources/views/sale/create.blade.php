@@ -73,6 +73,7 @@
                                 <div class="mb-3 col-md-4">
                                     <label for="sale_on" class="form-label">單號<span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="sale_on" name="sale_on" required>
+                                    <div id="sale_on_feedback" class="mt-1"></div>
                                 </div>
                                 <div class="mb-3 col-md-4">
                                     <label for="sale_date" class="form-label">日期<span class="text-danger">*</span></label>
@@ -291,6 +292,32 @@
                                                                 class="mobile form-select" name="prom[]">
                                                                 <option value="">請選擇</option>
                                                             </select>
+                                                            {{-- <div class="row mt-1 prom-product-container" id="prom_product_{{ $i }}">
+                                                                <div class="col-3" id="souvenir_type_col_{{ $i }}" style="display:none;">
+                                                                    <select id="product_souvenir_type_{{ $i }}"
+                                                                        class="form-select" name="product_souvenir_type[]">
+                                                                        <option value="">請選擇</option>
+                                                                        @foreach ($souvenir_types as $souvenir_type)
+                                                                            <option value="{{ $souvenir_type->id }}">{{ $souvenir_type->name }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-3" id="product_name_col_{{ $i }}" style="display:none;">
+                                                                    <input type="text" id="product_name_{{ $i }}" class="form-control" name="product_name[]" placeholder="請輸入商品名稱">
+                                                                </div>
+                                                                <div class="col-3" id="product_prom_col_{{ $i }}">
+                                                                    <select id="product_prom_{{ $i }}"
+                                                                        class="form-select" name="product_prom[]">
+                                                                        <option value="">請選擇</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-3" id="product_num_col_{{ $i }}">
+                                                                    <input class="form-control" type="number" id="product_num_{{$i}}" name="product_num[]" value="1" min="1">
+                                                                </div>
+                                                                <div class="col-3" id="product_comment_col_{{ $i }}">
+                                                                    <input class="form-control" type="text" id="product_comment_{{$i}}" name="product_comment[]" placeholder="備註">
+                                                                </div>
+                                                            </div> --}}
                                                         </td>
                                                         <td>
                                                             <input type="text" class="mobile form-control total_number"
@@ -379,7 +406,7 @@
                 </div> <!-- end col -->
             </div>
 
-            {{-- <div class="row not_memorial_show" id="souvenir_div">
+            <div class="row not_memorial_show" id="souvenir_div">
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
@@ -443,7 +470,7 @@
                         </div>
                     </div> <!-- end card -->
                 </div> <!-- end col -->
-            </div> --}}
+            </div>
 
             <div class="row">
                 <div class="col-lg-12">
@@ -549,6 +576,80 @@
 
 
     <script>
+       $(document).ready(function() {
+            // 一開始隱藏所有 prom_product
+            $('[id^=prom_product_]').hide();
+        });
+
+        $(document).on('change', 'select[id^=prom_]', function() {
+                var selectId = $(this).attr('id');
+            var idx = selectId.replace('prom_', '');
+                var promId = $(this).val();
+
+                $.ajax({
+                    url: '{{ route('product.prom_product_search') }}',
+                    data: { 'prom_id': promId },
+                    dataType: 'json',
+                    success: function(data) {
+                    console.log('prom_product_search data:', data);
+                    
+                    // 檢查是否有商品資料或is_custom_product為1
+                    var shouldShow = (data.products && data.products.length > 0) || data.is_custom_product == 1;
+                    
+                    if (shouldShow) {
+                        var html = '';
+                        if (data.products && data.products.length > 0) {
+                            // 有商品資料，三欄顯示，全部 col-4
+                            $('#souvenir_type_col_' + idx).hide();
+                            $('#product_name_col_' + idx).hide();
+                            $('#product_prom_col_' + idx).show().removeClass('col-3').addClass('col-4');
+                            $('#product_num_col_' + idx).show().removeClass('col-3').addClass('col-4');
+                            $('#product_comment_col_' + idx).show().removeClass('col-3').addClass('col-4');
+                            // 填入商品下拉
+                            var html = '<select id="product_prom_' + idx + '" class="form-select" name="product_prom[]">';
+                            html += '<option value="">請選擇</option>';
+                            data.products.forEach(function(item) {
+                                html += '<option value="' + item.id + '">' + item.name + ' (' + item.price + ')</option>';
+                            });
+                            html += '</select>';
+                            $('#product_prom_col_' + idx).html(html);
+                        } else if (data.is_custom_product == 1) {
+                            // 自訂商品，四欄顯示，全部 col-3
+                            $('#souvenir_type_col_' + idx).show().removeClass('col-4').addClass('col-3');
+                            $('#product_name_col_' + idx).show().removeClass('col-4').addClass('col-3');
+                            $('#product_prom_col_' + idx).hide();
+                            $('#product_num_col_' + idx).show().removeClass('col-4').addClass('col-3');
+                            $('#product_comment_col_' + idx).show().removeClass('col-4').addClass('col-3');
+                        }
+                        
+                        // 替換商品選擇區域
+                        // $('#prom_product_' + idx).replaceWith(html); // This line is removed
+                        
+                        // 顯示整個prom_product區塊
+                        $('#prom_product_' + idx).show(300);
+                        } else {
+                        // 沒有商品資料且is_custom_product不為1，隱藏區塊
+                        $('#prom_product_' + idx).hide(300);
+                        $('#souvenir_type_col_' + idx).hide();
+                        $('#product_name_col_' + idx).hide();
+                        $('#product_prom_col_' + idx).hide();
+                        $('#product_num_col_' + idx).hide();
+                        $('#product_comment_col_' + idx).hide();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('prom_product_search error:', error);
+                    // 發生錯誤時隱藏區塊
+                    $('#prom_product_' + idx).hide(300);
+                    $('#souvenir_type_col_' + idx).hide();
+                    $('#product_name_col_' + idx).hide();
+                    $('#product_prom_col_' + idx).hide();
+                    $('#product_num_col_' + idx).hide();
+                    $('#product_comment_col_' + idx).hide();
+                    }
+            });
+        });
+
         $(".twzipcode").twzipcode({
             css: ["twzipcode-select", "twzipcode-select", "twzipcode-select"], // 自訂 "城市"、"地區" class 名稱 
             countyName: "county", // 自訂城市 select 標籤的 name 值
@@ -564,6 +665,7 @@
             const payId = $('#pay_id').val();
             const customerId = $('#cust_name_q').val();
             const petName = $('#pet_name').val();
+            const typeList = $('#type_list').val();
 
             if (payId && customerId && petName) {
                 $.ajax({
@@ -572,7 +674,8 @@
                     data: {
                         pay_id: payId,
                         customer_id: customerId,
-                        pet_name: petName
+                        pet_name: petName,
+                        type_list: typeList,
                     },
                     success: function(response) {
                         console.log('final_price response:', response);
@@ -942,6 +1045,10 @@
         function chgItems(obj) {
             $("#row_id").val($("#" + obj.id).attr('alt'));
             row_id = $("#row_id").val();
+            
+            // 防呆：當變更select_proms時，隱藏對應的prom_product區塊
+            $('#prom_product_' + row_id).hide(300);
+            
             $.ajax({
                 url: '{{ route('prom.search') }}',
                 data: {
@@ -1226,6 +1333,33 @@
             cols += '</tr>';
             newRow.append(cols);
             $("table.prom-list tbody").append(newRow);
+            
+            // 新增對應的prom_product區塊（一開始隱藏）
+            var promProductHtml = '';
+            promProductHtml += '<div class="row mt-1 prom-product-container" id="prom_product_' + $rowCount + '" style="display: none;">';
+            promProductHtml += '<div class="col-3" id="souvenir_type_col_' + $rowCount + '" style="display:none;">';
+            promProductHtml += '<select id="product_souvenir_type_' + $rowCount + '" class="form-select" name="product_souvenir_type[]">';
+            promProductHtml += '<option value="">請選擇</option>';
+            promProductHtml += '</select>';
+            promProductHtml += '</div>';
+            promProductHtml += '<div class="col-3" id="product_name_col_' + $rowCount + '" style="display:none;">';
+            promProductHtml += '<input type="text" id="product_name_' + $rowCount + '" class="form-control" name="product_name[]" placeholder="請輸入商品名稱">';
+            promProductHtml += '</div>';
+            promProductHtml += '<div class="col-3" id="product_prom_col_' + $rowCount + '">';
+            promProductHtml += '<select id="product_prom_' + $rowCount + '" class="form-select" name="product_prom[]">';
+            promProductHtml += '<option value="">請選擇</option>';
+            promProductHtml += '</select>';
+            promProductHtml += '</div>';
+            promProductHtml += '<div class="col-3" id="product_num_col_' + $rowCount + '">';
+            promProductHtml += '<input class="form-control" type="number" id="product_num_' + $rowCount + '" name="product_num[]" value="1" min="1">';
+            promProductHtml += '</div>';
+            promProductHtml += '<div class="col-3" id="product_comment_col_' + $rowCount + '">';
+            promProductHtml += '<input class="form-control" type="text" id="product_comment_' + $rowCount + '" name="product_comment[]" placeholder="備註">';
+            promProductHtml += '</div>';
+            promProductHtml += '</div>';
+            
+            // 將prom_product區塊插入到對應的td中
+            $('table.prom-list tr:last-child td:nth-child(3)').append(promProductHtml);
         });
 
         $("#not_cust_adress").hide();
@@ -1251,6 +1385,68 @@
         $.ajaxSetup({
             headers: {
                 'csrftoken': '{{ csrf_token() }}'
+            }
+        });
+
+        // 單號重複檢查
+        let saleOnCheckTimer;
+        let isSaleOnValid = true; // 追蹤單號是否有效
+        
+        $('#sale_on').on('input', function() {
+            const saleOn = $(this).val().trim();
+            const feedback = $('#sale_on_feedback');
+            
+            // 清除之前的計時器
+            clearTimeout(saleOnCheckTimer);
+            
+            // 清空之前的反饋
+            feedback.html('').removeClass('text-danger text-success');
+            
+            // 如果輸入為空，不進行檢查
+            if (!saleOn) {
+                isSaleOnValid = true;
+                return;
+            }
+            
+            // 檢查單號格式（必須包含數字）
+            if (!/\d/.test(saleOn)) {
+                feedback.html('<small class="text-warning">請輸入包含數字的單號</small>').addClass('text-warning');
+                isSaleOnValid = false;
+                return;
+            }
+            
+            // 延遲 500ms 後進行檢查，避免頻繁請求
+            saleOnCheckTimer = setTimeout(function() {
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ route('sale.check_sale_on') }}',
+                    data: {
+                        'sale_on': saleOn
+                    },
+                    success: function(response) {
+                        if (response.exists) {
+                            feedback.html('<small class="text-danger">⚠️ ' + response.message + '</small>').addClass('text-danger');
+                            isSaleOnValid = false;
+                        } else {
+                            feedback.html('<small class="text-success">✓ ' + response.message + '</small>').addClass('text-success');
+                            isSaleOnValid = true;
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        feedback.html('<small class="text-danger">檢查單號時發生錯誤</small>').addClass('text-danger');
+                        isSaleOnValid = false;
+                        console.error('單號檢查錯誤:', error);
+                    }
+                });
+            }, 500);
+        });
+
+        // 表單提交檢查
+        $('#your-form').on('submit', function(e) {
+            if (!isSaleOnValid) {
+                e.preventDefault();
+                alert('單號有重複，請檢查後再提交');
+                return false;
             }
         });
     </script>

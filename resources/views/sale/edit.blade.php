@@ -66,7 +66,8 @@
                         </div>
                         <div class="mb-3 col-md-4">
                             <label for="sale_on" class="form-label">單號<span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="sale_on" name="sale_on" value="{{ $data->sale_on }}" required  >
+                            <input type="text" class="form-control" id="sale_on" name="sale_on" value="{{ $data->sale_on }}" required>
+                            <div id="sale_on_feedback" class="mt-1"></div>
                         </div>
                         <div class="mb-3 col-md-4">
                             <label for="sale_date" class="form-label">日期<span class="text-danger">*</span></label>
@@ -628,6 +629,7 @@
             const planId = $('#plan_id').val();
             const typeList = $('#type_list').val();
             const saleId = $('#sale_id').val();
+            const typeList = $('#type_list').val();
 
             if (payId && customerId && petName || planId) {
                 $.ajax({
@@ -637,7 +639,8 @@
                         pay_id: payId,
                         customer_id: customerId,
                         pet_name: petName,
-                        current_id: saleId
+                        current_id: saleId,
+                        type_list: typeList
                     },
                     success: function (response) {
                         console.log('回傳結果:', response);
@@ -1356,5 +1359,69 @@
             $("table.prom-list tbody").append(newRow);
         });
         $.ajaxSetup({ headers: { 'csrftoken' : '{{ csrf_token() }}' } });
+
+        // 單號重複檢查（編輯模式）
+        let saleOnCheckTimer;
+        let isSaleOnValid = true; // 追蹤單號是否有效
+        
+        $('#sale_on').on('input', function() {
+            const saleOn = $(this).val().trim();
+            const feedback = $('#sale_on_feedback');
+            const currentId = {{ $data->id }}; // 當前記錄的ID
+            
+            // 清除之前的計時器
+            clearTimeout(saleOnCheckTimer);
+            
+            // 清空之前的反饋
+            feedback.html('').removeClass('text-danger text-success');
+            
+            // 如果輸入為空，不進行檢查
+            if (!saleOn) {
+                isSaleOnValid = true;
+                return;
+            }
+            
+            // 檢查單號格式（必須包含數字）
+            if (!/\d/.test(saleOn)) {
+                feedback.html('<small class="text-warning">請輸入包含數字的單號</small>').addClass('text-warning');
+                isSaleOnValid = false;
+                return;
+            }
+            
+            // 延遲 500ms 後進行檢查，避免頻繁請求
+            saleOnCheckTimer = setTimeout(function() {
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ route('sale.check_sale_on') }}',
+                    data: {
+                        'sale_on': saleOn,
+                        'current_id': currentId
+                    },
+                    success: function(response) {
+                        if (response.exists) {
+                            feedback.html('<small class="text-danger">⚠️ ' + response.message + '</small>').addClass('text-danger');
+                            isSaleOnValid = false;
+                        } else {
+                            feedback.html('<small class="text-success">✓ ' + response.message + '</small>').addClass('text-success');
+                            isSaleOnValid = true;
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        feedback.html('<small class="text-danger">檢查單號時發生錯誤</small>').addClass('text-danger');
+                        isSaleOnValid = false;
+                        console.error('單號檢查錯誤:', error);
+                    }
+                });
+            }, 500);
+        });
+
+        // 表單提交檢查
+        $('#your-form').on('submit', function(e) {
+            if (!isSaleOnValid) {
+                e.preventDefault();
+                alert('單號有重複，請檢查後再提交');
+                return false;
+            }
+        });
 </script>
 @endsection
