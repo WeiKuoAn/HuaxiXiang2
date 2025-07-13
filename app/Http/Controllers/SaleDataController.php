@@ -848,7 +848,6 @@ class SaleDataController extends Controller
 
     public function check_update(Request $request, $id)
     {
-
         $sale = Sale::where('id', $id)->first();
 
         if (Auth::user()->level != 2 || Auth::user()->job_id == 9) {
