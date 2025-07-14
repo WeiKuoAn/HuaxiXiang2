@@ -618,7 +618,7 @@ class SaleDataController extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
 
-        if (Auth::user()->level != 2 || Auth::user()->job_id == '9') {
+        if (Auth::user()->level != 2 || Auth::user()->job_id == '9' || Auth::user()->job_id == '10') {
             return view('sale.index')->with('sales', $sales)
                 ->with('users', $users)
                 ->with('request', $request)
