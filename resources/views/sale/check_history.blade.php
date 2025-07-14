@@ -81,7 +81,7 @@
                 @foreach ($datas as $date => $data)
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">{{ $data['name'] }}</h5>
+                            <h5 class="card-title"> {{$data['name']}}</h5>
                             <div class="table-responsive ">
                                 <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
                                     <thead class="table-light">
