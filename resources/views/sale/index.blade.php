@@ -290,7 +290,7 @@
                                                 <a href="{{ route('check-sale', $sale->id) }}"><button type="button"
                                                         class="btn btn-danger btn-sm">查看</button></a>
                                             @endif --}}
-                                            @if(Auth::user()->level != 2)
+                                            @if(Auth::user()->level != 2 || $sale->user_id == Auth::user()->id)
                                                 @if ($sale->status != '9')
                                                     <div class="btn-group dropdown">
                                                         <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-outline-secondary waves-effect" data-bs-toggle="dropdown" aria-expanded="false">動作 <i class="mdi mdi-arrow-down-drop-circle"></i></a>
