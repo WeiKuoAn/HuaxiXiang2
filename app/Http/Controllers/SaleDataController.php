@@ -1393,21 +1393,25 @@ class SaleDataController extends Controller
             $cash_total = Sale::where('status', 9)
                 ->where('sale_date', $sale->sale_date)
                 ->where('pay_method', 'A')
+                ->where('user_id', $sale->user_id)
                 ->sum('pay_price');
 
             $transfer_total = Sale::where('status', 9)
                 ->where('sale_date', $sale->sale_date)
                 ->where('pay_method', 'B')
+                ->where('user_id', $sale->user_id)
                 ->sum('pay_price');
 
             $cash_transfer_cash_total = Sale::where('status', 9)
                 ->where('sale_date', $sale->sale_date)
                 ->where('pay_method', 'C')
+                ->where('user_id', $sale->user_id)
                 ->sum('cash_price');
 
             $cash_transfer_transfer_total = Sale::where('status', 9)
                 ->where('sale_date', $sale->sale_date)
                 ->where('pay_method', 'C')
+                ->where('user_id', $sale->user_id)
                 ->sum('transfer_price');
 
             $datas[$sale->user_id]['cash_total'] = $cash_total + $cash_transfer_cash_total;
