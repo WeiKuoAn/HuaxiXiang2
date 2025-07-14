@@ -63,11 +63,13 @@
                                     </div>
                                 </form>
                             </div>
-                            {{-- <div class="col-auto">
-                            <div class="text-lg-end my-1 my-lg-0">
-                                <h3><span class="text-danger">共計：{{ number_format($sums['count']) }}單，佣金共{{ number_format($sums['commission']) }}元</span></h3>
-                            </div>
-                        </div><!-- end col--> --}}
+                            <div class="col-auto">
+                                <div class="text-lg-end my-1 my-lg-0">
+                                    <h3><span
+                                            class="text-danger">總共：{{ number_format($sums['count']) }}單，總計：{{ number_format($sums['price']) }}元</span>
+                                    </h3>
+                                </div>
+                            </div><!-- end col-->
                         </div> <!-- end row -->
                     </div>
                 </div> <!-- end card -->
@@ -76,34 +78,30 @@
 
         <div class="row">
             <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-responsive ">
-                            <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
-                                <thead class="table-light">
-                                    <tr align="center">
-                                        <th>No</th>
-                                        <th>日期</th>
-                                        <th>單號</th>
-                                        <th width="15%">客戶名稱</th>
-                                        <th>寶貝名</th>
-                                        <th>方案</th>
-                                        <th>業務價格</th>
-                                        <th>業務詳情</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr style="color:red;">
-                                        <td colspan="6"></td>
-                                        <td align="center">總共：{{ number_format($sums['count']) }}單
-                                        </td>
-                                        <td align="center">總計：{{ number_format($sums['price']) }}元</td>
-                                    </tr>
-                                    @foreach ($datas as $date => $data)
-                                        @foreach ($data['items'] as $key => $item)
+                @foreach ($datas as $date => $data)
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ $data['name'] }}</h5>
+                            <div class="table-responsive ">
+                                <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
+                                    <thead class="table-light">
+                                        <tr align="center">
+                                            <th>No</th>
+                                            <th>日期</th>
+                                            <th>單號</th>
+                                            <th width="15%">客戶名稱</th>
+                                            <th>寶貝名</th>
+                                            <th>方案</th>
+                                            <th>業務價格</th>
+                                            <th>對帳人員</th>
+                                            <th>業務詳情</th>
+                                        </tr>
+                                    </thead>
+                                    @foreach ($data['items'] as $key => $item)
+                                        <tbody>
                                             <tr>
                                                 <td align="center">{{ $key + 1 }}</td>
-                                                <td align="center">{{ $date }}</td>
+                                                <td align="center">{{ $item->sale_date }}</td>
                                                 <td align="center">{{ $item->sale_on }}</td>
                                                 <td align="center">
                                                     @if (isset($item->cust_name))
@@ -121,24 +119,26 @@
                                                     @endif
                                                 </td>
                                                 <td align="center">{{ number_format($item->pay_price) }}</td>
-                                                <td align="center"><a href="{{ route('sale.check',$item->id) }}" ><i class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i></a></td>
+                                                <td align="center">{{ $item->check_user_name->name }}</td>
+                                                <td align="center"><a href="{{ route('sale.check', $item->id) }}"><i
+                                                            class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i></a>
+                                                </td>
                                             </tr>
-                                        @endforeach
-                                        <tr class="mb-3">
-                                            <td colspan="3"></td>
-                                            <td align="center"><b>共計：{{ number_format($data['count']) }}單</b></td>
-                                            <td align="center"><b>現金：{{ number_format($data['cash_total']) }}元</b></td>
-                                            <td align="center"><b>匯款：{{ number_format($data['transfer_total']) }}元</b></td>
-                                            <td align="center"><b>小計：{{ number_format($data['price']) }}元</b></td>
-                                            <td></td>
-                                        </tr>
                                     @endforeach
-                                </tbody>
-
-                            </table><br>
+                                    </tbody>
+                                    <tr class="mb-3">
+                                        <td colspan="5"></td>
+                                        <td align="center"><b>共計：{{ number_format($data['count']) }}單</b></td>
+                                        <td align="center"><b>現金：{{ number_format($data['cash_total']) }}元</b></td>
+                                        <td align="center"><b>匯款：{{ number_format($data['transfer_total']) }}元</b></td>
+                                        <td align="center"><b>小計：{{ number_format($data['price']) }}元</b></td>
+                                        <td></td>
+                                    </tr>
+                                </table><br>
+                            </div>
                         </div>
                     </div>
-                </div>
+                @endforeach
             </div>
         </div>
 
