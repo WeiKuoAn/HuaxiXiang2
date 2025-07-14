@@ -211,6 +211,7 @@ class PayDataController extends Controller
             $pay_on = $today . $i;
         }
         $user = User::where('id', Auth::user()->id)->first();
+        dd($user->job_id);
         $PayData = new PayData();
         $PayData->pay_on = $pay_on;
         $PayData->pay_date = date('Y-m-d', strtotime(Carbon::now()->locale('zh-tw')));

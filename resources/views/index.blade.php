@@ -13,6 +13,18 @@
     <!-- Start Content-->
     <div class="container-fluid">
 
+        <!-- 顯示錯誤訊息 -->
+        @if(session('error'))
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- start page title -->
         <div class="row">
             <div class="col-12">
@@ -27,77 +39,76 @@
 
 
         {{-- @if (Auth::user()->job_id != 5) --}}
-            <div class="row">
-                <div class="col-12">
-                    <div class="widget-rounded-circle card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-auto">
-                                    <h4 class="header-title mb-3">線上打卡</h4>
-                                </div>
-                                <form action="{{ route('index.worktime') }}" method="POST">
-                                    <div class="alert alert-primary" role="alert">
-                                        目前時間為 <b>{{ $now }}</b>
-                                    </div>
-                                    @csrf
-                                    @if (!isset($work->worktime))
-                                        <button type="Submit" class="btn btn-primary" name="work_time"
-                                            value="0">上班</button>
-                                        <button type="button" class="btn btn-success" name="overtime" value="1"
-                                            id="overtime">補簽</button>
-                                        <div id="overtimecontent">
-                                            <br>
-                                            <div class="mb-3">
-                                                <label for="exampleFormControlTextarea1" class="form-label">上班時間</label>
-                                                <input type="datetime-local" class="form-control" id="name"
-                                                    name="worktime" value="">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="exampleFormControlTextarea1" class="form-label">下班時間</label>
-                                                <input type="datetime-local" class="form-control" id="name"
-                                                    name="dutytime" value="">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="exampleFormControlTextarea1" class="form-label">補簽原因</label>
-                                                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="remark"></textarea><br>
-                                                <button type="Submit" class="btn btn-danger" name="overtime"
-                                                    value="1">送出</button>
-                                            </div>
-                                        </div>
-                                    @elseif($work->dutytime != null)
-                                        <button type="Submit" class="btn btn-primary" name="work_time"
-                                            value="0">上班</button>
-                                        <button type="button" class="btn btn-success" value="1"
-                                            id="overtime">補簽</button>
-                                        <div id="overtimecontent">
-                                            <br>
-                                            <div class="mb-3">
-                                                <label for="exampleFormControlTextarea1" class="form-label">上班時間</label>
-                                                <input type="datetime-local" class="form-control" id="name"
-                                                    name="worktime" value="">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="exampleFormControlTextarea1" class="form-label">下班時間</label>
-                                                <input type="datetime-local" class="form-control" id="name"
-                                                    name="dutytime" value="">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="exampleFormControlTextarea1" class="form-label">補簽原因</label>
-                                                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="remark"></textarea><br>
-                                                <button type="Submit" class="btn btn-danger" name="overtime"
-                                                    value="1">送出</button>
-                                            </div>
-                                        </div>
-                                    @elseif($work->dutytime == null)
-                                        <button type="Submit" class="btn btn-danger" name="dutytime"
-                                            value="2">下班</button>
-                                    @endif
+        <div class="row">
+            <div class="col-12">
+                <div class="widget-rounded-circle card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-auto">
+                                <h4 class="header-title mb-3">線上打卡</h4>
                             </div>
-                            </form>
-                        </div> <!-- end row-->
-                    </div>
-                </div> <!-- end widget-rounded-circle-->
-            </div> <!-- end col-->
+                            <form action="{{ route('index.worktime') }}" method="POST">
+                                <div class="alert alert-primary" role="alert">
+                                    目前時間為 <b>{{ $now }}</b>
+                                </div>
+                                @csrf
+                                @if (!isset($work->worktime))
+                                    <button type="Submit" class="btn btn-primary" name="work_time"
+                                        value="0">上班</button>
+                                    <button type="button" class="btn btn-success" name="overtime" value="1"
+                                        id="overtime">補簽</button>
+                                    <div id="overtimecontent">
+                                        <br>
+                                        <div class="mb-3">
+                                            <label for="exampleFormControlTextarea1" class="form-label">上班時間</label>
+                                            <input type="datetime-local" class="form-control" id="name" name="worktime"
+                                                value="">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="exampleFormControlTextarea1" class="form-label">下班時間</label>
+                                            <input type="datetime-local" class="form-control" id="name" name="dutytime"
+                                                value="">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="exampleFormControlTextarea1" class="form-label">補簽原因</label>
+                                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="remark"></textarea><br>
+                                            <button type="Submit" class="btn btn-danger" name="overtime"
+                                                value="1">送出</button>
+                                        </div>
+                                    </div>
+                                @elseif($work->dutytime != null)
+                                    <button type="Submit" class="btn btn-primary" name="work_time"
+                                        value="0">上班</button>
+                                    <button type="button" class="btn btn-success" value="1" id="overtime">補簽</button>
+                                    <div id="overtimecontent">
+                                        <br>
+                                        <div class="mb-3">
+                                            <label for="exampleFormControlTextarea1" class="form-label">上班時間</label>
+                                            <input type="datetime-local" class="form-control" id="name" name="worktime"
+                                                value="">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="exampleFormControlTextarea1" class="form-label">下班時間</label>
+                                            <input type="datetime-local" class="form-control" id="name" name="dutytime"
+                                                value="">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="exampleFormControlTextarea1" class="form-label">補簽原因</label>
+                                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="remark"></textarea><br>
+                                            <button type="Submit" class="btn btn-danger" name="overtime"
+                                                value="1">送出</button>
+                                        </div>
+                                    </div>
+                                @elseif($work->dutytime == null)
+                                    <button type="Submit" class="btn btn-danger" name="dutytime"
+                                        value="2">下班</button>
+                                @endif
+                        </div>
+                        </form>
+                    </div> <!-- end row-->
+                </div>
+            </div> <!-- end widget-rounded-circle-->
+        </div> <!-- end col-->
     </div> <!-- container -->
     {{-- @endif --}}
 
@@ -126,6 +137,7 @@
                                 <tr align="center">
                                     <th>立案人</th>
                                     <th>待辦事項</th>
+                                    <th>指派給</th> {{-- 新增：指派給的表頭 --}}
                                     <th>預計結束日期</th>
                                     <th>待辦事項說明</th>
                                     <th>狀態</th>
@@ -136,6 +148,7 @@
                                 @forelse($tasks as $key => $task)
                                     <tr align="center">
                                         <td>{{ $task->created_users->name }}</td>
+                                        <td>{{ $task->assigned_users->name ?? '' }}</td> {{-- 新增：顯示指派給的名稱 --}}
                                         <td>{{ $task->title }}</td>
                                         <td>{{ optional($task->end_date)->format('Y-m-d H:i') }}</td>
                                         <td>{{ $task->description }}</td>
@@ -326,6 +339,17 @@
                                     <option value="1">已完成</option>
                                 </select>
                             </div>
+                            {{-- 新增：指派給的下拉選單 --}}
+                            <div class="col-md-12 mb-3">
+                                <label>指派給</label>
+                                <select name="assigned_to" class="form-select">
+                                    <option value="">不指定</option>
+                                    @foreach ($users as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                    @endforeach
+                                    <option value="1">已完成</option>
+                                </select>
+                            </div>
                         </div>
                     </form>
                 </div><!-- /.modal-body -->
@@ -386,6 +410,7 @@
                     <tr align="center">
                       <td>${t.created_by_name}</td>
                       <td>${t.title}</td>
+                      <td>${t.assigned_to_name || ''}</td> {{-- 更新：顯示指派給的名稱 --}}
                       <td>${end}</td>
                       <td>${t.description || ''}</td>
                       <td>${statusLabel}</td>

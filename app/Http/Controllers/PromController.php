@@ -51,6 +51,7 @@ class PromController extends Controller
         $prom->name = $request->name;
         $prom->seq = $request->seq;
         $prom->status = $request->status;
+        $prom->is_custom_product = $request->is_custom_product;
         $prom->save();
         return redirect()->route('proms');
     }
@@ -94,6 +95,7 @@ class PromController extends Controller
         $prom->name = $request->name;
         $prom->seq = $request->seq;
         $prom->status = $request->status;
+        $prom->is_custom_product = $request->is_custom_product;
         $prom->save();
         return redirect()->route('proms');
     }

@@ -1,0 +1,60 @@
+<ul id="side-menu" class="list-unstyled">
+
+                {{-- 第一層：parent_id 為 null --}}
+                @foreach ($sidebarMenus->where('parent_id', null) as $parent)
+                    <li>
+                        @php
+                            // 判斷是否有子選單
+                            $children = $sidebarMenus->where('parent_id', $parent->id);
+                            $hasChildren = $children->count() > 0;
+                        @endphp
+
+                        <a href="{{ $hasChildren ? '#menu-' . $parent->id : route($parent->url) }}"
+                            @if ($hasChildren) data-bs-toggle="collapse" @endif>
+                            <i data-feather="{{ $parent->icon ?? 'circle' }}"></i>
+                            <span>{{ $parent->name }}</span>
+                            @if ($hasChildren)
+                                <span class="menu-arrow"></span>
+                            @endif
+                        </a>
+
+                        @if ($hasChildren)
+                            <div class="collapse" id="menu-{{ $parent->id }}">
+                                <ul class="nav-second-level list-unstyled">
+                                    {{-- 第二層 --}}
+                                    @foreach ($children as $child)
+                                        @php
+                                            $grands = $sidebarMenus->where('parent_id', $child->id);
+                                            $hasGrands = $grands->count() > 0;
+                                        @endphp
+                                        <li>
+                                            <a href="{{ $hasGrands ? '#menu-' . $child->id : route($child->url) }}"
+                                                @if ($hasGrands) data-bs-toggle="collapse" @endif>
+                                                <span>{{ $child->name }}</span>
+                                                @if ($hasGrands)
+                                                    <span class="menu-arrow"></span>
+                                                @endif
+                                            </a>
+                                            @if ($hasGrands)
+                                                <div class="collapse" id="menu-{{ $child->id }}">
+                                                    <ul class="nav-second-level list-unstyled">
+                                                        {{-- 第三層 --}}
+                                                        @foreach ($grands as $grand)
+                                                            <li>
+                                                                <a href="{{ route($grand->url) }}">
+                                                                    {{ $grand->name }}
+                                                                </a>
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                            @endif
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                    </li>
+                @endforeach
+            </ul>

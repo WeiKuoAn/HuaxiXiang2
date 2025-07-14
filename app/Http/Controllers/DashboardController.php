@@ -36,7 +36,8 @@ class DashboardController extends Controller
         // dd($one_month_day);
         // dd(Auth::user());
         if (Auth::user()->status != 1) {
-            $tasks = Task::where('status', '0')->get();
+            $users = User::where('status', '0')->get();
+            $tasks = Task::where('status', '0')->orderBy('end_date', 'asc')->get();
             $work = Works::where('user_id', Auth::user()->id)->orderBy('id', 'desc')->first();
             $contract_datas = Contract::whereIn('renew', [0, 1])->where('end_date', '>=', $now_day)->where('end_date', '<=', $two_month_day)->whereNull('close_date')->orderby('end_date', 'asc')->get();
             $lamp_datas = Lamp::whereIn('renew', [0, 1])->where('end_date', '>=', $now_day)->where('end_date', '<=', $one_month_day)->whereNull('close_date')->orderby('end_date', 'asc')->get();
@@ -56,7 +57,7 @@ class DashboardController extends Controller
             // }
             // dd($low_stock_products);
             // ->with('low_stock_products', $low_stock_products)
-            return view('index')->with('now', $now)->with('work', $work)->with('contract_datas', $contract_datas)->with('lamp_datas', $lamp_datas)->with('tasks', $tasks);
+            return view('index')->with('now', $now)->with('work', $work)->with('contract_datas', $contract_datas)->with('lamp_datas', $lamp_datas)->with('tasks', $tasks)->with('users', $users);
         } else {
             return redirect('/');
         }

@@ -105,25 +105,21 @@
                             </select>
                         </div>
                         <div class="mb-3 col-md-4" id="source_company">
-                            <label for="source_company_id" class="form-label">來源公司名稱<span class="text-danger">*</span>
-                                @if(isset($sale_company))
-                                    @if(isset($sale_company->company_name))
-                                        （{{ $sale_company->company_name->name }}）
-                                    @else <b style="color: red;">（來源公司須重新至拜訪管理新增公司資料）</b>
-                                    @endif
-                                @endif
-                            </label>
+                            <label for="source_company_name_q" class="form-label">來源公司名稱<span class="text-danger">*</span></label>
                             <select class="form-control" data-toggle="select2" data-width="100%" name="source_company_name_q" id="source_company_name_q">
                                 <option value="">請選擇...</option>
-                                @foreach($source_companys as $source_company)
-                                    <option 
-                                        value="{{ $source_company->id }}" 
-                                        @if(isset($sale_company) && $sale_company->company_id == $source_company->id) selected @endif>
-                                        （{{ $source_company->group->name }}）{{ $source_company->name }}（{{ $source_company->mobile }}）
-                                    </option>
-                                @endforeach
+                                @if(isset($sale_company) && isset($sale_company->company_name))
+                                    @if($data->type == 'self')
+                                        <option value="{{ $sale_company->company_id }}" selected>
+                                            （員工）{{ $sale_company->user_name->name }}（{{ $sale_company->user_name->mobile }}）
+                                        </option>
+                                    @else
+                                        <option value="{{ $sale_company->company_id }}" selected>
+                                            （{{ $sale_company->company_name->group->name }}）{{ $sale_company->company_name->name }}（{{ $sale_company->company_name->mobile }}）
+                                        </option>
+                                    @endif
+                                @endif
                             </select>
-                            
                         </div>
                         <div class="mb-3 col-md-4 not_memorial_show plan">
                             <label for="plan_id" class="form-label">方案選擇<span class="text-danger">*</span></label>
@@ -204,6 +200,13 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="mb-1 mt-1">
+                                    <div class="form-check" id="cooperation_price_div">
+                                        <input type="checkbox" class="form-check-input" id="cooperation_price"
+                                            name="cooperation_price" @if(($data->cooperation_price == 1)) checked value="1" @else value="0" @endif>
+                                        <label class="form-check-label" for="cooperation_price"><b>院內價</b></label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -249,11 +252,38 @@
                                                         </select>
                                                     </td>
                                                     <td>
-                                                        <select id="prom_{{$key}}" class="mobile form-select" name="prom[]" onchange="chgPromItems(this)">
+                                                        <select id="prom_{{$key}}" class="mobile form-select" name="prom[]">
                                                             @foreach($proms as $prom)
                                                                 <option value="{{ $prom->id }}" @if($sale_prom->prom_id == $prom->id) selected @endif >{{ $prom->name }}</option>
                                                             @endforeach
                                                         </select>
+                                                        <div class="row mt-1 prom-product-container" id="prom_product_{{$key}}" style="{{ $sale_prom->souvenir ? '' : 'display:none;' }}">
+                                                            <div class="col-3 mobile" id="souvenir_type_col_{{$key}}" style="display:none;">
+                                                                <select id="product_souvenir_type_{{$key}}"
+                                                                    class="form-select" name="product_souvenir_types[]">
+                                                                    <option value="">請選擇</option>
+                                                                    @foreach ($souvenir_types as $souvenir_type)
+                                                                        <option value="{{ $souvenir_type->id }}" {{ ($sale_prom->souvenir && $sale_prom->souvenir->souvenir_type == $souvenir_type->id) ? 'selected' : '' }}>{{ $souvenir_type->name }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-3 mobile" id="product_name_col_{{$key}}" style="display:none;">
+                                                                <input type="text" id="product_name_{{$key}}" class="form-control" name="product_name[]" placeholder="請輸入商品名稱" value="{{ $sale_prom->souvenir->product_name ?? '' }}">
+                                                            </div>
+                                                            <div class="col-3 mobile" id="product_prom_col_{{$key}}">
+                                                                <select id="product_prom_{{$key}}"
+                                                                    class="form-select" name="product_proms[]"
+                                                                    data-selected="{{ $sale_prom->souvenir->product_name ?? '' }}">
+                                                                    <option value="">請選擇</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-3 mobile" id="product_num_col_{{$key}}">
+                                                                <input class="form-control" type="number" id="product_num_{{$key}}" name="product_num[]" value="{{ $sale_prom->souvenir->product_num ?? 1 }}" min="1">
+                                                            </div>
+                                                            <div class="col-3 mobile" id="product_comment_col_{{$key}}">
+                                                                <input class="form-control" type="text" id="product_comment_{{$key}}" name="product_comment[]" placeholder="備註" value="{{ $sale_prom->souvenir->comment ?? '' }}">
+                                                            </div>
+                                                        </div>
                                                     </td>
                                                     <td>
                                                         <input type="text" class="mobile form-control total_number" id="prom_total_{{$key}}" name="prom_total[]" value="{{ $sale_prom->prom_total }}">
@@ -284,6 +314,32 @@
                                                         <select id="prom_{{$i}}" class="mobile form-select" name="prom[]" >
                                                             <option value="">請選擇</option>
                                                         </select>
+                                                        <div class="row mt-1 prom-product-container" id="prom_product_{{$i}}">
+                                                            <div class="col-3 mobile" id="souvenir_type_col_{{$i}}" style="display:none;">
+                                                                <select id="product_souvenir_type_{{$i}}"
+                                                                    class="form-select" name="product_souvenir_types[]">
+                                                                    <option value="">請選擇</option>
+                                                                    @foreach ($souvenir_types as $souvenir_type)
+                                                                        <option value="{{ $souvenir_type->id }}">{{ $souvenir_type->name }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-3 mobile" id="product_name_col_{{$i}}" style="display:none;">
+                                                                <input type="text" id="product_name_{{$i}}" class="form-control" name="product_name[]" placeholder="請輸入商品名稱">
+                                                            </div>
+                                                            <div class="col-3 mobile" id="product_prom_col_{{$i}}">
+                                                                <select id="product_prom_{{$i}}"
+                                                                    class="form-select" name="product_proms[]">
+                                                                    <option value="">請選擇</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-3 mobile" id="product_num_col_{{$i}}">
+                                                                <input class="form-control" type="number" id="product_num_{{$i}}" name="product_num[]" value="1" min="1">
+                                                            </div>
+                                                            <div class="col-3 mobile" id="product_comment_col_{{$i}}">
+                                                                <input class="form-control" type="text" id="product_comment_{{$i}}" name="product_comment[]" placeholder="備註">
+                                                            </div>
+                                                        </div>
                                                     </td>
                                                     <td>
                                                         <input type="text" class="mobile form-control total_number" id="prom_total_{{$i}}" name="prom_total[]" >
@@ -608,6 +664,70 @@
                 zipcodeName: "zipcode"
             });
         }
+        
+        // 初始化現有的 prom_product 區塊
+        $('[id^=prom_product_]').each(function() {
+            var idx = $(this).attr('id').replace('prom_product_', '');
+            var promId = $('#prom_' + idx).val();
+            
+            // 先保存原本要選擇的商品值
+            var originalSelectedVal = $('#product_prom_' + idx).attr('data-selected');
+            
+            if (promId) {
+                // 如果有選擇 prom，檢查是否需要顯示紀念品區塊
+                $.ajax({
+                    url: '{{ route('product.prom_product_search') }}',
+                    data: { 'prom_id': promId },
+                    dataType: 'json',
+                    success: function(data) {
+                        var shouldShow = (data.products && data.products.length > 0) || data.is_custom_product == 1;
+                        
+                        if (shouldShow) {
+                            if (data.products && data.products.length > 0) {
+                                // 有商品資料，三欄顯示，全部 col-4
+                                $('#souvenir_type_col_' + idx).hide();
+                                $('#product_name_col_' + idx).hide();
+                                $('#product_prom_col_' + idx).show().removeClass('col-3').addClass('col-4');
+                                $('#product_num_col_' + idx).show().removeClass('col-3').addClass('col-4');
+                                $('#product_comment_col_' + idx).show().removeClass('col-3').addClass('col-4');
+                                // 填入商品下拉
+                                var html = '<select id="product_prom_' + idx + '" class="form-select" name="product_proms[]">';
+                                html += '<option value="">請選擇</option>';
+                                data.products.forEach(function(item) {
+                                    html += '<option value="' + item.id + '">' + item.name + ' (' + item.price + ')</option>';
+                                });
+                                html += '</select>';
+                                $('#product_prom_col_' + idx).html(html);
+                                
+                                // 重新設回 data-selected 屬性
+                                $('#product_prom_' + idx).attr('data-selected', originalSelectedVal);
+                                
+                                // 自動選擇原本的商品
+                                if (originalSelectedVal) {
+                                    $('#product_prom_' + idx).val(originalSelectedVal);
+                                }
+                                console.log('自動選擇商品id', originalSelectedVal, $('#product_prom_' + idx).val());
+                            } else if (data.is_custom_product == 1) {
+                                // 自訂商品，四欄顯示，全部 col-3
+                                $('#souvenir_type_col_' + idx).show().removeClass('col-4').addClass('col-3');
+                                $('#product_name_col_' + idx).show().removeClass('col-4').addClass('col-3');
+                                $('#product_prom_col_' + idx).hide();
+                                $('#product_num_col_' + idx).show().removeClass('col-4').addClass('col-3');
+                                $('#product_comment_col_' + idx).show().removeClass('col-4').addClass('col-3');
+                            }
+                            
+                            $('#prom_product_' + idx).show();
+                        } else {
+                            $('#prom_product_' + idx).hide();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('prom_product_search error:', error);
+                        $('#prom_product_' + idx).hide();
+                    }
+                });
+            }
+        });
     });
 
     //判斷尾款、訂金
@@ -745,6 +865,17 @@
             $("#address").prop('required', false);
         }
     });
+
+    //院內價開始
+    cooperation_price = $('input[name="cooperation_price"]').val();
+    $("#cooperation_price").on("change", function() {
+        if ($(this).is(':checked')) {
+            $(this).val(1);
+        } else {
+            $(this).val(0);
+        }
+    });
+    //院內價結束
 
     //醫院地址
     connector_hospital_address = $('input[name="connector_hospital_address"]').val();
@@ -970,7 +1101,7 @@
     });
 
     type = $('select[name="type"]').val();
-    if(type == 'H' || type == 'B' || type == 'Salon' || type == 'G' || type == 'dogpark' || type == 'other'){
+    if(type == 'H' || type == 'B' || type == 'Salon' || type == 'G' || type == 'dogpark' || type == 'other' || type == 'self'){
         $("#source_company").show(300);
         $("#source_company_name_q").prop('required', true);
     }else{
@@ -978,14 +1109,37 @@
         $("#source_company_name_q").prop('required', false);
     }
 
+    // 載入指定類型的客戶
+    function loadCustomersByType(type) {
+        $.ajax({
+            url: '{{ route("customers.by-type") }}',
+            type: 'GET',
+            data: { type: type },
+            dataType: 'json',
+            success: function(data) {
+                var customerSelect = $('#source_company_name_q');
+                customerSelect.empty();
+                customerSelect.html(data.html);
+            },
+            error: function(xhr, status, error) {
+                console.error('載入客戶資料失敗:', error);
+                var customerSelect = $('#source_company_name_q');
+                customerSelect.empty();
+                customerSelect.append('<option value="">載入失敗，請重試</option>');
+            }
+        });
+    }
+
     $('select[name="type"]').on('change', function() {
-        if($(this).val() == 'H' || $(this).val() == 'B' || $(this).val() == 'Salon' || $(this).val() == 'G' || $(this).val() == 'dogpark' || $(this).val() == 'other'){
+        var selectedType = $(this).val();
+        if(selectedType == 'H' || selectedType == 'B' || selectedType == 'Salon' || selectedType == 'G' || selectedType == 'dogpark' || selectedType == 'other' || selectedType == 'self'){
             $("#source_company").show(300);
             $("#source_company_name_q").prop('required', true);
+            // 載入對應類型的客戶
+            loadCustomersByType(selectedType);
         }else{
             $("#source_company").hide(300);
             $("#source_company_name_q").prop('required', false);
-            $("#source_company_name_q").val('null');
         }
     });
 
@@ -1063,6 +1217,10 @@
     function chgItems(obj){
         $("#row_id").val($("#"+ obj.id).attr('alt'));
         row_id = $("#row_id").val();
+        
+        // 防呆：當變更select_proms時，隱藏對應的prom_product區塊
+        $('#prom_product_' + row_id).hide(300);
+        
         $.ajax({
             url : '{{ route('prom.search') }}',
             data:{'select_prom':$("#select_prom_"+row_id).val()},
@@ -1074,6 +1232,105 @@
             }
         });
     }
+
+    $(document).on('change', 'select[id^=prom_]', function() {
+        var selectId = $(this).attr('id');
+        var idx = selectId.replace('prom_', '');
+        var promId = $(this).val();
+        
+        // 先保存原本要選擇的商品值
+        var originalSelectedVal = $('#product_prom_' + idx).attr('data-selected');
+
+        $.ajax({
+            url: '{{ route('product.prom_product_search') }}',
+            data: { 'prom_id': promId },
+            dataType: 'json',
+            success: function(data) {
+                console.log('prom_product_search data:', data);
+                
+                // 檢查是否有商品資料或is_custom_product為1
+                var shouldShow = (data.products && data.products.length > 0) || data.is_custom_product == 1;
+                
+                if (shouldShow) {
+                    var html = '';
+                    if (data.products && data.products.length > 0) {
+                        // 有商品資料，三欄顯示，全部 col-4
+                        $('#souvenir_type_col_' + idx).hide();
+                        $('#product_name_col_' + idx).hide();
+                        $('#product_prom_col_' + idx).show().removeClass('col-3').addClass('col-4');
+                        $('#product_num_col_' + idx).show().removeClass('col-3').addClass('col-4');
+                        $('#product_comment_col_' + idx).show().removeClass('col-3').addClass('col-4');
+                        // 填入商品下拉
+                        var html = '<select id="product_prom_' + idx + '" class="form-select" name="product_proms[]">';
+                        html += '<option value="">請選擇</option>';
+                        data.products.forEach(function(item) {
+                            html += '<option value="' + item.id + '">' + item.name + ' (' + item.price + ')</option>';
+                        });
+                        html += '</select>';
+                        $('#product_prom_col_' + idx).html(html);
+                        
+                        // 重新設回 data-selected 屬性
+                        $('#product_prom_' + idx).attr('data-selected', originalSelectedVal);
+                        
+                        // 自動選擇原本的商品
+                        if (originalSelectedVal) {
+                            $('#product_prom_' + idx).val(originalSelectedVal);
+                        }
+                        console.log('自動選擇商品id', originalSelectedVal, $('#product_prom_' + idx).val());
+                    } else if (data.is_custom_product == 1) {
+                        // 自訂商品，四欄顯示，全部 col-3
+                        $('#souvenir_type_col_' + idx).show().removeClass('col-4').addClass('col-3');
+                        $('#product_name_col_' + idx).show().removeClass('col-4').addClass('col-3');
+                        $('#product_prom_col_' + idx).hide();
+                        $('#product_num_col_' + idx).show().removeClass('col-4').addClass('col-3');
+                        $('#product_comment_col_' + idx).show().removeClass('col-4').addClass('col-3');
+                    }
+                    
+                    // 顯示整個prom_product區塊
+                    $('#prom_product_' + idx).show(300);
+                } else {
+                    // 沒有商品資料且is_custom_product不為1，隱藏區塊
+                    $('#prom_product_' + idx).hide(300);
+                    $('#souvenir_type_col_' + idx).hide();
+                    $('#product_name_col_' + idx).hide();
+                    $('#product_prom_col_' + idx).hide();
+                    $('#product_num_col_' + idx).hide();
+                    $('#product_comment_col_' + idx).hide();
+
+                    // ====== 隱藏時清空所有 input/select ======
+                    var $row = $('#prom_product_' + idx);
+                    $row.find('input').val('');
+                    $row.find('select').val('');
+                    // 指定數量欄位預設為1
+                    $row.find('input[id^=product_num_]').val('1');
+                    // 指定商品選擇欄位預設為空，並清空 data-selected
+                    $row.find('select[id^=product_prom_]').val('').attr('data-selected', '');
+                    // =========================================
+                }
+
+                // ======= 這裡加上清空 input 的程式碼 =======
+                if (typeof hasChanged !== 'undefined' && hasChanged[idx]) {
+                    var $row = $('#prom_product_' + idx);
+                    $row.find('input[id^=product_name_]').val('');
+                    $row.find('input[id^=product_prom_]').val('');
+                    $row.find('input[id^=product_num_]').val('1');
+                    $row.find('input[id^=product_comment_]').val('');
+                    $row.find('select[id^=product_souvenir_type_]').val('');
+                }
+                // ==========================================
+            },
+            error: function(xhr, status, error) {
+                console.error('prom_product_search error:', error);
+                // 發生錯誤時隱藏區塊
+                $('#prom_product_' + idx).hide(300);
+                $('#souvenir_type_col_' + idx).hide();
+                $('#product_name_col_' + idx).hide();
+                $('#product_prom_col_' + idx).hide();
+                $('#product_num_col_' + idx).hide();
+                $('#product_comment_col_' + idx).hide();
+            }
+        });
+    });
 
     $('select[name="prom[]"]').on('mousedown', function(event) {
         var selectElement = $(this);
@@ -1356,6 +1613,36 @@
             cols += '</tr>';
             newRow.append(cols);
             $("table.prom-list tbody").append(newRow);
+            
+            // 新增對應的prom_product區塊（一開始隱藏）
+            var promProductHtml = '';
+            promProductHtml += '<div class="row mt-1 prom-product-container" id="prom_product_' + $rowCount + '" style="display: none;">';
+            promProductHtml += '<div class="col-3" id="souvenir_type_col_' + $rowCount + '" style="display:none;">';
+            promProductHtml += '<select id="product_souvenir_type_' + $rowCount + '" class="form-select" name="product_souvenir_types[]">';
+            promProductHtml += '<option value="">請選擇</option>';
+            @foreach ($souvenir_types as $souvenir_type)
+            promProductHtml += '<option value="{{ $souvenir_type->id }}">{{ $souvenir_type->name }}</option>';
+            @endforeach
+            promProductHtml += '</select>';
+            promProductHtml += '</div>';
+            promProductHtml += '<div class="col-3" id="product_name_col_' + $rowCount + '" style="display:none;">';
+            promProductHtml += '<input type="text" id="product_name_' + $rowCount + '" class="form-control" name="product_name[]" placeholder="請輸入商品名稱">';
+            promProductHtml += '</div>';
+            promProductHtml += '<div class="col-3" id="product_prom_col_' + $rowCount + '">';
+            promProductHtml += '<select id="product_prom_' + $rowCount + '" class="form-select" name="product_proms[]">';
+            promProductHtml += '<option value="">請選擇</option>';
+            promProductHtml += '</select>';
+            promProductHtml += '</div>';
+            promProductHtml += '<div class="col-3" id="product_num_col_' + $rowCount + '">';
+            promProductHtml += '<input class="form-control" type="number" id="product_num_' + $rowCount + '" name="product_num[]" value="1" min="1">';
+            promProductHtml += '</div>';
+            promProductHtml += '<div class="col-3" id="product_comment_col_' + $rowCount + '">';
+            promProductHtml += '<input class="form-control" type="text" id="product_comment_' + $rowCount + '" name="product_comment[]" placeholder="備註">';
+            promProductHtml += '</div>';
+            promProductHtml += '</div>';
+            
+            // 將prom_product區塊插入到對應的td中
+            $('table.prom-list tr:last-child td:nth-child(3)').append(promProductHtml);
         });
         $.ajaxSetup({ headers: { 'csrftoken' : '{{ csrf_token() }}' } });
 
@@ -1422,5 +1709,23 @@
                 return false;
             }
         });
+
+    var hasChanged = {};
+
+    $(document).on('change', 'select[id^=product_prom_]', function() {
+        var $row = $(this).closest('.prom-product-container');
+        var idx = $(this).attr('id').replace('product_prom_', '');
+
+        // 如果這一列已經切換過，就直接清空
+        if (hasChanged[idx]) {
+            $row.find('input[id^=product_name_]').val('');
+            $row.find('input[id^=product_prom_]').val('');
+            $row.find('input[id^=product_num_]').val('');
+            $row.find('input[id^=product_comment_]').val('');
+            $row.find('select[id^=product_souvenir_type_]').val('');
+        }
+        // 標記這一列已經切換過
+        hasChanged[idx] = true;
+    });
 </script>
 @endsection

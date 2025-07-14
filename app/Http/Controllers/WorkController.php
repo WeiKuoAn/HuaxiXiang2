@@ -15,6 +15,8 @@ use App\Models\PayData;
 use App\Models\PayItem;
 use App\Models\Sale_gdpaper;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Product;
+
 
 class WorkController extends Controller
 {
@@ -62,7 +64,8 @@ class WorkController extends Controller
         $work = Works::where('user_id', Auth::user()->id)->orderBy('id', 'desc')->first();
 
         $contract_datas = Contract::whereIn('renew',[0,1])->get();
-        // dd($work);
+
+        
         // dd($now);
         if(Auth::user()->status != 1){
             return view('dashboard')->with(['now' => $now, 'work' => $work , 'sale_today'=>$sale_today 

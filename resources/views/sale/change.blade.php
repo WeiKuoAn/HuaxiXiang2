@@ -295,6 +295,112 @@
         </div> <!-- end col -->
     </div>
 
+    <div class="row not_memorial_show" id="souvenir_div">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">紀念品選購</h5>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table id="tech-companies-1" class="table souvenir-list">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>類別<span class="text-danger">*</span></th>
+                                            <th>品項<span class="text-danger">*</span></th>
+                                            <th>金額<span class="text-danger">*</span></th>
+                                            <th>款式<span class="text-danger">*</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if(count($sale_souvenirs)>0)
+                                            @foreach($sale_souvenirs as $key=>$sale_souvenir)
+                                            {{-- {{dd($sale_souvenir)}} --}}
+                                                <tr id="row-{{ $key }}">
+                                                    <td class="text-center">
+                                                        @if($key==0)
+                                                        <button type="button" class="ibtnAdd_souvenir demo-delete-row btn btn-primary btn-sm btn-icon"><i class="fa fas fa-plus"></i></button>                                                    
+                                                        @else
+                                                        <button type="button" class="ibtnDel_souvenir demo-delete-row btn btn-danger btn-sm btn-icon"><i class="fa fa-times"></i></button>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <select id="souvenir_id_{{ $key }}" alt="{{ $key }}" class="mobile form-select" name="souvenir_ids[]">
+                                                            <option value="" selected>請選擇...</option>
+                                                            @foreach($souvenirs as $souvenir)
+                                                                <option value="{{ $souvenir->id }}" @if($souvenir->id == $sale_souvenir->prom_id) selected @endif>{{ $souvenir->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" alt="{{ $key }}" class="mobile form-control" id="souvenir_name_{{ $key }}" name="souvenir_name[]" value="{{ $sale_souvenir->name }}" >
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="mobile form-control total_number" id="souvenir_total_{{ $key }}" name="souvenir_total[]" value="{{ $sale_souvenir->total }}">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="mobile form-control" id="souvenir_shape_{{ $key }}" name="souvenir_shape[]" value="{{ $sale_souvenir->shape }}">
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @else
+                                            @php $j = 0; @endphp
+                                            @for ($i = 0; $i < 1; $i++)
+                                                @php $j = $i+1; @endphp
+                                                <tr id="row-{{ $i }}">
+                                                    <td class="text-center">
+                                                        @if ($j == 1)
+                                                            <button type="button"
+                                                                class="ibtnAdd_souvenir demo-delete-row btn btn-primary btn-sm btn-icon"><i
+                                                                    class="fa fas fa-plus"></i></button>
+                                                        @else
+                                                            <button type="button"
+                                                                class="ibtnDel_souvenir demo-delete-row btn btn-danger btn-sm btn-icon"><i
+                                                                    class="fa fa-times"></i></button>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <select id="souvenir_id_{{ $i }}"
+                                                            alt="{{ $i }}" class="mobile form-select"
+                                                            name="souvenir_ids[]" onchange="chgPapers(this)">
+                                                            <option value="" selected>請選擇...</option>
+                                                            @foreach ($souvenirs as $souvenir)
+                                                                <option value="{{ $souvenir->id }}">
+                                                                    {{ $souvenir->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" alt="{{ $i }}"
+                                                            class="mobile form-control"
+                                                            id="souvenir_name_{{ $i }}"
+                                                            name="souvenir_name[]" onchange="chgNums(this)"
+                                                            onclick="chgNums(this)" onkeydown="chgNums(this)">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="mobile form-control total_number"
+                                                            id="souvenir_total_{{ $i }}"
+                                                            name="souvenir_total[]" value="">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="mobile form-control"
+                                                            id="souvenir_shape_{{ $i }}"
+                                                            name="souvenir_shape[]" value="">
+                                                    </td>
+                                                </tr>
+                                            @endfor
+                                        @endif
+                                    </tbody>
+                                </table>
+                            </div> <!-- end .table-responsive -->
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- end card -->
+        </div> <!-- end col -->
+    </div>
+
     <div class="row">
         <div class="col-lg-12">
             <div class="card">

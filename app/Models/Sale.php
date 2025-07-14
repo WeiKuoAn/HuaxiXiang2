@@ -34,6 +34,7 @@ class Sale extends Model
         'comm',
         'check_user_id',
         'status',
+        'cooperation_price',
     ];
 
     public function status()

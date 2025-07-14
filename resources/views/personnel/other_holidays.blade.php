@@ -71,9 +71,9 @@
                                     <thead class="table-light">
                                         <tr align="center">
                                             <th>假別</th>
+                                            <th>總天數</th>
                                             <th>累積天數</th>
                                             <th>剩餘天數</th>
-                                            <th>總天數</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -84,11 +84,6 @@
                                                         {{ $date['name'] }}
                                                     @endif
                                                 </td>
-                                                <td align="center">{{ $data['leavedays'][$date_type]['add_day'] }}</td>
-                                                <td align="center"
-                                                    @if ($data['leavedays'][$date_type]['day'] == '0天，又0小時' || $data['leavedays'][$date_type]['day'] == '0天') style="color: red" @endif>
-                                                    {{ $data['leavedays'][$date_type]['day'] }}
-                                                </td>
                                                 @if (isset($date['name']))
                                                     @if (isset($date['name']) && $date['name'] == '特休')
                                                         <td align="center">{{ $date['user_day'][$user_id]['day'] }}天</td>
@@ -96,6 +91,11 @@
                                                         <td align="center">{{ $date['day'] }}天</td>
                                                     @endif
                                                 @endif
+                                                <td align="center">{{ $data['leavedays'][$date_type]['add_day'] }}</td>
+                                                <td align="center"
+                                                    @if ($data['leavedays'][$date_type]['day'] == '0天，又0小時' || $data['leavedays'][$date_type]['day'] == '0天') style="color: red" @endif>
+                                                    {{ $data['leavedays'][$date_type]['day'] }}
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>

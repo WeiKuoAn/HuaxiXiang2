@@ -101,7 +101,8 @@
                                         <th>排序</th>
                                         <th>名稱</th>
                                         <th>類型</th>
-                                        <th>類別</th>
+                                        <th>產品類別</th>
+                                        <th>後續處理類別/細項</th>
                                         <th>售價</th>
                                         <th>庫存</th>
                                         <th>計算佣金</th>
@@ -128,6 +129,11 @@
                                             <td>
                                                 @if (isset($data->category_id))
                                                     {{ $data->category_data->name }}
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if (isset($data->prom_data))
+                                                    {{ $data->prom_data->prom_type->name }} / {{ $data->prom_data->name }}
                                                 @endif
                                             </td>
                                             <td>{{ number_format($data->price) }}</td>

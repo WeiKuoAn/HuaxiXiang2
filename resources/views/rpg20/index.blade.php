@@ -120,18 +120,18 @@
                                     <tr>
                                     @endif
                                     <td>{{ $difference['pay_name'] }}</td>
-                                    <td @if($difference['difference']<0) class="text-danger" @endif>
-                                        {{ number_format($difference['difference']) }}
+                                    <td @if($difference['difference']<0) style="color:darkblue;" @endif>
+                                        <b>{{ number_format($difference['difference']) }}</b>
                                     </td>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
-                    <h3 class="text-end text-danger">
+                    <h3 class="text-end">
                         @if($sums_difference['total_difference']>0)
-                            淨利{{ number_format($sums_difference['total_difference']) }}元
+                            <p style="color: red">淨利{{ number_format($sums_difference['total_difference']) }}元</p>
                         @else
-                            虧損{{ number_format($sums_difference['total_difference']) }}元
+                            <p style="color: green">虧損{{ number_format($sums_difference['total_difference']) }}元</p>
                         @endif
                     </h3>
                 </div>

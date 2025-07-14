@@ -177,10 +177,8 @@
                                     </div>
 
                                 </div>
-                                {{-- {{ dd($groupedBanks[$user->bank]) }} --}}
 
                                 <div class="col-lg-3">
-                                    <!-- Date View -->
                                     <div class="mb-3">
                                         <div class="form-group">
                                             <label for="branch">選擇分行</label>

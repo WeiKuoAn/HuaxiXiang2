@@ -61,6 +61,10 @@
                                     <textarea name="description" class="form-control" rows="5"></textarea>
                                 </div>
                                 <div class="col-md-12 mb-3">
+                                    <label>備註</label>
+                                    <input type="text" name="note" class="form-control">
+                                </div>
+                                <div class="col-md-12 mb-3">
                                     <label>指派給</label>
                                     <select name="assigned_to" class="form-select">
                                         <option value="">不指定</option>

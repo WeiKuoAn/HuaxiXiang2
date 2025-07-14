@@ -89,7 +89,7 @@
                             </div>
                             {{-- <div class="col-auto">
                             <div class="text-lg-end my-1 my-lg-0">
-                                <h3><span class="text-danger">共計：{{ number_format($sums['count']) }}單，傭金共{{ number_format($sums['commission']) }}元</span></h3>
+                                <h3><span class="text-danger">共計：{{ number_format($sums['count']) }}單，佣金共{{ number_format($sums['commission']) }}元</span></h3>
                             </div>
                         </div><!-- end col--> --}}
                         </div> <!-- end row -->
