@@ -629,7 +629,6 @@
             const planId = $('#plan_id').val();
             const typeList = $('#type_list').val();
             const saleId = $('#sale_id').val();
-            const typeList = $('#type_list').val();
 
             if (payId && customerId && petName || planId) {
                 $.ajax({
