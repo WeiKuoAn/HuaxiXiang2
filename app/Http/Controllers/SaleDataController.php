@@ -851,7 +851,7 @@ class SaleDataController extends Controller
 
         $sale = Sale::where('id', $id)->first();
 
-        if (Auth::user()->level != 2 || Auth::user()->job_id == 9 || Auth::user()->job_id == 10) {
+        if (Auth::user()->level != 2 || Auth::user()->job_id == 9) {
             if ($request->admin_check == 'check') {
                 $sale->status = '9';
                 $sale->check_user_id = Auth::user()->id;
