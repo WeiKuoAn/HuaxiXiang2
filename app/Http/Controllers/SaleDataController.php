@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\CustGroup;
 use App\Models\Customer;
 use App\Models\Gdpaper;
+use App\Models\PayData;
+use App\Models\PayItem;
 use App\Models\Plan;
 use App\Models\Product;
 use App\Models\Prom;
@@ -1362,6 +1364,9 @@ class SaleDataController extends Controller
         }
 
         $sales = Sale::where('status', 9)->where('sale_date', '>=', $firstDay)->where('sale_date', '<=', $lastDay);
+
+        $payDatas = PayData::where('status', 1)->where('pay_date', '>=', $firstDay)->where('pay_date', '<=', $lastDay)->get();
+
         $check_user_id = $request->check_user_id;
         if ($check_user_id != 'null') {
             if (isset($check_user_id)) {
@@ -1372,7 +1377,7 @@ class SaleDataController extends Controller
         }
         $sales = $sales->orderby('sale_date', 'desc')->get();
         $users = User::where('status', '0')->whereIn('job_id', [2, 3, 5, 10])->get();
-        $sums = ['count' => 0, 'price' => 0];
+        $sums = ['count' => 0, 'price' => 0 , 'pay_price' => 0 , 'pay_count' => 0 ,'actual_price' => 0];
         $datas = [];
 
         foreach ($sales as $key => $sale) {
@@ -1416,13 +1421,68 @@ class SaleDataController extends Controller
 
             $datas[$sale->user_id]['cash_total'] = $cash_total + $cash_transfer_cash_total;
             $datas[$sale->user_id]['transfer_total'] = $transfer_total + $cash_transfer_transfer_total;
+        
+            if (!isset( $datas[$sale->user_id]['pay_count'])) {
+                $datas[$sale->user_id]['pay_count'] = 0;
+            }
+            if (!isset($datas[$sale->user_id]['pay_price'])) {
+                $datas[$sale->user_id]['pay_price'] = 0;
+            }
         }
-        // dd($datas);
+
+        foreach ($payDatas as $key => $payData) {
+            $datas[$payData->user_id]['name'] = $payData->user_name->name;
+            $datas[$payData->user_id]['pay_datas'] = PayData::with(['pay_items.pay_name', 'user_name'])
+                ->where('user_id', $payData->user_id)
+                ->where('pay_date', $payData->pay_date)
+                ->get();
+            $datas[$payData->user_id]['pay_count'] = $datas[$payData->user_id]['pay_datas']->count();
+            $datas[$payData->user_id]['pay_price'] = $datas[$payData->user_id]['pay_datas']->sum('price');
+            
+
+            if (!isset($datas[$payData->user_id]['count'])) {
+                $datas[$payData->user_id]['count'] = 0;
+            }
+            if (!isset($datas[$payData->user_id]['price'])) {
+                $datas[$payData->user_id]['price'] = 0;
+            }
+            if (!isset($datas[$payData->user_id]['cash_total'])) {
+                $datas[$payData->user_id]['cash_total'] = 0;
+            }
+            if (!isset($datas[$payData->user_id]['transfer_total'])) {
+                $datas[$payData->user_id]['transfer_total'] = 0;
+            }
+        }
+
+            // dd($datas);
+            $sums['actual_price']=0;
         // 使用 foreach 遍歷 $datas 並累計到 $sums
-        foreach ($datas as $date => $data) {
-            $sums['count'] += $data['count'];
-            $sums['price'] += $data['price'];
+        foreach ($datas as $date => &$data) {
+            if (isset($data['count'])) {
+                $sums['count'] += $data['count'];
+            }
+            if (isset($data['price'])) {
+                $sums['price'] += $data['price'];
+            }
+            // 加上支出資料的統計
+            if (isset($data['pay_count'])) {
+                $sums['pay_count'] += $data['pay_count'];
+            }
+            if (isset($data['pay_price'])) {
+                $sums['price'] += $data['pay_price'];
+            }
+            if (isset($data['pay_price'])) {
+                $sums['pay_price'] += $data['pay_price'];
+            }
+            // 計算實際收入（業務收入 - 支出）
+            $datas[$date]['actual_price'] = ($data['price'] ?? 0) - ($data['pay_price'] ?? 0);
+            if(isset($data['actual_price'])){
+                $sums['actual_price'] += $data['actual_price'];
+            }else{
+                $sums['actual_price'] = 0;
+            }
         }
+
 
         $check_users = User::where('status', '0')->whereIn('job_id', [1, 2, 7, 8, 9])->orderby('seq')->get();
         // dd($datas);

@@ -66,7 +66,7 @@
                             <div class="col-auto">
                                 <div class="text-lg-end my-1 my-lg-0">
                                     <h3><span
-                                            class="text-danger">總共：{{ number_format($sums['count']) }}單，總計：{{ number_format($sums['price']) }}元</span>
+                                            class="text-danger">業務共{{ number_format($sums['count']) }}單，支出共{{ number_format($sums['pay_count']) }}單，總計：{{ number_format($sums['actual_price']) }}元</span>
                                     </h3>
                                 </div>
                             </div><!-- end col-->
@@ -81,60 +81,134 @@
                 @foreach ($datas as $date => $data)
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title"> {{$data['name']}}</h5>
-                            <div class="table-responsive ">
-                                <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
-                                    <thead class="table-light">
-                                        <tr align="center">
-                                            <th>No</th>
-                                            <th>日期</th>
-                                            <th>單號</th>
-                                            <th width="15%">客戶名稱</th>
-                                            <th>寶貝名</th>
-                                            <th>方案</th>
-                                            <th>業務價格</th>
-                                            <th>對帳人員</th>
-                                            <th>業務詳情</th>
-                                        </tr>
-                                    </thead>
-                                    @foreach ($data['items'] as $key => $item)
-                                        <tbody>
-                                            <tr>
-                                                <td align="center">{{ $key + 1 }}</td>
-                                                <td align="center">{{ $item->sale_date }}</td>
-                                                <td align="center">{{ $item->sale_on }}</td>
-                                                <td align="center">
-                                                    @if (isset($item->cust_name))
-                                                        {{ $item->cust_name->name }}
-                                                    @endif
-                                                </td>
-                                                <td align="center">{{ $item->pet_name }}</td>
-                                                <td align="center">
-                                                    @if (isset($item->plan_name))
-                                                        {{ $item->plan_name->name }}
-                                                    @elseif($item->pay_id == 'D')
-                                                        尾款
-                                                    @elseif($item->pay_id == 'E')
-                                                        追加
-                                                    @endif
-                                                </td>
-                                                <td align="center">{{ number_format($item->pay_price) }}</td>
-                                                <td align="center">{{ $item->check_user_name->name }}</td>
-                                                <td align="center"><a href="{{ route('sale.check', $item->id) }}"><i
-                                                            class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i></a>
-                                                </td>
+                            <h5 class="card-title"> {{ $data['name'] }}</h5>
+                            @if (isset($data['items']))
+                                <div class="table-responsive ">
+                                    <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
+                                        <thead class="table-light">
+                                            <tr align="center">
+                                                <th width="5%">No</th>
+                                                <th width="10%">日期</th>
+                                                <th width="10%">單號</th>
+                                                <th width="15%">客戶名稱</th>
+                                                <th width="10%">寶貝名</th>
+                                                <th width="10%">方案</th>
+                                                <th width="10%">業務價格</th>
+                                                <th width="10%">對帳人員</th>
+                                                <th width="10%">業務詳情</th>
                                             </tr>
-                                    @endforeach
-                                    </tbody>
-                                    <tr class="mb-3">
-                                        <td colspan="5"></td>
-                                        <td align="center"><b>共計：{{ number_format($data['count']) }}單</b></td>
-                                        <td align="center"><b>現金：{{ number_format($data['cash_total']) }}元</b></td>
-                                        <td align="center"><b>匯款：{{ number_format($data['transfer_total']) }}元</b></td>
-                                        <td align="center"><b>小計：{{ number_format($data['price']) }}元</b></td>
-                                        <td></td>
-                                    </tr>
-                                </table><br>
+                                        </thead>
+                                        @foreach ($data['items'] as $key => $item)
+                                            <tbody>
+                                                <tr>
+                                                    <td align="center">{{ $key + 1 }}</td>
+                                                    <td align="center">{{ $item->sale_date }}</td>
+                                                    <td align="center">{{ $item->sale_on }}</td>
+                                                    <td align="center">
+                                                        @if (isset($item->cust_name))
+                                                            {{ $item->cust_name->name }}
+                                                        @endif
+                                                    </td>
+                                                    <td align="center">{{ $item->pet_name }}</td>
+                                                    <td align="center">
+                                                        @if (isset($item->plan_name))
+                                                            {{ $item->plan_name->name }}
+                                                        @elseif($item->pay_id == 'D')
+                                                            尾款
+                                                        @elseif($item->pay_id == 'E')
+                                                            追加
+                                                        @endif
+                                                    </td>
+                                                    <td align="center">{{ number_format($item->pay_price) }}</td>
+                                                    <td align="center">{{ $item->check_user_name->name }}</td>
+                                                    <td align="center"><a href="{{ route('sale.check', $item->id) }}"><i
+                                                                class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i></a>
+                                                    </td>
+                                                </tr>
+                                        @endforeach
+                                        </tbody>
+                                        <tr class="mb-3">
+                                            <td colspan="5"></td>
+                                            <td align="center"><b>共計：{{ number_format($data['count']) }}單</b></td>
+                                            <td align="center"><b>現金：{{ number_format($data['cash_total']) }}元</b></td>
+                                            <td align="center"><b>匯款：{{ number_format($data['transfer_total']) }}元</b></td>
+                                            <td align="center"><b>小計：{{ number_format($data['price']) }}元</b></td>
+                                        </tr>
+                                    </table><br>
+                                </div>
+                            @endif
+
+                            @if (isset($data['pay_datas']))
+                                <div class="table-responsive ">
+                                    <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
+                                        <thead class="table-light">
+                                            <tr align="center">
+                                                <th width="5%">No</th>
+                                                <th width="10%">日期</th>
+                                                <th width="10%">單號</th>
+                                                <th width="15%">支出日期</th>
+                                                <th width="10%">支出科目</th>
+                                                <th width="10%">發票號碼</th>
+                                                <th width="10%">支出總價格</th>
+                                                <th width="10%">備註</th>
+                                                <th width="10%">支出詳情</th>
+                                            </tr>
+                                        </thead>
+                                        @foreach ($data['pay_datas'] as $pay_key => $pay_data)
+                                            <tbody>
+                                                <tr>
+                                                    <td align="center">{{ $pay_key + 1 }}</td>
+                                                    <td align="center">{{ $pay_data->pay_date }}</td>
+                                                    <td align="center">{{ $pay_data->pay_on }}</td>
+                                                    <td align="center">
+                                                        @foreach ($pay_data->pay_items as $pay_item)
+                                                            {{ $pay_item->pay_date }}<br>
+                                                        @endforeach
+                                                    </td>
+                                                    <td align="center">
+                                                        @foreach ($pay_data->pay_items as $pay_item)
+                                                            {{ $pay_item->pay_name->name }}<br>
+                                                        @endforeach
+                                                    </td>
+                                                    <td align="center">
+                                                        @foreach ($pay_data->pay_items as $pay_item)
+                                                            <b>{{ $pay_item->invoice_number }}</b> -
+                                                            ${{ number_format($pay_item->price) }}<br>
+                                                        @endforeach
+                                                    </td>
+                                                    <td align="center">
+                                                        {{ number_format($pay_data->price) }}
+                                                    </td>
+                                                    <td align="center">
+                                                        {{ $pay_data->comment }}
+                                                    </td>
+                                                    <td align="center">
+                                                        <a href="{{ route('pay.check', $pay_data->id) }}">
+                                                            <i
+                                                                class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                        @endforeach
+                                        </tbody>
+                                        <tr class="mb-3">
+                                            <td colspan="5"></td>
+                                            <td align="center"><b>共計：{{ number_format($data['pay_count']) }}單</b></td>
+                                            <td align="center"></td>
+                                            <td align="center"></td>
+                                            <td align="center"><b>小計：{{ number_format($data['pay_price']) }}元</b></td>
+                                        </tr>
+                                    </table><br>
+                                </div>
+                            @endif
+                            <div class="row">
+                                <div class="card mb-0">
+                                    <div class="card-body">
+                                        <div class="col-12 text-end">
+                                            <h4 class="card-title text-danger">實收：{{ number_format($data['actual_price'] ?? 0) }}元</h4>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -143,4 +217,22 @@
         </div>
 
     </div> <!-- container -->
+@endsection
+
+@section('script')
+    <script>
+        function CheckSearch(event) {
+            // 檢查日期是否有效
+            var afterDate = document.querySelector('input[name="after_date"]').value;
+            var beforeDate = document.querySelector('input[name="before_date"]').value;
+
+            if (afterDate && beforeDate && afterDate > beforeDate) {
+                event.preventDefault();
+                alert('開始日期不能大於結束日期');
+                return false;
+            }
+
+            return true;
+        }
+    </script>
 @endsection
