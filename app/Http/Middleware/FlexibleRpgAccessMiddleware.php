@@ -40,13 +40,13 @@ class FlexibleRpgAccessMiddleware
 
             case 'management':
                 // 管理權限：主管以上可以訪問
-                $allowedJobIds = [1, 2, 3, 7, 10];
+                $allowedJobIds = [1, 2, 3, 7, 9, 10];
                 break;
 
             case 'restricted':
             default:
                 // 限制權限：只有特定職位可以訪問
-                $allowedJobIds = [1, 2, 7];
+                $allowedJobIds = [1, 2, 6, 7];
                 break;
         }
 
