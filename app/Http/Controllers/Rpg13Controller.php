@@ -28,7 +28,7 @@ class Rpg13Controller extends Controller
             $lastDay = Carbon::now()->lastOfMonth();
         }
 
-        $products = Product::where('status','up')->where('type','normal')->get();
+        $products = Product::where('type','normal')->get();
 
         $normal_sale_products = DB::table('sale_data')
                                     ->join('sale_gdpaper','sale_gdpaper.sale_id', '=' , 'sale_data.id')
@@ -204,9 +204,6 @@ class Rpg13Controller extends Controller
                 }
                 //套組、組合
             }
-
-        // dd($datas);
-
 
 
 

@@ -549,6 +549,7 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg17', [Rpg17Controller::class, 'rpg17'])->name('rpg17');
         Route::get('/rpg/rpg17/{month}/{prom_id}/detail', [Rpg17Controller::class, 'detail'])->name('rpg17.detail');
         Route::get('/rpg/rpg25', [Rpg25Controller::class, 'rpg25'])->name('rpg25');
+        Route::get('/rpg/rpg25/{month}/{prom_id}/detail', [Rpg25Controller::class, 'detail'])->name('rpg25.detail');
         Route::get('/rpg/rpg22', [Rpg22Controller::class, 'rpg22'])->name('rpg22');
         Route::get('/rpg/rpg22/{month}/{prom_id}/detail', [Rpg22Controller::class, 'detail'])->name('rpg22.detail');
     });
@@ -573,7 +574,6 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg23', [Rpg23Controller::class, 'rpg23'])->name('rpg23');
         Route::get('/rpg/rpg23/detail/{district}', [Rpg23Controller::class, 'detail'])->name('rpg23.detail');
         Route::get('/rpg/rpg24', [Rpg24Controller::class, 'rpg24'])->name('rpg24');
-        Route::get('/rpg/rpg25/{month}/{prom_id}/detail', [Rpg25Controller::class, 'detail'])->name('rpg25.detail');
         Route::get('/rpg/rpg26', [Rpg26Controller::class, 'rpg26'])->name('rpg26');
         Route::get('/rpg/rpg28', [Rpg28Controller::class, 'rpg28'])->name('rpg28');
         Route::get('/rpg/rpg29', [Rpg29Controller::class, 'rpg29'])->name('rpg29');

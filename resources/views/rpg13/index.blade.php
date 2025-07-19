@@ -89,7 +89,7 @@
                             </div>
                             {{-- <div class="col-auto">
                             <div class="text-lg-end my-1 my-lg-0">
-                                <h3><span class="text-danger">共計：{{ number_format($sums['count']) }}單，傭金共{{ number_format($sums['commission']) }}元</span></h3>
+                                <h3><span class="text-danger">共計：{{ number_format($sums['count']) }}單，佣金共{{ number_format($sums['commission']) }}元</span></h3>
                             </div>
                         </div><!-- end col--> --}}
                         </div> <!-- end row -->
@@ -105,19 +105,27 @@
                         <h4>總賣出數量</h4>
                         <div class="table-responsive ">
                             <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
+                                @php
+                                    $count = 0;
+                                @endphp
                                 @foreach ($products as $key => $product)
-                                    @if (($key + 1) % 5 == 1)
-                                        <tr>
-                                    @endif
-                                    <td>{{ $datas['products'][$product->id]['name'] }}</td>
-                                    <td>
-                                        @if (isset($datas['products'][$product->id]))
-                                            {{ $datas['products'][$product->id]['num'] }}
-                                        @else
-                                            0
+                                    @if (isset($datas['products'][$product->id]))
+                                        @if ($count % 5 == 0)
+                                            <tr>
                                         @endif
-                                    </td>
+                                        <td>{{ $datas['products'][$product->id]['name'] }}</td>
+                                        <td>{{ $datas['products'][$product->id]['num'] }}</td>
+                                        @php
+                                            $count++;
+                                        @endphp
+                                        @if ($count % 5 == 0)
+                                            </tr>
+                                        @endif
+                                    @endif
                                 @endforeach
+                                @if ($count % 5 != 0)
+                                    </tr>
+                                @endif
                             </table>
                         </div>
                     </div>
@@ -225,10 +233,10 @@
                                             <td colspan="4">
                                                 @if (isset($puja['name']))
                                                     {{ $puja['name'] }}（共{{ $puja['count'] }}個）
-                                                    @else
-                                                    {{ $key}}
+                                                @else
+                                                    {{ $key }}
                                                 @endif
-                                                
+
                                             </td>
                                         </tr>
                                         @if (isset($puja['details']))
