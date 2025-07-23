@@ -90,7 +90,7 @@
                                             value="{{ $data->pet_name }}" required>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="die_date" class="form-label ">死亡日期</label>
+                                        <label for="die_date" class="form-label ">往生日期</label>
                                         <input type="text" class="date form-control change_cal_date" id="die_date"
                                             name="die_date" value="{{ $data->getRocDieDateAttribute() }}">
                                     </div>
