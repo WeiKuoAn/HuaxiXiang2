@@ -126,6 +126,9 @@ class ContractController extends Controller
         $data->mobile = $request->mobile;
         $data->year = $request->year;
         $data->price = $request->price;
+        $data->buried_price = $request->buried_price;
+        $data->management_price = $request->management_price;
+        $data->die_date = $this->convertROCtoGregorian($request->die_date);
         $data->start_date = $this->convertROCtoGregorian($request->start_date);
         $data->end_date = $this->convertROCtoGregorian($request->end_date);
         if(isset($request->renew)){
@@ -158,7 +161,10 @@ class ContractController extends Controller
         $data->pet_name = $request->pet_name;
         $data->mobile = $request->mobile;
         $data->year = $request->year;
+        $data->buried_price = $request->buried_price;
+        $data->management_price = $request->management_price;
         $data->price = $request->price;
+        $data->die_date = $this->convertROCtoGregorian($request->die_date);
         $data->start_date =  $this->convertROCtoGregorian($request->start_date);
         $data->end_date =  $this->convertROCtoGregorian($request->end_date);
 

@@ -21,11 +21,14 @@ class Contract extends Model
         'year',
         'start_date',
         'end_date',
+        'die_date',
         'close_date',
         'renew',
         'renew_year',
         'user_id',
         'comment',
+        'buried_price',
+        'management_price',
     ];
 
     public function cust_name()
@@ -54,6 +57,10 @@ class Contract extends Model
     public function getRocCloseDateAttribute()
     {
         return $this->convertToROC($this->close_date);
+    }
+    public function getRocDieDateAttribute()
+    {
+        return $this->convertToROC($this->die_date);
     }
 
     // 私有的轉換函數
