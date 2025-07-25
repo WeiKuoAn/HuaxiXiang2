@@ -147,7 +147,7 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                @if ($data->vist == 1)
+                                                @if ($data->visit_status == 1)
                                                     有
                                                 @else
                                                     無
