@@ -470,6 +470,9 @@ class VisitController extends Controller
     //編輯公司
     public function company_edit($id, Request $request)
     {
+        // 記錄原始來源頁面（編輯頁面的前一頁）
+        session(['original_referer' => $request->headers->get('referer')]);
+        
         $json = file_get_contents(public_path('assets/data/banks.json'));
         $banks = collect(json_decode($json, true));
         $groupedBanks = $banks->groupBy('銀行代號/總機構代碼');
@@ -507,18 +510,13 @@ class VisitController extends Controller
         $data->visit_status = $request->visit_status;
         $data->save();
 
-        if ($hospital_type) {
-            return redirect()->route('hospitals');
-        } elseif ($etiquette_type) {
-            return redirect()->route('etiquettes');
-        } elseif ($reproduce_type) {
-            return redirect()->route('reproduces');
-        } elseif ($dogpark_type) {
-            return redirect()->route('dogparks');
-        } elseif ($salons_type) {
-            return redirect()->route('salons');
-        } elseif ($others_type) {
-            return redirect()->route('others');
+        // 返回到原始來源頁面
+        $originalReferer = session('original_referer');
+        if ($originalReferer) {
+            session()->forget('original_referer'); // 清除 session
+            return redirect($originalReferer)->with('success', '資料更新成功！');
+        } else {
+            return back()->with('success', '資料更新成功！');
         }
     }
 
