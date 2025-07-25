@@ -1376,12 +1376,13 @@ class SaleDataController extends Controller
             }
         }
         $sales = $sales->orderby('sale_date', 'desc')->get();
+        // dd($sales);
         $users = User::where('status', '0')->whereIn('job_id', [2, 3, 5, 10])->get();
         $sums = ['count' => 0, 'price' => 0 , 'pay_price' => 0 , 'pay_count' => 0 ,'actual_price' => 0];
         $datas = [];
 
         foreach ($sales as $key => $sale) {
-            $item_sales = Sale::where('status', 9)->where('sale_date', $sale->sale_date);
+            $item_sales = Sale::where('status', 9)->where('sale_date', '>=', $firstDay)->where('sale_date', '<=', $lastDay);
             if ($check_user_id != 'null') {
                 if (isset($check_user_id)) {
                     $item_sales = $item_sales->where('check_user_id', $check_user_id);
