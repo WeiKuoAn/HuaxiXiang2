@@ -1435,7 +1435,8 @@ class SaleDataController extends Controller
             $datas[$payData->user_id]['name'] = $payData->user_name->name;
             $datas[$payData->user_id]['pay_datas'] = PayData::with(['pay_items.pay_name', 'user_name'])
                 ->where('user_id', $payData->user_id)
-                ->where('pay_date', $payData->pay_date)
+                ->where('pay_date', '>=', $firstDay)
+                ->where('pay_date', '<=', $lastDay)
                 ->get();
             $datas[$payData->user_id]['pay_count'] = $datas[$payData->user_id]['pay_datas']->count();
             $datas[$payData->user_id]['pay_price'] = $datas[$payData->user_id]['pay_datas']->sum('price');
