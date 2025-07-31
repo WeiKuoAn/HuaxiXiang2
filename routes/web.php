@@ -566,7 +566,7 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg14/detail/{date}/{source_code}', [Rpg14Controller::class, 'detail'])->name('rpg14.detail');
         Route::get('/rpg/rpg14/month/detail/{month}/{source_code}', [Rpg14Controller::class, 'month_detail'])->name('rpg14.month.detail');
         Route::get('/rpg/rpg27', [Rpg27Controller::class, 'rpg27'])->name('rpg27');
-        Route::get('/rpg/rpg27/{month}/{source_id}/detail', [Rpg27Controller::class, 'detail'])->name('rpg27.detail');
+        Route::get('/rpg/rpg27/{year}/{month}/{source_id}/{company_id}/detail', [Rpg27Controller::class, 'detail'])->name('rpg27.detail');
         Route::get('/rpg/rpg18', [Rpg18Controller::class, 'rpg18'])->name('rpg18');
         Route::get('/rpg/rpg19', [Rpg19Controller::class, 'rpg19'])->name('rpg19');
         Route::get('/rpg/rpg20', [Rpg20Controller::class, 'rpg20'])->name('rpg20');
