@@ -29,6 +29,7 @@
                                 <thead>
                                     <tr align="center">
                                         <td>No</td>
+                                        <td>日期</td>
                                         <td>客戶名稱</td>
                                         <td>寵物名稱</td>
                                         <td>後續處理A</td>
@@ -39,6 +40,7 @@
                                     @foreach ($datas as $key => $data)
                                         <tr align="center">
                                             <td>{{ $key + 1 }}</td>
+                                            <td>{{ $data->sale_date }}</td>
                                             <td>
                                                 @if (isset($data->customer_id))
                                                     @if (isset($data->cust_name))
@@ -52,13 +54,13 @@
                                             <td>
                                                 @if (isset($data->before_prom_id))
                                                     @if (isset($data->PromA_name))
-                                                        {{ $data->PromA_name->name }}
+                                                        {{ $data->PromA_name->name }}-{{ number_format($data->before_prom_price) }}
                                                     @endif
                                                 @endif
                                                 @foreach ($data->proms as $prom)
                                                     @if ($prom->prom_type == 'A')
                                                         @if (isset($prom->prom_id))
-                                                            {{ $prom->prom_name->name }}<br>
+                                                            {{ $prom->prom_name->name }}-{{ number_format($prom->prom_total) }}<br>
                                                         @else
                                                             無
                                                         @endif

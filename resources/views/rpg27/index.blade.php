@@ -1,5 +1,9 @@
 @extends('layouts.vertical', ['page_title' => '年度來源統計'])
 
+@php
+    use Carbon\Carbon;
+@endphp
+
 @section('content')
     <!-- Start Content-->
     <div class="container-fluid">
@@ -29,6 +33,7 @@
                             <div class="col-auto">
                                 <form class="d-flex flex-wrap align-items-center" action="{{ route('rpg27') }}"
                                     method="GET">
+                                    <label for="status-select" class="me-2">年度</label>
                                     <div class="me-sm-3">
                                         <select class="form-select my-1 my-lg-0" id="status-select" name="year"
                                             onchange="this.form.submit()">
@@ -37,6 +42,37 @@
                                                     @if ($request->year == $year) selected @endif>{{ $year }}年
                                                 </option>
                                             @endforeach
+                                        </select>
+                                    </div>
+                                    <label for="status-select" class="me-2">月份</label>
+                                    <div class="me-sm-3">
+                                        <select class="form-select my-1 my-lg-0" id="status-select" name="month"
+                                            onchange="this.form.submit()">
+                                            <option value="" selected>請選擇</option>
+                                            <option value="01" @if ($request->month == '01') selected @endif>一月
+                                            </option>
+                                            <option value="02" @if ($request->month == '02') selected @endif>二月
+                                            </option>
+                                            <option value="03" @if ($request->month == '03') selected @endif>三月
+                                            </option>
+                                            <option value="04" @if ($request->month == '04') selected @endif>四月
+                                            </option>
+                                            <option value="05" @if ($request->month == '05') selected @endif>五月
+                                            </option>
+                                            <option value="06" @if ($request->month == '06') selected @endif>六月
+                                            </option>
+                                            <option value="07" @if ($request->month == '07') selected @endif>七月
+                                            </option>
+                                            <option value="08" @if ($request->month == '08') selected @endif>八月
+                                            </option>
+                                            <option value="09" @if ($request->month == '09') selected @endif>九月
+                                            </option>
+                                            <option value="10" @if ($request->month == '10') selected @endif>十月
+                                            </option>
+                                            <option value="11" @if ($request->month == '11') selected @endif>十一月
+                                            </option>
+                                            <option value="12" @if ($request->month == '12') selected @endif>十二月
+                                            </option>
                                         </select>
                                     </div>
                                     <div class="me-3">
@@ -56,66 +92,43 @@
             </div> <!-- end col-->
         </div>
 
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row mb-2">
-                            <div class="table-responsive">
-                                <table class="table table-centered table-nowrap table-hover mb-0">
-                                    <thead class="table-light">
-                                        <tr align="center">
-                                            <th>月份</th>
-                                            @foreach ($datas as $key => $data)
-                                                <th colspan="1">
-                                                    @if (isset($data['name']))
-                                                        {{ $data['name'] }}
-                                                    @endif
-                                                </th>
-                                            @endforeach
-                                            {{-- <tr align="center" class="text-danger">
-                                        <th>總計</th>
-                                        @foreach ($datas as $key => $data)
-                                            <th>{{ $sums['count'] }}個</th>
-                                            <th>{{ number_format($sums[$key]['total_price']) }}</th>
+        @foreach ($datas as $source_id => $data)
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4>{{ $data['name'] }}（共{{ $data['count'] }}件）</h4>
+                            <div class="row mb-2">
+                                <div class="table-responsive">
+                                    <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
+                                        @php
+                                            $count = 0;
+                                        @endphp
+                                        @foreach ($data['items'] as $key => $item)
+                                            @if (isset($item['name']))
+                                                @if ($count % 5 == 0)
+                                                    <tr>
+                                                @endif
+                                                <td>{{ $item['name'] }}</td>
+                                                <td><a href="{{ route('rpg27.detail', ['year' => $request->year ?: Carbon::now()->year, 'month' => $request->month ?: 'all', 'source_id' => $source_id, 'company_id' => $key]) }}">{{ $item['count'] }}</a></td>
+                                                @php
+                                                    $count++;
+                                                @endphp
+                                                @if ($count % 5 == 0)
+                                                    </tr>
+                                                @endif
+                                            @endif
                                         @endforeach
-                                    </tr> --}}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr align="center" class="text-danger">
-                                            <td>總計</td>
-                                            @foreach ($sums as $key => $sum)
-                                                <td>
-                                                    @if (isset($sum['count']))
-                                                        {{ number_format($sum['count']) }}
-                                                    @endif
-                                                </td>
-                                            @endforeach
-                                        </tr>
-                                        @foreach ($months as $key => $month)
-                                            <tr align="center">
-                                                <td>{{ $month['monthName'] }}</td>
-                                                @foreach ($datas as $source_id => $data)
-                                                    <td>
-                                                        @if (isset($data['name']))
-                                                            <a
-                                                                href="{{ route('rpg27.detail', ['year' => $request->year, 'month' => $key + 1, 'source_id' => $source_id]) }}">
-                                                                {{ number_format($data['months'][$key]['count']) }}
-                                                            </a>
-                                                        @endif
-                                                    </td>
-                                                @endforeach
+                                        @if ($count % 5 != 0)
                                             </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div> <!-- end card-body-->
-                    </div> <!-- end card-->
-                </div> <!-- end col -->
+                                        @endif
+                                    </table>
+                                </div>
+                            </div> <!-- end card-body-->
+                        </div> <!-- end card-->
+                    </div> <!-- end col -->
+                </div>
             </div>
-            <!-- end row -->
-
-        </div> <!-- container -->
-    @endsection
+        @endforeach
+    </div>
+@endsection
