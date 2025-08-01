@@ -705,7 +705,36 @@ class SaleDataController extends Controller
         foreach ($sales as $sale) {
             $total += $sale->pay_price;
         }
-        return view('sale.wait')->with('sales', $sales)->with('request', $request)->with('users', $users)->with('total', $total);
+
+        $datas = [];
+        foreach ($sales as $sale) 
+        {
+            $query = Sale::where('status', 3)->where('user_id', $sale->user_id);
+            
+            // 只有在變數不為空時才加入日期條件
+            if (!empty($after_date)) {
+                $query = $query->where('sale_date', '>=', $after_date);
+            }
+            if (!empty($before_date)) {
+                $query = $query->where('sale_date', '<=', $before_date);
+            }
+            $datas[$sale->user_id]['name'] = $sale->user_name->name;
+            $datas[$sale->user_id]['items'] = $query->orderby('sale_date', 'desc')->orderby('user_id', 'desc')->orderby('sale_on', 'desc')->get();
+            $datas[$sale->user_id]['count'] = $datas[$sale->user_id]['items']->count();
+            $datas[$sale->user_id]['cash_total'] = $datas[$sale->user_id]['items']->where('pay_method', 'A')->sum('pay_price');
+            $datas[$sale->user_id]['transfer_total'] = $datas[$sale->user_id]['items']->where('pay_method', 'B')->sum('pay_price');
+            
+            $datas[$sale->user_id]['cash_price'] = $datas[$sale->user_id]['items']->where('pay_method', 'C')->sum('cash_price');
+            $datas[$sale->user_id]['transfer_price'] = $datas[$sale->user_id]['items']->where('pay_method', 'C')->sum('transfer_price');
+            if($datas[$sale->user_id]['cash_price'] > 0 && $datas[$sale->user_id]['transfer_price'] > 0)
+            {
+                $datas[$sale->user_id]['cash_total'] =  $datas[$sale->user_id]['cash_total'] + $datas[$sale->user_id]['cash_price'];
+                $datas[$sale->user_id]['transfer_total'] =  $datas[$sale->user_id]['transfer_total'] + $datas[$sale->user_id]['transfer_price'];
+            }
+
+            $datas[$sale->user_id]['price'] = $datas[$sale->user_id]['items']->sum('pay_price');
+        }
+        return view('sale.wait')->with('sales', $sales)->with('request', $request)->with('users', $users)->with('datas', $datas)->with('total', $total);
     }
 
     public function user_sale($id, Request $request)  // 從用戶管理進去看業務單

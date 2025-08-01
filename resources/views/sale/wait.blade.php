@@ -72,11 +72,12 @@
                 </div> <!-- end card -->
             </div> <!-- end col-->
         </div>
-
+        @foreach ($datas as $user_id => $data)
         <div class="row">
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
+                        <h5 class="card-title"> {{ $data['name'] }}</h5>
                         <div class="table-responsive ">
                             <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
                                 <thead class="table-light">
@@ -98,7 +99,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($sales as $sale)
+                                    @foreach ($data['items'] as $sale)
                                         <tr>
                                             <td>{{ $sale->sale_on }}</td>
                                             <td>{{ $sale->user_name->name }}</td>
@@ -196,6 +197,14 @@
                                             </td>
                                         </tr>
                                     @endforeach
+                                    <tr class="mb-3">
+                                        <td colspan="9"></td>
+                                        <td align="right"><b>共計：{{ number_format($data['count']) }}單</b></td>
+                                        <td align="right"><b>現金：{{ number_format($data['cash_total']) }}元</b></td>
+                                        <td align="right"><b>匯款：{{ number_format($data['transfer_total']) }}元</b></td>
+                                        <td align="right"><b>小計：{{ number_format($data['price']) }}元</b></td>
+                                        <td align="right"></td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -203,7 +212,7 @@
                 </div>
             </div>
         </div>
-
+        @endforeach
 
 
     </div> <!-- container -->
