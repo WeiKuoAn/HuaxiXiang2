@@ -36,6 +36,7 @@ class User extends Authenticatable
         'is_graduated',
         'state',
         'seq',
+        'comment',
     ];
 
     /**

@@ -64,7 +64,8 @@ class UserController extends Controller
             'branch_id' => $request->branch_id,
             'seq' => $request->seq,
             'level' => '2',
-            'state' => '1' //剛開始由管理員新增時
+            'state' => '1', //剛開始由管理員新增時
+            'comment' => $request->comment,
         ]);
 
         return redirect()->route('users');
@@ -172,6 +173,7 @@ class UserController extends Controller
             }
             $user->status = $request->status;
             $user->level = $request->level;
+            $user->comment = $request->comment;
             $user->save();
         }
         return redirect()->route('user.edit', $id)->with(['hint' => '1']);

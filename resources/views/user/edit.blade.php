@@ -276,6 +276,8 @@
                                     </div>
                                 </div>
                             @endif
+
+                            
                     </div>
                 </div> <!-- end card -->
             </div> <!-- end col -->
@@ -315,6 +317,13 @@
                             <input type="date" class="form-control" data-toggle="flatpicker" name="resign_date"
                                 value="{{ $user->resign_date }}">
                         </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="text-uppercase mt-0 mb-3 bg-light p-2">備註</h5>
+                        <textarea name="comment" id="comment" class="form-control" rows="5">{{ $user->comment }}</textarea>
                     </div>
                 </div>
 
