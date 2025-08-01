@@ -121,7 +121,7 @@
                                                     </td>
                                                     <td align="center">{{ number_format($item->pay_price) }}</td>
                                                     <td align="center">{{ $item->check_user_name->name }}</td>
-                                                    <td align="center"><a href="{{ route('sale.check', $item->id) }}"><i
+                                                    <td align="center"><a href="{{ route('sale.check', $item->id) }}" target="_blank"><i
                                                                 class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i></a>
                                                     </td>
                                                 </tr>
@@ -183,7 +183,7 @@
                                                         {{ $pay_data->comment }}
                                                     </td>
                                                     <td align="center">
-                                                        <a href="{{ route('pay.check', $pay_data->id) }}">
+                                                        <a href="{{ route('pay.check', $pay_data->id) }}" target="_blank">
                                                             <i
                                                                 class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i>
                                                         </a>
