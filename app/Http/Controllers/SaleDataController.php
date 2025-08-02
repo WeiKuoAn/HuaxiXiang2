@@ -1491,6 +1491,7 @@ class SaleDataController extends Controller
         }
 
         $sums['actual_price']=0;
+        $sums['cash_actual_price']=0;
         // 使用 foreach 遍歷 $datas 並累計到 $sums
         foreach ($datas as $date => &$data) {
             if (isset($data['count'])) {
@@ -1518,7 +1519,8 @@ class SaleDataController extends Controller
                 $sums['pay_price'] += $data['pay_price'];
             }
             // 計算實際收入（業務收入 - 支出）
-            $datas[$date]['actual_price'] = ($data['cash_total'] ?? 0) - ($data['pay_price'] ?? 0);
+            $datas[$date]['cash_actual_price'] = ($data['cash_total'] ?? 0) - ($data['pay_price'] ?? 0);
+            $datas[$date]['actual_price'] = ($data['price'] ?? 0) - ($data['pay_price'] ?? 0);
             if(isset($data['actual_price'])){
                 $sums['actual_price'] += $data['actual_price'];
             }else{
