@@ -121,7 +121,7 @@
                                                     </td>
                                                     <td align="center">{{ number_format($item->pay_price) }}</td>
                                                     <td align="center">{{ $item->check_user_name->name }}</td>
-                                                    <td align="center"><a href="{{ route('sale.check', $item->id) }}" target="_blank"><i
+                                                    <td align="center"><a href="javascript:void(0)" onclick="openCheckWindow('{{ route('sale.check', $item->id) }}')"><i
                                                                 class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i></a>
                                                     </td>
                                                 </tr>
@@ -138,13 +138,13 @@
                                 </div>
                             @endif
 
-                            @if (isset($data['pay_datas']))
+                            @if (isset($data['pay_items']))
                                 <div class="table-responsive ">
                                     <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
                                         <thead class="table-light">
                                             <tr align="center">
                                                 <th width="5%">No</th>
-                                                <th width="10%">日期</th>
+                                                <th width="10%">key單日期</th>
                                                 <th width="10%">單號</th>
                                                 <th width="15%">支出日期</th>
                                                 <th width="10%">支出科目</th>
@@ -154,36 +154,19 @@
                                                 <th width="10%">支出詳情</th>
                                             </tr>
                                         </thead>
-                                        @foreach ($data['pay_datas'] as $pay_key => $pay_data)
+                                        @foreach ($data['pay_items'] as $pay_key => $pay_item)
                                             <tbody>
                                                 <tr>
                                                     <td align="center">{{ $pay_key + 1 }}</td>
-                                                    <td align="center">{{ $pay_data->pay_date }}</td>
-                                                    <td align="center">{{ $pay_data->pay_on }}</td>
+                                                    <td align="center">{{ $pay_item->pay_data_date }}</td>
+                                                    <td align="center">{{ $pay_item->pay_on }}</td>
+                                                    <td align="center">{{ $pay_item->pay_date }}</td>
+                                                    <td align="center">{{ $pay_item->pay_name }}</td>
+                                                    <td align="center">{{ $pay_item->invoice_number }}</td>
+                                                    <td align="center">{{ number_format($pay_item->price) }}</td>
+                                                    <td align="center">{{ $pay_item->comment }}</td>
                                                     <td align="center">
-                                                        @foreach ($pay_data->pay_items as $pay_item)
-                                                            {{ $pay_item->pay_date }}<br>
-                                                        @endforeach
-                                                    </td>
-                                                    <td align="center">
-                                                        @foreach ($pay_data->pay_items as $pay_item)
-                                                            {{ $pay_item->pay_name->name }}<br>
-                                                        @endforeach
-                                                    </td>
-                                                    <td align="center">
-                                                        @foreach ($pay_data->pay_items as $pay_item)
-                                                            <b>{{ $pay_item->invoice_number }}</b> -
-                                                            ${{ number_format($pay_item->price) }}<br>
-                                                        @endforeach
-                                                    </td>
-                                                    <td align="center">
-                                                        {{ number_format($pay_data->price) }}
-                                                    </td>
-                                                    <td align="center">
-                                                        {{ $pay_data->comment }}
-                                                    </td>
-                                                    <td align="center">
-                                                        <a href="{{ route('pay.check', $pay_data->id) }}" target="_blank">
+                                                        <a href="javascript:void(0)" onclick="openCheckWindow('{{ route('pay.check', $pay_item->pay_data_id) }}')">
                                                             <i
                                                                 class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i>
                                                         </a>
@@ -205,7 +188,7 @@
                                 <div class="card mb-0">
                                     <div class="card-body">
                                         <div class="col-12 text-end">
-                                            <h4 class="card-title text-danger">實收：{{ number_format($data['actual_price'] ?? 0) }}元</h4>
+                                            <h4 class="card-title text-danger">現金實收：{{ number_format($data['actual_price'] ?? 0) }}元</h4>
                                         </div>
                                     </div>
                                 </div>
@@ -233,6 +216,25 @@
             }
 
             return true;
+        }
+
+        function openCheckWindow(url) {
+            // 開啟新視窗，設定視窗大小和位置
+            var width = 1200;
+            var height = 800;
+            var left = (screen.width - width) / 2;
+            var top = (screen.height - height) / 2;
+            
+            var newWindow = window.open(url, '_blank', 
+                'width=' + width + ',height=' + height + 
+                ',left=' + left + ',top=' + top + 
+                ',scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no,status=no'
+            );
+            
+            // 確保新視窗獲得焦點
+            if (newWindow) {
+                newWindow.focus();
+            }
         }
     </script>
 @endsection

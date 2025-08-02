@@ -1394,7 +1394,7 @@ class SaleDataController extends Controller
 
         $sales = Sale::where('status', 9)->where('sale_date', '>=', $firstDay)->where('sale_date', '<=', $lastDay);
 
-        $payDatas = PayData::where('status', 1)->where('pay_date', '>=', $firstDay)->where('pay_date', '<=', $lastDay)->get();
+        $payItems = PayItem::where('status', 1)->where('pay_date', '>=', $firstDay)->where('pay_date', '<=', $lastDay)->get();
 
         $check_user_id = $request->check_user_id;
         if ($check_user_id != 'null') {
@@ -1407,7 +1407,7 @@ class SaleDataController extends Controller
         $sales = $sales->orderby('sale_date', 'desc')->get();
         // dd($sales);
         $users = User::where('status', '0')->whereIn('job_id', [2, 3, 5, 10])->get();
-        $sums = ['count' => 0, 'price' => 0 , 'pay_price' => 0 , 'pay_count' => 0 ,'actual_price' => 0];
+        $sums = ['count' => 0, 'price' => 0 , 'pay_price' => 0 , 'cash_total' => 0 , 'transfer_total' => 0 , 'pay_count' => 0 ,'actual_price' => 0];
         $datas = [];
 
         foreach ($sales as $key => $sale) {
@@ -1460,33 +1460,34 @@ class SaleDataController extends Controller
             }
         }
 
-        foreach ($payDatas as $key => $payData) {
-            $datas[$payData->user_id]['name'] = $payData->user_name->name;
-            $datas[$payData->user_id]['pay_datas'] = PayData::with(['pay_items.pay_name', 'user_name'])
-                ->where('user_id', $payData->user_id)
-                ->where('pay_date', '>=', $firstDay)
-                ->where('pay_date', '<=', $lastDay)
+        foreach ($payItems as $key => $payItem) {
+            $datas[$payItem->pay_data->user_id]['name'] = $payItem->pay_data->user_name->name;
+            $datas[$payItem->pay_data->user_id]['pay_items'] = PayItem::leftJoin('pay_data', 'pay_item.pay_data_id', '=', 'pay_data.id')
+                ->leftJoin('pay', 'pay_item.pay_id', '=', 'pay.id')
+                ->where('pay_data.user_id', $payItem->pay_data->user_id)
+                ->where('pay_item.pay_date', '>=', $firstDay)
+                ->where('pay_item.pay_date', '<=', $lastDay)
+                ->select('pay_item.*', 'pay.name as pay_name' , 'pay_data.pay_date as pay_data_date' , 'pay_data.pay_on as pay_on')
                 ->get();
-            $datas[$payData->user_id]['pay_count'] = $datas[$payData->user_id]['pay_datas']->count();
-            $datas[$payData->user_id]['pay_price'] = $datas[$payData->user_id]['pay_datas']->sum('price');
+            $datas[$payItem->pay_data->user_id]['pay_count'] = $datas[$payItem->pay_data->user_id]['pay_items']->count();
+            $datas[$payItem->pay_data->user_id]['pay_price'] = $datas[$payItem->pay_data->user_id]['pay_items']->sum('price');
             
 
-            if (!isset($datas[$payData->user_id]['count'])) {
-                $datas[$payData->user_id]['count'] = 0;
+            if (!isset($datas[$payItem->pay_data->user_id]['count'])) {
+                $datas[$payItem->pay_data->user_id]['count'] = 0;
             }
-            if (!isset($datas[$payData->user_id]['price'])) {
-                $datas[$payData->user_id]['price'] = 0;
+            if (!isset($datas[$payItem->pay_data->user_id]['price'])) {
+                $datas[$payItem->pay_data->user_id]['price'] = 0;
             }
-            if (!isset($datas[$payData->user_id]['cash_total'])) {
-                $datas[$payData->user_id]['cash_total'] = 0;
+            if (!isset($datas[$payItem->pay_data->user_id]['cash_total'])) {
+                $datas[$payItem->pay_data->user_id]['cash_total'] = 0;
             }
-            if (!isset($datas[$payData->user_id]['transfer_total'])) {
-                $datas[$payData->user_id]['transfer_total'] = 0;
+            if (!isset($datas[$payItem->pay_data->user_id]['transfer_total'])) {
+                $datas[$payItem->pay_data->user_id]['transfer_total'] = 0;
             }
         }
 
-            // dd($datas);
-            $sums['actual_price']=0;
+        $sums['actual_price']=0;
         // 使用 foreach 遍歷 $datas 並累計到 $sums
         foreach ($datas as $date => &$data) {
             if (isset($data['count'])) {
@@ -1494,6 +1495,14 @@ class SaleDataController extends Controller
             }
             if (isset($data['price'])) {
                 $sums['price'] += $data['price'];
+            }
+            //現金
+            if (isset($data['cash_total'])) {
+                $sums['cash_total'] += $data['cash_total'];
+            }
+            //轉帳
+            if (isset($data['transfer_total'])) {
+                $sums['transfer_total'] += $data['transfer_total'];
             }
             // 加上支出資料的統計
             if (isset($data['pay_count'])) {
@@ -1506,7 +1515,7 @@ class SaleDataController extends Controller
                 $sums['pay_price'] += $data['pay_price'];
             }
             // 計算實際收入（業務收入 - 支出）
-            $datas[$date]['actual_price'] = ($data['price'] ?? 0) - ($data['pay_price'] ?? 0);
+            $datas[$date]['actual_price'] = ($data['cash_total'] ?? 0) - ($data['pay_price'] ?? 0);
             if(isset($data['actual_price'])){
                 $sums['actual_price'] += $data['actual_price'];
             }else{
