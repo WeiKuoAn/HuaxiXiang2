@@ -188,7 +188,7 @@
                                 <div class="card mb-0">
                                     <div class="card-body">
                                         <div class="col-12 text-end">
-                                            <h4 class="card-title text-danger">現金實收：{{ number_format($data['actual_price'] ?? 0) }}元</h4>
+                                            <h4 class="card-title text-danger">現金實收：{{ number_format($data['cash_actual_price'] ?? 0) }}元</h4>
                                         </div>
                                     </div>
                                 </div>
