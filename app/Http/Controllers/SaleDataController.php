@@ -1394,7 +1394,10 @@ class SaleDataController extends Controller
 
         $sales = Sale::where('status', 9)->where('sale_date', '>=', $firstDay)->where('sale_date', '<=', $lastDay);
 
-        $payItems = PayItem::where('status', 1)->where('pay_date', '>=', $firstDay)->where('pay_date', '<=', $lastDay)->get();
+        $payItems = PayItem::leftJoin('pay_data', 'pay_item.pay_data_id', '=', 'pay_data.id')
+        ->leftJoin('users', 'pay_data.user_id', '=', 'users.id')
+        ->whereNotIn('users.job_id', [1, 2, 7])//不抓老闆、工程師、行政經理
+        ->where('pay_item.status', 1)->where('pay_item.pay_date', '>=', $firstDay)->where('pay_item.pay_date', '<=', $lastDay)->get();
 
         $check_user_id = $request->check_user_id;
         if ($check_user_id != 'null') {
