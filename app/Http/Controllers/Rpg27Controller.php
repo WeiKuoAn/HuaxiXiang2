@@ -68,6 +68,7 @@ class Rpg27Controller extends Controller
 
         $sources = SaleSource::where('status', 'up')->orderby('id')->whereIn('code', ['H', 'B', 'G', 'Salon', 'dogpark', 'other'])->get();
         foreach ($sources as $source) {
+            $datas[$source->code]['items'] = [];
             $datas[$source->code]['name'] = $source->name;
             $sums[$source->code]['count'] = 0;
             $sales = Sale::join('sale_company_commission', 'sale_data.id', '=', 'sale_company_commission.sale_id')
@@ -98,7 +99,6 @@ class Rpg27Controller extends Controller
             }
         }
 
-        // dd($datas);
 
         return view('rpg27.index')
             ->with('datas', $datas)
@@ -137,6 +137,7 @@ class Rpg27Controller extends Controller
             ->whereIn('sale_data.pay_id', ['A', 'C'])
             ->select('sale_data.*')
             ->get();
+
         return view('rpg27.detail')
             ->with('datas', $datas)
             ->with('source_name', $source_name)
