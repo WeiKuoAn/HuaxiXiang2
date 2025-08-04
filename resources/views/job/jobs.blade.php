@@ -68,18 +68,39 @@
                                     <th>編號</th>
                                     <th>職稱名稱</th>
                                     <th>主管名稱</th>
+                                    <th>使用人數</th>
                                     <th>狀態</th>
                                     <th>動作</th>
                                 </tr>
                             </thead>
                             <tbody>
                             @foreach ($datas as $key=>$data)
+                                @php
+                                    // Debug: 輸出職稱資訊
+                                    \Log::info('職稱人數檢查:', [
+                                        'job_id' => $data->id,
+                                        'job_name' => $data->name,
+                                        'active_count' => $data->active_user_count,
+                                        'total_count' => $data->total_user_count,
+                                        'users_loaded' => $data->relationLoaded('users') ? 'yes' : 'no'
+                                    ]);
+                                @endphp
                                 <tr>
                                     <td>{{ $data->id }}</td>
                                     <td><span style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#bs-example-modal-lg">{{ $data->name }}</span></td>
                                     <td>
                                         @if(isset($data->director_id)) {{ $data->director_data->name }}
                                         @else 無
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @php
+                                            $active_count = $data->active_user_count;
+                                        @endphp
+                                        @if($active_count > 0)
+                                            <span class="badge bg-primary">{{ $active_count }} 人</span>
+                                        @else
+                                            <span class="text-muted">0 人</span>
                                         @endif
                                     </td>
                                     <td>
