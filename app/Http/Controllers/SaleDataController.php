@@ -1546,6 +1546,20 @@ class SaleDataController extends Controller
     // 匯出
     public function export(Request $request)
     {
+        // 獲取選擇的欄位
+        $selectedFields = $request->input('export_fields', []);
+        
+        // 如果沒有選擇欄位，使用預設欄位
+        if (empty($selectedFields)) {
+            $selectedFields = [
+                '案件單類別', '單號', '專員', '日期', '客戶', '寶貝名', 
+                '類別', '原方案', '套裝', '金紙', '金紙總賣價', 
+                '安葬方式', '後續處理', '其他處理', '付款方式', 
+                '實收價格', '狀態', '備註', '更改後方案', 
+                '確認對帳人員', '確認對帳時間'
+            ];
+        }
+        
         if ($request->input() != null) {
             $status = $request->status;
             if (!isset($status) || $status == 'not_check') {
@@ -1690,20 +1704,6 @@ class SaleDataController extends Controller
             $before_date = '';
             $sales = [];
         }
-        // dd($request->input());
-        // foreach($datas as $key => $data)
-        // {
-        //     $data->comment = '';
-        //     foreach($data->gdpapers as $gd_key => $gdpaper)
-        //     {
-        //         if (isset($gdpaper->gdpaper_id)){
-
-        //             $data->comment .= $gdpaper->gdpaper_name->name.$gdpaper->gdpaper_num.'份'."\r\n";
-        //         }else{
-        //             $data->comment .= '無';
-        //         }
-        //     }
-        // }
 
         $fileName = '專員業務key單' . date('Y-m-d') . '.csv';
 
@@ -1715,177 +1715,22 @@ class SaleDataController extends Controller
             'Expires' => '0'
         );
         $header = array('日期', $after_date . '~', $before_date);
-        $columns = array('案件單類別', '單號', '專員', '日期', '客戶', '寶貝名', '類別', '原方案', '套裝', '金紙', '金紙總賣價', '安葬方式', '後續處理', '其他處理', '付款方式', '實收價格', '狀態', '備註', '更改後方案', '確認對帳人員', '確認對帳時間');
-        // ,'轉單','轉單後人員','對拆人員',
 
-        $callback = function () use ($sales, $columns, $header) {
+        $callback = function () use ($sales, $selectedFields, $header) {
             $file = fopen('php://output', 'w');
             fputs($file, chr(0xEF) . chr(0xBB) . chr(0xBF), 3);
             fputcsv($file, $header);
-            fputcsv($file, $columns);
+            fputcsv($file, $selectedFields);
 
             foreach ($sales as $key => $sale) {
-                if ($sale->type_list == 'dispatch') {
-                    $row['案件單類別'] = '派件單';
-                } else {
-                    $row['案件單類別'] = '追思單';
+                $row = [];
+                
+                // 根據選擇的欄位生成資料
+                foreach ($selectedFields as $field) {
+                    $row[$field] = $this->getFieldValue($sale, $field);
                 }
-                $row['單號'] = $sale->sale_on;
-                $row['專員'] = $sale->user_name->name;
-                $row['日期'] = $sale->sale_date;
-                if ((isset($sale->customer_id))) {
-                    if (isset($sale->cust_name)) {
-                        $row['客戶'] = $sale->cust_name->name;
-                    } else {
-                        $row['客戶'] = $sale->customer_id . '（客戶姓名須重新登入）';
-                    }
-                } elseif ($sale->type_list == 'memorial') {
-                    $row['客戶'] = '追思';
-                }
-                if ((isset($sale->pet_name))) {
-                    $row['寶貝名'] = '="' . $sale->pet_name . '"';
-                } else {
-                    $row['寶貝名'] = '';
-                }
-                if (isset($sale->type)) {
-                    if (isset($sale->source_type)) {
-                        $row['類別'] = $sale->source_type->name;
-                    } else {
-                        $row['類別'] = $sale->type;
-                    }
-                } else {
-                    $row['類別'] = '';
-                }
-                $row['方案'] = '';
-                if (isset($sale->plan_id)) {
-                    if (isset($sale->plan_name)) {
-                        $row['方案'] = $sale->plan_name->name;
-                    }
-                } else {
-                    $row['方案'] = '';
-                }
-                $row['套裝'] = '';
-                if (isset($sale->suit_id)) {
-                    if (isset($sale->suit_name)) {
-                        $row['套裝'] = $sale->suit_name->name;
-                    }
-                } else {
-                    $row['套裝'] = '';
-                }
-                $row['金紙'] = '';
-                $row['金紙總價格'] = 0;
-                foreach ($sale->gdpapers as $gdpaper) {
-                    if (isset($gdpaper->gdpaper_id)) {
-                        if (isset($gdpaper->gdpaper_name)) {
-                            $row['金紙'] .= ($row['金紙'] == '' ? '' : "\r\n") . $gdpaper->gdpaper_name->name . ' ' . $gdpaper->gdpaper_num . '份';
-                        }
-                        $row['金紙總價格'] += $gdpaper->gdpaper_total;
-                    } else {
-                        $row['金紙'] = '無';
-                    }
-                }
-                $row['安葬方式'] = '';
-                if (isset($sale->before_prom_id)) {
-                    if (isset($sale->PromA_name)) {
-                        $row['安葬方式'] = $sale->PromA_name->name . '-' . $sale->before_prom_price;
-                    }
-                }
-                foreach ($sale->proms as $prom) {
-                    if ($prom->prom_type == 'A') {
-                        if (isset($prom->prom_id)) {
-                            $row['安葬方式'] .= ($row['安葬方式'] == '' ? '' : "\r\n") . $prom->prom_name->name . '-' . number_format($prom->prom_total);
-                        } else {
-                            $row['安葬方式'] = '無';
-                        }
-                    }
-                }
-                $row['後續處理'] = '';
-                foreach ($sale->proms as $prom) {
-                    if ($prom->prom_type == 'B') {
-                        if (isset($prom->prom_id)) {
-                            $row['後續處理'] .= ($row['後續處理'] == '' ? '' : "\r\n") . $prom->prom_name->name . '-' . number_format($prom->prom_total);
-                        } else {
-                            $row['後續處理'] = '無';
-                        }
-                    }
-                }
-                $row['其他處理'] = '';
-                foreach ($sale->proms as $prom) {
-                    if ($prom->prom_type == 'C') {
-                        if (isset($prom->prom_id)) {
-                            $row['其他處理'] .= ($row['其他處理'] == '' ? '' : "\r\n") . $prom->prom_name->name . '-' . number_format($prom->prom_total);
-                        } else {
-                            $row['其他處理'] = '無';
-                        }
-                    }
-                }
-                if (isset($sale->pay_id)) {
-                    $row['付款方式'] = $sale->pay_type();
-                }
-                $row['實收價格'] = number_format($sale->pay_price);
-                $row['狀態'] = $sale->status();
-                if (isset($sale->comm)) {
-                    $row['備註'] = $sale->comm;
-                } else {
-                    $row['備註'] = '';
-                }
-                // $row['轉單'] = '';
-                // if(isset($sale->SaleChange)){
-                //     $row['轉單'] = '是';
-                // }else{
-                //     $row['轉單'] = '否';
-                // }
-                // $row['轉單人員'] = '';
-                // if(isset($sale->SaleChange)){
-                //     $row['轉單人員'] = $sale->SaleChange->change_user_data->name;
-                // }else{
-                //     $row['轉單人員'] = '';
-                // }
-                // $row['對拆人員'] = '';
-                // if(isset($sale->SaleSplit)){
-                //     $row['對拆人員'] = $sale->SaleSplit->user_name->name;
-                // }
-                // $row['對拆人員'] = '';
-                // if(isset($sale->SaleSplit)){
-                //     $row['對拆人員'] = $sale->SaleSplit->user_name->name;
-                // }
-                $row['更改後方案'] = '';
-                if (isset($sale->change_plan)) {
-                    $row['更改後方案'] = '由「' . $sale->change_plan->old_plan_data->name . '」改為' . '「' . $sale->change_plan->new_plan_data->name . '」';
-                }
-                $row['確認對帳人員'] = '';
-                if (isset($sale->check_user_id)) {
-                    $row['確認對帳人員'] = $sale->check_user_name->name;
-                }
-                $row['確認對帳時間'] = '';
-                if (isset($sale->check_user_id)) {
-                    $row['確認對帳時間'] = $sale->updated_at;
-                }
-                // '付款方式','實收價格','狀態','轉單','對拆人員'
-                fputcsv($file, array(
-                    $row['案件單類別'],
-                    $row['單號'],
-                    $row['專員'],
-                    $row['日期'],
-                    $row['客戶'],
-                    $row['寶貝名'],
-                    $row['類別'],
-                    $row['方案'],
-                    $row['套裝'],
-                    $row['金紙'],
-                    $row['金紙總價格'],
-                    $row['安葬方式'],
-                    $row['後續處理'],
-                    $row['其他處理'],
-                    $row['付款方式'],
-                    $row['實收價格'],
-                    $row['狀態'],
-                    $row['備註'],
-                    $row['更改後方案'],
-                    $row['確認對帳人員'],
-                    $row['確認對帳時間']
-                ));
-                //  ,$row['轉單'],$row['轉單人員'],$row['對拆人員']
+                
+                fputcsv($file, array_values($row));
             }
 
             fclose($file);
@@ -1894,10 +1739,153 @@ class SaleDataController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
+    private function getFieldValue($sale, $field)
+    {
+        switch ($field) {
+            case '案件單類別':
+                return $sale->type_list == 'dispatch' ? '派件單' : '追思單';
+            case '單號':
+                return $sale->sale_on;
+            case '專員':
+                return $sale->user_name->name ?? '';
+            case '日期':
+                return $sale->sale_date;
+            case '客戶':
+                if (isset($sale->customer_id)) {
+                    if (isset($sale->cust_name)) {
+                        return $sale->cust_name->name;
+                    } else {
+                        return $sale->customer_id . '（客戶姓名須重新登入）';
+                    }
+                } elseif ($sale->type_list == 'memorial') {
+                    return '追思';
+                }
+                return '';
+            case '寶貝名':
+                return isset($sale->pet_name) ? '="' . $sale->pet_name . '"' : '';
+            case '類別':
+                if (isset($sale->type)) {
+                    if (isset($sale->source_type)) {
+                        return $sale->source_type->name;
+                    } else {
+                        return $sale->type;
+                    }
+                }
+                return '';
+            case '原方案':
+                if (isset($sale->plan_id)) {
+                    if (isset($sale->plan_name)) {
+                        return $sale->plan_name->name;
+                    }
+                }
+                return '';
+            case '套裝':
+                if (isset($sale->suit_id)) {
+                    if (isset($sale->suit_name)) {
+                        return $sale->suit_name->name;
+                    }
+                }
+                return '';
+            case '金紙':
+                $gdpaper_text = '';
+                foreach ($sale->gdpapers as $gdpaper) {
+                    if (isset($gdpaper->gdpaper_id)) {
+                        if (isset($gdpaper->gdpaper_name)) {
+                            $gdpaper_text .= ($gdpaper_text == '' ? '' : "\r\n") . $gdpaper->gdpaper_name->name . ' ' . $gdpaper->gdpaper_num . '份';
+                        }
+                    } else {
+                        $gdpaper_text = '無';
+                    }
+                }
+                return $gdpaper_text;
+            case '金紙總賣價':
+                $total = 0;
+                foreach ($sale->gdpapers as $gdpaper) {
+                    if (isset($gdpaper->gdpaper_id)) {
+                        $total += $gdpaper->gdpaper_total;
+                    }
+                }
+                return $total;
+            case '安葬方式':
+                $text = '';
+                if (isset($sale->before_prom_id)) {
+                    if (isset($sale->PromA_name)) {
+                        $text = $sale->PromA_name->name . '-' . $sale->before_prom_price;
+                    }
+                }
+                foreach ($sale->proms as $prom) {
+                    if ($prom->prom_type == 'A') {
+                        if (isset($prom->prom_id)) {
+                            $text .= ($text == '' ? '' : "\r\n") . $prom->prom_name->name . '-' . number_format($prom->prom_total);
+                        } else {
+                            $text = '無';
+                        }
+                    }
+                }
+                return $text;
+            case '後續處理':
+                $text = '';
+                foreach ($sale->proms as $prom) {
+                    if ($prom->prom_type == 'B') {
+                        if (isset($prom->prom_id)) {
+                            $text .= ($text == '' ? '' : "\r\n") . $prom->prom_name->name . '-' . number_format($prom->prom_total);
+                        } else {
+                            $text = '無';
+                        }
+                    }
+                }
+                return $text;
+            case '其他處理':
+                $text = '';
+                foreach ($sale->proms as $prom) {
+                    if ($prom->prom_type == 'C') {
+                        if (isset($prom->prom_id)) {
+                            $text .= ($text == '' ? '' : "\r\n") . $prom->prom_name->name . '-' . number_format($prom->prom_total);
+                        } else {
+                            $text = '無';
+                        }
+                    }
+                }
+                return $text;
+            case '付款方式':
+                return isset($sale->pay_id) ? $sale->pay_type() : '';
+            case '實收價格':
+                return number_format($sale->pay_price);
+            case '狀態':
+                return $sale->status();
+            case '備註':
+                return isset($sale->comm) ? $sale->comm : '';
+            case '更改後方案':
+                if (isset($sale->change_plan)) {
+                    return '由「' . $sale->change_plan->old_plan_data->name . '」改為' . '「' . $sale->change_plan->new_plan_data->name . '」';
+                }
+                return '';
+            case '確認對帳人員':
+                return isset($sale->check_user_id) ? $sale->check_user_name->name : '';
+            case '確認對帳時間':
+                return isset($sale->check_user_id) ? $sale->updated_at : '';
+            default:
+                return '';
+        }
+    }
+
     public function history($id)
     {
         $sale = Sale::where('id', $id)->first();
         $datas = SaleHistory::where('sale_id', $id)->get();
         return view('sale.history')->with('sale', $sale)->with('datas', $datas);
+    }
+
+    public function excel(Request $request)
+    {
+        $after_date = $request->after_date;
+        $before_date = $request->before_date;
+        
+        // 使用 between 方法來避免運算符問題
+        $datas = Sale::whereIn('status', [1, 2])
+            ->whereBetween('sale_date', [$after_date, $before_date])
+            ->get();
+            
+        return view('sale.excel')->with('datas', $datas)->with('request', $request);
     }
 }
