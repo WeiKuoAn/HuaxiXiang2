@@ -19,13 +19,25 @@ class Job extends Model
         'director_id',
     ];
 
-    public function user_data()
+    public function users()
     {
-        return $this->hasOne('App\Models\User', 'id', 'user_id');
+        return $this->hasMany('App\Models\User', 'job_id', 'id');
     }
 
     public function director_data()
     {
         return $this->hasOne('App\Models\Job', 'id', 'director_id');
+    }
+
+    // 取得該職稱的使用人數（只計算在職員工）
+    public function getActiveUserCountAttribute()
+    {
+        return $this->users()->where('status', '0')->count();
+    }
+
+    // 取得該職稱的總人數（包含離職員工）
+    public function getTotalUserCountAttribute()
+    {
+        return $this->users()->count();
     }
 }
