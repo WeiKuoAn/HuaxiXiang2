@@ -151,7 +151,7 @@
                                     </div>
                                     <div class="me-3 mt-4">
                                         <button type="button" class="btn btn-primary waves-effect waves-light me-1" onclick="showExportModal()">
-                                            <i class="fe-download me-1"></i>匯出
+                                            <i class="fe-download me-1"></i>匯出設定
                                         </button>
                                     </div>
                                     <div class="col mt-3" style="text-align: right;">
@@ -638,12 +638,12 @@
         </div>
 
         <!-- 匯出設定 Modal -->
-        <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+        <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="exportModalLabel">匯出設定</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeExportModal()"></button>
                     </div>
                     <form action="{{ route('sales.export') }}" method="GET" id="exportForm">
                         <!-- 隱藏的篩選條件 -->
@@ -774,7 +774,7 @@
                         </div>
                         
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-secondary" onclick="closeExportModal()">取消</button>
                             <button type="submit" class="btn btn-primary" onclick="return validateExportForm()">
                                 <i class="fe-download me-1"></i>匯出 CSV
                             </button>
@@ -797,8 +797,20 @@
     
     <script>
         function showExportModal() {
-            var modal = new bootstrap.Modal(document.getElementById('exportModal'));
-            modal.show();
+            // 使用 jQuery 的方式來確保相容性
+            if (typeof $ !== 'undefined') {
+                $('#exportModal').modal('show');
+            } else {
+                // 備用方案：使用原生 JavaScript
+                var modal = document.getElementById('exportModal');
+                if (modal) {
+                    var bootstrapModal = new bootstrap.Modal(modal);
+                    bootstrapModal.show();
+                } else {
+                    // 如果 Modal 不存在，直接提交表單
+                    submitExportForm();
+                }
+            }
         }
         
         function selectAllFields() {
@@ -821,5 +833,93 @@
             }
             return true;
         }
+        
+        // 備用匯出函數
+        function submitExportForm() {
+            // 創建一個隱藏的表單來提交匯出請求
+            var form = document.createElement('form');
+            form.method = 'GET';
+            form.action = '{{ route("sales.export") }}';
+            
+            // 添加所有篩選條件
+            var filters = {
+                'after_date': '{{ $request->after_date }}',
+                'before_date': '{{ $request->before_date }}',
+                'type_list': '{{ $request->type_list }}',
+                'sale_on': '{{ $request->sale_on }}',
+                'cust_name': '{{ $request->cust_name }}',
+                'pet_name': '{{ $request->pet_name }}',
+                'user': '{{ $request->user }}',
+                'plan': '{{ $request->plan }}',
+                'pay_id': '{{ $request->pay_id }}',
+                'other': '{{ $request->other }}',
+                'status': '{{ $request->status }}',
+                'check_user_id': '{{ $request->check_user_id }}'
+            };
+            
+            // 添加預設欄位
+            var defaultFields = [
+                '案件單類別', '單號', '專員', '日期', '客戶', '寶貝名', 
+                '類別', '原方案', '套裝', '金紙', '金紙總賣價', 
+                '安葬方式', '後續處理', '其他處理', '付款方式', 
+                '實收價格', '狀態', '備註', '更改後方案', 
+                '確認對帳人員', '確認對帳時間'
+            ];
+            
+            // 添加篩選條件
+            for (var key in filters) {
+                if (filters[key]) {
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = filters[key];
+                    form.appendChild(input);
+                }
+            }
+            
+            // 添加預設欄位
+            defaultFields.forEach(function(field) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'export_fields[]';
+                input.value = field;
+                form.appendChild(input);
+            });
+            
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        }
+        
+        // 關閉 Modal 的函數
+        function closeExportModal() {
+            if (typeof $ !== 'undefined') {
+                $('#exportModal').modal('hide');
+            } else {
+                var modal = document.getElementById('exportModal');
+                if (modal) {
+                    var bootstrapModal = bootstrap.Modal.getInstance(modal);
+                    if (bootstrapModal) {
+                        bootstrapModal.hide();
+                    }
+                }
+            }
+        }
+        
+        // 確保頁面載入完成後初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 檢查 Bootstrap Modal 是否可用
+            if (typeof bootstrap === 'undefined') {
+                console.log('Bootstrap Modal 不可用，將使用備用匯出功能');
+            }
+            
+            // 添加錯誤處理
+            window.addEventListener('error', function(e) {
+                console.log('JavaScript 錯誤:', e.error);
+                if (e.error && e.error.message && e.error.message.includes('bootstrap')) {
+                    console.log('Bootstrap 相關錯誤，將使用備用匯出功能');
+                }
+            });
+        });
     </script>
 @endsection
