@@ -80,6 +80,9 @@
                 <div class="drag-handle">☰</div>
                 <div class="menu-name">
                     {{ $data->name }}
+                    @if ($data->comment)
+                        <b class="text-danger">　※{{ $data->comment }}</b>
+                    @endif
                 </div>
                 <div class="menu-type">
                     <span class="badge bg-{{ $data->type == 'main' ? 'primary' : 'success' }}">
