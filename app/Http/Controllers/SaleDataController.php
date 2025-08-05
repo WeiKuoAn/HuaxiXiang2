@@ -1861,8 +1861,10 @@ class SaleDataController extends Controller
                     }
                 }
                 return $text;
-            case '付款方式':
+            case '付款類別':
                 return isset($sale->pay_id) ? $sale->pay_type() : '';
+            case '支付方式':
+                return isset($sale->pay_method) ? $sale->pay_method() : '';
             case '實收價格':
                 return number_format($sale->pay_price);
             case '狀態':

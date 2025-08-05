@@ -759,8 +759,12 @@
                                 <div class="col-md-4">
                                     <h6 class="text-warning">付款/其他資訊</h6>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="付款方式" id="field_付款方式" checked>
-                                        <label class="form-check-label" for="field_付款方式">付款方式</label>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="付款類別" id="field_付款類別" checked>
+                                        <label class="form-check-label" for="field_付款類別">付款類別</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="支付方式" id="field_支付方式" checked>
+                                        <label class="form-check-label" for="field_支付方式">支付方式</label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="export_fields[]" value="實收價格" id="field_實收價格" checked>
