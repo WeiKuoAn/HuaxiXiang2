@@ -34,6 +34,7 @@ class Sale extends Model
         'comm',
         'check_user_id',
         'status',
+        'cooperation_price',
     ];
 
     public function status()
@@ -87,6 +88,11 @@ class Sale extends Model
         return $this->hasOne('App\Models\Customer', 'id', 'hospital_address');
     }
 
+    public function connector_address_data()
+    {
+        return $this->hasOne('App\Models\SaleAddress', 'sale_id', 'id');
+    }
+
     public function plan_name()
     {
         return $this->hasOne('App\Models\Plan', 'id', 'plan_id');
@@ -110,6 +116,11 @@ class Sale extends Model
     public function source_type()
     {
         return $this->belongsTo('App\Models\SaleSource', 'type', 'code');
+    }
+
+    public function sale_company_commission()
+    {
+        return $this->hasOne('App\Models\SaleCompanyCommission', 'sale_id', 'id');
     }
 
     public function pay_type()
@@ -169,5 +180,11 @@ class Sale extends Model
 
     public function price_sum(){
         
+    }
+
+    // 關聯到合約資料（一個業務單可能對應多個合約）
+    public function contracts()
+    {
+        return $this->hasMany('App\Models\ContractData', 'sale_id');
     }
 }

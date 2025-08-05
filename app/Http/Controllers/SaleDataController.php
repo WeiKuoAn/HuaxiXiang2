@@ -1553,7 +1553,7 @@ class SaleDataController extends Controller
         if (empty($selectedFields)) {
             $selectedFields = [
                 '案件單類別', '單號', '專員', '日期', '客戶', '寶貝名', 
-                '類別', '原方案', '套裝', '金紙', '金紙總賣價', 
+                '寵物品種', '公斤數', '方案', '方案價格', '案件來源', '套裝', '金紙', '金紙總賣價', 
                 '安葬方式', '後續處理', '其他處理', '付款方式', 
                 '實收價格', '狀態', '備註', '更改後方案', 
                 '確認對帳人員', '確認對帳時間'
@@ -1763,7 +1763,23 @@ class SaleDataController extends Controller
                 return '';
             case '寶貝名':
                 return isset($sale->pet_name) ? '="' . $sale->pet_name . '"' : '';
-            case '類別':
+            case '寵物品種':
+                return isset($sale->variety) ? '="' . $sale->variety . '"' : '';
+            case '公斤數':
+                return isset($sale->kg) ? '="' . $sale->kg . '"' : '';
+            case '方案':
+                if (isset($sale->plan_id)) {
+                    if (isset($sale->plan_name)) {
+                        return $sale->plan_name->name;
+                    }
+                }
+                return '';
+            case '方案價格':
+                if (isset($sale->plan_price)) {
+                    return number_format($sale->plan_price);
+                }
+                return '';
+            case '案件來源':
                 if (isset($sale->type)) {
                     if (isset($sale->source_type)) {
                         return $sale->source_type->name;
@@ -1772,11 +1788,9 @@ class SaleDataController extends Controller
                     }
                 }
                 return '';
-            case '原方案':
-                if (isset($sale->plan_id)) {
-                    if (isset($sale->plan_name)) {
-                        return $sale->plan_name->name;
-                    }
+            case '來源名稱':
+                if (isset($sale->sale_company_commission)) {
+                    return $sale->sale_company_commission->company_name->name;
                 }
                 return '';
             case '套裝':
@@ -1853,6 +1867,12 @@ class SaleDataController extends Controller
                 return number_format($sale->pay_price);
             case '狀態':
                 return $sale->status();
+            case '親送':
+                return $sale->send == 1 ? '是' : '否';
+            case '接體地址不為客戶地址':
+                return $sale->connector_address == 1 ? $sale->connector_address_data->county . $sale->connector_address_data->district . $sale->connector_address_data->address : '';
+            case '接體為醫院':
+                return isset($sale->hospital_address) ? $sale->hospital_address_name->name : '';
             case '備註':
                 return isset($sale->comm) ? $sale->comm : '';
             case '更改後方案':
