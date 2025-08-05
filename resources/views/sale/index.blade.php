@@ -700,17 +700,34 @@
                                         <label class="form-check-label" for="field_寶貝名">寶貝名</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="類別" id="field_類別" checked>
-                                        <label class="form-check-label" for="field_類別">類別</label>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="寵物品種" id="field_寵物品種" checked>
+                                        <label class="form-check-label" for="field_寵物品種">寵物品種</label>
                                     </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="公斤數" id="field_公斤數" checked>
+                                        <label class="form-check-label" for="field_公斤數">公斤數</label>
+                                    </div>
+                                    
                                 </div>
                                 
                                 <!-- 方案資訊 -->
                                 <div class="col-md-4">
                                     <h6 class="text-success">方案資訊</h6>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="原方案" id="field_原方案" checked>
-                                        <label class="form-check-label" for="field_原方案">原方案</label>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="方案" id="field_方案" checked>
+                                        <label class="form-check-label" for="field_方案">方案</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="方案價格" id="field_方案價格" checked>
+                                        <label class="form-check-label" for="field_方案價格">方案價格</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="案件來源" id="field_案件來源" checked>
+                                        <label class="form-check-label" for="field_案件來源">案件來源</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="來源名稱" id="field_來源名稱" checked>
+                                        <label class="form-check-label" for="field_來源名稱">來源名稱</label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="export_fields[]" value="套裝" id="field_套裝" checked>
@@ -740,7 +757,7 @@
                                 
                                 <!-- 付款資訊 -->
                                 <div class="col-md-4">
-                                    <h6 class="text-warning">付款資訊</h6>
+                                    <h6 class="text-warning">付款/其他資訊</h6>
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="export_fields[]" value="付款方式" id="field_付款方式" checked>
                                         <label class="form-check-label" for="field_付款方式">付款方式</label>
@@ -752,6 +769,18 @@
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="export_fields[]" value="狀態" id="field_狀態" checked>
                                         <label class="form-check-label" for="field_狀態">狀態</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="親送" id="field_親送" checked>
+                                        <label class="form-check-label" for="field_親送">親送</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="接體地址不為客戶地址" id="field_接體地址不為客戶地址" checked>
+                                        <label class="form-check-label" for="field_接體地址不為客戶地址">接體地址不為客戶地址</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="接體為醫院" id="field_接體為醫院" checked>
+                                        <label class="form-check-label" for="field_接體為醫院">接體為醫院</label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="export_fields[]" value="備註" id="field_備註" checked>
