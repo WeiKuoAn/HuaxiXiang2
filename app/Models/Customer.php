@@ -81,4 +81,14 @@ class Customer extends Model
 
         return '未知分行';
     }
+
+    public function addresses()
+    {
+        return $this->hasMany('App\Models\CustomerAddress', 'customer_id', 'id');
+    }
+
+    public function mobiles()
+    {
+        return $this->hasMany('App\Models\CustomerMobile', 'customer_id', 'id');
+    }
 }

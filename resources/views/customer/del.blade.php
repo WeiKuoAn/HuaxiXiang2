@@ -55,22 +55,131 @@
                                         </div>
                                     </div>
 
-                                    <div class="mb-3">
-                                        <div class="mb-3">
-                                            <label class="form-label">電話<span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="mobile"
-                                                value="{{ $customer->mobile }}" required>
+                                    <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">聯絡電話</h5>
+                                    <div class="row">
+                                        <label class="form-label">電話<span class="text-danger">*</span></label>
+                                        <div id="phone-container">
+                                            @if(isset($customer->mobiles) && count($customer->mobiles) > 0)
+                                                @foreach ($customer->mobiles as $i => $mobile)
+                                                    <div class="phone-item mb-3">
+                                                        <div class="row">
+                                                            <div class="col-12">
+                                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                    <span class="text-muted">電話 #{{ $i + 1 }}</span>
+                                                                    @if($mobile->is_primary)
+                                                                        <span class="badge bg-primary">主要電話</span>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-12">
+                                                                <input type="text" class="form-control" value="{{ $mobile->mobile }}" readonly>
+                                                            </div>
+                                                        </div>
+                                                        <hr class="mt-3 mb-0" style="border-color: #e9ecef; opacity: 0.5;">
+                                                    </div>
+                                                @endforeach
+                                            @else
+                                                <div class="phone-item mb-3">
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                <span class="text-muted">電話 #1</span>
+                                                                <span class="badge bg-primary">主要電話</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <input type="text" class="form-control" value="{{ $customer->mobile }}" readonly>
+                                                        </div>
+                                                    </div>
+                                                    <hr class="mt-3 mb-0" style="border-color: #e9ecef; opacity: 0.5;">
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
-
+                                    <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">地址</h5>
                                     <div class="row">
                                         <label class="form-label">地址<span class="text-danger">*</span></label>
-                                        <div id="twzipcode">
-                                            <div data-role="county" data-value="{{ $customer->county }}"></div>
-                                        </div>
-                                        <div class="mb-3 mt-1">
-                                            <input type="text" class="form-control" name="address" placeholder="輸入地址"
-                                                value="{{ $customer->address }}">
+                                        <div id="address-container">
+                                            @if(isset($customer->addresses) && count($customer->addresses))
+                                                @foreach ($customer->addresses as $i => $addr)
+                                                    <div class="address-item mb-3">
+                                                        <div class="row">
+                                                            <div class="col-12">
+                                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                    <span class="text-muted">地址 #{{ $i + 1 }}</span>
+                                                                    @if($addr->is_primary)
+                                                                        <span class="badge bg-primary">主要地址</span>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-12">
+                                                                <div id="twzipcode-{{ $i + 1 }}" >
+                                                                    <div data-role="county" data-value="{{ $addr->county }}"></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mt-1">
+                                                            <div class="col-12">
+                                                                <input type="text" class="form-control" value="{{ $addr->address }}" readonly>
+                                                            </div>
+                                                        </div>
+                                                        <hr class="mt-3 mb-0" style="border-color: #e9ecef; opacity: 0.5;">
+                                                    </div>
+                                                @endforeach
+                                            @elseif (isset($customer->address) && $customer->address)
+                                                <div class="address-item mb-3">
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                <span class="text-muted">地址 #1</span>
+                                                                <span class="badge bg-primary">主要地址</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <div id="twzipcode-1" >
+                                                                <div data-role="county" data-value="{{ $customer->county }}"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mt-1">
+                                                        <div class="col-12">
+                                                            <input type="text" class="form-control" value="{{ $customer->address }}" readonly>
+                                                        </div>
+                                                    </div>
+                                                    <hr class="mt-3 mb-0" style="border-color: #e9ecef; opacity: 0.5;">
+                                                </div>
+                                            @else
+                                                <div class="address-item mb-3">
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                <span class="text-muted">地址 #1</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <div id="twzipcode-1" >
+                                                                <div data-role="county" data-value=""></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mt-1">
+                                                        <div class="col-12">
+                                                            <input type="text" class="form-control" value="未提供地址" readonly>
+                                                        </div>
+                                                    </div>
+                                                    <hr class="mt-3 mb-0" style="border-color: #e9ecef; opacity: 0.5;">
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
 
@@ -123,13 +232,24 @@
     <script src="{{ asset('assets/libs/flatpickr/flatpickr.min.js') }}"></script>
     <script>
         $(document).ready(function() {
-            $("#twzipcode").twzipcode({
-                zipcodeIntoDistrict: true,
-                css: [" form-control", "mt-1 form-control", "mt-1 form-control"], // 自訂 "城市"、"地區" class 名稱 
-                countyName: "county", // 自訂城市 select 標籤的 name 值
-                districtName: "district", // 自訂地區 select 標籤的 name 值
-                countySel: '{{ $customer->county }}',
-                districtSel: '{{ $customer->district }}',
+            // 初始化所有地址的郵遞區號選擇器
+            $(".address-item").each(function(index) {
+                const addressNumber = index + 1;
+                const twzipcodeId = `twzipcode-${addressNumber}`;
+                
+                if ($(this).find(`#${twzipcodeId}`).length > 0) {
+                    const countyValue = $(this).find('[data-role="county"]').attr('data-value');
+                    const districtValue = $(this).find('[data-role="district"]').attr('data-value');
+                    
+                    $(`#${twzipcodeId}`).twzipcode({
+                        zipcodeIntoDistrict: true,
+                        css: [" form-control", "mt-1 form-control", "mt-1 form-control"],
+                        countyName: "county",
+                        districtName: "district",
+                        countySel: countyValue || '',
+                        districtSel: districtValue || '',
+                    });
+                }
             });
         });
     </script>

@@ -2,35 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Contract;
+use App\Models\CustGroup;
 use App\Models\Customer;
+use App\Models\CustomerAddress;
+use App\Models\CustomerMobile;
 use App\Models\Gdpaper;
+use App\Models\Lamp;
 use App\Models\Plan;
-use App\Models\PromB;
+use App\Models\Product;
 use App\Models\PromA;
+use App\Models\PromB;
+use App\Models\PujaData;
+use App\Models\Sale;
 use App\Models\Sale_gdpaper;
 use App\Models\Sale_promB;
-use App\Models\Sale;
 use App\Models\User;
-use App\Models\CustGroup;
-use App\Models\PujaData;
-use App\Models\Contract;
-use App\Models\Lamp;
-use App\Models\Product;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CustomerController extends Controller
 {
-    /*ajax*/
+    /* ajax */
     public function customer(Request $request)
     {
         if ($request->ajax()) {
-            $output = "";
+            $output = '';
             $custs = Customer::where('name', 'like', $request->cust_name . '%')->get();
 
             if ($custs) {
                 foreach ($custs as $key => $cust) {
-                    $output .=  '<option value="' . $cust->id . '" label="(' . $cust->name . ')-' . $cust->mobile . '">';
+                    $output .= '<option value="' . $cust->id . '" label="(' . $cust->name . ')-' . $cust->mobile . '">';
                 }
             }
             return Response($output);
@@ -40,8 +42,8 @@ class CustomerController extends Controller
     public function customer_data(Request $request)
     {
         if ($request->ajax()) {
-            $output = "";
-            $cust = Customer::where('id',  $request->cust_id)->first();
+            $output = '';
+            $cust = Customer::where('id', $request->cust_id)->first();
 
             if ($cust) {
                 return Response($cust);
@@ -56,14 +58,12 @@ class CustomerController extends Controller
      */
     public function index(Request $request)
     {
-
         $customers = Customer::paginate(30);
         $customer_groups = CustGroup::get();
 
-
         $county = $request->county;
         $district = $request->district;
-        //縣市下拉市
+        // 縣市下拉市
         $data_countys = Customer::whereNotNull('county')->get();
         foreach ($data_countys as $data_county) {
             $countys[] = $data_county->county;
@@ -80,15 +80,19 @@ class CustomerController extends Controller
             $districts[] = $data_district->district;
         }
         $districts = array_unique($districts);
-        //結束
+        // 結束
         if ($request) {
-            $query = Customer::query(); // Start building the query
+            $query = Customer::query();  // Start building the query
 
             if (!empty($request->name)) {
                 $query->where('name', 'like', '%' . $request->name . '%');
             }
             if (!empty($request->mobile)) {
                 $query->where('mobile', 'like', $request->mobile . '%');
+                $customer_mobiles = CustomerMobile::where('mobile', 'like', $request->mobile . '%')->get();
+                foreach ($customer_mobiles as $customer_mobile) {
+                    $query->orWhere('id', $customer_mobile->customer_id);
+                }
             }
             if (!empty($request->group_id)) {
                 $query->where('group_id', $request->group_id);
@@ -100,11 +104,11 @@ class CustomerController extends Controller
                 if ($customer_ids->isNotEmpty()) {
                     $query->whereIn('id', $customer_ids);
                 } else {
-                    $query->whereNull('id'); // Ensure no results if no sales match
+                    $query->whereNull('id');  // Ensure no results if no sales match
                 }
             }
 
-            if ($county != "null") {
+            if ($county != 'null') {
                 if (isset($county)) {
                     $query = $query->where('county', $county);
                 } else {
@@ -112,7 +116,7 @@ class CustomerController extends Controller
                 }
             }
             $district = $request->district;
-            if ($district != "null") {
+            if ($district != 'null') {
                 if (isset($district)) {
                     $query = $query->where('district', $district);
                 } else {
@@ -121,23 +125,20 @@ class CustomerController extends Controller
             }
 
             $address = $request->address;
-            if ($district != "null") {
+            if (!empty($address) && $address != 'null') {
                 $address = '%' . $request->address . '%';
-                if (isset($address)) {
-                    $query = $query->where('address', 'like', $address);
-                } else {
-                    $query = $query;
-                }
+                $query = $query->where('address', 'like', $address);
             }
 
             $customers = $query->paginate(30);
             $condition = $request->all();
         } else {
-            $customers = collect(); // Return an empty collection if no request
+            $customers = collect();  // Return an empty collection if no request
             $condition = '';
         }
 
-        return view('customer.customers')->with('customers', $customers)
+        return view('customer.customers')
+            ->with('customers', $customers)
             ->with('request', $request)
             ->with('condition', $condition)
             ->with('customer_groups', $customer_groups)
@@ -145,12 +146,11 @@ class CustomerController extends Controller
             ->with('districts', $districts);
     }
 
-
     public function customer_sale($id, Request $request)
     {
         $customer = Customer::where('id', $id)->first();
         if ($request) {
-            $sales = Sale::where('customer_id',  $id)->whereIn('status', [9, 100]);
+            $sales = Sale::where('customer_id', $id)->whereIn('status', [9, 100]);
 
             $after_date = $request->after_date;
             if ($after_date) {
@@ -170,7 +170,7 @@ class CustomerController extends Controller
                 $sales = $sales->where('customer_id', $customer->id);
             }
             $user = $request->user;
-            if ($user != "null") {
+            if ($user != 'null') {
                 if (isset($user)) {
                     $sales = $sales->where('user_id', $user);
                 } else {
@@ -200,7 +200,8 @@ class CustomerController extends Controller
             $price_total = Sale::where('user_id', $id)->where('status', '1')->sum('pay_price');
         }
         $users = User::get();
-        return view('cust_sale')->with('sales', $sales)
+        return view('cust_sale')
+            ->with('sales', $sales)
             ->with('request', $request)
             ->with('customer', $customer)
             ->with('users', $users)
@@ -229,53 +230,87 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $groups = CustGroup::where('status', 'up')->get();
-        $data = Customer::where('mobile', $request->mobile)->first();
-        // dd($request->not_mobile);
+
+        // 檢查電話重複（保持原有邏輯）
         if ($request->not_mobile == '0' || $request->not_mobile == null) {
+            $data = Customer::where('mobile', $request->mobiles[0])->first();
             if (isset($data)) {
                 return view('customer.create')->with('groups', $groups)->with(['hint' => '1']);
-            } else {
-                $customer = new Customer;
-                $customer->name = $request->name;
-                if ($request->not_mobile == 1) {
-                    $customer->mobile = '未提供電話';
-                } else {
-                    $customer->mobile = $request->mobile;
-                }
-                $customer->county = $request->county;
-                $customer->district = $request->district;
-                if ($request->not_address == 1) {
-                    $customer->address  = '未提供地址';
-                } else {
-                    $customer->address = $request->address;
-                }
-                $customer->comment = $request->comment;
-                $customer->group_id = 1;
-                $customer->created_up = Auth::user()->id;
-                $customer->save();
-                return redirect()->route('customer');
             }
-        } else {
-            $customer = new Customer;
-            $customer->name = $request->name;
-            if ($request->not_mobile == 1) {
-                $customer->mobile = '未提供電話';
-            } else {
-                $customer->mobile = $request->mobile;
-            }
-            $customer->county = $request->county;
-            $customer->district = $request->district;
-            if ($request->not_address == 1) {
-                $customer->address  = '未提供地址';
-            } else {
-                $customer->address = $request->address;
-            }
-            $customer->comment = $request->comment;
-            $customer->group_id = 1;
-            $customer->created_up = Auth::user()->id;
-            $customer->save();
-            return redirect()->route('customer');
         }
+
+        // 處理多個地址
+        $addresses = $request->input('addresses', []);
+        $counties = $request->input('county', []);
+        $districts = $request->input('district', []);
+        $mobiles = $request->input('mobiles', []);
+
+        // 建立客戶
+        $customer = new Customer;
+        $customer->comment = $request->comment;
+        $customer->group_id = 1;
+        $customer->created_up = Auth::user()->id;
+        $customer->name = $request->name;
+
+        // 處理多個電話
+        if ($request->not_mobile == 1) {
+            $customer->mobile = '未提供電話';
+        } else {
+            if (!empty($mobiles) && !empty($mobiles[0])) {
+                $customer->mobile = $mobiles[0];
+            } else {
+                $customer->mobile = '未提供電話';
+            }
+        }
+
+        // 如果有地址，第一筆寫入 customer 表
+        if (!empty($counties) && !empty($counties[0])) {
+            $customer->county = $counties[0] ?? '';
+            $customer->district = $districts[0] ?? '';
+            $customer->address = $addresses[0];
+        } else {
+            // 如果沒有地址或選擇「未提供地址」
+            $customer->county = '';
+            $customer->district = '';
+            $customer->address = '未提供地址';
+        }
+
+        $customer->save();
+
+        // 所有地址都寫入 customer_addresses 表
+        for ($i = 0; $i < count($addresses); $i++) {
+            if (!empty($addresses[$i])) {
+                $address = new CustomerAddress;
+                $address->customer_id = $customer->id;
+                $address->county = $counties[$i] ?? '';
+                $address->district = $districts[$i] ?? '';
+                $address->address = $addresses[$i];
+                $address->is_primary = ($i === 0) ? 1 : 0;  // 第一筆為主要地址
+                $address->save();
+            }
+        }
+        // 處理多個電話
+        for ($i = 0; $i < count($mobiles); $i++) {
+            if (!empty($mobiles[$i])) {
+                $mobile = new CustomerMobile;
+                $mobile->customer_id = $customer->id;
+                $mobile->mobile = $mobiles[$i];
+                $mobile->is_primary = ($i === 0) ? 1 : 0;  // 第一筆為主要電話
+                $mobile->save();
+            }
+        }
+
+        // 如果沒有地址或選擇「未提供地址」，建立預設地址記錄
+        if (empty($addresses) || $request->not_address == 1) {
+            $address = new CustomerAddress;
+            $address->customer_id = $customer->id;
+            $address->county = '';
+            $address->district = '';
+            $address->address = '未提供地址';
+            $address->is_primary = 1;
+            $address->save();
+        }
+        return redirect()->route('customer');
     }
 
     /**
@@ -294,7 +329,7 @@ class CustomerController extends Controller
     public function detail($id)
     {
         $groups = CustGroup::where('status', 'up')->get();
-        $customer = Customer::where('id', $id)->first();
+        $customer = Customer::with(['mobiles', 'addresses'])->where('id', $id)->first();
         return view('customer.detail')->with('customer', $customer)->with('groups', $groups);
     }
 
@@ -304,7 +339,12 @@ class CustomerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id) {}
+    public function edit($id)
+    {
+        $groups = CustGroup::where('status', 'up')->get();
+        $customer = Customer::with(['mobiles', 'addresses'])->where('id', $id)->first();
+        return view('customer.edit')->with('customer', $customer)->with('groups', $groups);
+    }
 
     /**
      * Update the specified resource in storage.
@@ -317,17 +357,72 @@ class CustomerController extends Controller
     {
         $customer = Customer::where('id', $id)->first();
         $customer->name = $request->name;
-        $customer->mobile = $request->mobile;
-        $customer->county = $request->county;
-        $customer->district = $request->district;
-        $customer->address = $request->address;
         $customer->comment = $request->comment;
         if (isset($customer->group_id)) {
             $customer->group_id = $request->group_id;
         } else {
             $customer->group_id = 1;
         }
+
+        // 處理多個電話
+        $mobiles = $request->input('mobiles', []);
+        
+        // 如果有電話，第一筆寫入 customer 表的 mobile 欄位
+        if (!empty($mobiles) && !empty($mobiles[0])) {
+            $customer->mobile = $mobiles[0];
+        } else {
+            $customer->mobile = '未提供電話';
+        }
+
+        // 處理多個地址
+        $addresses = $request->input('addresses', []);
+        $counties = $request->input('county', []);
+        $districts = $request->input('district', []);
+
+        // 如果有地址，第一筆寫入 customer 表
+        if (!empty($counties) && !empty($counties[0])) {
+            $customer->county = $counties[0] ?? '';
+            $customer->district = $districts[0] ?? '';
+            $customer->address = $addresses[0];
+        } else {
+            // 如果沒有地址
+            $customer->county = '';
+            $customer->district = '';
+            $customer->address = '';
+        }
+
         $customer->save();
+
+        // 刪除舊的電話記錄
+        CustomerMobile::where('customer_id', $id)->delete();
+
+        // 所有電話都寫入 customer_mobile 表
+        for ($i = 0; $i < count($mobiles); $i++) {
+            if (!empty($mobiles[$i])) {
+                $mobile = new CustomerMobile;
+                $mobile->customer_id = $customer->id;
+                $mobile->mobile = $mobiles[$i];
+                $mobile->is_primary = ($i === 0) ? 1 : 0;  // 第一筆為主要電話
+                $mobile->save();
+            }
+        }
+
+        // 刪除舊的地址記錄
+        CustomerAddress::where('customer_id', $id)->delete();
+
+        // 所有地址都寫入 customer_addresses 表
+        for ($i = 0; $i < count($addresses); $i++) {
+            if (!empty($addresses[$i])) {
+                $address = new CustomerAddress;
+                $address->customer_id = $customer->id;
+                $address->county = $counties[$i] ?? '';
+                $address->district = $districts[$i] ?? '';
+                $address->address = $addresses[$i];
+                $address->is_primary = ($i === 0) ? 1 : 0;  // 第一筆為主要地址
+                $address->save();
+            }
+        }
+
         return redirect()->route('customer');
     }
 
@@ -340,7 +435,7 @@ class CustomerController extends Controller
     public function delete($id)
     {
         $groups = CustGroup::where('status', 'up')->get();
-        $customer = Customer::where('id', $id)->first();
+        $customer = Customer::with(['mobiles', 'addresses'])->where('id', $id)->first();
         return view('customer.del')->with('customer', $customer)->with('groups', $groups);
     }
 
@@ -348,6 +443,8 @@ class CustomerController extends Controller
     {
         $customer = Customer::where('id', $id)->first();
         $customer->delete();
+        CustomerAddress::where('customer_id', $id)->delete();
+        CustomerMobile::where('customer_id', $id)->delete();
         return redirect()->route('customer');
     }
 
@@ -355,20 +452,20 @@ class CustomerController extends Controller
     {
         $sales = Sale::whereIn('status', ['9', '100'])->where('customer_id', $id)->orderby('sale_date', 'desc')->get();
         $customer = Customer::where('id', $id)->first();
-        $contract_datas = Contract::where('customer_id', $id)->orderby('start_date','desc')->get();
-        $lamp_datas = Lamp::where('customer_id', $id)->orderby('start_date','desc')->get();
-        $puja_datas = PujaData::where('status','1')->where('customer_id', $id)->orderby('date', 'desc')->get();
-        $products = Product::where('status', 'up')->orderby('seq','asc')->orderby('price','desc')->get();
-        foreach($products as $product)
-        {
+        $contract_datas = Contract::where('customer_id', $id)->orderby('start_date', 'desc')->get();
+        $lamp_datas = Lamp::where('customer_id', $id)->orderby('start_date', 'desc')->get();
+        $puja_datas = PujaData::where('status', '1')->where('customer_id', $id)->orderby('date', 'desc')->get();
+        $products = Product::where('status', 'up')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        foreach ($products as $product) {
             $product_name[$product->id] = $product->name;
         }
-        return view('customer.sales')->with('sales', $sales)
-                                    ->with('customer', $customer)
-                                    ->with('contract_datas', $contract_datas)
-                                    ->with('lamp_datas', $lamp_datas)
-                                    ->with('puja_datas', $puja_datas)
-                                    ->with('product_name', $product_name);
+        return view('customer.sales')
+            ->with('sales', $sales)
+            ->with('customer', $customer)
+            ->with('contract_datas', $contract_datas)
+            ->with('lamp_datas', $lamp_datas)
+            ->with('puja_datas', $puja_datas)
+            ->with('product_name', $product_name);
     }
 
     public function export(Request $request)
@@ -378,7 +475,7 @@ class CustomerController extends Controller
         if ($request) {
             $county = $request->county;
             $district = $request->district;
-            $query = Customer::query(); // Start building the query
+            $query = Customer::query();  // Start building the query
 
             if (!empty($request->name)) {
                 $query->where('name', 'like', '%' . $request->name . '%');
@@ -396,11 +493,11 @@ class CustomerController extends Controller
                 if ($customer_ids->isNotEmpty()) {
                     $query->whereIn('id', $customer_ids);
                 } else {
-                    $query->whereNull('id'); // Ensure no results if no sales match
+                    $query->whereNull('id');  // Ensure no results if no sales match
                 }
             }
 
-            if ($county != "null") {
+            if ($county != 'null') {
                 if (isset($county)) {
                     $query = $query->where('county', $county);
                 } else {
@@ -408,7 +505,7 @@ class CustomerController extends Controller
                 }
             }
             $district = $request->district;
-            if ($district != "null") {
+            if ($district != 'null') {
                 if (isset($district)) {
                     $query = $query->where('district', $district);
                 } else {
@@ -426,41 +523,40 @@ class CustomerController extends Controller
                 }
             }
 
-            $customers = $query->paginate(30);
+            $customers = $query->get();
         }
-        $fileName = '客戶資料匯出' . date("Y-m-d") . '.csv';
+        $fileName = '客戶資料匯出' . date('Y-m-d') . '.csv';
 
         $headers = array(
-            "Content-type"        => "text/csv",
-            "Content-Disposition" => "attachment; filename=$fileName",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
+            'Content-type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=$fileName",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
         );
         // $header = array('日期', $after_date.'~' ,  $before_date);
         $columns = array('編號', '姓名', '電話', '寶貝名稱', '地址', '群組', '新增時間');
 
         $callback = function () use ($customers, $columns) {
-
             $file = fopen('php://output', 'w');
             fputs($file, chr(0xEF) . chr(0xBB) . chr(0xBF), 3);
             fputcsv($file, $columns);
 
             foreach ($customers as $key => $customer) {
-                $row['編號']  = $key + 1;
-                $row['姓名']  = $customer->name;
-                $row['電話']  = $customer->mobile;
+                $row['編號'] = $key + 1;
+                $row['姓名'] = $customer->name;
+                $row['電話'] = $customer->mobile;
                 $row['寶貝名稱'] = '';
                 if (isset($customer->sale_datas)) {
                     foreach ($customer->sale_datas as $sale_data) {
-                        $row['寶貝名稱']  .= ($row['寶貝名稱'] == '' ? '' : "\r\n") . $sale_data->pet_name;
+                        $row['寶貝名稱'] .= ($row['寶貝名稱'] == '' ? '' : "\r\n") . $sale_data->pet_name;
                     }
                 }
                 $row['群組'] = '';
                 if (isset($customer->group)) {
                     $row['群組'] = $customer->group->name;
                 }
-                $row['地址']  = $customer->county . $customer->district . $customer->address;
+                $row['地址'] = $customer->county . $customer->district . $customer->address;
                 $row['新增時間'] = date('Y-m-d', strtotime($customer->created_at));
                 fputcsv($file, array($row['編號'], $row['姓名'], $row['電話'], $row['寶貝名稱'], $row['地址'], $row['群組'], $row['新增時間']));
             }
