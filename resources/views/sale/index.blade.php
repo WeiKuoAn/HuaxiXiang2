@@ -49,6 +49,8 @@
                                             </option>
                                             <option value="memorial" @if ($request->type_list == 'memorial') selected @endif>追思單
                                             </option>
+                                            <option value="scrapped" @if ($request->type_list == 'scrapped') selected @endif>報廢單
+                                            </option>
                                         </select>
                                     </div>
                                     <div class="me-2">
@@ -149,11 +151,14 @@
                                         <button type="submit" class="btn btn-success waves-effect waves-light me-1"><i
                                                 class="fe-search me-1"></i>搜尋</button>
                                     </div>
+                                    @if(Auth::user()->level != 2)
                                     <div class="me-3 mt-4">
-                                        <button type="button" class="btn btn-primary waves-effect waves-light me-1" onclick="showExportModal()">
+                                        <button type="button" class="btn btn-primary waves-effect waves-light me-1"
+                                            onclick="showExportModal()">
                                             <i class="fe-download me-1"></i>匯出設定
                                         </button>
                                     </div>
+                                    @endif
                                     <div class="col mt-3" style="text-align: right;">
                                         {{-- <button type="button" class="btn btn-success waves-effect waves-light me-1"><i class="mdi mdi-cog"></i></button> --}}
                                         <a href="{{ route('sale.create') }}"
@@ -435,7 +440,13 @@
                                 <tbody>
                                     @foreach ($sales as $sale)
                                         <tr>
-                                            <td>{{ $sale->sale_on }}</td>
+                                            <td>
+                                                @if ($sale->type_list == 'scrapped')
+                                                    <span class="badge bg-danger">報廢</span> {{ $sale->sale_on }}
+                                                @else
+                                                    {{ $sale->sale_on }}
+                                                @endif
+                                            </td>
                                             <td>{{ $sale->user_name->name }}</td>
                                             <td>{{ $sale->sale_date }}</td>
                                             <td>
@@ -569,6 +580,14 @@
                                                                 data-bs-toggle="dropdown" aria-expanded="false">動作 <i
                                                                     class="mdi mdi-arrow-down-drop-circle"></i></a>
                                                             <div class="dropdown-menu dropdown-menu-end">
+                                                                @if ($sale->type_list == 'scrapped')
+                                                                    <a class="dropdown-item"
+                                                                        href="{{ route('sale.scrapped.edit', $sale->id) }}"><i
+                                                                            class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
+                                                                    <a class="dropdown-item"
+                                                                        href="{{ route('sale.scrapped.delete', $sale->id) }}"><i
+                                                                            class="mdi mdi-delete me-2 text-muted font-18 vertical-middle"></i>刪除</a>
+                                                                @else
                                                                 <a class="dropdown-item"
                                                                     href="{{ route('sale.edit', $sale->id) }}"><i
                                                                         class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
@@ -576,6 +595,7 @@
                                                                 <a class="dropdown-item"
                                                                     href="{{ route('sale.del', $sale->id) }}"><i
                                                                         class="mdi mdi-delete me-2 font-18 text-muted vertical-middle"></i>刪除</a>
+                                                                @endif
                                                                 <a class="dropdown-item"
                                                                     href="{{ route('sale.check', $sale->id) }}"><i
                                                                         class="mdi mdi-send me-2 font-18 text-muted vertical-middle"></i>送出對帳</a>
@@ -638,12 +658,14 @@
         </div>
 
         <!-- 匯出設定 Modal -->
-        <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true"
+            data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="exportModalLabel">匯出設定</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeExportModal()"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                            onclick="closeExportModal()"></button>
                     </div>
                     <form action="{{ route('sales.export') }}" method="GET" id="exportForm">
                         <!-- 隱藏的篩選條件 -->
@@ -659,153 +681,184 @@
                         <input type="hidden" name="other" value="{{ $request->other }}">
                         <input type="hidden" name="status" value="{{ $request->status }}">
                         <input type="hidden" name="check_user_id" value="{{ $request->check_user_id }}">
-                        
+
                         <div class="modal-body">
                             <div class="row mb-3">
                                 <div class="col-12">
                                     <h6>選擇要匯出的欄位：</h6>
                                     <div class="mb-2">
-                                        <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="selectAllFields()">全選</button>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAllFields()">取消全選</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary me-2"
+                                            onclick="selectAllFields()">全選</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                            onclick="deselectAllFields()">取消全選</button>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="row">
                                 <!-- 基本資訊 -->
                                 <div class="col-md-4">
                                     <h6 class="text-primary">基本資訊</h6>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="案件單類別" id="field_案件單類別" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="案件單類別" id="field_案件單類別" checked>
                                         <label class="form-check-label" for="field_案件單類別">案件單類別</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="單號" id="field_單號" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="單號" id="field_單號" checked>
                                         <label class="form-check-label" for="field_單號">單號</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="專員" id="field_專員" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="專員" id="field_專員" checked>
                                         <label class="form-check-label" for="field_專員">專員</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="日期" id="field_日期" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="日期" id="field_日期" checked>
                                         <label class="form-check-label" for="field_日期">日期</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="客戶" id="field_客戶" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="客戶" id="field_客戶" checked>
                                         <label class="form-check-label" for="field_客戶">客戶</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="寶貝名" id="field_寶貝名" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="寶貝名" id="field_寶貝名" checked>
                                         <label class="form-check-label" for="field_寶貝名">寶貝名</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="寵物品種" id="field_寵物品種" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="寵物品種" id="field_寵物品種" checked>
                                         <label class="form-check-label" for="field_寵物品種">寵物品種</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="公斤數" id="field_公斤數" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="公斤數" id="field_公斤數" checked>
                                         <label class="form-check-label" for="field_公斤數">公斤數</label>
                                     </div>
-                                    
+
                                 </div>
-                                
+
                                 <!-- 方案資訊 -->
                                 <div class="col-md-4">
                                     <h6 class="text-success">方案資訊</h6>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="方案" id="field_方案" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="方案" id="field_方案" checked>
                                         <label class="form-check-label" for="field_方案">方案</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="方案價格" id="field_方案價格" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="方案價格" id="field_方案價格" checked>
                                         <label class="form-check-label" for="field_方案價格">方案價格</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="案件來源" id="field_案件來源" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="案件來源" id="field_案件來源" checked>
                                         <label class="form-check-label" for="field_案件來源">案件來源</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="來源名稱" id="field_來源名稱" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="來源名稱" id="field_來源名稱" checked>
                                         <label class="form-check-label" for="field_來源名稱">來源名稱</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="套裝" id="field_套裝" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="套裝" id="field_套裝" checked>
                                         <label class="form-check-label" for="field_套裝">套裝</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="金紙" id="field_金紙" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="金紙" id="field_金紙" checked>
                                         <label class="form-check-label" for="field_金紙">金紙</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="金紙總賣價" id="field_金紙總賣價" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="金紙總賣價" id="field_金紙總賣價" checked>
                                         <label class="form-check-label" for="field_金紙總賣價">金紙總賣價</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="安葬方式" id="field_安葬方式" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="安葬方式" id="field_安葬方式" checked>
                                         <label class="form-check-label" for="field_安葬方式">安葬方式</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="後續處理" id="field_後續處理" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="後續處理" id="field_後續處理" checked>
                                         <label class="form-check-label" for="field_後續處理">後續處理</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="其他處理" id="field_其他處理" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="其他處理" id="field_其他處理" checked>
                                         <label class="form-check-label" for="field_其他處理">其他處理</label>
                                     </div>
                                 </div>
-                                
+
                                 <!-- 付款資訊 -->
                                 <div class="col-md-4">
                                     <h6 class="text-warning">付款/其他資訊</h6>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="付款類別" id="field_付款類別" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="付款類別" id="field_付款類別" checked>
                                         <label class="form-check-label" for="field_付款類別">付款類別</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="支付方式" id="field_支付方式" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="支付方式" id="field_支付方式" checked>
                                         <label class="form-check-label" for="field_支付方式">支付方式</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="實收價格" id="field_實收價格" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="實收價格" id="field_實收價格" checked>
                                         <label class="form-check-label" for="field_實收價格">實收價格</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="狀態" id="field_狀態" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="狀態" id="field_狀態" checked>
                                         <label class="form-check-label" for="field_狀態">狀態</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="親送" id="field_親送" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="親送" id="field_親送" checked>
                                         <label class="form-check-label" for="field_親送">親送</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="接體地址不為客戶地址" id="field_接體地址不為客戶地址" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="接體地址不為客戶地址" id="field_接體地址不為客戶地址" checked>
                                         <label class="form-check-label" for="field_接體地址不為客戶地址">接體地址不為客戶地址</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="接體為醫院" id="field_接體為醫院" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="接體為醫院" id="field_接體為醫院" checked>
                                         <label class="form-check-label" for="field_接體為醫院">接體為醫院</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="備註" id="field_備註" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="備註" id="field_備註" checked>
                                         <label class="form-check-label" for="field_備註">備註</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="更改後方案" id="field_更改後方案" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="更改後方案" id="field_更改後方案" checked>
                                         <label class="form-check-label" for="field_更改後方案">更改後方案</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="確認對帳人員" id="field_確認對帳人員" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="確認對帳人員" id="field_確認對帳人員" checked>
                                         <label class="form-check-label" for="field_確認對帳人員">確認對帳人員</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="export_fields[]" value="確認對帳時間" id="field_確認對帳時間" checked>
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="確認對帳時間" id="field_確認對帳時間" checked>
                                         <label class="form-check-label" for="field_確認對帳時間">確認對帳時間</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" onclick="closeExportModal()">取消</button>
                             <button type="submit" class="btn btn-primary" onclick="return validateExportForm()">
@@ -827,7 +880,7 @@
     <!-- demo app -->
     <script src="{{ asset('assets/js/pages/foo-tables.init.js') }}"></script>
     <!-- end demo js-->
-    
+
     <script>
         function showExportModal() {
             // 使用 jQuery 的方式來確保相容性
@@ -845,19 +898,19 @@
                 }
             }
         }
-        
+
         function selectAllFields() {
             document.querySelectorAll('input[name="export_fields[]"]').forEach(checkbox => {
                 checkbox.checked = true;
             });
         }
-        
+
         function deselectAllFields() {
             document.querySelectorAll('input[name="export_fields[]"]').forEach(checkbox => {
                 checkbox.checked = false;
             });
         }
-        
+
         function validateExportForm() {
             const checkedFields = document.querySelectorAll('input[name="export_fields[]"]:checked');
             if (checkedFields.length === 0) {
@@ -866,14 +919,14 @@
             }
             return true;
         }
-        
+
         // 備用匯出函數
         function submitExportForm() {
             // 創建一個隱藏的表單來提交匯出請求
             var form = document.createElement('form');
             form.method = 'GET';
-            form.action = '{{ route("sales.export") }}';
-            
+            form.action = '{{ route('sales.export') }}';
+
             // 添加所有篩選條件
             var filters = {
                 'after_date': '{{ $request->after_date }}',
@@ -889,16 +942,16 @@
                 'status': '{{ $request->status }}',
                 'check_user_id': '{{ $request->check_user_id }}'
             };
-            
+
             // 添加預設欄位
             var defaultFields = [
-                '案件單類別', '單號', '專員', '日期', '客戶', '寶貝名', 
-                '類別', '原方案', '套裝', '金紙', '金紙總賣價', 
-                '安葬方式', '後續處理', '其他處理', '付款方式', 
-                '實收價格', '狀態', '備註', '更改後方案', 
+                '案件單類別', '單號', '專員', '日期', '客戶', '寶貝名',
+                '類別', '原方案', '套裝', '金紙', '金紙總賣價',
+                '安葬方式', '後續處理', '其他處理', '付款方式',
+                '實收價格', '狀態', '備註', '更改後方案',
                 '確認對帳人員', '確認對帳時間'
             ];
-            
+
             // 添加篩選條件
             for (var key in filters) {
                 if (filters[key]) {
@@ -909,7 +962,7 @@
                     form.appendChild(input);
                 }
             }
-            
+
             // 添加預設欄位
             defaultFields.forEach(function(field) {
                 var input = document.createElement('input');
@@ -918,12 +971,12 @@
                 input.value = field;
                 form.appendChild(input);
             });
-            
+
             document.body.appendChild(form);
             form.submit();
             document.body.removeChild(form);
         }
-        
+
         // 關閉 Modal 的函數
         function closeExportModal() {
             if (typeof $ !== 'undefined') {
@@ -938,14 +991,14 @@
                 }
             }
         }
-        
+
         // 確保頁面載入完成後初始化
         document.addEventListener('DOMContentLoaded', function() {
             // 檢查 Bootstrap Modal 是否可用
             if (typeof bootstrap === 'undefined') {
                 console.log('Bootstrap Modal 不可用，將使用備用匯出功能');
             }
-            
+
             // 添加錯誤處理
             window.addEventListener('error', function(e) {
                 console.log('JavaScript 錯誤:', e.error);

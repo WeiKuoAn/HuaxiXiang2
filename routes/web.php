@@ -82,6 +82,7 @@ use App\Http\Controllers\VenderController;
 use App\Http\Controllers\VisitController;
 use App\Http\Controllers\WorkController;
 use App\Http\Controllers\MeritController;
+use App\Http\Controllers\ScrappedController;
 use App\Models\Pay;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -285,6 +286,9 @@ Route::group(['prefix' => '/'], function () {
     /* 業務管理 */
     Route::get('/sales', [SaleDataController::class, 'index'])->name('sales');
     Route::get('/sales/export', [SaleDataController::class, 'export'])->name('sales.export');
+    
+    Route::get('/sales/excel', [SaleDataController::class, 'excel'])->name('sales.excel');
+
     Route::get('/sale/create', [SaleDataController::class, 'create'])->name('sale.create');
     Route::get('/sale/create/test', [SaleDataController::class, 'test'])->name('sale.test');
     Route::post('/sale/create', [SaleDataController::class, 'store'])->name('sale.data.create');
@@ -295,8 +299,16 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/sale/check/history', [SaleDataController::class, 'checkHistory'])->name('sales.checkHistory');
     Route::get('/sale/history/{id}', [SaleDataController::class, 'history'])->name('sale.history');
 
-    Route::get('/sale/scrapped/create', [SaleDataController::class, 'scrapped_create'])->name('sale.scrapped.create');
-    Route::post('/sale/scrapped/create', [SaleDataController::class, 'scrapped_store'])->name('sale.scrapped.create.data');
+    //報廢單
+    Route::get('/sale/scrapped/create', [ScrappedController::class, 'create'])->name('sale.scrapped.create');
+    Route::post('/sale/scrapped/create', [ScrappedController::class, 'store'])->name('sale.scrapped.create.data');
+    Route::get('/sale/scrapped/{id}/edit', [ScrappedController::class, 'edit'])->name('sale.scrapped.edit');
+    Route::put('/sale/scrapped/{id}', [ScrappedController::class, 'update'])->name('sale.scrapped.update');
+    Route::get('/sale/scrapped/{id}/delete', [ScrappedController::class, 'delete'])->name('sale.scrapped.delete');
+    Route::delete('/sale/scrapped/{id}', [ScrappedController::class, 'destroy'])->name('sale.scrapped.destroy');
+    Route::get('/sale/scrapped/{id}/check', [ScrappedController::class, 'check_show'])->name('sale.scrapped.check');
+    Route::put('/sale/scrapped/{id}/check', [ScrappedController::class, 'check_data'])->name('sale.scrapped.check.data');
+
     // 業務確認對帳
     Route::get('/sale/check/{id}', [SaleDataController::class, 'check_show'])->name('sale.check');
     Route::post('/sale/check/{id}', [SaleDataController::class, 'check_update'])->name('sale.data.check');
@@ -552,6 +564,7 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg25/{month}/{prom_id}/detail', [Rpg25Controller::class, 'detail'])->name('rpg25.detail');
         Route::get('/rpg/rpg22', [Rpg22Controller::class, 'rpg22'])->name('rpg22');
         Route::get('/rpg/rpg22/{month}/{prom_id}/detail', [Rpg22Controller::class, 'detail'])->name('rpg22.detail');
+        Route::get('/rpg/rpg21', [Rpg21Controller::class, 'rpg21'])->name('rpg21');
     });
 
     // 1. 高權限報表 - 只有主管以上可以訪問
@@ -570,7 +583,6 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg18', [Rpg18Controller::class, 'rpg18'])->name('rpg18');
         Route::get('/rpg/rpg19', [Rpg19Controller::class, 'rpg19'])->name('rpg19');
         Route::get('/rpg/rpg20', [Rpg20Controller::class, 'rpg20'])->name('rpg20');
-        Route::get('/rpg/rpg21', [Rpg21Controller::class, 'rpg21'])->name('rpg21');
         Route::get('/rpg/rpg23', [Rpg23Controller::class, 'rpg23'])->name('rpg23');
         Route::get('/rpg/rpg23/detail/{district}', [Rpg23Controller::class, 'detail'])->name('rpg23.detail');
         Route::get('/rpg/rpg24', [Rpg24Controller::class, 'rpg24'])->name('rpg24');
@@ -664,4 +676,6 @@ Route::group(['prefix' => '/'], function () {
         $img = Image::make('https://images.pexels.com/photos/4273439/pexels-photo-4273439.jpeg')->resize(300, 200);  // 這邊可以隨便用網路上的image取代
         return $img->response('jpg');
     });
+
+
 });

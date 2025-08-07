@@ -132,7 +132,11 @@
                                         </td>
                                         <td>{{ number_format($sale->pay_price) }}</td>
                                         <td>
-                                            <a href="{{ route('sale.check',$sale->id) }}"><button type="button" class="btn btn-secondary waves-effect waves-light">查看</button></a>
+                                            @if ($sale->type_list == 'scrapped')    
+                                                <a href="{{ route('sale.scrapped.check',$sale->id) }}"><button type="button" class="btn btn-secondary waves-effect waves-light">查看</button></a>
+                                            @else
+                                                <a href="{{ route('sale.check',$sale->id) }}"><button type="button" class="btn btn-secondary waves-effect waves-light">查看</button></a>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach

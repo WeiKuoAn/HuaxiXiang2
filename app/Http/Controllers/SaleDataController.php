@@ -480,24 +480,7 @@ class SaleDataController extends Controller
         return redirect()->route('sale.create');
     }
 
-    public function scrapped_create()
-    {
-        $date = date('Y-m-d');
-        return view('sale.scrapped_create')->with('date', $date);
-    }
 
-    public function scrapped_store(Request $request)
-    {
-        $sale = new Sale();
-        $sale->sale_on = $request->sale_on;
-        $sale->sale_date = $request->sale_date;
-        $sale->type_list = 'scrapped';
-        $sale->comm = $request->comm;
-        $sale->user_id = Auth::user()->id;
-        $sale->save();
-
-        return redirect()->route('sale.scrapped.create');
-    }
 
     public function index(Request $request)
     {

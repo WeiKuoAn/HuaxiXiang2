@@ -101,7 +101,13 @@
                                 <tbody>
                                     @foreach ($data['items'] as $sale)
                                         <tr>
-                                            <td>{{ $sale->sale_on }}</td>
+                                            <td>
+                                                @if ($sale->type_list == 'scrapped')
+                                                    <span class="badge bg-danger">報廢</span> {{ $sale->sale_on }}
+                                                @else
+                                                    {{ $sale->sale_on }}
+                                                @endif
+                                            </td>
                                             <td>{{ $sale->user_name->name }}</td>
                                             <td>{{ $sale->sale_date }}</td>
                                             <td>
@@ -190,10 +196,17 @@
                                             </td>
                                             <td>{{ number_format($sale->pay_price) }}</td>
                                             <td>
-                                                <a href="{{ route('sale.check', $sale->id) }}">
-                                                    <button type="button"
-                                                        class="btn btn-danger waves-effect waves-light">確認對帳</button>
+                                                @if ($sale->type_list == 'scrapped')
+                                                    <a href="{{ route('sale.scrapped.check', $sale->id) }}">
+                                                        <button type="button"
+                                                            class="btn btn-danger waves-effect waves-light">確認對帳</button>
+                                                    </a>
+                                                @else
+                                                    <a href="{{ route('sale.check', $sale->id) }}">
+                                                        <button type="button"
+                                                            class="btn btn-danger waves-effect waves-light">確認對帳</button>
                                                 </a>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
