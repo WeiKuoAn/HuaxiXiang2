@@ -38,6 +38,16 @@
                                         <input type="search" class="form-control my-1 my-lg-0" id="inputPassword2"
                                             name="mobile" placeholder="電話" value="{{ $request->mobile }}">
                                     </div>
+                                    <div class="me-sm-1">
+                                        <select class="form-select my-1 my-lg-0" id="recently-date-sort" name="recently_date_sort"
+                                            onchange="this.form.submit()">
+                                            <option value="null" @if (!isset($request->recently_date_sort) || $request->recently_date_sort == 'null') selected @endif>叫件日期排序</option>
+                                            <option value="desc" @if ($request->recently_date_sort == 'desc') selected @endif>最新叫件
+                                            </option>
+                                            <option value="asc" @if ($request->recently_date_sort == 'asc') selected @endif>最舊叫件
+                                            </option>
+                                        </select>
+                                    </div>
                                     <div class="me-3">
                                         <button type="submit" class="btn btn-success waves-effect waves-light me-1"><i
                                                 class="fe-search me-1"></i>搜尋</button>

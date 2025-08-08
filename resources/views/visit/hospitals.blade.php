@@ -75,10 +75,20 @@
                                     <div class="me-sm-1">
                                         <select class="form-select my-1 my-lg-0" id="status-select" name="seq"
                                             onchange="this.form.submit()">
-                                            <option value="null" selected>排序方式</option>
-                                            <option value="desc" @if ($request->seq == 'desc') selected @endif>依最新時間
+                                            <option value="null" @if (!isset($request->seq) || $request->seq == 'null') selected @endif>建立時間排序</option>
+                                            <option value="desc" @if ($request->seq == 'desc') selected @endif>最新建立
                                             </option>
-                                            <option value="asc" @if ($request->seq == 'asc') selected @endif>依最舊時間
+                                            <option value="asc" @if ($request->seq == 'asc') selected @endif>最舊建立
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="me-sm-1">
+                                        <select class="form-select my-1 my-lg-0" id="recently-date-sort" name="recently_date_sort"
+                                            onchange="this.form.submit()">
+                                            <option value="null" @if (!isset($request->recently_date_sort) || $request->recently_date_sort == 'null') selected @endif>叫件日期排序</option>
+                                            <option value="desc" @if ($request->recently_date_sort == 'desc') selected @endif>最新叫件
+                                            </option>
+                                            <option value="asc" @if ($request->recently_date_sort == 'asc') selected @endif>最舊叫件
                                             </option>
                                         </select>
                                     </div>

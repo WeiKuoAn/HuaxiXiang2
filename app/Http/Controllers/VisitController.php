@@ -169,15 +169,27 @@ class VisitController extends Controller
                 }
             }
             $seq = $request->seq;
-            if ($seq != "null") {
-                if (isset($seq)) {
-                    $datas = $datas->orderby('created_at', $seq);
-                } else {
-                    $datas = $datas;
-                }
+            $recently_date_sort = $request->recently_date_sort;
+            
+            // 如果兩個排序都有選擇，優先使用叫件日期排序
+            if ($recently_date_sort != "null" && isset($recently_date_sort)) {
+                // 使用子查詢來排序叫件日期
+                $datas = $datas->orderByRaw("(
+                    SELECT MAX(sale_date) 
+                    FROM sale_company_commission 
+                    WHERE company_id = customer.id
+                ) " . $recently_date_sort);
+            } elseif ($seq != "null" && isset($seq)) {
+                $datas = $datas->orderby('created_at', $seq);
             }
         }
-        $datas = $datas->orderby('name', 'desc')->paginate(50);
+        
+        // 如果沒有選擇任何排序，使用預設排序
+        if (!isset($request->seq) && !isset($request->recently_date_sort)) {
+            $datas = $datas->orderby('name', 'desc');
+        }
+        
+        $datas = $datas->paginate(50);
 
         $data_countys = Customer::where('group_id', 2)->get();
         foreach ($data_countys as $data_county) {
@@ -227,6 +239,16 @@ class VisitController extends Controller
                 $datas = $datas->where('mobile', 'like', $mobile);
             }
         }
+        
+        $recently_date_sort = $request->recently_date_sort;
+        if ($recently_date_sort != "null" && isset($recently_date_sort)) {
+            $datas = $datas->orderByRaw("(
+                SELECT MAX(sale_date) 
+                FROM sale_company_commission 
+                WHERE company_id = customer.id
+            ) " . $recently_date_sort);
+        }
+        
         $datas = $datas->paginate(50);
 
         $bankData = $this->getFlatBankData(); // flat 結構的銀行分行 JSON
@@ -261,6 +283,16 @@ class VisitController extends Controller
                 $datas = $datas->where('mobile', 'like', $mobile);
             }
         }
+        
+        $recently_date_sort = $request->recently_date_sort;
+        if ($recently_date_sort != "null" && isset($recently_date_sort)) {
+            $datas = $datas->orderByRaw("(
+                SELECT MAX(sale_date) 
+                FROM sale_company_commission 
+                WHERE company_id = customer.id
+            ) " . $recently_date_sort);
+        }
+        
         $datas = $datas->paginate(50);
 
         $bankData = $this->getFlatBankData(); // flat 結構的銀行分行 JSON
@@ -293,6 +325,16 @@ class VisitController extends Controller
                 $datas = $datas->where('mobile', 'like', $mobile);
             }
         }
+        
+        $recently_date_sort = $request->recently_date_sort;
+        if ($recently_date_sort != "null" && isset($recently_date_sort)) {
+            $datas = $datas->orderByRaw("(
+                SELECT MAX(sale_date) 
+                FROM sale_company_commission 
+                WHERE company_id = customer.id
+            ) " . $recently_date_sort);
+        }
+        
         $datas = $datas->paginate(50);
 
         $bankData = $this->getFlatBankData(); // flat 結構的銀行分行 JSON
@@ -325,6 +367,16 @@ class VisitController extends Controller
                 $datas = $datas->where('mobile', 'like', $mobile);
             }
         }
+        
+        $recently_date_sort = $request->recently_date_sort;
+        if ($recently_date_sort != "null" && isset($recently_date_sort)) {
+            $datas = $datas->orderByRaw("(
+                SELECT MAX(sale_date) 
+                FROM sale_company_commission 
+                WHERE company_id = customer.id
+            ) " . $recently_date_sort);
+        }
+        
         $datas = $datas->paginate(50);
 
         $bankData = $this->getFlatBankData(); // flat 結構的銀行分行 JSON
@@ -357,6 +409,16 @@ class VisitController extends Controller
                 $datas = $datas->where('mobile', 'like', $mobile);
             }
         }
+        
+        $recently_date_sort = $request->recently_date_sort;
+        if ($recently_date_sort != "null" && isset($recently_date_sort)) {
+            $datas = $datas->orderByRaw("(
+                SELECT MAX(sale_date) 
+                FROM sale_company_commission 
+                WHERE company_id = customer.id
+            ) " . $recently_date_sort);
+        }
+        
         $datas = $datas->paginate(50);
 
         $bankData = $this->getFlatBankData(); // flat 結構的銀行分行 JSON
