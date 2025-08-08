@@ -64,6 +64,7 @@ use App\Http\Controllers\Rpg28Controller;
 use App\Http\Controllers\Rpg29Controller;
 use App\Http\Controllers\Rpg30Controller;
 use App\Http\Controllers\Rpg31Controller;
+use App\Http\Controllers\Rpg32Controller;
 use App\Http\Controllers\SaleDataController;
 use App\Http\Controllers\SaleSourceController;
 use App\Http\Controllers\SeniorityPausesController;
@@ -88,6 +89,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use App\Http\Controllers\GiveController;
 
 /*
  * |--------------------------------------------------------------------------
@@ -312,6 +314,8 @@ Route::group(['prefix' => '/'], function () {
     // 業務確認對帳
     Route::get('/sale/check/{id}', [SaleDataController::class, 'check_show'])->name('sale.check');
     Route::post('/sale/check/{id}', [SaleDataController::class, 'check_update'])->name('sale.data.check');
+
+    Route::get('/sale/show/{sale_on}', [SaleDataController::class, 'sale_on_show'])->name('sale.sale_on_show');
     // 業務轉單或是對拆
     Route::get('/sale/change/{id}', [SaleDataController::class, 'change_show'])->name('sale.change');
     Route::post('/sale/change/{id}', [SaleDataController::class, 'change_update'])->name('sale.data.change');
@@ -595,6 +599,7 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg30/detail/urn-souvenir/{season_start}/{season_end}/{urn_souvenir}', [Rpg30Controller::class, 'season_urn_souvenir_detail'])->name('rpg30.season.urn_souvenir.detail');
         Route::get('/rpg/rpg31', [Rpg31Controller::class, 'rpg31'])->name('rpg31');
         Route::get('/rpg/rpg31/{month}/{lamp_type}/detail', [Rpg31Controller::class, 'detail'])->name('rpg31.detail');
+        Route::get('/rpg/rpg32', [Rpg32Controller::class, 'rpg32'])->name('rpg32');
     });
 
     // 2. 公開報表 - 所有員工都可以訪問（示例：rpg10）
@@ -627,6 +632,7 @@ Route::group(['prefix' => '/'], function () {
     Route::post('/task/create', [TaskController::class, 'store'])->name('task.create.data');
     Route::post('/task/ajax/create', [TaskController::class, 'ajax_store'])->name('task.ajax.create.data');
     Route::post('/task/check', [TaskController::class, 'check'])->name('task.create.check');
+    Route::post('/task-item/complete', [TaskController::class, 'check'])->name('task.item.complete');
     Route::get('/task/edit/{id}', [TaskController::class, 'show'])->name('task.edit');
     Route::post('/task/edit/{id}', [TaskController::class, 'update'])->name('task.edit.data');
     Route::get('/task/del/{id}', [TaskController::class, 'delete'])->name('task.del');
@@ -671,6 +677,17 @@ Route::group(['prefix' => '/'], function () {
     Route::post('/merit/edit/{id}', [MeritController::class, 'update'])->name('merit.edit.data');
     Route::get('/merit/del/{id}', [MeritController::class, 'delete'])->name('merit.del');
     Route::post('/merit/del/{id}', [MeritController::class, 'destroy'])->name('merit.del.data');
+
+
+    //贈送管理
+    Route::get('/give', [GiveController::class, 'index'])->name('give.index');
+    Route::get('/give/create', [GiveController::class, 'create'])->name('give.create');
+    Route::post('/give/create', [GiveController::class, 'store'])->name('give.create.data');
+    Route::get('/give/edit/{id}', [GiveController::class, 'edit'])->name('give.edit');
+    Route::post('/give/edit/{id}', [GiveController::class, 'update'])->name('give.edit.data');
+    Route::get('/give/del/{id}', [GiveController::class, 'delete'])->name('give.del');
+    Route::post('/give/del/{id}', [GiveController::class, 'destroy'])->name('give.del.data');
+
 
     Route::get('image', function () {
         $img = Image::make('https://images.pexels.com/photos/4273439/pexels-photo-4273439.jpeg')->resize(300, 200);  // 這邊可以隨便用網路上的image取代
