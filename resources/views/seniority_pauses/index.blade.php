@@ -45,6 +45,7 @@
                                     <th>#</th>
                                     <th>開始暫停日期</th>
                                     <th>停止暫停日期</th>
+                                    <th>備註</th>
                                     <th>動作</th>
                                 </tr>
                             </thead>
@@ -54,6 +55,7 @@
                                     <td>{{ $key+1 }}</td>
                                     <td>{{ $data->pause_date }}</td>
                                     <td>{{ $data->resume_date }}</td>
+                                    <td>{{ $data->comment }}</td>
                                     <td>
                                         <a href="{{ route('SeniorityPauses.edit',[$user_id,$data->id]) }}" class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a>
                                         <a href="{{ route('SeniorityPauses.del',[$user_id,$data->id]) }}" class="action-icon"> <i class="mdi mdi-delete"></i></a>

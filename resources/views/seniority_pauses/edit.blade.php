@@ -51,6 +51,10 @@
                                         <label class="form-label">年資恢復日期</label>
                                         <input type="date" class="form-control" name="resume_date" value="{{ $data->resume_date }}">
                                     </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">備註</label>
+                                        <textarea class="form-control" name="comment" rows="3" >{{ $data->comment }}</textarea>
+                                    </div>
                                 </div> <!-- end col-->
 
                             </div>

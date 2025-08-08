@@ -104,7 +104,25 @@
             </div>
         @endforeach
     </div>
-    <!-- 刪除確認 Modal ...同主選單頁-->
+    
+    <!-- 刪除確認 Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">確認刪除</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    確定要刪除這個子選單嗎？此操作無法復原。
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete">確定刪除</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -114,13 +132,18 @@
     <script>
         let menuToDelete = null;
         document.addEventListener('DOMContentLoaded', function() {
-            new Sortable(document.getElementById('sortable-menu'), {
-                handle: '.drag-handle',
-                animation: 150,
-                ghostClass: 'sortable-ghost',
-                chosenClass: 'sortable-chosen',
-                dragClass: 'sortable-drag'
-            });
+            const sortableElement = document.getElementById('sortable-menu');
+            if (sortableElement) {
+                new Sortable(sortableElement, {
+                    handle: '.drag-handle',
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    dragClass: 'sortable-drag'
+                });
+            } else {
+                console.error('sortable-menu 元素不存在');
+            }
         });
         function saveOrder() {
             const menuItems = document.querySelectorAll('#sortable-menu .menu-item');
@@ -173,7 +196,10 @@
             const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
             deleteModal.show();
         }
-        document.getElementById('confirmDelete').addEventListener('click', function() {
+        // 確保 confirmDelete 元素存在後再添加事件監聽器
+        const confirmDeleteBtn = document.getElementById('confirmDelete');
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', function() {
             if (menuToDelete) {
                 fetch(`/menu/delete/${menuToDelete}`, {
                     method: 'POST',
@@ -211,5 +237,8 @@
             const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
             deleteModal.hide();
         });
+        } else {
+            console.error('confirmDelete 元素不存在');
+        }
     </script>
 @endsection 
