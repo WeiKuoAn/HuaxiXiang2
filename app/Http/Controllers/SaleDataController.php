@@ -480,8 +480,6 @@ class SaleDataController extends Controller
         return redirect()->route('sale.create');
     }
 
-
-
     public function index(Request $request)
     {
         $check_users = User::where('status', '0')->whereIn('job_id', [1, 2, 8, 9])->orderby('seq')->get();
@@ -638,7 +636,7 @@ class SaleDataController extends Controller
             $price_total = Sale::where('status', '1')->sum('pay_price');
             $sales = Sale::orderby('sale_date', 'desc')->orderby('user_id', 'desc')->orderby('sale_on', 'desc')->where('status', '1')->paginate(50);
         }
-        $users = User::whereIn('job_id', [1, 3, 5])->where('status', '0')->orderby('seq')->get();
+        $users = User::whereIn('job_id', [1, 3, 5, 10])->where('status', '0')->orderby('seq')->get();
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
 
@@ -690,10 +688,9 @@ class SaleDataController extends Controller
         }
 
         $datas = [];
-        foreach ($sales as $sale) 
-        {
+        foreach ($sales as $sale) {
             $query = Sale::where('status', 3)->where('user_id', $sale->user_id);
-            
+
             // 只有在變數不為空時才加入日期條件
             if (!empty($after_date)) {
                 $query = $query->where('sale_date', '>=', $after_date);
@@ -706,13 +703,12 @@ class SaleDataController extends Controller
             $datas[$sale->user_id]['count'] = $datas[$sale->user_id]['items']->count();
             $datas[$sale->user_id]['cash_total'] = $datas[$sale->user_id]['items']->where('pay_method', 'A')->sum('pay_price');
             $datas[$sale->user_id]['transfer_total'] = $datas[$sale->user_id]['items']->where('pay_method', 'B')->sum('pay_price');
-            
+
             $datas[$sale->user_id]['cash_price'] = $datas[$sale->user_id]['items']->where('pay_method', 'C')->sum('cash_price');
             $datas[$sale->user_id]['transfer_price'] = $datas[$sale->user_id]['items']->where('pay_method', 'C')->sum('transfer_price');
-            if($datas[$sale->user_id]['cash_price'] > 0 && $datas[$sale->user_id]['transfer_price'] > 0)
-            {
-                $datas[$sale->user_id]['cash_total'] =  $datas[$sale->user_id]['cash_total'] + $datas[$sale->user_id]['cash_price'];
-                $datas[$sale->user_id]['transfer_total'] =  $datas[$sale->user_id]['transfer_total'] + $datas[$sale->user_id]['transfer_price'];
+            if ($datas[$sale->user_id]['cash_price'] > 0 && $datas[$sale->user_id]['transfer_price'] > 0) {
+                $datas[$sale->user_id]['cash_total'] = $datas[$sale->user_id]['cash_total'] + $datas[$sale->user_id]['cash_price'];
+                $datas[$sale->user_id]['transfer_total'] = $datas[$sale->user_id]['transfer_total'] + $datas[$sale->user_id]['transfer_price'];
             }
 
             $datas[$sale->user_id]['price'] = $datas[$sale->user_id]['items']->sum('pay_price');
@@ -879,6 +875,41 @@ class SaleDataController extends Controller
             session(['user' => $user, 'afterDate' => $afterDate, 'beforeDate' => $beforeDate]);
         }
 
+        return view('sale.check')
+            ->with('data', $data)
+            ->with('customers', $customers)
+            ->with('plans', $plans)
+            ->with('products', $products)
+            ->with('proms', $proms)
+            ->with('sale_proms', $sale_proms)
+            ->with('sale_gdpapers', $sale_gdpapers)
+            ->with('sources', $sources)
+            ->with('sale_company', $sale_company)
+            ->with('sale_address', $sale_address)
+            ->with('source_companys', $source_companys)
+            ->with('suits', $suits)
+            ->with('souvenirs', $souvenirs)
+            ->with('sale_souvenirs', $sale_souvenirs)
+            ->with('souvenir_types', $souvenir_types);
+    }
+
+    public function sale_on_show($sale_on)
+    {
+        $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
+        $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
+        $customers = Customer::get();
+        $plans = Plan::where('status', 'up')->get();
+        $products = Product::where('status', 'up')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
+        $data = Sale::where('sale_on', $sale_on)->first();
+        $sale_gdpapers = Sale_gdpaper::where('sale_id', $data->id)->get();
+        $sale_proms = Sale_prom::where('sale_id', $data->id)->get();
+        $sale_company = SaleCompanyCommission::where('sale_id', $data->id)->first();
+        $sale_address = SaleAddress::where('sale_id', $data->id)->first();
+        $suits = Suit::where('status', 'up')->get();
+        $sale_souvenirs = SaleSouvenir::where('sale_id', $data->id)->get();
+        $souvenir_types = SouvenirType::where('status', 'up')->get();
+        $souvenirs = Souvenir::where('status', 'up')->get();
         return view('sale.check')
             ->with('data', $data)
             ->with('customers', $customers)
@@ -1378,9 +1409,12 @@ class SaleDataController extends Controller
         $sales = Sale::where('status', 9)->where('sale_date', '>=', $firstDay)->where('sale_date', '<=', $lastDay);
 
         $payItems = PayItem::leftJoin('pay_data', 'pay_item.pay_data_id', '=', 'pay_data.id')
-        ->leftJoin('users', 'pay_data.user_id', '=', 'users.id')
-        ->whereNotIn('users.job_id', [1, 2, 7])//不抓老闆、工程師、行政經理
-        ->where('pay_item.status', 1)->where('pay_item.pay_date', '>=', $firstDay)->where('pay_item.pay_date', '<=', $lastDay)->get();
+            ->leftJoin('users', 'pay_data.user_id', '=', 'users.id')
+            ->whereNotIn('users.job_id', [1, 2, 7])  // 不抓老闆、工程師、行政經理
+            ->where('pay_item.status', 1)
+            ->where('pay_item.pay_date', '>=', $firstDay)
+            ->where('pay_item.pay_date', '<=', $lastDay)
+            ->get();
 
         $check_user_id = $request->check_user_id;
         if ($check_user_id != 'null') {
@@ -1393,7 +1427,7 @@ class SaleDataController extends Controller
         $sales = $sales->orderby('sale_date', 'desc')->get();
         // dd($sales);
         $users = User::where('status', '0')->whereIn('job_id', [2, 3, 5, 10])->get();
-        $sums = ['count' => 0, 'price' => 0 , 'pay_price' => 0 , 'cash_total' => 0 , 'transfer_total' => 0 , 'pay_count' => 0 ,'actual_price' => 0];
+        $sums = ['count' => 0, 'price' => 0, 'pay_price' => 0, 'cash_total' => 0, 'transfer_total' => 0, 'pay_count' => 0, 'actual_price' => 0];
         $datas = [];
 
         foreach ($sales as $key => $sale) {
@@ -1437,8 +1471,8 @@ class SaleDataController extends Controller
 
             $datas[$sale->user_id]['cash_total'] = $cash_total + $cash_transfer_cash_total;
             $datas[$sale->user_id]['transfer_total'] = $transfer_total + $cash_transfer_transfer_total;
-        
-            if (!isset( $datas[$sale->user_id]['pay_count'])) {
+
+            if (!isset($datas[$sale->user_id]['pay_count'])) {
                 $datas[$sale->user_id]['pay_count'] = 0;
             }
             if (!isset($datas[$sale->user_id]['pay_price'])) {
@@ -1453,11 +1487,10 @@ class SaleDataController extends Controller
                 ->where('pay_data.user_id', $payItem->pay_data->user_id)
                 ->where('pay_item.pay_date', '>=', $firstDay)
                 ->where('pay_item.pay_date', '<=', $lastDay)
-                ->select('pay_item.*', 'pay.name as pay_name' , 'pay_data.pay_date as pay_data_date' , 'pay_data.pay_on as pay_on')
+                ->select('pay_item.*', 'pay.name as pay_name', 'pay_data.pay_date as pay_data_date', 'pay_data.pay_on as pay_on')
                 ->get();
             $datas[$payItem->pay_data->user_id]['pay_count'] = $datas[$payItem->pay_data->user_id]['pay_items']->count();
             $datas[$payItem->pay_data->user_id]['pay_price'] = $datas[$payItem->pay_data->user_id]['pay_items']->sum('price');
-            
 
             if (!isset($datas[$payItem->pay_data->user_id]['count'])) {
                 $datas[$payItem->pay_data->user_id]['count'] = 0;
@@ -1473,8 +1506,8 @@ class SaleDataController extends Controller
             }
         }
 
-        $sums['actual_price']=0;
-        $sums['cash_actual_price']=0;
+        $sums['actual_price'] = 0;
+        $sums['cash_actual_price'] = 0;
         // 使用 foreach 遍歷 $datas 並累計到 $sums
         foreach ($datas as $date => &$data) {
             if (isset($data['count'])) {
@@ -1483,11 +1516,11 @@ class SaleDataController extends Controller
             if (isset($data['price'])) {
                 $sums['price'] += $data['price'];
             }
-            //現金
+            // 現金
             if (isset($data['cash_total'])) {
                 $sums['cash_total'] += $data['cash_total'];
             }
-            //轉帳
+            // 轉帳
             if (isset($data['transfer_total'])) {
                 $sums['transfer_total'] += $data['transfer_total'];
             }
@@ -1504,13 +1537,12 @@ class SaleDataController extends Controller
             // 計算實際收入（業務收入 - 支出）
             $datas[$date]['cash_actual_price'] = ($data['cash_total'] ?? 0) - ($data['pay_price'] ?? 0);
             $datas[$date]['actual_price'] = ($data['price'] ?? 0) - ($data['pay_price'] ?? 0);
-            if(isset($data['actual_price'])){
+            if (isset($data['actual_price'])) {
                 $sums['actual_price'] += $data['actual_price'];
-            }else{
+            } else {
                 $sums['actual_price'] = 0;
             }
         }
-
 
         $check_users = User::where('status', '0')->whereIn('job_id', [1, 2, 7, 8, 9])->orderby('seq')->get();
         // dd($datas);
@@ -1531,18 +1563,18 @@ class SaleDataController extends Controller
     {
         // 獲取選擇的欄位
         $selectedFields = $request->input('export_fields', []);
-        
+
         // 如果沒有選擇欄位，使用預設欄位
         if (empty($selectedFields)) {
             $selectedFields = [
-                '案件單類別', '單號', '專員', '日期', '客戶', '寶貝名', 
-                '寵物品種', '公斤數', '方案', '方案價格', '案件來源', '套裝', '金紙', '金紙總賣價', 
-                '安葬方式', '後續處理', '其他處理', '付款方式', 
-                '實收價格', '狀態', '備註', '更改後方案', 
+                '案件單類別', '單號', '專員', '日期', '客戶', '寶貝名',
+                '寵物品種', '公斤數', '方案', '方案價格', '案件來源', '套裝', '金紙', '金紙總賣價',
+                '安葬方式', '後續處理', '其他處理', '付款方式',
+                '實收價格', '狀態', '備註', '更改後方案',
                 '確認對帳人員', '確認對帳時間'
             ];
         }
-        
+
         if ($request->input() != null) {
             $status = $request->status;
             if (!isset($status) || $status == 'not_check') {
@@ -1707,12 +1739,12 @@ class SaleDataController extends Controller
 
             foreach ($sales as $key => $sale) {
                 $row = [];
-                
+
                 // 根據選擇的欄位生成資料
                 foreach ($selectedFields as $field) {
                     $row[$field] = $this->getFieldValue($sale, $field);
                 }
-                
+
                 fputcsv($file, array_values($row));
             }
 
@@ -1885,12 +1917,12 @@ class SaleDataController extends Controller
     {
         $after_date = $request->after_date;
         $before_date = $request->before_date;
-        
+
         // 使用 between 方法來避免運算符問題
         $datas = Sale::whereIn('status', [1, 2])
             ->whereBetween('sale_date', [$after_date, $before_date])
             ->get();
-            
+
         return view('sale.excel')->with('datas', $datas)->with('request', $request);
     }
 }
