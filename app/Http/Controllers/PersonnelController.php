@@ -18,6 +18,7 @@ use App\Models\UserHoliday;
 use App\Models\LeaveDay;
 use Illuminate\Support\Facades\DB;
 use App\Models\Leaves;
+use App\Models\SeniorityPauses;
 
 
 use Illuminate\Http\Request;
@@ -74,9 +75,9 @@ class PersonnelController extends Controller
 
             $datas[$user->id]['pay_data'] = $user_pay_data;
             $datas[$user->id]['balance'] = intval($user_balance) + intval($user_cash) - intval($user_pay_data);
-            $datas[$user->id]['seniority'] = $this->seniority($user->entry_date);
-            $datas[$user->id]['specil_vacation'] = $this->specil_vacation($user->entry_date);
-            $datas[$user->id]['remain_specil_vacation'] = intval($this->specil_vacation($user->entry_date)) + intval($day); //剩餘休假天數
+            $datas[$user->id]['seniority'] = $this->seniority($user->entry_date, $user->id);
+            $datas[$user->id]['specil_vacation'] = $this->specil_vacation($user->entry_date, $user->id);
+            $datas[$user->id]['remain_specil_vacation'] = intval($this->specil_vacation($user->entry_date, $user->id)) + intval($day); //剩餘休假天數
         }
         // dd($datas);
 
@@ -229,13 +230,36 @@ class PersonnelController extends Controller
         return redirect()->route('personnel.holidays');
     }
 
-    private function seniority($user_entry_date)
+    private function seniority($user_entry_date, $user_id = null)
     {
         if ($user_entry_date != null) {
             $today = date('Y-m-d', strtotime(Carbon::now()->locale('zh-tw')));
             $startDate = Carbon::parse($user_entry_date); // 將起始日期字串轉換為 Carbon 日期物件
             $endDate = Carbon::parse($today); // 將結束日期字串轉換為 Carbon 日期物件
-            $diffDays = $startDate->diffInDays($endDate); // 計算年數差距
+            
+            // 如果有提供 user_id，檢查是否有年資暫停記錄
+            if ($user_id) {
+                $pauseRecords = SeniorityPauses::where('user_id', $user_id)
+                    ->where('pause_date', '<=', $today)
+                    ->orderBy('pause_date')
+                    ->get();
+                
+                $totalPauseDays = 0;
+                foreach ($pauseRecords as $pause) {
+                    $pauseStart = Carbon::parse($pause->pause_date);
+                    $pauseEnd = $pause->resume_date ? Carbon::parse($pause->resume_date) : $endDate;
+                    
+                    // 計算暫停期間的天數
+                    $pauseDays = $pauseStart->diffInDays($pauseEnd);
+                    $totalPauseDays += $pauseDays;
+                }
+                
+                // 扣除暫停天數
+                $diffDays = $startDate->diffInDays($endDate) - $totalPauseDays;
+            } else {
+                $diffDays = $startDate->diffInDays($endDate); // 計算年數差距
+            }
+            
             $diffYears = $diffDays / 365;
             $diffYears = round($diffYears, 2);
         } else {
@@ -280,8 +304,8 @@ class PersonnelController extends Controller
 
         // 依年資計算每人的特休資格
         foreach ($users as $user) {
-            $dates['1']['user_day'][$user->id]['day'] = $this->specil_vacation($user->entry_date);
-            $dates['1']['user_day'][$user->id]['hour'] = intval($this->specil_vacation($user->entry_date)) * 8;
+            $dates['1']['user_day'][$user->id]['day'] = $this->specil_vacation($user->entry_date, $user->id);
+            $dates['1']['user_day'][$user->id]['hour'] = intval($this->specil_vacation($user->entry_date, $user->id)) * 8;
         }
 
         foreach ($users as $user) {
@@ -290,7 +314,7 @@ class PersonnelController extends Controller
             foreach ($dates as $leave_day => $date) {
                 if ($leave_day == 1) {
                     // 這裡統計「本資格年度」的已請特休
-                    $start = $this->specil_vacation_start($user->entry_date, Carbon::now());
+                    $start = $this->specil_vacation_start($user->entry_date, Carbon::now(), $user->id);
                     if ($start) {
                         $datas[$user->id]['leavedays'][$leave_day]['datas'] = LeaveDay::where('state', '9')
                             ->where('start_datetime', '>=', $start->toDateTimeString())
@@ -388,7 +412,7 @@ class PersonnelController extends Controller
 
 
 
-    private function specil_vacation($user_entry_date)
+    private function specil_vacation($user_entry_date, $user_id = null)
     {
         if (!$user_entry_date) {
             return 0;
@@ -396,7 +420,30 @@ class PersonnelController extends Controller
 
         $start = Carbon::parse($user_entry_date);
         $now = Carbon::now();
-        $diffDays = $start->diffInDays($now);
+        
+        // 如果有提供 user_id，檢查是否有年資暫停記錄
+        if ($user_id) {
+            $pauseRecords = SeniorityPauses::where('user_id', $user_id)
+                ->where('pause_date', '<=', $now->format('Y-m-d'))
+                ->orderBy('pause_date')
+                ->get();
+            
+            $totalPauseDays = 0;
+            foreach ($pauseRecords as $pause) {
+                $pauseStart = Carbon::parse($pause->pause_date);
+                $pauseEnd = $pause->resume_date ? Carbon::parse($pause->resume_date) : $now;
+                
+                // 計算暫停期間的天數
+                $pauseDays = $pauseStart->diffInDays($pauseEnd);
+                $totalPauseDays += $pauseDays;
+            }
+            
+            // 扣除暫停天數
+            $diffDays = $start->diffInDays($now) - $totalPauseDays;
+        } else {
+            $diffDays = $start->diffInDays($now);
+        }
+        
         $diffYears = $diffDays / 365;
         $diffYears = round($diffYears, 2);
 
@@ -422,14 +469,37 @@ class PersonnelController extends Controller
         }
     }
 
-    private function specil_vacation_start($user_entry_date, $now = null)
+    private function specil_vacation_start($user_entry_date, $now = null, $user_id = null)
     {
         if (!$user_entry_date) {
             return null;
         }
         $now = $now ?: Carbon::now();
         $start = Carbon::parse($user_entry_date);
-        $diffDays = $start->diffInDays($now);
+        
+        // 如果有提供 user_id，檢查是否有年資暫停記錄
+        if ($user_id) {
+            $pauseRecords = SeniorityPauses::where('user_id', $user_id)
+                ->where('pause_date', '<=', $now->format('Y-m-d'))
+                ->orderBy('pause_date')
+                ->get();
+            
+            $totalPauseDays = 0;
+            foreach ($pauseRecords as $pause) {
+                $pauseStart = Carbon::parse($pause->pause_date);
+                $pauseEnd = $pause->resume_date ? Carbon::parse($pause->resume_date) : $now;
+                
+                // 計算暫停期間的天數
+                $pauseDays = $pauseStart->diffInDays($pauseEnd);
+                $totalPauseDays += $pauseDays;
+            }
+            
+            // 扣除暫停天數
+            $diffDays = $start->diffInDays($now) - $totalPauseDays;
+        } else {
+            $diffDays = $start->diffInDays($now);
+        }
+        
         $diffYears = $diffDays / 365;
         $diffYears = round($diffYears, 2);
 

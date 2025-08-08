@@ -26,6 +26,7 @@ class SeniorityPausesController extends Controller
         $data->pause_date = $request->pause_date;
         $data->resume_date = $request->resume_date;
         $data->user_id = $user_id;
+        $data->comment = $request->comment;
         $data->save();
 
         return redirect()->route('SeniorityPausess', $user_id)->with('success', '暫停資料新增成功！');
@@ -44,6 +45,7 @@ class SeniorityPausesController extends Controller
         $data = SeniorityPauses::where('id', $id)->first();
         $data->pause_date = $request->pause_date;
         $data->resume_date = $request->resume_date;
+        $data->comment = $request->comment;
         $data->save();
         return redirect()->route('SeniorityPausess', $user_id)->with('success', '暫停資料新增成功！');
     }
