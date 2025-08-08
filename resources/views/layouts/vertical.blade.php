@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('layouts.shared/title-meta', ['title' => $page_title])
 
     @include('layouts.shared/head-css', ['mode' => $mode ?? '', 'demo' => $demo ?? ''])
@@ -42,6 +43,7 @@
         @endif
 
         @if (Auth::user()->status == 0)<!--用戶是否啟用-->
+            {{-- @include('layouts.shared/all-left-sidebar') --}}
             @if (Auth::user()->job_id == 1 || Auth::user()->job_id == 7)
                 <!-- 老闆(1) 工程師(7)-->
                 @include('layouts.shared/admin-left-sidebar')
