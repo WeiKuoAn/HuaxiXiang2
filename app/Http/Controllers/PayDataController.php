@@ -10,6 +10,7 @@ use App\Models\Job;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+
 use App\Models\PayHistory;
 use Illuminate\Support\Facades\DB;
 
@@ -466,5 +467,172 @@ class PayDataController extends Controller
         $pay_data = PayData::where('id', $id)->first();
         $datas = PayHistory::where('pay_id', $id)->get();
         return view('pay.history')->with('pay_data', $pay_data)->with('datas', $datas);
+    }
+
+    /**
+     * 匯出支出資料為 CSV
+     */
+    public function export(Request $request)
+    {
+        // 驗證請求
+        $request->validate([
+            'columns' => 'required|array|min:1',
+            'columns.*' => 'in:pay_date,pay_on,item_pay_date,pay_name,invoice_number,item_price,total_price,comment,user_name,status'
+        ], [
+            'columns.required' => '請至少選擇一個要匯出的欄位',
+            'columns.min' => '請至少選擇一個要匯出的欄位',
+            'columns.*.in' => '選擇的欄位不正確'
+        ]);
+
+        try {
+            // 準備篩選條件
+            $filters = $request->only([
+                'after_date', 'before_date', 
+                'pay_after_date', 'pay_before_date',
+                'comment', 'pay', 'user', 'status'
+            ]);
+
+            // 獲取選擇的欄位
+            $selectedColumns = $request->input('columns', []);
+
+            // 欄位對應
+            $columnMappings = [
+                'pay_date' => 'Key單日期',
+                'pay_on' => 'Key單單號',
+                'item_pay_date' => '支出日期',
+                'pay_name' => '支出科目',
+                'invoice_number' => '發票號碼',
+                'item_price' => '單項支出金額',
+                'total_price' => '支出總價格',
+                'comment' => '備註',
+                'user_name' => 'Key單人員',
+                'status' => '審核狀態'
+            ];
+
+            // 取得資料
+            $query = PayData::with(['pay_items.pay_name', 'user_name']);
+            $this->applyFilters($query, $filters);
+            $payDatas = $query->orderBy('pay_date', 'desc')->get();
+
+            // 生成檔案名稱
+            $fileName = '支出資料_' . date('Y-m-d_H-i-s') . '.csv';
+
+            // 建立 CSV 內容
+            return response()->streamDownload(function() use ($payDatas, $selectedColumns, $columnMappings) {
+                $handle = fopen('php://output', 'w');
+                
+                // 加入 BOM 以正確顯示中文
+                fwrite($handle, "\xEF\xBB\xBF");
+                
+                // 寫入標題列
+                $headers = [];
+                foreach ($selectedColumns as $column) {
+                    $headers[] = isset($columnMappings[$column]) ? $columnMappings[$column] : $column;
+                }
+                fputcsv($handle, $headers);
+                
+                // 寫入資料列
+                foreach ($payDatas as $payData) {
+                    $payItems = $payData->pay_items;
+                    
+                    if ($payItems->count() > 0) {
+                        // 如果有支出項目，每個項目一行
+                        $isFirstItem = true;
+                        foreach ($payItems as $item) {
+                            $row = $this->buildCsvRow($payData, $item, $selectedColumns, $isFirstItem);
+                            fputcsv($handle, $row);
+                            $isFirstItem = false; // 第一筆後都設為 false
+                        }
+                    } else {
+                        // 如果沒有支出項目，只顯示主要資料
+                        $row = $this->buildCsvRow($payData, null, $selectedColumns, true);
+                        fputcsv($handle, $row);
+                    }
+                }
+                
+                fclose($handle);
+            }, $fileName, ['Content-Type' => 'text/csv; charset=UTF-8']);
+
+        } catch (\Exception $e) {
+            // 錯誤處理
+            return redirect()->back()
+                ->with('error', '匯出失敗：' . $e->getMessage());
+        }
+    }
+
+    /**
+     * 建立 CSV 行資料
+     */
+        private function buildCsvRow($payData, $payItem = null, $selectedColumns = [], $isFirstItem = true)
+    {
+        $fullData = [
+            'pay_date' => $isFirstItem ? $payData->pay_date : '',
+            'pay_on' => $isFirstItem ? $payData->pay_on : '',
+            'item_pay_date' => $payItem ? $payItem->pay_date : '',
+            'pay_name' => $payItem && $payItem->pay_name ? $payItem->pay_name->name : '',
+            'invoice_number' => $payItem ? $payItem->invoice_number : '',
+            'item_price' => $payItem ? number_format($payItem->price) : '',
+            'total_price' => $isFirstItem ? number_format($payData->price) : '',
+            'comment' => $isFirstItem ? $payData->comment : '',
+            'user_name' => $isFirstItem ? ($payData->user_name ? $payData->user_name->name : '') : '',
+            'status' => $isFirstItem ? ($payData->status == 1 ? '已審核' : '未審核') : ''
+        ];
+
+        $row = [];
+        foreach ($selectedColumns as $column) {
+            $row[] = isset($fullData[$column]) ? $fullData[$column] : '';
+        }
+        
+        return $row;
+    }
+
+    /**
+     * 套用篩選條件
+     */
+    private function applyFilters($query, $filters)
+    {
+        // 狀態篩選
+        if (isset($filters['status'])) {
+            $query->where('status', $filters['status']);
+        } else {
+            $query->where('status', 0);
+        }
+
+        // Key單日期範圍
+        if (isset($filters['after_date']) && $filters['after_date']) {
+            $query->where('pay_date', '>=', $filters['after_date']);
+        }
+        if (isset($filters['before_date']) && $filters['before_date']) {
+            $query->where('pay_date', '<=', $filters['before_date']);
+        }
+
+        // 支付類別篩選
+        if (isset($filters['pay']) && $filters['pay'] != "null" && $filters['pay']) {
+            $query->where('pay_id', $filters['pay']);
+        }
+
+        // 使用者篩選
+        if (isset($filters['user']) && $filters['user'] != "null" && $filters['user']) {
+            $query->where('user_id', $filters['user']);
+        }
+
+        // 備註篩選
+        if (isset($filters['comment']) && $filters['comment']) {
+            $query->where('comment', 'like', '%' . $filters['comment'] . '%');
+        }
+
+        // 支出日期範圍篩選（需要透過 pay_items 關聯）
+        if ((isset($filters['pay_after_date']) && $filters['pay_after_date']) || 
+            (isset($filters['pay_before_date']) && $filters['pay_before_date'])) {
+            
+            $query->whereHas('pay_items', function($q) use ($filters) {
+                if (isset($filters['pay_after_date']) && $filters['pay_after_date']) {
+                    $q->where('pay_date', '>=', $filters['pay_after_date']);
+                }
+                if (isset($filters['pay_before_date']) && $filters['pay_before_date']) {
+                    $q->where('pay_date', '<=', $filters['pay_before_date']);
+                }
+            });
+        }
     }
 }

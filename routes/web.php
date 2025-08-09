@@ -66,6 +66,7 @@ use App\Http\Controllers\Rpg30Controller;
 use App\Http\Controllers\Rpg31Controller;
 use App\Http\Controllers\Rpg32Controller;
 use App\Http\Controllers\SaleDataController;
+use App\Http\Controllers\SaleDataControllerNew;
 use App\Http\Controllers\SaleSourceController;
 use App\Http\Controllers\SeniorityPausesController;
 use App\Http\Controllers\SouvenirController;
@@ -75,7 +76,7 @@ use App\Http\Controllers\TargetCategoriesController;
 use App\Http\Controllers\TargetController;
 use App\Http\Controllers\TargetItemController;
 use App\Http\Controllers\TaskController;
-use App\Http\Controllers\UserBankDataController;
+use App\Http\Controllers\UserBankDataController;    
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserSaleDataController;
 use App\Http\Controllers\VacationController;
@@ -301,6 +302,9 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/sale/check/history', [SaleDataController::class, 'checkHistory'])->name('sales.checkHistory');
     Route::get('/sale/history/{id}', [SaleDataController::class, 'history'])->name('sale.history');
 
+    Route::get('/sale/create/gpt', [SaleDataControllerNew::class, 'create_gpt'])->name('sale.create.gpt');
+    Route::post('/sale/create/gpt', [SaleDataControllerNew::class, 'store_gpt'])->name('sale.data.create.gpt');
+
     //報廢單
     Route::get('/sale/scrapped/create', [ScrappedController::class, 'create'])->name('sale.scrapped.create');
     Route::post('/sale/scrapped/create', [ScrappedController::class, 'store'])->name('sale.scrapped.create.data');
@@ -436,6 +440,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/pay/check/{id}', [PayDataController::class, 'check'])->name('pay.check');
     Route::post('/pay/check/{id}', [PayDataController::class, 'check_data'])->name('pay.check.data');
     Route::get('/pay/history/{id}', [PayDataController::class, 'history'])->name('pay.history');
+    Route::post('/pay/export', [PayDataController::class, 'export'])->name('pay.export');
 
     /* 零用金管理 */
     Route::get('/cash', [CashController::class, 'index'])->name('cashs');
