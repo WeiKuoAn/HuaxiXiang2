@@ -108,6 +108,10 @@
                                     class="{{ request()->is('sale.create') ? 'active' : '' }}">業務Key單</a>
                             </li>
                             <li>
+                                <a href="{{ route('sale.scrapped.create') }}"
+                                    class="{{ request()->is('sale.scrapped.create') ? 'active' : '' }}">報廢Key單</a>
+                            </li>
+                            <li>
                                 <a href="{{ route('wait.sales') }}"
                                     class="{{ request()->is('wait.sales') ? 'active' : '' }}">業務對帳確認</a>
                             </li>
@@ -641,7 +645,7 @@
                     </div>
                 </li>
 
-                <li>
+                {{-- <li> 取消使用
                     <a href="#tatget" data-bs-toggle="collapse">
                         <i data-feather="bar-chart"></i>
                         <span> 達標管理 </span>
@@ -660,16 +664,16 @@
                             </li>
                         </ul>
                     </div>
-                </li>
+                </li> --}}
 
                 <li>
                 <li>
-                    <a href="#sidebarEcommerce" data-bs-toggle="collapse">
+                    <a href="#sidebarUser" data-bs-toggle="collapse">
                         <i data-feather="users"></i>
                         <span> 用戶管理 </span>
                         <span class="menu-arrow"></span>
                     </a>
-                    <div class="collapse" id="sidebarEcommerce">
+                    <div class="collapse" id="sidebarUser">
                         <ul class="nav-second-level">
                             <li>
                                 <a href="{{ route('branchs') }}"

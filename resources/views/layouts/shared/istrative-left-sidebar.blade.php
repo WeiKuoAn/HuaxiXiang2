@@ -87,6 +87,10 @@
                                 <li>
                                     <a href="{{ route('sale.create') }}"  class="{{ request()->is('sale.create') ? 'active' : '' }}">業務Key單</a>
                                 </li>
+                                <li>
+                                <a href="{{ route('sale.scrapped.create') }}"
+                                    class="{{ request()->is('sale.scrapped.create') ? 'active' : '' }}">報廢Key單</a>
+                            </li>
                             </ul>
                         </div>
                     </li>

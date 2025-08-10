@@ -151,13 +151,13 @@
                                         <button type="submit" class="btn btn-success waves-effect waves-light me-1"><i
                                                 class="fe-search me-1"></i>搜尋</button>
                                     </div>
-                                    @if(Auth::user()->level != 2)
-                                    <div class="me-3 mt-4">
-                                        <button type="button" class="btn btn-primary waves-effect waves-light me-1"
-                                            onclick="showExportModal()">
-                                            <i class="fe-download me-1"></i>匯出設定
-                                        </button>
-                                    </div>
+                                    @if (Auth::user()->level != 2)
+                                        <div class="me-3 mt-4">
+                                            <button type="button" class="btn btn-primary waves-effect waves-light me-1"
+                                                onclick="showExportModal()">
+                                                <i class="fe-download me-1"></i>匯出設定
+                                            </button>
+                                        </div>
                                     @endif
                                     <div class="col mt-3" style="text-align: right;">
                                         {{-- <button type="button" class="btn btn-success waves-effect waves-light me-1"><i class="mdi mdi-cog"></i></button> --}}
@@ -587,18 +587,22 @@
                                                                     <a class="dropdown-item"
                                                                         href="{{ route('sale.scrapped.delete', $sale->id) }}"><i
                                                                             class="mdi mdi-delete me-2 text-muted font-18 vertical-middle"></i>刪除</a>
+                                                                    <a class="dropdown-item"
+                                                                        href="{{ route('sale.scrapped.check', $sale->id) }}"><i
+                                                                            class="mdi mdi-send me-2 font-18 text-muted vertical-middle"></i>送出對帳</a>
                                                                 @else
-                                                                <a class="dropdown-item"
-                                                                    href="{{ route('sale.edit', $sale->id) }}"><i
-                                                                        class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
-                                                                {{-- <a class="dropdown-item" href="#"><i class="mdi mdi-delete me-2 text-muted font-18 vertical-middle"></i>刪除</a> --}}
-                                                                <a class="dropdown-item"
-                                                                    href="{{ route('sale.del', $sale->id) }}"><i
-                                                                        class="mdi mdi-delete me-2 font-18 text-muted vertical-middle"></i>刪除</a>
+                                                                    <a class="dropdown-item"
+                                                                        href="{{ route('sale.edit', $sale->id) }}"><i
+                                                                            class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
+                                                                    {{-- <a class="dropdown-item" href="#"><i class="mdi mdi-delete me-2 text-muted font-18 vertical-middle"></i>刪除</a> --}}
+                                                                    <a class="dropdown-item"
+                                                                        href="{{ route('sale.del', $sale->id) }}"><i
+                                                                            class="mdi mdi-delete me-2 font-18 text-muted vertical-middle"></i>刪除</a>
+                                                                    <a class="dropdown-item"
+                                                                        href="{{ route('sale.check', $sale->id) }}"><i
+                                                                            class="mdi mdi-send me-2 font-18 text-muted vertical-middle"></i>送出對帳</a>
                                                                 @endif
-                                                                <a class="dropdown-item"
-                                                                    href="{{ route('sale.check', $sale->id) }}"><i
-                                                                        class="mdi mdi-send me-2 font-18 text-muted vertical-middle"></i>送出對帳</a>
+
                                                             </div>
                                                         </div>
                                                     @else
