@@ -24,6 +24,11 @@ class LeaveDay extends Model
         'state',
     ];
 
+    public function leave_check()
+    {
+        return $this->hasOne('App\Models\LeaveDayCheck', 'leave_day_id', 'id')->orderBy('check_day', 'desc')->where('state', 9);
+    }
+
     public function leave_name(){
         return $this->hasOne('App\Models\Leaves','id','leave_day');
     }
