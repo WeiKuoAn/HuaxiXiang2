@@ -28,7 +28,7 @@
                     <div class="text-lg-end my-1 my-lg-0 mt-5">
                         {{-- <button type="button" class="btn btn-success waves-effect waves-light me-1"><i class="mdi mdi-cog"></i></button> --}}
                         <button type="button" class="btn btn-success waves-effect waves-light me-1" data-bs-toggle="modal" data-bs-target="#exportModal">
-                            <i class="mdi mdi-download me-1"></i>匯出 CSV
+                            <i class="mdi mdi-download me-1"></i>匯出 Excel
                         </button>
                         <a href="{{ route('pay.create') }}" class="btn btn-danger waves-effect waves-light"><i
                                 class="mdi mdi-plus-circle me-1"></i>新增支出</a>
@@ -220,7 +220,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exportModalLabel">匯出支出資料</h5>
+                    <h5 class="modal-title" id="exportModalLabel">匯出支出資料 (Excel)</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="exportForm" action="{{ route('pay.export') }}" method="POST">
@@ -259,6 +259,10 @@
                                         <label class="form-check-label" for="col_pay_name">支出科目</label>
                                     </div>
                                     <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="columns[]" value="invoice_type" id="col_invoice_type">
+                                        <label class="form-check-label" for="col_invoice_type">發票類型</label>
+                                    </div>
+                                    <div class="form-check mb-2">
                                         <input class="form-check-input" type="checkbox" name="columns[]" value="invoice_number" id="col_invoice_number">
                                         <label class="form-check-label" for="col_invoice_number">發票號碼</label>
                                     </div>
@@ -267,6 +271,10 @@
                                     <div class="form-check mb-2">
                                         <input class="form-check-input" type="checkbox" name="columns[]" value="item_price" id="col_item_price">
                                         <label class="form-check-label" for="col_item_price">單項支出金額</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="columns[]" value="item_comment" id="col_item_comment">
+                                        <label class="form-check-label" for="col_item_comment">單項支出備註</label>
                                     </div>
                                     <div class="form-check mb-2">
                                         <input class="form-check-input" type="checkbox" name="columns[]" value="total_price" id="col_total_price" checked>
@@ -284,6 +292,10 @@
                                         <input class="form-check-input" type="checkbox" name="columns[]" value="status" id="col_status">
                                         <label class="form-check-label" for="col_status">審核狀態</label>
                                     </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="columns[]" value="check_user" id="col_check_user">
+                                        <label class="form-check-label" for="col_check_user">審核人</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -296,15 +308,19 @@
                         </div>
                         
                         <div class="alert alert-info">
-                            <i class="mdi mdi-information me-2"></i>
-                            匯出將根據目前的篩選條件進行，請確認已選擇正確的篩選設定。
+                            <h6><i class="mdi mdi-lightbulb-outline me-1"></i>Excel 匯出功能：</h6>
+                            <ul class="mb-0">
+                                <li>支援合併儲存格功能，總價格會自動合併顯示</li>
+                                <li>匯出將根據目前的篩選條件進行</li>
+                                <li>檔案格式為標準 Excel (.xlsx)，相容所有 Excel 軟體</li>
+                            </ul>
                         </div>
                     </div>
                     
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                         <button type="submit" class="btn btn-success">
-                            <i class="mdi mdi-download me-1"></i>匯出 CSV
+                            <i class="mdi mdi-download me-1"></i>匯出 Excel
                         </button>
                     </div>
                 </form>

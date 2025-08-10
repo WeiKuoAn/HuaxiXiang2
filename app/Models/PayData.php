@@ -31,4 +31,8 @@ class PayData extends Model
         return $this->hasMany('App\Models\PayItem' ,'pay_data_id','id');
     }
 
+    public function pay_history(){
+        return $this->hasMany('App\Models\PayHistory' ,'pay_id','id');
+    }
+
 }

@@ -51,4 +51,10 @@ class PayController extends Controller
         $pay->save();
         return redirect()->route('pay.sujects');
     }
+
+    public function export()
+    {
+        $datas = Pay::all();
+        return Excel::download(new PayExport($datas), 'pay.xlsx');
+    }
 }
