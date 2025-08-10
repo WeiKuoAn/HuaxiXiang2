@@ -1099,7 +1099,9 @@ class PayDataController extends Controller
 
         // 支付類別篩選
         if (isset($filters['pay']) && $filters['pay'] != "null" && $filters['pay']) {
-            $query->where('pay_id', $filters['pay']);
+            $query->whereHas('pay_items', function($q) use ($filters) {
+                $q->where('pay_id', $filters['pay']);
+            });
         }
 
         // 使用者篩選
