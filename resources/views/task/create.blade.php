@@ -5,7 +5,19 @@
     <link href="{{ asset('assets/libs/dropzone/dropzone.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/libs/select2/select2.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/libs/flatpickr/flatpickr.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/libs/selectize/selectize.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- third party css end -->
+    
+    <style>
+        .selectize-control {
+            min-height: 80px !important;
+            height: auto !important;
+        }
+        .selectize-input {
+            min-height: 80px !important;
+            height: auto !important;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -62,8 +74,8 @@
                                 </div>
                                 <div class="col-md-12 mb-3">
                                     <label>指派給</label>
-                                    <select name="assigned_to" class="form-select">
-                                        <option value="">不指定</option>
+                                    <select name="assigned_to[]" id="assigned_to_select" class="form-select" multiple style="min-height: 150px; height: 150px;">
+                                        <option value="0">不指定（大家都可以完成）</option>
                                         @foreach($users as $user)
                                             <option value="{{ $user->id }}">{{ $user->name }}</option>
                                         @endforeach
@@ -107,9 +119,36 @@
     <script src="{{ asset('assets/libs/dropzone/dropzone.min.js') }}"></script>
     <script src="{{ asset('assets/libs/select2/select2.min.js') }}"></script>
     <script src="{{ asset('assets/libs/flatpickr/flatpickr.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/selectize/selectize.min.js') }}"></script>
     <!-- third party js ends -->
 
     <!-- demo app -->
     <script src="{{ asset('assets/js/pages/create-project.init.js') }}"></script>
     <!-- end demo js-->
+
+    <script>
+        $(function() {
+            // 多選 select 初始化（Selectize）
+            if ($('#assigned_to_select').length && typeof $.fn.selectize === 'function') {
+                $('#assigned_to_select').selectize({
+                    plugins: ['remove_button'],
+                    create: false,
+                    sortField: 'text',
+                    placeholder: '可多選被指派者'
+                });
+                
+                // 確保 Selectize 容器也有正確的高度
+                setTimeout(function() {
+                    $('#assigned_to_select').next('.selectize-control').css({
+                        'min-height': '150px',
+                        'height': 'auto'
+                    });
+                    $('.selectize-dropdown').css('max-height', '200px');
+                }, 100);
+            } else {
+                // 後備方案：啟用原生多選提示
+                $('#assigned_to_select').attr('multiple', 'multiple');
+            }
+        });
+    </script>
 @endsection

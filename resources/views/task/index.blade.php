@@ -87,12 +87,11 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-centered table-nowrap table-hover mb-0">
+                            <table class="table table-borderless table-hover table-nowrap table-centered m-0">
                                 <thead class="table-light">
-                                    <tr>
+                                    <tr align="center">
                                         <th>立案人</th>
                                         <th>待辦事項</th>
-                                        {{-- <th>待辦開始日期</th> --}}
                                         <th>指派給</th>
                                         <th>預計結束日期</th>
                                         <th>待辦事項說明</th>
@@ -103,23 +102,48 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($datas as $key => $data)
-                                        <tr>
+                                        <tr align="center" style="border-bottom: 1px solid #dee2e6;">
                                             <td>{{ $data->created_users->name ?? '' }}</td>
                                             <td>{{ $data->title }}</td>
-                                            <td>{{ $data->assigned_users->name ?? '' }}</td>
-                                            <td>{{ substr($data->end_date, 0, 16) }}</td>
+                                            <td>
+                                                @foreach($data->items as $item)
+                                                    <div class="d-flex align-items-center mb-1">
+                                                        <span class="me-2">
+                                                            @if($item->user_id == null)
+                                                                不指定（大家都可以完成）
+                                                            @else
+                                                                {{ $item->user->name ?? '' }}
+                                                            @endif
+                                                        </span>
+                                                        @if($item->status == 1)
+                                                            <span class="badge bg-success">已完成</span>
+                                                        @else
+                                                            <span class="badge bg-warning">未完成</span>
+                                                        @endif
+                                                    </div>
+                                                @endforeach
+                                            </td>
+                                            <td>{{ optional($data->end_date)->format('Y-m-d H:i') }}</td>
                                             <td>{{ $data->description }}</td>
                                             <td>
-                                                @if ($data->status == '1')
-                                                    已完成
+                                                @php
+                                                    $completedCount = $data->items->where('status', 1)->count();
+                                                    $totalCount = $data->items->count();
+                                                @endphp
+                                                @if($totalCount > 0)
+                                                    @if($completedCount == $totalCount)
+                                                        <span class="badge bg-success">全部完成</span>
+                                                    @else
+                                                        <span class="badge bg-warning">{{ $completedCount }}/{{ $totalCount }}</span>
+                                                    @endif
                                                 @else
-                                                    <b style="color:red;">未完成</b>
+                                                    <span class="badge bg-secondary">無指派</span>
                                                 @endif
                                             </td>
                                             <td>
                                                 @if (isset($data->close_users))
                                                     {{ $data->close_users->name }} /
-                                                    {{ substr($data->updated_at, 0, 16) }}
+                                                    {{ optional($data->updated_at)->format('Y-m-d H:i') }}
                                                 @endif
                                             </td>
                                             <td>

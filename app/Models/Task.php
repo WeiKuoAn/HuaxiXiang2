@@ -50,4 +50,14 @@ class Task extends Model
     {
         return $this->belongsTo('App\Models\User', 'assigned_to', 'id');
     }
+
+    public function items()
+    {
+        return $this->hasMany(TaskItem::class);
+    }
+
+    public function assignees()
+    {
+        return $this->belongsToMany(User::class, 'task_items');
+    }
 }
