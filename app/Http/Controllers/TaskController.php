@@ -21,10 +21,12 @@ class TaskController extends Controller
         $assigned_to = $request->input('assigned_to');
 
         // 如果有 status 篩選
-        if ($status !== null) {
+        if ($status !== null && $status !== '' && $status !== 'all') {
             $datas = Task::where('status', $status);
+        } elseif ($status === 'all') {
+            $datas = Task::whereIn('status', [0, 1]); // 選擇全部時，查詢所有狀態
         } else {
-            $datas = Task::where('status', '0'); // 如果沒有 status 篩選，就查詢所有任務
+            $datas = Task::where('status', 0); // 如果沒有 status 篩選，預設查詢未完成任務
         }
 
         // 如果有 title 篩選

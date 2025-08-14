@@ -90,7 +90,7 @@
                                         @php
                                             $hasUnassignedItem = $data->items->where('user_id', null)->count() > 0;
                                         @endphp
-                                        <option value="0" {{ $hasUnassignedItem ? 'selected' : '' }}>不指定（大家都可以完成）</option>
+                                        <option value="0" {{ $hasUnassignedItem ? 'selected' : '' }}>公司全體</option>
                                         @foreach ($users as $user)
                                             @php
                                                 $isSelected = $data->items->where('user_id', $user->id)->count() > 0;

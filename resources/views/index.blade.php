@@ -163,7 +163,13 @@
                                         <td>
                                             @foreach($task->items as $item)
                                                 <div class="d-flex align-items-center mb-1">
-                                                    <span class="me-2">{{ $item->user->name ?? '' }}</span>
+                                                    <span class="me-2">
+                                                        @if($item->user_id == null)
+                                                            不指定（大家都可以完成）
+                                                        @else
+                                                            {{ $item->user->name ?? '' }}
+                                                        @endif
+                                                    </span>
                                                     @if($item->status == 1)
                                                         <span class="badge bg-success">已完成</span>
                                                     @else

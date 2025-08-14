@@ -47,10 +47,10 @@
                                     <div class="me-3">
                                         <label for="status" class="form-label">狀態</label>
                                         <select name="status" class="form-select" onchange="this.form.submit()">
-                                            <option value="" selected>全部</option>
+                                            <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>全部</option>
                                             <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>已完成
                                             </option>
-                                            <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>未完成
+                                            <option value="0" {{ request('status') === null || request('status') === '' || request('status') == '0' ? 'selected' : '' }}>未完成
                                             </option>
                                         </select>
                                     </div>
@@ -91,8 +91,8 @@
                                 <thead class="table-light">
                                     <tr align="center">
                                         <th>立案人</th>
-                                        <th>待辦事項</th>
                                         <th>指派給</th>
+                                        <th>待辦事項</th>
                                         <th>預計結束日期</th>
                                         <th>待辦事項說明</th>
                                         <th>狀態</th>
@@ -104,7 +104,6 @@
                                     @foreach ($datas as $key => $data)
                                         <tr align="center" style="border-bottom: 1px solid #dee2e6;">
                                             <td>{{ $data->created_users->name ?? '' }}</td>
-                                            <td>{{ $data->title }}</td>
                                             <td>
                                                 @foreach($data->items as $item)
                                                     <div class="d-flex align-items-center mb-1">
@@ -123,6 +122,7 @@
                                                     </div>
                                                 @endforeach
                                             </td>
+                                            <td>{{ $data->title }}</td>
                                             <td>{{ optional($data->end_date)->format('Y-m-d H:i') }}</td>
                                             <td>{{ $data->description }}</td>
                                             <td>
