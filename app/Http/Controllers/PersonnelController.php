@@ -233,8 +233,7 @@ class PersonnelController extends Controller
         if ($user_entry_date != null) {
             $today = date('Y-m-d', strtotime(Carbon::now()->locale('zh-tw')));
             $startDate = Carbon::parse($user_entry_date);  // 將起始日期字串轉換為 Carbon 日期物件
-            $endDate = Carbon::parse($today);  // 將結束日期字串轉換為 Carbon 日期物件
-
+            
             // 如果有提供 user_id，檢查是否有年資暫停記錄
             if ($user_id) {
                 $pauseRecords = SeniorityPauses::where('user_id', $user_id)
@@ -242,28 +241,38 @@ class PersonnelController extends Controller
                     ->orderBy('pause_date')
                     ->get();
 
-                $totalPauseDays = 0;
-                foreach ($pauseRecords as $pause) {
-                    $pauseStart = Carbon::parse($pause->pause_date);
-                    $pauseEnd = $pause->resume_date ? Carbon::parse($pause->resume_date) : $endDate;
-
-                    // 計算暫停期間的天數
-                    $pauseDays = $pauseStart->diffInDays($pauseEnd);
-                    $totalPauseDays += $pauseDays;
+                if ($pauseRecords->count() > 0) {
+                    // 如果有暫停記錄，年資計算到第一個暫停日期
+                    $firstPauseDate = Carbon::parse($pauseRecords->first()->pause_date);
+                    $endDate = $firstPauseDate;
+                } else {
+                    // 沒有暫停記錄，計算到當前日期
+                    $endDate = Carbon::parse($today);
                 }
-
-                // 扣除暫停天數
-                $diffDays = $startDate->diffInDays($endDate) - $totalPauseDays;
             } else {
-                $diffDays = $startDate->diffInDays($endDate);  // 計算年數差距
+                $endDate = Carbon::parse($today);  // 計算年數差距
             }
 
-            $diffYears = $diffDays / 365;
-            $diffYears = round($diffYears, 2);
+            $diffDays = $startDate->diffInDays($endDate);
+
+            // 計算年數和月數
+            $years = floor($diffDays / 365);
+            $remainingDays = $diffDays % 365;
+            $months = floor($remainingDays / 30);
+            
+            // 格式化輸出
+            if ($years > 0 && $months > 0) {
+                return $years . '年' . $months . '個月';
+            } elseif ($years > 0) {
+                return $years . '年';
+            } elseif ($months > 0) {
+                return $months . '個月';
+            } else {
+                return '未滿1個月';
+            }
         } else {
-            $diffYears = 0;
+            return '未滿1個月';
         }
-        return $diffYears;
     }
 
     public function other_holidays(Request $request)
