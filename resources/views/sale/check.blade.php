@@ -65,7 +65,11 @@
                         </div>
                         <div class="mb-3 col-md-4">
                             <label for="sale_on" class="form-label">單號<span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="sale_on" name="sale_on" value="{{ $data->sale_on }}" required  readonly >
+                            <div class="input-group">
+                                <span class="input-group-text">No.</span>
+                                <input type="text" class="form-control" id="sale_on" name="sale_on" value="{{ $data->sale_on }}" required placeholder="請輸入數字" pattern="[0-9]+" title="請只輸入數字">
+                            </div>
+                            <div id="sale_on_feedback" class="mt-1"></div>
                         </div>
                         <div class="mb-3 col-md-4">
                             <label for="sale_date" class="form-label">日期<span class="text-danger">*</span></label>
@@ -997,7 +1001,13 @@
         console.log(total);
     }
 
-   
+   // 頁面載入時移除單號的 "No." 前綴
+   $(document).ready(function() {
+            let saleOnValue = $('#sale_on').val();
+            if (saleOnValue && saleOnValue.startsWith('No.')) {
+                $('#sale_on').val(saleOnValue.replace('No.', ''));
+            }
+        });
 
 
     $( "#cust_name_q" ).keydown(function() {
@@ -1051,30 +1061,6 @@
             $("table.prom-list tbody").append(newRow);
         });
         $.ajaxSetup({ headers: { 'csrftoken' : '{{ csrf_token() }}' } });
+        
 </script>
-
-{{-- <script type="text/javascript">
-    
-    $(document).ready(function() {
-  $("#your-form").submit(function(event) {
-    event.preventDefault(); // 阻止預設的表單提交行為
-    var formData = $(this).serialize(); // 將表單數據序列化為字串
-    
-    // 使用AJAX發送表單數據
-    $.ajax({
-      url: '{{ route('sale.data.create') }}',
-      type: "POST",
-      data: formData,
-      success: function(response) {
-        // 請求成功的處理邏輯
-      },
-      error: function(xhr, status, error) {
-        // 請求失敗的處理邏輯
-      }
-    });
-  });
-});
-
-</script> --}}
-<!-- end demo js-->
 @endsection

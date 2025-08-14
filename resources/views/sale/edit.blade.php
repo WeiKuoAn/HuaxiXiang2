@@ -74,8 +74,10 @@
                                 </div>
                                 <div class="mb-3 col-md-4">
                                     <label for="sale_on" class="form-label">單號<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="sale_on" name="sale_on"
-                                        value="{{ $data->sale_on }}" required>
+                                    <div class="input-group">
+                                        <span class="input-group-text">No.</span>
+                                        <input type="text" class="form-control" id="sale_on" name="sale_on" value="{{ $data->sale_on }}" required placeholder="請輸入數字" pattern="[0-9]+" title="請只輸入數字">
+                                    </div>
                                     <div id="sale_on_feedback" class="mt-1"></div>
                                 </div>
                                 <div class="mb-3 col-md-4">
@@ -111,7 +113,7 @@
                                 <div class="mb-3 col-md-4 not_final_show not_memorial_show">
                                     <label for="kg" class="form-label">公斤數<span
                                             class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="kg" name="kg"
+                                    <input type="number" class="form-control" id="kg" name="kg" min="0" step="0.01"
                                         value="{{ $data->kg }}">
                                 </div>
                                 <div class="mb-3 col-md-4 not_final_show not_memorial_show">
@@ -175,7 +177,7 @@
                                 <div class="mb-3 col-md-4 not_final_show not_memorial_show">
                                     <label for="plan_price" class="form-label">方案價格<span
                                             class="text-danger">*</span></label>
-                                    <input type="text" class="form-control total_number" id="plan_price"
+                                    <input type="number" class="form-control total_number" id="plan_price"
                                         name="plan_price" value="{{ $data->plan_price }}">
                                 </div>
                                 <div class="mb-3 col-md-4" id="suit_field" style="display: none;">
@@ -642,13 +644,13 @@
                                 <div class="mb-3 col-md-4" id="cash_price_div">
                                     <label for="pay_price" class="form-label">現金收款<span
                                             class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="cash_price" name="cash_price"
+                                    <input type="number" class="form-control" id="cash_price" name="cash_price"
                                         value="{{ $data->cash_price }}">
                                 </div>
                                 <div class="mb-3 col-md-4" id="transfer_price_div">
                                     <label for="pay_price" class="form-label">匯款收款<span
                                             class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="transfer_price" name="transfer_price"
+                                    <input type="number" class="form-control" id="transfer_price" name="transfer_price"
                                         value="{{ $data->transfer_price }}">
                                 </div>
                                 <div class="mb-3 col-md-4" id="transfer_channel_div">
@@ -665,13 +667,13 @@
                                 <div class="mb-3 col-md-4" id="transfer_number_div">
                                     <label for="pay_price" class="form-label">匯款後四碼<span
                                             class="text-danger"></span></label>
-                                    <input type="text" class="form-control" id="transfer_number"
+                                    <input type="number" class="form-control" id="transfer_number"
                                         name="transfer_number" value="{{ $data->transfer_number }}">
                                 </div>
                                 <div class="mb-3 col-md-4">
                                     <label for="pay_price" class="form-label">本次收款<span
                                             class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="pay_price" name="pay_price"
+                                    <input type="number" class="form-control" id="pay_price" name="pay_price"
                                         value="{{ $data->pay_price }}" required>
                                 </div>
                             </div>
@@ -1568,8 +1570,21 @@
         let saleOnCheckTimer;
         let isSaleOnValid = true; // 追蹤單號是否有效
 
+        // 頁面載入時移除單號的 "No." 前綴
+        $(document).ready(function() {
+            let saleOnValue = $('#sale_on').val();
+            if (saleOnValue && saleOnValue.startsWith('No.')) {
+                $('#sale_on').val(saleOnValue.replace('No.', ''));
+            }
+        });
+
         $('#sale_on').on('input', function() {
-            const saleOn = $(this).val().trim();
+            // 只允許輸入數字
+            let value = $(this).val();
+            value = value.replace(/[^0-9]/g, '');
+            $(this).val(value);
+            
+            const saleOn = value.trim();
             const feedback = $('#sale_on_feedback');
             const currentId = {{ $data->id }}; // 當前記錄的ID
 
@@ -1582,13 +1597,6 @@
             // 如果輸入為空，不進行檢查
             if (!saleOn) {
                 isSaleOnValid = true;
-                return;
-            }
-
-            // 檢查單號格式（必須包含數字）
-            if (!/\d/.test(saleOn)) {
-                feedback.html('<small class="text-warning">請輸入包含數字的單號</small>').addClass('text-warning');
-                isSaleOnValid = false;
                 return;
             }
 

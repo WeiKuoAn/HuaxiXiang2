@@ -152,7 +152,7 @@ class SaleDataController extends Controller
     public function check_sale_on(Request $request)
     {
         if ($request->ajax()) {
-            $sale_on = $request->sale_on;
+            $sale_on = "No.".$request->sale_on;
             $current_id = $request->current_id ?? null;
 
             // 正規化單號格式，統一轉換為小寫並移除空格
@@ -349,7 +349,7 @@ class SaleDataController extends Controller
     {
         // 使用正則表達式匹配No.後的數字(客戶)
         $sale = new Sale();
-        $sale->sale_on = $request->sale_on;
+        $sale->sale_on = "No.".$request->sale_on;
         $sale->user_id = Auth::user()->id;
         $sale->sale_date = $request->sale_date;
         $sale->type_list = $request->type_list;
@@ -1202,7 +1202,7 @@ class SaleDataController extends Controller
     public function update(Request $request, $id)
     {
         $sale = Sale::where('id', $id)->first();
-        $sale->sale_on = $request->sale_on;
+        $sale->sale_on = "No.".$request->sale_on;
         $sale->type_list = $request->type_list;
         $sale->sale_date = $request->sale_date;
         $sale->customer_id = $request->cust_name_q;

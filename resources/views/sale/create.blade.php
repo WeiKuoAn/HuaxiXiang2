@@ -72,7 +72,10 @@
                                 </div>
                                 <div class="mb-3 col-md-4">
                                     <label for="sale_on" class="form-label">單號<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="sale_on" name="sale_on" required>
+                                    <div class="input-group">
+                                        <span class="input-group-text">No.</span>
+                                        <input type="text" class="form-control" id="sale_on" name="sale_on" required placeholder="請輸入數字" pattern="[0-9]+" title="請只輸入數字">
+                                    </div>
                                     <div id="sale_on_feedback" class="mt-1"></div>
                                 </div>
                                 <div class="mb-3 col-md-4">
@@ -103,7 +106,7 @@
                                 <div class="mb-3 col-md-4 not_final_show not_memorial_show">
                                     <label for="kg" class="form-label">公斤數<span
                                             class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="kg" name="kg">
+                                    <input type="number" class="form-control" id="kg" name="kg" min="0" step="0.01">
                                 </div>
                                 <div class="mb-3 col-md-4 not_final_show not_memorial_show">
                                     <label for="type" class="form-label">案件來源<span
@@ -430,12 +433,12 @@
                                 <div class="mb-3 col-md-4" id="cash_price_div">
                                     <label for="pay_price" class="form-label">現金收款<span
                                             class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="cash_price" name="cash_price">
+                                    <input type="number" class="form-control" id="cash_price" name="cash_price">
                                 </div>
                                 <div class="mb-3 col-md-4" id="transfer_price_div">
                                     <label for="pay_price" class="form-label">匯款收款<span
                                             class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="transfer_price"
+                                    <input type="number" class="form-control" id="transfer_price"
                                         name="transfer_price">
                                 </div>
                                 <div class="mb-3 col-md-4" id="transfer_channel_div">
@@ -449,13 +452,13 @@
                                 </div>
                                 <div class="mb-3 col-md-4" id="transfer_number_div">
                                     <label for="pay_price" class="form-label">匯款後四碼</label>
-                                    <input type="text" class="form-control" id="transfer_number"
+                                    <input type="number" class="form-control" id="transfer_number"
                                         name="transfer_number">
                                 </div>
                                 <div class="mb-3 col-md-4" id="this_price_div">
                                     <label for="pay_price" class="form-label">本次收款<span
                                             class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="pay_price" name="pay_price" required>
+                                    <input type="number" class="form-control" id="pay_price" name="pay_price" required>
                                 </div>
 
                             </div>
@@ -1367,7 +1370,12 @@
         let isSaleOnValid = true; // 追蹤單號是否有效
         
         $('#sale_on').on('input', function() {
-            const saleOn = $(this).val().trim();
+            // 只允許輸入數字
+            let value = $(this).val();
+            value = value.replace(/[^0-9]/g, '');
+            $(this).val(value);
+            
+            const saleOn = value.trim();
             const feedback = $('#sale_on_feedback');
             
             // 清除之前的計時器
@@ -1379,13 +1387,6 @@
             // 如果輸入為空，不進行檢查
             if (!saleOn) {
                 isSaleOnValid = true;
-                return;
-            }
-            
-            // 檢查單號格式（必須包含數字）
-            if (!/\d/.test(saleOn)) {
-                feedback.html('<small class="text-warning">請輸入包含數字的單號</small>').addClass('text-warning');
-                isSaleOnValid = false;
                 return;
             }
             

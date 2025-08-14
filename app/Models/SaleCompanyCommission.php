@@ -18,11 +18,22 @@ class SaleCompanyCommission extends Model
         'company_id',
         'plan_price',
         'commission',
+        'cooperation_price',
     ];
 
     public function company_name()
     {
         return $this->hasOne('App\Models\Customer', 'id', 'company_id');
+    }
+
+    public function self_name()
+    {
+        return $this->hasOne('App\Models\User', 'id', 'company_id');
+    }
+
+    public function user_name()
+    {
+        return $this->hasOne('App\Models\User', 'id', 'company_id');
     }
 
     public function proms()
