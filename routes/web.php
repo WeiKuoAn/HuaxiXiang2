@@ -557,6 +557,7 @@ Route::group(['prefix' => '/'], function () {
 
     // 管理權限報表 - 主管以上可訪問
     Route::middleware(['auth', 'rpg.flexible:management'])->group(function () {
+        Route::get('/rpg/rpg12', [Rpg12Controller::class, 'rpg12'])->name('rpg12');
         Route::get('/rpg/rpg01', [Rpg01Controller::class, 'rpg01'])->name('rpg01');
         Route::get('/rpg/rpg01/detail/{date}/{plan_id}', [Rpg01Controller::class, 'detail'])->name('rpg01.detail');
         Route::get('/rpg/rpg04', [Rpg04Controller::class, 'rpg04'])->name('rpg04');
@@ -585,7 +586,6 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg05', [Rpg05Controller::class, 'rpg05'])->name('rpg05');
         Route::get('/rpg/rpg06/export', [Rpg06Controller::class, 'export'])->name('rpg06.export');  // 舊法會查詢
         Route::get('/rpg/rpg11', [Rpg11Controller::class, 'rpg11'])->name('rpg11');
-        Route::get('/rpg/rpg12', [Rpg12Controller::class, 'rpg12'])->name('rpg12');
         Route::get('/rpg/rpg14', [Rpg14Controller::class, 'rpg14'])->name('rpg14');
         Route::get('/rpg/rpg14/detail/{date}/{source_code}', [Rpg14Controller::class, 'detail'])->name('rpg14.detail');
         Route::get('/rpg/rpg14/month/detail/{month}/{source_code}', [Rpg14Controller::class, 'month_detail'])->name('rpg14.month.detail');

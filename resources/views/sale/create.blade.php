@@ -116,16 +116,11 @@
                                     </select>
                                 </div>
                                 <div class="mb-3 col-md-4" id="source_company">
-                                    <label for="source_company_id" class="form-label">來源公司名稱<span
+                                    <label for="source_company_name_q" class="form-label">來源公司名稱<span
                                             class="text-danger">*</span></label>
                                     <select class="form-control" data-toggle="select2" data-width="100%"
                                         name="source_company_name_q" id="source_company_name_q">
                                         <option value="">請選擇...</option>
-                                        @foreach ($source_companys as $source_company)
-                                            <option value="{{ $source_company->id }}">
-                                                （{{ $source_company->group->name }}）{{ $source_company->name }}（{{ $source_company->mobile }}）
-                                            </option>
-                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="mb-3 col-md-4  not_memorial_show plan">
@@ -141,7 +136,7 @@
                                 <div class="mb-3 col-md-4 not_final_show not_memorial_show plan_price">
                                     <label for="plan_price" class="form-label">方案價格<span
                                             class="text-danger">*</span></label>
-                                    <input type="text" class="form-control total_number" id="plan_price"
+                                    <input type="number" class="form-control total_number" id="plan_price"
                                         name="plan_price">
                                 </div>
                                 <div class="mb-3 col-md-4" id="final_price">
@@ -183,15 +178,14 @@
                                     <div class="mb-1 mt-1">
                                         <div class="form-check" id="send_div">
                                             <input type="checkbox" class="form-check-input" id="send"
-                                                name="send" @if (isset($sale_change)) checked value="1" @endif>
+                                                name="send">
                                             <label class="form-check-label" for="send"><b>親送</b></label>
                                         </div>
                                     </div>
                                     <div class="mb-1 mt-1" id="connector_div">
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="connector_address"
-                                                name="connector_address"
-                                                @if (isset($sale_split)) checked value="1" @endif>
+                                                name="connector_address">
                                             <label class="form-check-label"
                                                 for="connector_address"><b>接體地址不為客戶地址</b></label>
                                         </div>
@@ -216,12 +210,11 @@
                                     <div class="mb-1 mt-1" id="connector_hospital_div">
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input"
-                                                id="connector_hospital_address" name="connector_hospital_address"
-                                                @if (isset($sale_split)) checked value="1" @endif>
+                                                id="connector_hospital_address" name="connector_hospital_address">
                                             <label class="form-check-label"
                                                 for="connector_hospital_address"><b>接體地址為醫院</b></label>
                                         </div>
-                                        <div class="mt-2 row" id="connector_hospital_address_div">
+                                        <div class="mt-1 row" id="connector_hospital_address_div">
                                             <div class="col-md-4">
                                                 <label for="source_company_id" class="form-label">接體地址<span
                                                         class="text-danger">*</span></label>
@@ -234,6 +227,13 @@
                                                         </option>
                                                     @endforeach
                                                 </select>
+                                            </div>
+                                        </div>
+                                        <div class="mb-1 mt-1">
+                                            <div class="form-check" id="cooperation_price_div">
+                                                <input type="checkbox" class="form-check-input" id="cooperation_price"
+                                                    name="cooperation_price">
+                                                <label class="form-check-label" for="cooperation_price"><b>院內價</b></label>
                                             </div>
                                         </div>
                                     </div>
@@ -293,28 +293,28 @@
                                                                 <option value="">請選擇</option>
                                                             </select>
                                                             {{-- <div class="row mt-1 prom-product-container" id="prom_product_{{ $i }}">
-                                                                <div class="col-3" id="souvenir_type_col_{{ $i }}" style="display:none;">
+                                                                <div class="col-3 mobile" id="souvenir_type_col_{{ $i }}" style="display:none;">
                                                                     <select id="product_souvenir_type_{{ $i }}"
-                                                                        class="form-select" name="product_souvenir_type[]">
+                                                                        class="form-select" name="product_souvenir_types[]">
                                                                         <option value="">請選擇</option>
                                                                         @foreach ($souvenir_types as $souvenir_type)
                                                                             <option value="{{ $souvenir_type->id }}">{{ $souvenir_type->name }}</option>
                                                                         @endforeach
                                                                     </select>
                                                                 </div>
-                                                                <div class="col-3" id="product_name_col_{{ $i }}" style="display:none;">
+                                                                <div class="col-3 mobile" id="product_name_col_{{ $i }}" style="display:none;">
                                                                     <input type="text" id="product_name_{{ $i }}" class="form-control" name="product_name[]" placeholder="請輸入商品名稱">
                                                                 </div>
-                                                                <div class="col-3" id="product_prom_col_{{ $i }}">
+                                                                <div class="col-3 mobile" id="product_prom_col_{{ $i }}">
                                                                     <select id="product_prom_{{ $i }}"
-                                                                        class="form-select" name="product_prom[]">
+                                                                        class="form-select" name="product_proms[]">
                                                                         <option value="">請選擇</option>
                                                                     </select>
                                                                 </div>
-                                                                <div class="col-3" id="product_num_col_{{ $i }}">
+                                                                <div class="col-3 mobile" id="product_num_col_{{ $i }}">
                                                                     <input class="form-control" type="number" id="product_num_{{$i}}" name="product_num[]" value="1" min="1">
                                                                 </div>
-                                                                <div class="col-3" id="product_comment_col_{{ $i }}">
+                                                                <div class="col-3 mobile" id="product_comment_col_{{ $i }}">
                                                                     <input class="form-control" type="text" id="product_comment_{{$i}}" name="product_comment[]" placeholder="備註">
                                                                 </div>
                                                             </div> --}}
@@ -540,7 +540,7 @@
                             $('#product_num_col_' + idx).show().removeClass('col-3').addClass('col-4');
                             $('#product_comment_col_' + idx).show().removeClass('col-3').addClass('col-4');
                             // 填入商品下拉
-                            var html = '<select id="product_prom_' + idx + '" class="form-select" name="product_prom[]">';
+                            var html = '<select id="product_prom_' + idx + '" class="form-select" name="product_proms[]">';
                             html += '<option value="">請選擇</option>';
                             data.products.forEach(function(item) {
                                 html += '<option value="' + item.id + '">' + item.name + ' (' + item.price + ')</option>';
@@ -696,6 +696,17 @@
         });
         //親送結束
 
+        //院內價開始
+        cooperation_price = $('input[name="cooperation_price"]').val();
+        $("#cooperation_price").on("change", function() {
+            if ($(this).is(':checked')) {
+                $(this).val(1);
+            } else {
+                $(this).val(0);
+            }
+        });
+        //院內價結束
+
         //地址
         connector_address = $('input[name="connector_address"]').val();
         $("#connector_address").on("change", function() {
@@ -765,11 +776,37 @@
         $("#final_price").hide();
 
         $("#source_company").hide();
+        
+        // 載入指定類型的客戶
+        function loadCustomersByType(type) {
+            $.ajax({
+                url: '{{ route("customers.by-type") }}',
+                type: 'GET',
+                data: { type: type },
+                dataType: 'json',
+                success: function(data) {
+                    var customerSelect = $('#source_company_name_q');
+                    customerSelect.empty();
+                    customerSelect.html(data.html);
+                },
+                error: function(xhr, status, error) {
+                    console.error('載入客戶資料失敗:', error);
+                    var customerSelect = $('#source_company_name_q');
+                    customerSelect.empty();
+                    customerSelect.append('<option value="">載入失敗，請重試</option>');
+                }
+            });
+        }
+        
+        // 當案件來源改變時
         $('select[name="type"]').on('change', function() {
-            if ($(this).val() == 'H' || $(this).val() == 'B' || $(this).val() == 'Salon' || $(this).val() ==
-                'dogpark' || $(this).val() == 'G' || $(this).val() == 'other') {
+            var selectedType = $(this).val();
+            if (selectedType == 'H' || selectedType == 'B' || selectedType == 'Salon' || selectedType ==
+                'dogpark' || selectedType == 'G' || selectedType == 'other' || selectedType == 'self') {
                 $("#source_company").show(300);
                 $("#source_company_name_q").prop('required', true);
+                // 載入對應類型的客戶
+                loadCustomersByType(selectedType);
             } else {
                 $("#source_company").hide(300);
                 $("#source_company_name_q").prop('required', false);
@@ -1272,15 +1309,18 @@
             var promProductHtml = '';
             promProductHtml += '<div class="row mt-1 prom-product-container" id="prom_product_' + $rowCount + '" style="display: none;">';
             promProductHtml += '<div class="col-3" id="souvenir_type_col_' + $rowCount + '" style="display:none;">';
-            promProductHtml += '<select id="product_souvenir_type_' + $rowCount + '" class="form-select" name="product_souvenir_type[]">';
+            promProductHtml += '<select id="product_souvenir_type_' + $rowCount + '" class="form-select" name="product_souvenir_types[]">';
             promProductHtml += '<option value="">請選擇</option>';
+            @foreach ($souvenir_types as $souvenir_type)
+            promProductHtml += '<option value="{{ $souvenir_type->id }}">{{ $souvenir_type->name }}</option>';
+            @endforeach
             promProductHtml += '</select>';
             promProductHtml += '</div>';
             promProductHtml += '<div class="col-3" id="product_name_col_' + $rowCount + '" style="display:none;">';
             promProductHtml += '<input type="text" id="product_name_' + $rowCount + '" class="form-control" name="product_name[]" placeholder="請輸入商品名稱">';
             promProductHtml += '</div>';
             promProductHtml += '<div class="col-3" id="product_prom_col_' + $rowCount + '">';
-            promProductHtml += '<select id="product_prom_' + $rowCount + '" class="form-select" name="product_prom[]">';
+            promProductHtml += '<select id="product_prom_' + $rowCount + '" class="form-select" name="product_proms[]">';
             promProductHtml += '<option value="">請選擇</option>';
             promProductHtml += '</select>';
             promProductHtml += '</div>';

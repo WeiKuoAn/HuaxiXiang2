@@ -72,6 +72,7 @@ class SaleDataController extends Controller
     {
         if ($request->ajax()) {
             $type = $request->type;
+            $selected_id = $request->selected_id ?? null;
             $group_id = '';
             if ($type == 'H') {
                 $group_id = 2;
@@ -100,7 +101,8 @@ class SaleDataController extends Controller
 
                 $output = '<option value="">請選擇...</option>';
                 foreach ($customers as $customer) {
-                    $output .= '<option value="' . $customer->id . '">';
+                    $selected = ($selected_id && $selected_id == $customer->id) ? ' selected' : '';
+                    $output .= '<option value="' . $customer->id . '"' . $selected . '>';
                     if ($type == 'self') {
                         $output .= '（員工）' . $customer->name . '（' . $customer->mobile . '）';
                     } else {
@@ -296,6 +298,26 @@ class SaleDataController extends Controller
         $souvenir_types = SouvenirType::where('status', 'up')->get();
         // dd($souvenirs);
         return view('sale.create')
+            ->with('products', $products)
+            ->with('sources', $sources)
+            ->with('plans', $plans)
+            ->with('customers', $customers)
+            ->with('source_companys', $source_companys)
+            ->with('suits', $suits)
+            ->with('souvenir_types', $souvenir_types);
+    }
+
+    public function create_gpt()
+    {
+        $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
+        $plans = Plan::where('status', 'up')->get();
+        $products = Product::where('status', 'up')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $customers = Customer::orderby('created_at', 'desc')->get();
+        $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
+        $suits = Suit::where('status', 'up')->get();
+        $souvenir_types = SouvenirType::where('status', 'up')->get();
+        // dd($souvenirs);
+        return view('sale.create_gpt')
             ->with('products', $products)
             ->with('sources', $sources)
             ->with('plans', $plans)
@@ -803,7 +825,18 @@ class SaleDataController extends Controller
         $sale_proms = Sale_prom::where('sale_id', $id)->get();
         $sale_company = SaleCompanyCommission::where('sale_id', $id)->first();
         $sale_address = SaleAddress::where('sale_id', $id)->first();
-        $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
+        // 只載入當前已選擇的來源公司資料，其他透過 AJAX 載入
+        $source_companys = collect();
+        if ($sale_company && $sale_company->company_id) {
+            // 根據案件類型決定從哪個表載入資料
+            if ($data->type == 'self') {
+                // 如果是 self 類型，從 User 表載入
+                $source_companys = User::where('id', $sale_company->company_id)->get();
+            } else {
+                // 其他類型從 Customer 表載入
+                $source_companys = Customer::where('id', $sale_company->company_id)->get();
+            }
+        }
         $suits = Suit::where('status', 'up')->get();
         $sale_souvenirs = SaleSouvenir::where('sale_id', $id)->get();
         $souvenir_types = SouvenirType::where('status', 'up')->get();
@@ -829,7 +862,6 @@ class SaleDataController extends Controller
 
     public function check_show(Request $request, $id)
     {
-        $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
@@ -844,6 +876,16 @@ class SaleDataController extends Controller
         $sale_souvenirs = SaleSouvenir::where('sale_id', $id)->get();
         $souvenir_types = SouvenirType::where('status', 'up')->get();
         $souvenirs = Souvenir::where('status', 'up')->get();
+
+        // 根據類型載入對應的來源公司資料
+        $source_companys = collect();
+        if ($sale_company && $sale_company->company_id) {
+            if ($data->type == 'self') {
+                $source_companys = User::where('id', $sale_company->company_id)->get();
+            } else {
+                $source_companys = Customer::where('id', $sale_company->company_id)->get();
+            }
+        }
 
         // 获取上一个页面的 URL
         // 从_previous中获取user参数的值
@@ -895,7 +937,6 @@ class SaleDataController extends Controller
 
     public function sale_on_show($sale_on)
     {
-        $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
@@ -910,6 +951,16 @@ class SaleDataController extends Controller
         $sale_souvenirs = SaleSouvenir::where('sale_id', $data->id)->get();
         $souvenir_types = SouvenirType::where('status', 'up')->get();
         $souvenirs = Souvenir::where('status', 'up')->get();
+
+        // 根據類型載入對應的來源公司資料
+        $source_companys = collect();
+        if ($sale_company && $sale_company->company_id) {
+            if ($data->type == 'self') {
+                $source_companys = User::where('id', $sale_company->company_id)->get();
+            } else {
+                $source_companys = Customer::where('id', $sale_company->company_id)->get();
+            }
+        }
         return view('sale.check')
             ->with('data', $data)
             ->with('customers', $customers)
@@ -1341,7 +1392,6 @@ class SaleDataController extends Controller
     public function delete($id)
     {
         $souvenir_types = SouvenirType::where('status', 'up')->get();
-        $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
@@ -1352,6 +1402,19 @@ class SaleDataController extends Controller
         $sale_proms = Sale_prom::where('sale_id', $id)->get();
         $sale_company = SaleCompanyCommission::where('sale_id', $id)->first();
         $sale_address = SaleAddress::where('sale_id', $id)->first();
+        
+        // 根據案件類型決定從哪個表載入來源公司資料
+        $source_companys = collect();
+        if ($sale_company && $sale_company->company_id) {
+            if ($data->type == 'self') {
+                // 如果是 self 類型，從 User 表載入
+                $source_companys = User::where('id', $sale_company->company_id)->get();
+            } else {
+                // 其他類型從 Customer 表載入
+                $source_companys = Customer::where('id', $sale_company->company_id)->get();
+            }
+        }
+        
         $suits = Suit::where('status', 'up')->get();
         $souvenirs = Prom::where('type', 'D')->where('status', 'up')->orderby('seq', 'asc')->get();
         $sale_souvenirs = SaleSouvenir::where('sale_id', $id)->get();

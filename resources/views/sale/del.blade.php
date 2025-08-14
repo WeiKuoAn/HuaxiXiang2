@@ -127,6 +127,8 @@
                                         @if (isset($sale_company))
                                             @if (isset($sale_company->company_name))
                                                 （{{ $sale_company->company_name->name }}）
+                                            @elseif (isset($sale_company->self_name))
+                                                （{{ $sale_company->self_name->name }}）
                                             @else
                                                 <b style="color: red;">（來源公司須重新至拜訪管理新增公司資料）</b>
                                             @endif
@@ -135,7 +137,8 @@
                                     <input list="source_company_name_list_q" class="form-control"
                                         id="source_company_name_q" name="source_company_name_q"
                                         placeholder="請輸入醫院、禮儀社、美容院、繁殖場、狗園名稱"
-                                        @if (isset($sale_company)) value="{{ $sale_company->company_id }}" @endif>
+                                        @if (isset($sale_company)) 
+                                        value="@if (isset($sale_company))@if (isset($sale_company->company_name))（{{ $sale_company->company_name->name }}）@elseif (isset($sale_company->self_name))（{{ $sale_company->self_name->name }}）@else<b style="color: red;">（來源公司須重新至拜訪管理新增公司資料）</b>@endif @endif" @endif>
                                     <datalist id="source_company_name_list_q">
                                     </datalist>
                                 </div>
@@ -236,7 +239,11 @@
                                                 @foreach ($source_companys as $source_company)
                                                     <option value="{{ $source_company->id }}"
                                                         @if ($source_company->id == $data->hospital_address) selected @endif>
-                                                        （{{ $source_company->group->name }}）{{ $source_company->name }}（{{ $source_company->mobile }}）
+                                                        @if (isset($source_company->group) && $source_company->group)
+                                                            （{{ $source_company->group->name }}）{{ $source_company->name }}（{{ $source_company->mobile }}）
+                                                        @else
+                                                            {{ $source_company->name }}（{{ $source_company->mobile }}）
+                                                        @endif
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -953,7 +960,7 @@
         });
     
         type = $('select[name="type"]').val();
-        if(type == 'H' || type == 'B' || type == 'Salon' || type == 'G' || type == 'dogpark' || type == 'other'){
+        if(type == 'H' || type == 'B' || type == 'Salon' || type == 'G' || type == 'dogpark' || type == 'other' || type == 'self'){
             $("#source_company").show(300);
             $("#source_company_name_q").prop('required', true);
         }else{
@@ -962,7 +969,7 @@
         }
     
         $('select[name="type"]').on('change', function() {
-            if($(this).val() == 'H' || $(this).val() == 'B' || $(this).val() == 'Salon' || $(this).val() == 'G' || $(this).val() == 'dogpark' || $(this).val() == 'other'){
+            if($(this).val() == 'H' || $(this).val() == 'B' || $(this).val() == 'Salon' || $(this).val() == 'G' || $(this).val() == 'dogpark' || $(this).val() == 'other' || $(this).val() == 'self'){
                 $("#source_company").show(300);
                 $("#source_company_name_q").prop('required', true);
             }else{

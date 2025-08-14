@@ -102,16 +102,37 @@
                             </select>
                         </div>
                         <div class="mb-3 col-md-4" id="source_company">
-                            <label for="source_company_id" class="form-label">來源公司名稱<span class="text-danger">*</span></label>
-                            <select class="form-control" data-toggle="select2" data-width="100%" name="source_company_name_q" id="source_company_name_q">
-                                @foreach($source_companys as $source_company)
-                                    @if(isset($sale_company))
-                                        <option value="{{ $source_company->id }}" @if( $sale_company->company_id == $source_company->id) selected @endif>（{{$source_company->group->name}}）{{ $source_company->name }}（{{ $source_company->mobile }}）</option>
+                            <label for="source_company_id" class="form-label">來源公司名稱<span class="text-danger">*</span>
+                                @if (isset($sale_company))
+                                    @if($sale_company->type == "self")
+                                        （{{ $sale_company->self_name->name }}）
+                                    @elseif(isset($sale_company))
+                                        （{{ $sale_company->company_name->name }}）
                                     @else
-                                        <option value="">無</option>
+                                        <b style="color: red;">（來源公司須重新至拜訪管理新增公司資料）</b>
                                     @endif
-                                @endforeach
-                            </select>
+                                @endif
+                            </label>
+                            <select class="form-control" data-toggle="select2" data-width="100%"
+                                        name="source_company_name_q" id="source_company_name_q" disabled>
+                                        <option value="">請選擇...</option>
+                                        @if (isset($sale_company) && $sale_company->company_id)
+                                            @foreach ($source_companys as $source_company)
+                                                <option value="{{ $source_company->id }}"
+                                                    @if ($sale_company->company_id == $source_company->id) selected @endif>
+                                                    @if ($data->type == 'self')
+                                                        （員工）{{ $source_company->name }}（{{ $source_company->mobile }}）
+                                                    @else
+                                                        @if (isset($source_company->group) && $source_company->group)
+                                                            （{{ $source_company->group->name }}）{{ $source_company->name }}（{{ $source_company->mobile }}）
+                                                        @else
+                                                            {{ $source_company->name }}（{{ $source_company->mobile }}）
+                                                        @endif
+                                                    @endif
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
                         </div>
                         <div class="mb-3 col-md-4 not_memorial_show plan">
                             <label for="plan_id" class="form-label">方案選擇<span class="text-danger">*</span></label>
@@ -185,10 +206,16 @@
                                 <div class="mt-2 row" id="connector_hospital_address_div">
                                     <div class="col-md-4">
                                         <label for="source_company_id" class="form-label">接體地址<span class="text-danger">*</span></label>
-                                        <select class="form-control" data-toggle="select2" data-width="100%" name="hospital_address" id="hospital_address">
+                                        <select class="form-control" data-toggle="select2" data-width="100%" name="hospital_address" id="hospital_address" disabled>
                                             <option value="">請選擇...</option>
                                             @foreach($source_companys as $source_company)
-                                                <option value="{{ $source_company->id }}" @if($source_company->id == $data->hospital_address) selected @endif>（{{$source_company->group->name}}）{{ $source_company->name }}（{{ $source_company->mobile }}）</option>
+                                                <option value="{{ $source_company->id }}" @if($source_company->id == $data->hospital_address) selected @endif>
+                                                    @if (isset($source_company->group) && $source_company->group)
+                                                        （{{ $source_company->group->name }}）{{ $source_company->name }}（{{ $source_company->mobile }}）
+                                                    @else
+                                                        {{ $source_company->name }}（{{ $source_company->mobile }}）
+                                                    @endif
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -775,7 +802,7 @@
 
 
     type = $('select[name="type"]').val();
-    if(type == 'H' || type == 'B' || type == 'Salon' || type == 'G' || type == 'dogpark' || type == 'other'){
+    if(type == 'H' || type == 'B' || type == 'Salon' || type == 'G' || type == 'dogpark' || type == 'other' || type == 'self'){
         $("#source_company").show(300);
         $("#source_company_name_q").prop('required', true);
     }else{
@@ -784,13 +811,14 @@
     }
 
     $('select[name="type"]').on('change', function() {
-        if($(this).val() == 'H' || $(this).val() == 'B' || $(this).val() == 'Salon' || $(this).val() == 'G' || $(this).val() == 'dogpark' || $(this).val() == 'other'){
+        var selectedType = $(this).val();
+        if(selectedType == 'H' || selectedType == 'B' || selectedType == 'Salon' || selectedType == 'G' || selectedType == 'dogpark' || selectedType == 'other' || selectedType == 'self'){
             $("#source_company").show(300);
             $("#source_company_name_q").prop('required', true);
         }else{
             $("#source_company").hide(300);
             $("#source_company_name_q").prop('required', false);
-            $("#source_company_name_q").val('null');
+            $("#source_company_name_q").val('');
         }
     });
 
