@@ -32,8 +32,8 @@
                                         <td>日期</td>
                                         <td>客戶名稱</td>
                                         <td>寵物名稱</td>
-                                        <td>後續處理A</td>
-                                        <td>後續處理B</td>
+                                        <td>安葬方式</td>
+                                        <td>後續處理</td>
                                     </tr>
                                 </thead>
                                 <tbody>
