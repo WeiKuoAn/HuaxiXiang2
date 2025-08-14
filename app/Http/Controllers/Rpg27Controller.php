@@ -23,6 +23,10 @@ class Rpg27Controller extends Controller
             $search_month = $request->month;
             $firstDay = Carbon::createFromDate($search_year, $search_month, 1)->firstOfMonth();
             $lastDay = Carbon::createFromDate($search_year, $search_month, 1)->lastOfMonth();
+        } elseif (isset($request->year)) {
+            $search_year = $request->year;
+            $firstDay = Carbon::createFromDate($search_year, 1, 1)->startOfYear();
+            $lastDay = Carbon::createFromDate($search_year, 12, 31)->endOfYear();
         } else {
             $firstDay = Carbon::now()->startOfYear();
             $lastDay = Carbon::now()->endOfYear();
@@ -84,7 +88,8 @@ class Rpg27Controller extends Controller
             foreach ($sales as $sale) {
                 if (!isset($datas[$source->code]['items'][$sale->company_id])) {
                     $datas[$source->code]['items'][$sale->company_id] = $sale->company_name;
-                    $datas[$source->code]['items'][$sale->company_id]['name'] = Customer::find($sale->company_id)->name;
+                    $customer = Customer::find($sale->company_id);
+                    $datas[$source->code]['items'][$sale->company_id]['name'] = $customer ? $customer->name : $sale->company_id;
                     $datas[$source->code]['items'][$sale->company_id]['count'] = 1;
                 } else {
                     $datas[$source->code]['items'][$sale->company_id]['count']++;
