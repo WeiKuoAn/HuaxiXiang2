@@ -84,7 +84,7 @@
                                 </div>
 
                                 <div class="mb-3 col-md-4">
-                                    <label for="seq" class="form-label">對應安葬處理/後續處理</label>
+                                    <label for="seq" class="form-label">商品排序</label>
                                     <input type="number" class="form-control" id="seq" name="seq"
                                         value="{{ $data->seq }}">
                                 </div>
