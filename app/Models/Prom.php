@@ -14,11 +14,17 @@ class Prom extends Model
         'type',
         'name',
         'status',
-        'seq'
+        'seq',
+        'is_custom_product'
     ];
 
     public function prom_type()
     {
         return $this->belongsTo('App\Models\PromType', 'type', 'code');
+    }
+
+    public function product_datas()
+    {
+        return $this->hasMany('App\Models\Product', 'prom_id', 'id');
     }
 }

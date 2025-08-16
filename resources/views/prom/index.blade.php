@@ -74,7 +74,7 @@
                                 <tr>
                                     <td>{{ $key+1 }}</td>
                                     <td>{{ $data->prom_type->name }}</td>
-                                    <td>{{ $data->name }}</td>
+                                    <td>{{ $data->name }} @if($data->is_custom_product == '1') <span class="badge bg-primary">客製化</span> @endif</td>
                                     <td>{{ $data->seq }}</td>
                                     <td>
                                         @if($data->status == "up") 啟用

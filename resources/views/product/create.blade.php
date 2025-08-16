@@ -78,6 +78,23 @@
                             <label for="seq" class="form-label">商品排序</label>
                             <input type="number" class="form-control" id="seq" name="seq" value="0">
                         </div>
+
+                         <div class="mb-3 col-md-4">
+                            <label for="promTypes" class="form-label">安葬處理/後續處理類別</label>
+                            <select id="promTypes" class="form-select" name="promTypes">
+                                <option value="" selected>請選擇...</option>
+                                @foreach($promTypes as $promType)
+                                    <option value="{{ $promType->code }}">{{ $promType->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mb-3 col-md-4">
+                            <label for="prom_id" class="form-label">安葬處理/後續處理細項</label>
+                            <select id="prom_id" class="form-select" name="prom_id">
+                                <option value="" selected>請選擇...</option>
+                            </select>
+                        </div>
                         
                         {{-- <div class="mb-3 col-md-4">
                             <label for="alarm" class="form-label">警報數量</label>
@@ -244,6 +261,20 @@
 {{-- <script src="{{asset('assets/js/pages/foo-tables.init.js')}}"></script> --}}
 <script>
     $(document).ready(function(){
+
+        $('#promTypes').on('change', function() {
+            var promType = $(this).val();
+            $.ajax({
+                url: '{{ route('prom.search') }}',
+                data: { 'select_prom': promType },
+                success: function(data) {
+                    $('#prom_id').html(data);
+                    console.log(data);
+                }
+            });
+        });
+
+
         $(".ibtnAdd_prom").click(function(){
 
         $rowCount = $('table.prom-list tr').length - 1;

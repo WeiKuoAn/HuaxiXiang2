@@ -15,6 +15,7 @@ class Sale_prom extends Model
         'prom_type',
         'prom_id',
         'prom_total',
+        'comment'
     ];
 
     public function prom_name()
@@ -26,4 +27,10 @@ class Sale_prom extends Model
     {
         return $this->hasOne('App\Models\Sale','id','sale_id');
     }
+
+    public function souvenir()
+    {
+        return $this->hasOne(\App\Models\SaleSouvenir::class, 'sale_prom_id', 'id');
+    }
+
 }

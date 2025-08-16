@@ -85,7 +85,7 @@
                                                 <td>{{ $user->resign_date }}</td>
                                             @endif
                                             <td>{{ $user->mobile }}</td>
-                                            <td>{{ $datas[$user->id]['seniority'] }}年</td>
+                                            <td>{{ $datas[$user->id]['seniority'] }}</td>
                                             {{-- <td>
                                             @if ($datas[$user->id]['balance'] <= 0)
                                                 <span style="color:red;">{{ number_format($datas[$user->id]['balance']) }}</span>

@@ -12,9 +12,18 @@ class SaleSouvenir extends Model
 
     protected $fillable = [
         'sale_id',
-        'prom_id',
-        'name',
+        'sale_prom_id',
+        'souvenir_type',
+        'product_name',
+        'product_num',
         'total',
-        'shape'
+        'comment'
     ];
+
+    public function souvenir()
+    {
+        dd($this->sale_id); 
+        return $this->hasOne(\App\Models\SaleSouvenir::class, 'prom_id', 'prom_id')
+            ->where('sale_id', $this->sale_id);
+    }
 }

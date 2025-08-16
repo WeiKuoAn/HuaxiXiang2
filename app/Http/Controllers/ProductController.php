@@ -31,9 +31,25 @@ class ProductController extends Controller
 
     public function prom_product_search(Request $request)
     {
-        $query = $request->get('prom_id'); // 获取搜索关键字
-        $products = Product::where('prom_id', $query)->get(); // 根据关键字查询数据库
-        return response()->json($products);
+        $query = $request->get('prom_id'); // 获取 prom_id
+        if (empty($query)) {
+            return response()->json([
+                'products' => [],
+                'is_custom_product' => 0
+            ]);
+        }
+        $products = Product::where('prom_id', $query)->get(); // 查詢商品
+        $prom = \App\Models\Prom::find($query);
+        if ($products->count() > 0) {
+            return response()->json([
+                'products' => $products
+            ]);
+        } else {
+            return response()->json([
+                'products' => [],
+                'is_custom_product' => $prom ? $prom->is_custom_product : 0
+            ]);
+        }
     }
     /*ajax*/
 
@@ -293,6 +309,7 @@ class ProductController extends Controller
         } else {
             $data->restock = 1;
         }
+        $data->prom_id = $request->prom_id;
         $data->save();
         // dd($data->type);
         if ($request->type == 'combo' || $request->type == 'set') {
@@ -369,6 +386,7 @@ class ProductController extends Controller
         } else {
             $data->restock = 1;
         }
+        $data->prom_id = $request->prom_id;
         $data->save();
 
         if ($request->type == 'combo' || $request->type == 'set') {
@@ -418,5 +436,21 @@ class ProductController extends Controller
             }
         }
         return redirect()->route('product');
+    }
+
+    public function promProductSearch(Request $request)
+    {
+        $prom_id = $request->input('prom_id');
+        $prom = Prom::find($prom_id);
+
+        // 取得該 prom 對應的商品
+        $products = $prom ? $prom->products : collect();
+
+        // 回傳 blade 片段
+        return view('sale.partials.product_prom_select', [
+            'products' => $products,
+            'prom' => $prom,
+            'i' => $request->input('row_id', 0), // 若有 row_id 傳進來
+        ])->render();
     }
 }

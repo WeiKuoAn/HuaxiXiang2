@@ -25,12 +25,18 @@ class Product extends Model
         'status',
         'cost',
         'stock',
-        'restock'
+        'restock',
+        'prom_id'
     ];
 
     public function category_data()
     {
         return $this->hasOne('App\Models\Category', 'id', 'category_id');
+    }    
+
+    public function prom_data()
+    {
+        return $this->hasOne('App\Models\Prom', 'id', 'prom_id');
     }    
 
     // public function gdpaper_restock_num()

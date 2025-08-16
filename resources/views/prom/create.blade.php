@@ -55,6 +55,14 @@
                                     <input type="text" class="form-control" name="seq" value="0" required>
                                 </div>
                                 <div class="mb-3">
+                                    <label for="project-priority" class="form-label">是否為客製化商品？<span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-control" data-toggle="select" data-width="100%" name="is_custom_product">
+                                        <option value="1">是</option>
+                                        <option value="0">否</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
                                     <label for="project-priority" class="form-label">狀態<span
                                             class="text-danger">*</span></label>
 

@@ -42,7 +42,9 @@
                                     <select class="form-select my-1 my-lg-0" id="status-select" name="type" required>
                                         <option value="" selected>請選擇...</option>
                                         @foreach ($prom_types as $prom_type)
-                                            <option value="{{ $prom_type->code }}" @if( $data->type == $prom_type->code ) selected @endif>{{ $prom_type->name }}</option>
+                                            <option value="{{ $prom_type->code }}"
+                                                @if ($data->type == $prom_type->code) selected @endif>{{ $prom_type->name }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -55,6 +57,14 @@
                                     <label class="form-label">排序<span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="seq" value="{{ $data->seq }}"
                                         required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="project-priority" class="form-label">是否為客製化商品？<span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-control" data-toggle="select" data-width="100%" name="is_custom_product">
+                                        <option value="1" @if ($data->is_custom_product == '1') selected @endif>是</option>
+                                        <option value="0" @if ($data->is_custom_product == '0' || $data->is_custom_product == null) selected @endif>否</option>
+                                    </select>
                                 </div>
                                 <div class="mb-3">
                                     <label for="project-priority" class="form-label">狀態<span
