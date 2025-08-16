@@ -325,7 +325,7 @@ class ProductController extends Controller
             }
         }
 
-        return redirect()->route('product');
+        return redirect()->route('product.create');
 
         //圖片
         // dd($request);

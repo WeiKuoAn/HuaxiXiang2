@@ -76,7 +76,7 @@
 
                         <div class="mb-3 col-md-4">
                             <label for="seq" class="form-label">商品排序</label>
-                            <input type="number" class="form-control" id="seq" name="seq" value="0">
+                            <input type="number" class="form-control" id="seq" name="seq" value="999">
                         </div>
 
                          <div class="mb-3 col-md-4">
