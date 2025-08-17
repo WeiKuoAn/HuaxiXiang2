@@ -43,8 +43,8 @@
         @endif
 
         @if (Auth::user()->status == 0)<!--用戶是否啟用-->
-            {{-- @include('layouts.shared/all-left-sidebar') --}}
-            @if (Auth::user()->job_id == 1 || Auth::user()->job_id == 7)
+            @include('layouts.shared/all-left-sidebar')
+            {{-- @if (Auth::user()->job_id == 1 || Auth::user()->job_id == 7)
                 <!-- 老闆(1) 工程師(7)-->
                 @include('layouts.shared/admin-left-sidebar')
             @elseif(Auth::user()->job_id == 2)
@@ -70,7 +70,7 @@
                 @include('layouts.shared/leader-sale-left-sidebar')
             @else
                 @include('layouts.shared/sale-left-sidebar')
-            @endif
+            @endif --}}
         @endif
 
         <!-- ============================================================== -->
