@@ -35,6 +35,7 @@
                                 <thead>
                                     <tr align="center">
                                         <td>No</td>
+                                        <td>日期</td>
                                         <td>客戶名稱</td>
                                         <td>寵物名稱</td>
                                         @if ($type == 'gdpaper')
@@ -59,6 +60,7 @@
                                     @foreach ($datas as $key => $sale)
                                         <tr align="center">
                                             <td>{{ $key + 1 }}</td>
+                                            <td>{{ $sale->sale_date }}</td>
                                             <td>{{ $sale->cust_name->name }}</td>
                                             <td>{{ $sale->pet_name }}</td>
                                             @if ($type == 'gdpaper')
