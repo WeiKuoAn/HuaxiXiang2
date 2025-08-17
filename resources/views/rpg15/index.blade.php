@@ -1,6 +1,17 @@
 @extends('layouts.vertical', ['page_title' => '專員各單量統計'])
 
 @section('content')
+<style>
+     .total-row {
+         border-bottom: 4px solid #007bff;
+         background-color: #e3f2fd;
+         font-weight: bold;
+     }
+     .total-row td {
+         border-bottom: 4px solid #007bff;
+         background-color: #e3f2fd;
+     }
+ </style>
     <!-- Start Content-->
     <div class="container-fluid">
 
@@ -72,7 +83,22 @@
                                             <th>總單量</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    
+                                                                         <tbody>
+                                         <tr class="total-row">
+                                             <td>總計</td>
+                                            @foreach ($months as $key => $month)
+                                                <td>
+                                                    <span class=" bg-soft-light p-1"
+                                                            style="line-height: 35px;">個：{{ $sums[$key]['total_1'] }}單</span><br>
+                                                        <span class=" bg-soft-light p-1"
+                                                            style="line-height: 35px;">團：{{ $sums[$key]['total_2'] }}單</span><br>
+                                                        <span class=" bg-soft-light p-1"
+                                                            style="line-height: 35px;">浪：{{ $sums[$key]['total_3'] }}單</span>
+                                                    
+                                                </th>
+                                            @endforeach
+                                        </tr>
                                         @foreach ($datas as $data)
                                             <tr align="left">
                                                 <td>{{ $data['name'] }}</td>
@@ -96,20 +122,7 @@
                                                 </td>
                                             </tr>
                                         @endforeach
-                                        <tr>
-                                            <td>總計</td>
-                                            @foreach ($months as $key => $month)
-                                                <td>
-                                                    <span class=" bg-soft-light p-1"
-                                                            style="line-height: 35px;">個：{{ $sums[$key]['total_1'] }}單</span><br>
-                                                        <span class=" bg-soft-light p-1"
-                                                            style="line-height: 35px;">團：{{ $sums[$key]['total_2'] }}單</span><br>
-                                                        <span class=" bg-soft-light p-1"
-                                                            style="line-height: 35px;">浪：{{ $sums[$key]['total_3'] }}單</span>
-                                                    
-                                                </th>
-                                            @endforeach
-                                        </tr>
+                                        
                                     </tbody>
                                 </table>
                             </div>

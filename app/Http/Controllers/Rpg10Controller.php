@@ -25,7 +25,7 @@ class Rpg10Controller extends Controller
             $lastDay = Carbon::now()->lastOfMonth();;
         }
         //取得專員資料，並取得老闆和專員的job_id
-        $users = User::where('status', '0')->whereIn('job_id',[1,3,5,10])->get();
+        $users = User::whereIn('job_id',[1,3,5,10])->orderBy('status')->get();
         $datas = [];
         $sums = [];
         $sale_datas = DB::table('sale_data')

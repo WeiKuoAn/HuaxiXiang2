@@ -578,9 +578,14 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg21', [Rpg21Controller::class, 'rpg21'])->name('rpg21');
         Route::get('/rpg/rpg27', [Rpg27Controller::class, 'rpg27'])->name('rpg27');
         Route::get('/rpg/rpg14', [Rpg14Controller::class, 'rpg14'])->name('rpg14');
+        Route::get('/rpg/rpg23', [Rpg23Controller::class, 'rpg23'])->name('rpg23');
+        Route::get('/rpg/rpg23/detail/{district}', [Rpg23Controller::class, 'detail'])->name('rpg23.detail');
+        Route::get('/rpg/rpg24', [Rpg24Controller::class, 'rpg24'])->name('rpg24');
         Route::get('/rpg/rpg14/detail/{date}/{source_code}', [Rpg14Controller::class, 'detail'])->name('rpg14.detail');
         Route::get('/rpg/rpg14/month/detail/{month}/{source_code}', [Rpg14Controller::class, 'month_detail'])->name('rpg14.month.detail');
         Route::get('/rpg/rpg27/{year}/{month}/{source_id}/{company_id}/detail', [Rpg27Controller::class, 'detail'])->name('rpg27.detail');
+        Route::get('/rpg/rpg31', [Rpg31Controller::class, 'rpg31'])->name('rpg31');
+        Route::get('/rpg/rpg31/{month}/{lamp_type}/detail', [Rpg31Controller::class, 'detail'])->name('rpg31.detail');
     });
 
     // 1. 高權限報表 - 只有主管以上可以訪問
@@ -595,9 +600,7 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg18', [Rpg18Controller::class, 'rpg18'])->name('rpg18');
         Route::get('/rpg/rpg19', [Rpg19Controller::class, 'rpg19'])->name('rpg19');
         Route::get('/rpg/rpg20', [Rpg20Controller::class, 'rpg20'])->name('rpg20');
-        Route::get('/rpg/rpg23', [Rpg23Controller::class, 'rpg23'])->name('rpg23');
-        Route::get('/rpg/rpg23/detail/{district}', [Rpg23Controller::class, 'detail'])->name('rpg23.detail');
-        Route::get('/rpg/rpg24', [Rpg24Controller::class, 'rpg24'])->name('rpg24');
+        
         Route::get('/rpg/rpg26', [Rpg26Controller::class, 'rpg26'])->name('rpg26');
         Route::get('/rpg/rpg28', [Rpg28Controller::class, 'rpg28'])->name('rpg28');
         Route::get('/rpg/rpg29', [Rpg29Controller::class, 'rpg29'])->name('rpg29');
@@ -605,8 +608,7 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg30/detail/{month}/{type}', [Rpg30Controller::class, 'detail'])->name('rpg30.detail');
         Route::get('/rpg/rpg30/detail/suit/{season_start}/{season_end}/{suit_id}', [Rpg30Controller::class, 'season_suit_detail'])->name('rpg30.season.suit.detail');
         Route::get('/rpg/rpg30/detail/urn-souvenir/{season_start}/{season_end}/{urn_souvenir}', [Rpg30Controller::class, 'season_urn_souvenir_detail'])->name('rpg30.season.urn_souvenir.detail');
-        Route::get('/rpg/rpg31', [Rpg31Controller::class, 'rpg31'])->name('rpg31');
-        Route::get('/rpg/rpg31/{month}/{lamp_type}/detail', [Rpg31Controller::class, 'detail'])->name('rpg31.detail');
+        
         Route::get('/rpg/rpg32', [Rpg32Controller::class, 'rpg32'])->name('rpg32');
     });
 
