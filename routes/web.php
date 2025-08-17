@@ -258,6 +258,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/product/delete/{id}', [ProductController::class, 'delete'])->name('product.del');
     Route::post('/product/delete/{id}', [ProductController::class, 'destroy'])->name('product.del.data');
     Route::get('/product/prom_product_search', [ProductController::class, 'prom_product_search'])->name('product.prom_product_search');
+    Route::get('/product/variants', [ProductController::class, 'getVariants'])->name('product.variants');
 
     /* 商品進貨 */
     Route::get('/product/cost_search', [RestockController::class, 'product_cost_search'])->name('gdpaper.cost.search');
@@ -576,6 +577,9 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg22/{month}/{prom_id}/detail', [Rpg22Controller::class, 'detail'])->name('rpg22.detail');
         Route::get('/rpg/rpg21', [Rpg21Controller::class, 'rpg21'])->name('rpg21');
         Route::get('/rpg/rpg27', [Rpg27Controller::class, 'rpg27'])->name('rpg27');
+        Route::get('/rpg/rpg14', [Rpg14Controller::class, 'rpg14'])->name('rpg14');
+        Route::get('/rpg/rpg14/detail/{date}/{source_code}', [Rpg14Controller::class, 'detail'])->name('rpg14.detail');
+        Route::get('/rpg/rpg14/month/detail/{month}/{source_code}', [Rpg14Controller::class, 'month_detail'])->name('rpg14.month.detail');
         Route::get('/rpg/rpg27/{year}/{month}/{source_id}/{company_id}/detail', [Rpg27Controller::class, 'detail'])->name('rpg27.detail');
     });
 
@@ -586,9 +590,7 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg05', [Rpg05Controller::class, 'rpg05'])->name('rpg05');
         Route::get('/rpg/rpg06/export', [Rpg06Controller::class, 'export'])->name('rpg06.export');  // 舊法會查詢
         Route::get('/rpg/rpg11', [Rpg11Controller::class, 'rpg11'])->name('rpg11');
-        Route::get('/rpg/rpg14', [Rpg14Controller::class, 'rpg14'])->name('rpg14');
-        Route::get('/rpg/rpg14/detail/{date}/{source_code}', [Rpg14Controller::class, 'detail'])->name('rpg14.detail');
-        Route::get('/rpg/rpg14/month/detail/{month}/{source_code}', [Rpg14Controller::class, 'month_detail'])->name('rpg14.month.detail');
+        
        
         Route::get('/rpg/rpg18', [Rpg18Controller::class, 'rpg18'])->name('rpg18');
         Route::get('/rpg/rpg19', [Rpg19Controller::class, 'rpg19'])->name('rpg19');
