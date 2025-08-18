@@ -49,7 +49,7 @@
         <!-- end page title -->
 
 
-        {{-- @if (Auth::user()->job_id != 5) --}}
+        @if (Auth::user()->job_id != 5)
         <div class="row">
             <div class="col-12">
                 <div class="widget-rounded-circle card">
@@ -121,7 +121,7 @@
             </div> <!-- end widget-rounded-circle-->
         </div> <!-- end col-->
     </div> <!-- container -->
-    {{-- @endif --}}
+    @endif
 
     <div class="row p-2">
         <div class="col-xl-12">
