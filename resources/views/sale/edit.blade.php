@@ -15,8 +15,8 @@
         }
 
         /* .bg-light {
-                background-color: rgba(0,0,0,0.08) !important;
-            } */
+                    background-color: rgba(0,0,0,0.08) !important;
+                } */
     </style>
 
     <!-- Start Content-->
@@ -76,7 +76,9 @@
                                     <label for="sale_on" class="form-label">單號<span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <span class="input-group-text">No.</span>
-                                        <input type="text" class="form-control" id="sale_on" name="sale_on" value="{{ $data->sale_on }}" required placeholder="請輸入數字" pattern="[0-9]+" title="請只輸入數字">
+                                        <input type="text" class="form-control" id="sale_on" name="sale_on"
+                                            value="{{ $data->sale_on }}" required placeholder="請輸入數字" pattern="[0-9]+"
+                                            title="請只輸入數字">
                                     </div>
                                     <div id="sale_on_feedback" class="mt-1"></div>
                                 </div>
@@ -106,15 +108,16 @@
                                         value="{{ $data->pet_name }}">
                                 </div>
                                 <div class="mb-3 col-md-4 not_final_show not_memorial_show">
-                                    <label for="variety" class="form-label">寵物品種<span class="text-danger">*</span></label>
+                                    <label for="variety" class="form-label">寵物品種<span
+                                            class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="variety" name="variety"
                                         value="{{ $data->variety }}">
                                 </div>
                                 <div class="mb-3 col-md-4 not_final_show not_memorial_show">
                                     <label for="kg" class="form-label">公斤數<span
                                             class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="kg" name="kg" min="0" step="0.01"
-                                        value="{{ $data->kg }}">
+                                    <input type="number" class="form-control" id="kg" name="kg"
+                                        min="0" step="0.01" value="{{ $data->kg }}">
                                 </div>
                                 <div class="mb-3 col-md-4 not_final_show not_memorial_show">
                                     <label for="type" class="form-label">案件來源<span
@@ -131,15 +134,15 @@
                                 <div class="mb-3 col-md-4" id="source_company">
                                     <label for="source_company_id" class="form-label">來源公司名稱<span
                                             class="text-danger">*</span>
-                                            @if (isset($sale_company))
-                                                @if($sale_company->type == "self")
-                                                    （{{ $sale_company->self_name->name }}）
-                                                @elseif(isset($sale_company))
-                                                    （{{ $sale_company->company_name->name }}）
-                                                @else
-                                                    <b style="color: red;">（來源公司須重新至拜訪管理新增公司資料）</b>
-                                                @endif
+                                        @if (isset($sale_company))
+                                            @if ($sale_company->type == 'self')
+                                                （{{ $sale_company->self_name->name }}）
+                                            @elseif(isset($sale_company))
+                                                （{{ $sale_company->company_name->name }}）
+                                            @else
+                                                <b style="color: red;">（來源公司須重新至拜訪管理新增公司資料）</b>
                                             @endif
+                                        @endif
                                     </label>
                                     <select class="form-control" data-toggle="select2" data-width="100%"
                                         name="source_company_name_q" id="source_company_name_q">
@@ -257,17 +260,25 @@
                                                 <select class="form-control" data-toggle="select2" data-width="100%"
                                                     name="hospital_address" id="hospital_address">
                                                     <option value="">請選擇...</option>
-                                                    @foreach ($source_companys as $source_company)
-                                                        <option value="{{ $source_company->id }}"
-                                                            @if ($source_company->id == $data->hospital_address) selected @endif>
-                                                            @if (isset($source_company->group) && $source_company->group)
-                                                                （{{ $source_company->group->name }}）{{ $source_company->name }}（{{ $source_company->mobile }}）
+                                                    @foreach ($hospitals as $hospital)
+                                                        <option value="{{ $hospital->id }}"
+                                                            @if ($hospital->id == $data->hospital_address) selected @endif>
+                                                            @if (isset($hospital->group) && $hospital->group)
+                                                                （{{ $hospital->group->name }}）{{ $hospital->name }}（{{ $hospital->mobile }}）
                                                             @else
-                                                                {{ $source_company->name }}（{{ $source_company->mobile }}）
+                                                                {{ $hospital->name }}（{{ $hospital->mobile }}）
                                                             @endif
                                                         </option>
                                                     @endforeach
                                                 </select>
+                                            </div>
+                                        </div>
+                                        <div class="mb-1 mt-1">
+                                            <div class="form-check" id="cooperation_price_div">
+                                                <input type="checkbox" class="form-check-input" id="cooperation_price"
+                                                    name="cooperation_price"
+                                                    @if ($data->cooperation_price == 1) checked value="1" @else  value="0" @endif>
+                                                <label class="form-check-label" for="cooperation_price"><b>院內價</b></label>
                                             </div>
                                         </div>
                                     </div>
@@ -858,6 +869,18 @@
             }
         });
 
+        //院內價開始
+        cooperation_price = $('input[name="cooperation_price"]').val();
+        console.log(cooperation_price);
+        $("#cooperation_price").on("change", function() {
+            if ($(this).is(':checked')) {
+                $(this).val(1);
+            } else {
+                $(this).val(0);
+            }
+        });
+        //院內價結束
+
         //地址
         var connector_address = $('input[name="connector_address"]').val();
         if (connector_address == 1) {
@@ -1116,15 +1139,15 @@
             }
         });
 
-                // 載入指定類型的客戶
+        // 載入指定類型的客戶
         function loadCustomersByType(type) {
             // 獲取當前已選擇的值
             var currentSelected = $('#source_company_name_q').val();
-            
+
             $.ajax({
-                url: '{{ route("customers.by-type") }}',
+                url: '{{ route('customers.by-type') }}',
                 type: 'GET',
-                data: { 
+                data: {
                     type: type,
                     selected_id: currentSelected
                 },
@@ -1144,7 +1167,8 @@
         }
 
         var type = $('select[name="type"]').val();
-        if (type == 'H' || type == 'B' || type == 'Salon' || type == 'G' || type == 'dogpark' || type == 'other' || type == 'self') {
+        if (type == 'H' || type == 'B' || type == 'Salon' || type == 'G' || type == 'dogpark' || type == 'other' || type ==
+            'self') {
             $("#source_company").show(300);
             $("#source_company_name_q").prop('required', true);
             // 載入對應類型的客戶
@@ -1583,7 +1607,7 @@
             let value = $(this).val();
             value = value.replace(/[^0-9]/g, '');
             $(this).val(value);
-            
+
             const saleOn = value.trim();
             const feedback = $('#sale_on_feedback');
             const currentId = {{ $data->id }}; // 當前記錄的ID
@@ -1639,5 +1663,4 @@
             }
         });
     </script>
-
 @endsection

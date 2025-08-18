@@ -212,16 +212,25 @@
                                         <label for="source_company_id" class="form-label">接體地址<span class="text-danger">*</span></label>
                                         <select class="form-control" data-toggle="select2" data-width="100%" name="hospital_address" id="hospital_address" disabled>
                                             <option value="">請選擇...</option>
-                                            @foreach($source_companys as $source_company)
-                                                <option value="{{ $source_company->id }}" @if($source_company->id == $data->hospital_address) selected @endif>
-                                                    @if (isset($source_company->group) && $source_company->group)
-                                                        （{{ $source_company->group->name }}）{{ $source_company->name }}（{{ $source_company->mobile }}）
+                                            @foreach ($hospitals as $hospital)
+                                                <option value="{{ $hospital->id }}"
+                                                    @if ($hospital->id == $data->hospital_address) selected @endif>
+                                                     @if (isset($hospital->group) && $hospital->group)
+                                                        （{{ $hospital->group->name }}）{{ $hospital->name }}（{{ $hospital->mobile }}）
                                                     @else
-                                                        {{ $source_company->name }}（{{ $source_company->mobile }}）
+                                                        {{ $hospital->name }}（{{ $hospital->mobile }}）
                                                     @endif
                                                 </option>
                                             @endforeach
                                         </select>
+                                    </div>
+                                </div>
+                                <div class="mb-1 mt-1">
+                                    <div class="form-check" id="cooperation_price_div">
+                                        <input type="checkbox" class="form-check-input" id="cooperation_price"
+                                            name="cooperation_price"
+                                            @if ($data->cooperation_price == 1) checked value="1" @else  value="0" @endif>
+                                        <label class="form-check-label" for="cooperation_price"><b>院內價</b></label>
                                     </div>
                                 </div>
                             </div>
@@ -667,6 +676,18 @@
             $("#connector_hospital_div").show(300);
         }
     });
+
+    //院內價開始
+    cooperation_price = $('input[name="cooperation_price"]').val();
+        console.log(cooperation_price);
+        $("#cooperation_price").on("change", function() {
+            if ($(this).is(':checked')) {
+                $(this).val(1);
+            } else {
+                $(this).val(0);
+            }
+        });
+        //院內價結束
 
     //地址
     connector_address = $('input[name="connector_address"]').val();

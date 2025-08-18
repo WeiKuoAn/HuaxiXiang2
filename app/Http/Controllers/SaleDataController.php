@@ -152,7 +152,7 @@ class SaleDataController extends Controller
     public function check_sale_on(Request $request)
     {
         if ($request->ajax()) {
-            $sale_on = "No.".$request->sale_on;
+            $sale_on = 'No.' . $request->sale_on;
             $current_id = $request->current_id ?? null;
 
             // 正規化單號格式，統一轉換為小寫並移除空格
@@ -291,7 +291,7 @@ class SaleDataController extends Controller
     {
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id',1)->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', 1)->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $customers = Customer::orderby('created_at', 'desc')->get();
         $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
         $suits = Suit::where('status', 'up')->get();
@@ -311,7 +311,7 @@ class SaleDataController extends Controller
     {
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id',1)->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', 1)->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $customers = Customer::orderby('created_at', 'desc')->get();
         $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
         $suits = Suit::where('status', 'up')->get();
@@ -331,7 +331,7 @@ class SaleDataController extends Controller
     {
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id',1)->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', 1)->orderby('seq', 'asc')->orderby('price', 'desc')->get();
 
         return view('sale.create_test')
             ->with('products', $products)
@@ -347,9 +347,10 @@ class SaleDataController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         // 使用正則表達式匹配No.後的數字(客戶)
         $sale = new Sale();
-        $sale->sale_on = "No.".$request->sale_on;
+        $sale->sale_on = 'No.' . $request->sale_on;
         $sale->user_id = Auth::user()->id;
         $sale->sale_date = $request->sale_date;
         $sale->type_list = $request->type_list;
@@ -396,6 +397,11 @@ class SaleDataController extends Controller
         }
         if ($request->connector_hospital_address == 1) {
             $sale->hospital_address = $request->hospital_address;
+        }
+        if ($request->cooperation_price == 1) {
+            $sale->cooperation_price = $request->cooperation_price;
+        } else {
+            $sale->cooperation_price = 0;
         }
         $sale->save();
 
@@ -484,10 +490,15 @@ class SaleDataController extends Controller
             $CompanyCommission->sale_id = $sale_id->id;
             $CompanyCommission->company_id = $request->source_company_name_q;
             $CompanyCommission->plan_price = $request->plan_price;
-            if ($request->plan_price / 2 > 2500) {
-                $CompanyCommission->commission = 2500;
+            if ($request->cooperation_price != 1) {  // 如果不是院內就新增
+                if ($request->plan_price / 2 > 2500) {
+                    $CompanyCommission->commission = 2500;
+                } else {
+                    $CompanyCommission->commission = $request->plan_price / 2;
+                }
             } else {
-                $CompanyCommission->commission = $request->plan_price / 2;
+                $CompanyCommission->commission = $request->plan_price;
+                $CompanyCommission->cooperation_price = $request->cooperation_price;
             }
             $CompanyCommission->save();
         }
@@ -818,7 +829,7 @@ class SaleDataController extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id',1)->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', 1)->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
         $data = Sale::where('id', $id)->first();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
@@ -837,6 +848,7 @@ class SaleDataController extends Controller
                 $source_companys = Customer::where('id', $sale_company->company_id)->get();
             }
         }
+        $hospitals = Customer::whereIn('group_id', [2])->get();
         $suits = Suit::where('status', 'up')->get();
         $sale_souvenirs = SaleSouvenir::where('sale_id', $id)->get();
         $souvenir_types = SouvenirType::where('status', 'up')->get();
@@ -857,7 +869,8 @@ class SaleDataController extends Controller
             ->with('suits', $suits)
             ->with('souvenir_types', $souvenir_types)
             ->with('sale_souvenirs', $sale_souvenirs)
-            ->with('souvenirs', $souvenirs);
+            ->with('souvenirs', $souvenirs)
+            ->with('hospitals', $hospitals);
     }
 
     public function check_show(Request $request, $id)
@@ -865,7 +878,7 @@ class SaleDataController extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id',1)->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', 1)->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
         $data = Sale::where('id', $id)->first();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
@@ -886,6 +899,8 @@ class SaleDataController extends Controller
                 $source_companys = Customer::where('id', $sale_company->company_id)->get();
             }
         }
+
+        $hospitals = Customer::whereIn('group_id', [2])->get();
 
         // 获取上一个页面的 URL
         // 从_previous中获取user参数的值
@@ -932,7 +947,8 @@ class SaleDataController extends Controller
             ->with('suits', $suits)
             ->with('souvenirs', $souvenirs)
             ->with('sale_souvenirs', $sale_souvenirs)
-            ->with('souvenir_types', $souvenir_types);
+            ->with('souvenir_types', $souvenir_types)
+            ->with('hospitals', $hospitals);
     }
 
     public function sale_on_show($sale_on)
@@ -940,7 +956,7 @@ class SaleDataController extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id',1)->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', 1)->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
         $data = Sale::where('sale_on', $sale_on)->first();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $data->id)->get();
@@ -1062,7 +1078,7 @@ class SaleDataController extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id',1)->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', 1)->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
         $data = Sale::where('id', $id)->first();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
@@ -1100,7 +1116,7 @@ class SaleDataController extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id',1)->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', 1)->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
         $data = Sale::where('id', $id)->first();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
@@ -1202,7 +1218,7 @@ class SaleDataController extends Controller
     public function update(Request $request, $id)
     {
         $sale = Sale::where('id', $id)->first();
-        $sale->sale_on = "No.".$request->sale_on;
+        $sale->sale_on = 'No.' . $request->sale_on;
         $sale->type_list = $request->type_list;
         $sale->sale_date = $request->sale_date;
         $sale->customer_id = $request->cust_name_q;
@@ -1246,6 +1262,11 @@ class SaleDataController extends Controller
         }
         if ($request->connector_hospital_address == 1) {
             $sale->hospital_address = $request->hospital_address;
+        }
+        if ($request->cooperation_price == 1) {
+            $sale->cooperation_price = $request->cooperation_price;
+        } else {
+            $sale->cooperation_price = 0;
         }
         $sale->pay_method = $request->pay_method;
         $sale->total = $request->total;
@@ -1335,28 +1356,33 @@ class SaleDataController extends Controller
                 }
             }
         }
-        if ($request->source_company_name_q == null)  // 如果是null，會把舊的存在刪除
-        {
+        // 處理來源公司佣金
+        if ($request->source_company_name_q == null) {
+            // 如果是null，刪除舊的記錄
+            SaleCompanyCommission::where('sale_id', $id)->delete();
+        } else {
+            // 不是null，更新或新增記錄
             $sale_company = SaleCompanyCommission::where('sale_id', $id)->first();
             if (isset($sale_company)) {
-                SaleCompanyCommission::where('sale_id', $id)->delete();
-            }
-        } else {  // 不是null，如果存在值就更新，不然就新增
-            $sale_company = SaleCompanyCommission::where('sale_id', $id)->first();
-            if (isset($sale_company)) {
+                // 更新現有記錄
                 $sale_company->sale_date = $request->sale_date;
                 $sale_company->type = $request->type;
                 $sale_company->customer_id = $request->cust_name_q;
-                $sale_company->sale_id = $sale_id->id;
                 $sale_company->company_id = $request->source_company_name_q;
                 $sale_company->plan_price = $request->plan_price;
-                if ($request->plan_price / 2 > 2500) {
-                    $sale_company->commission = 2500;
+                if ($request->cooperation_price != 1) {
+                    if ($request->plan_price / 2 > 2500) {
+                        $sale_company->commission = 2500;
+                    } else {
+                        $sale_company->commission = $request->plan_price / 2;
+                    }
                 } else {
-                    $sale_company->commission = $request->plan_price / 2;
+                    $sale_company->commission = $request->plan_price;
+                    $sale_company->cooperation_price = $request->cooperation_price;
                 }
                 $sale_company->save();
             } else {
+                // 新增記錄
                 $CompanyCommission = new SaleCompanyCommission();
                 $CompanyCommission->sale_date = $request->sale_date;
                 $CompanyCommission->type = $request->type;
@@ -1364,10 +1390,15 @@ class SaleDataController extends Controller
                 $CompanyCommission->sale_id = $sale_id->id;
                 $CompanyCommission->company_id = $request->source_company_name_q;
                 $CompanyCommission->plan_price = $request->plan_price;
-                if ($request->plan_price / 2 > 2500) {
-                    $CompanyCommission->commission = 2500;
+                if ($request->cooperation_price != 1) {
+                    if ($request->plan_price / 2 > 2500) {
+                        $CompanyCommission->commission = 2500;
+                    } else {
+                        $CompanyCommission->commission = $request->plan_price / 2;
+                    }
                 } else {
-                    $CompanyCommission->commission = $request->plan_price / 2;
+                    $CompanyCommission->commission = $request->plan_price;
+                    $CompanyCommission->cooperation_price = $request->cooperation_price;
                 }
                 $CompanyCommission->save();
             }
@@ -1395,14 +1426,14 @@ class SaleDataController extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id',1)->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', 1)->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
         $data = Sale::where('id', $id)->first();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
         $sale_proms = Sale_prom::where('sale_id', $id)->get();
         $sale_company = SaleCompanyCommission::where('sale_id', $id)->first();
         $sale_address = SaleAddress::where('sale_id', $id)->first();
-        
+
         // 根據案件類型決定從哪個表載入來源公司資料
         $source_companys = collect();
         if ($sale_company && $sale_company->company_id) {
@@ -1414,7 +1445,7 @@ class SaleDataController extends Controller
                 $source_companys = Customer::where('id', $sale_company->company_id)->get();
             }
         }
-        
+
         $suits = Suit::where('status', 'up')->get();
         $souvenirs = Prom::where('type', 'D')->where('status', 'up')->orderby('seq', 'asc')->get();
         $sale_souvenirs = SaleSouvenir::where('sale_id', $id)->get();
@@ -1868,9 +1899,9 @@ class SaleDataController extends Controller
                 return '';
             case '來源名稱':
                 if (isset($sale->sale_company_commission)) {
-                    if($sale->sale_company_commission->type == "self"){
+                    if ($sale->sale_company_commission->type == 'self') {
                         return $sale->sale_company_commission->self_name->name;
-                    }else{
+                    } else {
                         return $sale->sale_company_commission->company_name->name;
                     }
                 }
