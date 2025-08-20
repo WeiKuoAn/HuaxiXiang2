@@ -36,7 +36,7 @@ class PersonnelController extends Controller
             $users = $users->where('name', 'like', $request->name . '%');
         }
 
-        $users = $users->orderby('level')->orderby('seq')->paginate(30);
+        $users = $users->orderby('level')->orderby('seq')->whereNotIn('job_id', [1,8,9,6])->paginate(30);
 
         $year = Vacation::where('year', Carbon::now()->year)->first();  // 取得當年
         // 計算當前專員餘額
