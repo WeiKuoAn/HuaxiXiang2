@@ -275,7 +275,13 @@
                                         <td>{{ $contract_data->cust_name->name }}</td>
                                         <td>{{ $contract_data->mobile }}</td>
                                         <td>{{ $contract_data->pet_name }}</td>
-                                        <td>第{{ $contract_data->year }}年</td>
+                                        <td>
+                                            @if ($contract_data->type == '4')
+                                                {{ $contract_data->year }}天
+                                            @else
+                                                第{{ $contract_data->year }}年
+                                            @endif
+                                        </td>
                                         <td>{{ $contract_data->getRocStartDateAttribute() }}</td>
                                         <td>{{ $contract_data->getRocEndDateAttribute() }}</td>
                                         <td>{{ number_format($contract_data->price) }}</td>
