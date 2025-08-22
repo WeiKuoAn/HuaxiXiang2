@@ -65,6 +65,7 @@ use App\Http\Controllers\Rpg29Controller;
 use App\Http\Controllers\Rpg30Controller;
 use App\Http\Controllers\Rpg31Controller;
 use App\Http\Controllers\Rpg32Controller;
+use App\Http\Controllers\Rpg33Controller;
 use App\Http\Controllers\SaleDataController;
 use App\Http\Controllers\SaleDataControllerNew;
 use App\Http\Controllers\SaleSourceController;
@@ -91,6 +92,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use App\Http\Controllers\GiveController;
+use App\Http\Controllers\IncreaseController;
 
 /*
  * |--------------------------------------------------------------------------
@@ -590,6 +592,8 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg30/detail/{month}/{type}', [Rpg30Controller::class, 'detail'])->name('rpg30.detail');
         Route::get('/rpg/rpg30/detail/suit/{season_start}/{season_end}/{suit_id}', [Rpg30Controller::class, 'season_suit_detail'])->name('rpg30.season.suit.detail');
         Route::get('/rpg/rpg30/detail/urn-souvenir/{season_start}/{season_end}/{urn_souvenir}', [Rpg30Controller::class, 'season_urn_souvenir_detail'])->name('rpg30.season.urn_souvenir.detail');
+        Route::get('/rpg/rpg33', [Rpg33Controller::class, 'index'])->name('rpg33');
+        Route::get('/rpg/rpg33/export', [Rpg33Controller::class, 'export'])->name('rpg33.export');
     });
 
     // 1. 高權限報表 - 只有主管以上可以訪問
@@ -698,6 +702,15 @@ Route::group(['prefix' => '/'], function () {
     Route::post('/give/edit/{id}', [GiveController::class, 'update'])->name('give.edit.data');
     Route::get('/give/del/{id}', [GiveController::class, 'delete'])->name('give.del');
     Route::post('/give/del/{id}', [GiveController::class, 'destroy'])->name('give.del.data');
+
+    //加成管理
+    Route::get('/increase', [IncreaseController::class, 'index'])->name('increase.index');
+    Route::get('/increase/create', [IncreaseController::class, 'create'])->name('increase.create');
+    Route::post('/increase/create', [IncreaseController::class, 'store'])->name('increase.create.data');
+    Route::get('/increase/edit/{id}', [IncreaseController::class, 'edit'])->name('increase.edit');
+    Route::post('/increase/edit/{id}', [IncreaseController::class, 'update'])->name('increase.edit.data');
+    Route::get('/increase/del/{id}', [IncreaseController::class, 'delete'])->name('increase.del');
+    Route::post('/increase/del/{id}', [IncreaseController::class, 'destroy'])->name('increase.del.data');
 
 
     Route::get('image', function () {
