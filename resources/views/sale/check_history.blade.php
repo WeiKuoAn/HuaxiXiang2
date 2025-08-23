@@ -103,7 +103,13 @@
                                                 <tr>
                                                     <td align="center">{{ $key + 1 }}</td>
                                                     <td align="center">{{ $item->sale_date }}</td>
-                                                    <td align="center">{{ $item->sale_on }}</td>
+                                                    <td align="center">
+                                                        @if ($item->type_list == 'scrapped')
+                                                            <span class="badge bg-danger">報廢</span> {{ $item->sale_on }}
+                                                        @else
+                                                            {{ $item->sale_on }}
+                                                        @endif
+                                                    </td>
                                                     <td align="center">
                                                         @if (isset($item->cust_name))
                                                             {{ $item->cust_name->name }}
@@ -121,7 +127,8 @@
                                                     </td>
                                                     <td align="center">{{ number_format($item->pay_price) }}</td>
                                                     <td align="center">{{ $item->check_user_name->name }}</td>
-                                                    <td align="center"><a href="javascript:void(0)" onclick="openCheckWindow('{{ route('sale.check', $item->id) }}')"><i
+                                                    <td align="center"><a href="javascript:void(0)"
+                                                            onclick="openCheckWindow('{{ route('sale.check', $item->id) }}')"><i
                                                                 class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i></a>
                                                     </td>
                                                 </tr>
@@ -166,7 +173,8 @@
                                                     <td align="center">{{ number_format($pay_item->price) }}</td>
                                                     <td align="center">{{ $pay_item->comment }}</td>
                                                     <td align="center">
-                                                        <a href="javascript:void(0)" onclick="openCheckWindow('{{ route('pay.check', $pay_item->pay_data_id) }}')">
+                                                        <a href="javascript:void(0)"
+                                                            onclick="openCheckWindow('{{ route('pay.check', $pay_item->pay_data_id) }}')">
                                                             <i
                                                                 class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i>
                                                         </a>
@@ -188,7 +196,8 @@
                                 <div class="card mb-0">
                                     <div class="card-body">
                                         <div class="col-12 text-end">
-                                            <h4 class="card-title text-danger">現金實收：{{ number_format($data['cash_actual_price'] ?? 0) }}元</h4>
+                                            <h4 class="card-title text-danger">
+                                                現金實收：{{ number_format($data['cash_actual_price'] ?? 0) }}元</h4>
                                         </div>
                                     </div>
                                 </div>
@@ -224,13 +233,13 @@
             var height = 800;
             var left = (screen.width - width) / 2;
             var top = (screen.height - height) / 2;
-            
-            var newWindow = window.open(url, '_blank', 
-                'width=' + width + ',height=' + height + 
-                ',left=' + left + ',top=' + top + 
+
+            var newWindow = window.open(url, '_blank',
+                'width=' + width + ',height=' + height +
+                ',left=' + left + ',top=' + top +
                 ',scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no,status=no'
             );
-            
+
             // 確保新視窗獲得焦點
             if (newWindow) {
                 newWindow.focus();

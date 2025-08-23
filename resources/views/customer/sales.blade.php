@@ -53,7 +53,11 @@
                                 <tbody>
                                     @foreach ($sales as $sale)
                                         <tr>
-                                            <td>{{ $sale->sale_on }}</td>
+                                            <td>
+                                                <a href="{{ route('sale.check', $sale->id) }}">
+                                                    {{ $sale->sale_on }}
+                                                </a>
+                                            </td>
                                             <td>{{ $sale->user_name->name }}</td>
                                             <td>{{ $sale->sale_date }}</td>
                                             {{-- <td>
