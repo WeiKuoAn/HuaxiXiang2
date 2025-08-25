@@ -66,6 +66,7 @@ use App\Http\Controllers\Rpg30Controller;
 use App\Http\Controllers\Rpg31Controller;
 use App\Http\Controllers\Rpg32Controller;
 use App\Http\Controllers\Rpg33Controller;
+use App\Http\Controllers\CrematoriumController;
 use App\Http\Controllers\SaleDataController;
 use App\Http\Controllers\SaleDataControllerNew;
 use App\Http\Controllers\SaleSourceController;
@@ -93,6 +94,7 @@ use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use App\Http\Controllers\GiveController;
 use App\Http\Controllers\IncreaseController;
+use App\Http\Controllers\OvertimeController;
 
 /*
  * |--------------------------------------------------------------------------
@@ -594,6 +596,27 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg30/detail/urn-souvenir/{season_start}/{season_end}/{urn_souvenir}', [Rpg30Controller::class, 'season_urn_souvenir_detail'])->name('rpg30.season.urn_souvenir.detail');
         Route::get('/rpg/rpg33', [Rpg33Controller::class, 'index'])->name('rpg33');
         Route::get('/rpg/rpg33/export', [Rpg33Controller::class, 'export'])->name('rpg33.export');
+        
+        // 火化爐管理路由
+        Route::prefix('crematorium')->name('crematorium.')->group(function () {
+            // 設備管理
+            Route::get('/', [CrematoriumController::class, 'index'])->name('index');
+            Route::get('/create', [CrematoriumController::class, 'create'])->name('create');
+            Route::post('/store', [CrematoriumController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [CrematoriumController::class, 'edit'])->name('edit');
+            Route::put('/{id}/update', [CrematoriumController::class, 'update'])->name('update');
+            Route::delete('/{id}', [CrematoriumController::class, 'destroy'])->name('destroy');
+            
+            // 預約管理
+            Route::get('/bookings', [CrematoriumController::class, 'bookings'])->name('bookings');
+            Route::get('/bookings/create', [CrematoriumController::class, 'createBooking'])->name('createBooking');
+            Route::post('/bookings/store', [CrematoriumController::class, 'storeBooking'])->name('storeBooking');
+            
+            // 維護記錄管理
+            Route::get('/maintenance', [CrematoriumController::class, 'maintenance'])->name('maintenance');
+            Route::get('/maintenance/create', [CrematoriumController::class, 'createMaintenance'])->name('createMaintenance');
+            Route::post('/maintenance/store', [CrematoriumController::class, 'storeMaintenance'])->name('storeMaintenance');
+        });
     });
 
     // 1. 高權限報表 - 只有主管以上可以訪問
@@ -708,9 +731,22 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/increase/create', [IncreaseController::class, 'create'])->name('increase.create');
     Route::post('/increase/create', [IncreaseController::class, 'store'])->name('increase.create.data');
     Route::get('/increase/edit/{id}', [IncreaseController::class, 'edit'])->name('increase.edit');
-    Route::post('/increase/edit/{id}', [IncreaseController::class, 'update'])->name('increase.edit.data');
+    Route::put('/increase/edit/{id}', [IncreaseController::class, 'update'])->name('increase.edit.data');
     Route::get('/increase/del/{id}', [IncreaseController::class, 'delete'])->name('increase.del');
-    Route::post('/increase/del/{id}', [IncreaseController::class, 'destroy'])->name('increase.del.data');
+    Route::delete('/increase/del/{id}', [IncreaseController::class, 'destroy'])->name('increase.del.data');
+    Route::get('/increase/export', [IncreaseController::class, 'export'])->name('increase.export');
+
+//加班管理
+Route::get('/overtime', [OvertimeController::class, 'index'])->name('overtime.index');
+Route::get('/overtime/create', [OvertimeController::class, 'create'])->name('overtime.create');
+Route::post('/overtime/create', [OvertimeController::class, 'store'])->name('overtime.create.data');
+Route::get('/overtime/edit/{id}', [OvertimeController::class, 'edit'])->name('overtime.edit');
+Route::put('/overtime/edit/{id}', [OvertimeController::class, 'update'])->name('overtime.edit.data');
+Route::get('/overtime/del/{id}', [OvertimeController::class, 'delete'])->name('overtime.del');
+Route::delete('/overtime/del/{id}', [OvertimeController::class, 'destroy'])->name('overtime.del.data');
+Route::get('/overtime/approve/{id}', [OvertimeController::class, 'approve'])->name('overtime.approve');
+Route::post('/overtime/reject/{id}', [OvertimeController::class, 'reject'])->name('overtime.reject');
+Route::get('/overtime/export', [OvertimeController::class, 'export'])->name('overtime.export');
 
 
     Route::get('image', function () {
