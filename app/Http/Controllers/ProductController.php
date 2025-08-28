@@ -310,7 +310,28 @@ class ProductController extends Controller
             $data->restock = 1;
         }
         $data->prom_id = $request->prom_id;
+        $data->has_variants = $request->has_variants ?? false;
         $data->save();
+        
+        // 處理商品變體
+        if ($request->has_variants && $request->variant_names) {
+            foreach ($request->variant_names as $key => $variant_name) {
+                if (!empty($variant_name)) {
+                    $variant = new \App\Models\ProductVariant();
+                    $variant->product_id = $data->id;
+                    $variant->variant_name = $variant_name;
+                    $variant->color = $request->variant_colors[$key] ?? null;
+                    $variant->sku = $request->variant_skus[$key] ?? null;
+                    $variant->price = $request->variant_prices[$key] ?? null;
+                    $variant->cost = $request->variant_costs[$key] ?? null;
+                    $variant->stock_quantity = $request->variant_stocks[$key] ?? 0;
+                    $variant->status = $request->variant_statuses[$key] ?? 'active';
+                    $variant->sort_order = $key + 1;
+                    $variant->save();
+                }
+            }
+        }
+        
         // dd($data->type);
         if ($request->type == 'combo' || $request->type == 'set') {
             $data = Product::orderby('id', 'desc')->first();
@@ -354,7 +375,11 @@ class ProductController extends Controller
         } else {
             $proms = [];
         }
-        return view('product.edit')->with('products', $datas)->with('categorys', $categorys)->with('data', $data)->with('combo_datas', $combo_datas)->with('promTypes', $promTypes)->with('proms', $proms);
+        
+        // 取得商品的變體資料
+        $variants = $data->variants;
+        
+        return view('product.edit')->with('products', $datas)->with('categorys', $categorys)->with('data', $data)->with('combo_datas', $combo_datas)->with('promTypes', $promTypes)->with('proms', $proms)->with('variants', $variants);
     }
 
     public function update(Request $request, $id)
@@ -387,7 +412,34 @@ class ProductController extends Controller
             $data->restock = 1;
         }
         $data->prom_id = $request->prom_id;
+        $data->has_variants = $request->has_variants ?? 0;
         $data->save();
+
+        // 處理商品變體更新
+        if ($request->has_variants == '1' && $request->variant_names) {
+            // 先刪除所有現有的變體
+            $data->variants()->delete();
+            
+            // 重新建立變體
+            foreach ($request->variant_names as $key => $variant_name) {
+                if (!empty($variant_name)) {
+                    $variant = new \App\Models\ProductVariant();
+                    $variant->product_id = $data->id;
+                    $variant->variant_name = $variant_name;
+                    $variant->color = $request->variant_colors[$key] ?? null;
+                    $variant->sku = $request->variant_skus[$key] ?? null;
+                    $variant->price = $request->variant_prices[$key] ?? null;
+                    $variant->cost = $request->variant_costs[$key] ?? null;
+                    $variant->stock_quantity = $request->variant_stocks[$key] ?? 0;
+                    $variant->status = $request->variant_statuses[$key] ?? 'active';
+                    $variant->sort_order = $key + 1;
+                    $variant->save();
+                }
+            }
+        } else {
+            // 如果沒有變體，刪除所有現有變體
+            $data->variants()->delete();
+        }
 
         if ($request->type == 'combo' || $request->type == 'set') {
             $old_combo_datas = ComboProduct::where('product_id', $id)->get();
@@ -421,13 +473,20 @@ class ProductController extends Controller
         $data = Product::where('id', $id)->first();
 
         $combo_datas = ComboProduct::where('product_id', $id)->get();
+        
+        // 取得商品的變體資料
+        $variants = $data->variants;
 
-        return view('product.delete')->with('products', $datas)->with('categorys', $categorys)->with('data', $data)->with('combo_datas', $combo_datas);
+        return view('product.delete')->with('products', $datas)->with('categorys', $categorys)->with('data', $data)->with('combo_datas', $combo_datas)->with('variants', $variants);
     }
 
     public function destroy($id)
     {
         $data = Product::where('id', $id)->first();
+        
+        // 刪除相關的變體資料
+        $data->variants()->delete();
+        
         $data->delete();
         $old_combo_datas = ComboProduct::where('product_id', $id)->get();
         if (count($old_combo_datas) > 0) {
@@ -452,5 +511,29 @@ class ProductController extends Controller
             'prom' => $prom,
             'i' => $request->input('row_id', 0), // 若有 row_id 傳進來
         ])->render();
+    }
+
+    /**
+     * 取得商品變體資料 (AJAX)
+     */
+    public function getVariants(Request $request)
+    {
+        $productId = $request->input('product_id');
+        
+        try {
+            $product = Product::findOrFail($productId);
+            $variants = $product->variants()->orderBy('sort_order', 'asc')->get();
+            
+            return response()->json([
+                'success' => true,
+                'variants' => $variants,
+                'product_name' => $product->name
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => '載入變體資料失敗'
+            ]);
+        }
     }
 }

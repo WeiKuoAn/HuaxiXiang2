@@ -26,7 +26,8 @@ class Product extends Model
         'cost',
         'stock',
         'restock',
-        'prom_id'
+        'prom_id',
+        'has_variants'
     ];
 
     public function category_data()
@@ -57,5 +58,55 @@ class Product extends Model
     {
         $data = ProductRestockItem::where('product_id',$this->id)->orderby('date','desc')->first();
         return $data;
+    }
+
+    /**
+     * 關聯到商品變體
+     */
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class, 'product_id')->orderBy('sort_order', 'asc');
+    }
+
+    /**
+     * 取得啟用的變體
+     */
+    public function activeVariants()
+    {
+        return $this->variants()->where('status', 'active');
+    }
+
+    /**
+     * 取得變體總數
+     */
+    public function getVariantsCountAttribute()
+    {
+        return $this->variants()->count();
+    }
+
+    /**
+     * 取得所有變體的總庫存
+     */
+    public function getTotalVariantsStockAttribute()
+    {
+        return $this->variants()->sum('stock_quantity');
+    }
+
+    /**
+     * 取得變體的最低價格
+     */
+    public function getMinVariantPriceAttribute()
+    {
+        $minPrice = $this->variants()->min('price');
+        return $minPrice ?? $this->price;
+    }
+
+    /**
+     * 取得變體的最高價格
+     */
+    public function getMaxVariantPriceAttribute()
+    {
+        $maxPrice = $this->variants()->max('price');
+        return $maxPrice ?? $this->price;
     }
 }

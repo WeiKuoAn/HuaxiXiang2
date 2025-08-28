@@ -79,6 +79,24 @@
                             <label for="seq" class="form-label">商品排序</label>
                             <input type="number" class="form-control" id="seq" name="seq"  value="{{ $data->seq }}">
                         </div>
+
+                        <div class="mb-3 col-md-4">
+                            <label for="promTypes" class="form-label">安葬處理/後續處理類別</label>
+                            <select id="promTypes" class="form-select" name="promTypes">
+                                <option value="" selected>請選擇...</option>
+                                @foreach($promTypes as $promType)
+                                    <option value="{{ $promType->code }}" @if(isset($data->prom_id) && ($data->prom_data->type == $promType->code)) selected @endif>{{ $promType->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3 col-md-4">
+                            <label for="prom_id" class="form-label">安葬處理/後續處理細項</label>
+                            <select id="prom_id" class="form-select" name="prom_id">
+                                @foreach($proms as $prom)
+                                    <option value="{{ $prom->id }}" @if($data->prom_id == $prom->id) selected @endif>{{ $prom->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         
                         {{-- <div class="mb-3 col-md-4">
                             <label for="alarm" class="form-label">警報數量</label>
@@ -198,18 +216,87 @@
                         </div>
                     </div>
 
-                    <div class="mb-3 mt-3">
-                        <label class="mb-2">商品狀態<span class="text-danger">*</span></label>
-                        <br />
-                        <div class="radio form-check-inline">
-                            <input type="radio" id="inlineRadio1" value="up" name="status" @if($data->status == 'up') checked @endif>
-                            <label for="inlineRadio1">上架</label>
-                        </div>
-                        <div class="radio form-check-inline">
-                            <input type="radio" id="inlineRadio2" value="down" name="status" @if($data->status == 'down') checked @endif >
-                            <label for="inlineRadio2">下架</label>
-                        </div>
-                    </div>
+                                                <div class="mb-3 mt-3">
+                                <label class="mb-2">商品狀態<span class="text-danger">*</span></label>
+                                <br />
+                                <div class="radio form-check-inline">
+                                    <input type="radio" id="inlineRadio1" value="up" name="status" @if($data->status == 'up') checked @endif>
+                                    <label for="inlineRadio1">上架</label>
+                                </div>
+                                <div class="radio form-check-inline">
+                                    <input type="radio" id="inlineRadio2" value="down" name="status" @if($data->status == 'down') checked @endif >
+                                    <label for="inlineRadio2">下架</label>
+                                </div>
+                            </div>
+
+                            <!-- 商品變體管理區塊 -->
+                            <div class="mb-3 mt-3">
+                                <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">商品變體管理</h5>
+                                
+                                <!-- 變體類型選擇 -->
+                                <div class="row">
+                                    <div class="mb-3 col-md-4">
+                                        <label for="has_variants" class="form-label">此商品是否有變體？</label>
+                                        <select id="has_variants" class="form-select" name="has_variants">
+                                            <option value="0" @if($data->has_variants == 0) selected @endif>無變體（單一商品）</option>
+                                            <option value="1" @if($data->has_variants == 1) selected @endif>有變體（如：不同顏色）</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- 變體管理區塊（預設隱藏） -->
+                                <div id="variants-section" style="display: none;">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <button type="button" class="btn btn-sm btn-primary mb-2" id="add-variant">
+                                                <i class="mdi mdi-plus"></i> 新增變體
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="variants-table">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>變體名稱</th>
+                                                    <th>顏色</th>
+                                                    <th>SKU</th>
+                                                    <th>價格<br><small class="text-muted">(留空使用主商品價格)</small></th>
+                                                    <th>成本<br><small class="text-muted">(留空使用主商品成本)</small></th>
+                                                    <th>庫存</th>
+                                                    <th>狀態</th>
+                                                    <th>動作</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if(isset($variants) && count($variants) > 0)
+                                                    @foreach($variants as $variant)
+                                                        <tr>
+                                                            <td><input type="text" class="form-control" name="variant_names[]" placeholder="變體名稱（如：黑、深藍）" value="{{ $variant->variant_name }}" required></td>
+                                                            <td><input type="text" class="form-control" name="variant_colors[]" placeholder="顏色" value="{{ $variant->color }}"></td>
+                                                            <td><input type="text" class="form-control" name="variant_skus[]" placeholder="SKU" value="{{ $variant->sku }}"></td>
+                                                            <td><input type="number" class="form-control" name="variant_prices[]" placeholder="價格" step="0.01" value="{{ $variant->price }}"></td>
+                                                            <td><input type="number" class="form-control" name="variant_costs[]" placeholder="成本" step="0.01" value="{{ $variant->cost }}"></td>
+                                                            <td><input type="number" class="form-control" name="variant_stocks[]" placeholder="庫存" value="{{ $variant->stock_quantity }}"></td>
+                                                            <td>
+                                                                <select class="form-select" name="variant_statuses[]">
+                                                                    <option value="active" @if($variant->status == 'active') selected @endif>啟用</option>
+                                                                    <option value="inactive" @if($variant->status == 'inactive') selected @endif>停用</option>
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <button type="button" class="btn btn-sm btn-danger remove-variant">
+                                                                    <i class="mdi mdi-delete"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                @endif
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
 
                     
 
@@ -252,7 +339,20 @@
 <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/smoothness/jquery-ui.css" />
 {{-- <script src="{{asset('assets/js/pages/foo-tables.init.js')}}"></script> --}}
-<script>
+    <script>
+        $('#promTypes').on('change', function() {
+            var promType = $(this).val();
+            $.ajax({
+                url: '{{ route('prom.search') }}',
+                data: {
+                    'select_prom': promType
+                },
+                success: function(data) {
+                    $('#prom_id').html(data);
+                    console.log(data);
+                }
+            });
+        });
     
     //產生亂數產品代碼
     function generateRandomString(length) {
@@ -338,6 +438,59 @@
             $(this).val(0);
         }
     });
+
+    // 變體管理功能
+    // 切換變體管理區塊顯示
+    $('#has_variants').change(function() {
+        if ($(this).val() == '1') {
+            $('#variants-section').show();
+        } else {
+            $('#variants-section').hide();
+        }
+    });
+    
+    // 頁面載入時檢查是否應該顯示變體管理區塊
+    $(document).ready(function() {
+        if ($('#has_variants').val() == '1') {
+            $('#variants-section').show();
+        }
+    });
+    
+    // 新增變體
+    $('#add-variant').click(function() {
+        addVariantRow();
+    });
+    
+    // 刪除變體
+    $(document).on('click', '.remove-variant', function() {
+        $(this).closest('tr').remove();
+    });
+
+    // 新增變體列的函數
+    function addVariantRow() {
+        var newRow = `
+            <tr>
+                <td><input type="text" class="form-control" name="variant_names[]" placeholder="變體名稱（如：黑、深藍）" required></td>
+                <td><input type="text" class="form-control" name="variant_colors[]" placeholder="顏色"></td>
+                <td><input type="text" class="form-control" name="variant_skus[]" placeholder="SKU"></td>
+                <td><input type="number" class="form-control" name="variant_prices[]" placeholder="價格" step="0.01"></td>
+                <td><input type="number" class="form-control" name="variant_costs[]" placeholder="成本" step="0.01"></td>
+                <td><input type="number" class="form-control" name="variant_stocks[]" placeholder="庫存" value="0"></td>
+                <td>
+                    <select class="form-select" name="variant_statuses[]">
+                        <option value="active">啟用</option>
+                        <option value="inactive">停用</option>
+                    </select>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-danger remove-variant">
+                        <i class="mdi mdi-delete"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+        $('#variants-table tbody').append(newRow);
+    }
 
     //製作Ajax產品帶入表單
     var lims_product_code = {!! json_encode($products) !!};

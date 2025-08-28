@@ -97,20 +97,21 @@
                         <div class="table-responsive">
                             <table class="table table-centered table-nowrap table-hover mb-0">
                                 <thead class="table-light">
-                                    <tr>
-                                        <th>排序</th>
-                                        <th>名稱</th>
-                                        <th>類型</th>
-                                        <th>產品類別</th>
-                                        <th>後續處理類別/細項</th>
-                                        <th>售價</th>
-                                        <th>庫存</th>
-                                        <th>計算佣金</th>
-                                        <th>最近進貨日期</th>
-                                        <th>排序</th>
-                                        <th>狀態</th>
-                                        <th>動作</th>
-                                    </tr>
+                                                                            <tr>
+                                            <th>排序</th>
+                                            <th>名稱</th>
+                                            <th>類型</th>
+                                            <th>產品類別</th>
+                                            <th>後續處理類別/細項</th>
+                                            <th>售價</th>
+                                            <th>庫存</th>
+                                            <th>變體</th>
+                                            <th>計算佣金</th>
+                                            <th>最近進貨日期</th>
+                                            <th>排序</th>
+                                            <th>狀態</th>
+                                            <th>動作</th>
+                                        </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($datas as $data)
@@ -136,15 +137,34 @@
                                                     {{ $data->prom_data->prom_type->name }} / {{ $data->prom_data->name }}
                                                 @endif
                                             </td>
-                                            <td>{{ number_format($data->price) }}</td>
                                             <td>
-                                                @if ($data->stock == '1')
-                                                    @if ($restocks[$data->id]['cur_num'] < 0)
-                                                        <span
-                                                            class="text-danger">{{ $restocks[$data->id]['cur_num'] }}</span>
+                                                @if ($data->has_variants)
+                                                    <span class="badge bg-info">{{ $data->min_variant_price }} - {{ $data->max_variant_price }}</span>
+                                                @else
+                                                    {{ number_format($data->price) }}
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($data->has_variants)
+                                                    <span class="badge bg-success">{{ $data->total_variants_stock }}</span>
+                                                    <button class="btn btn-sm btn-outline-primary" onclick="showVariants({{ $data->id }})">
+                                                        查看變體
+                                                    </button>
+                                                @else
+                                                    @if ($data->stock == '1')
+                                                        @if ($restocks[$data->id]['cur_num'] < 0)
+                                                            <span class="text-danger">{{ $restocks[$data->id]['cur_num'] }}</span>
+                                                        @else
+                                                            {{ $restocks[$data->id]['cur_num'] }}
+                                                        @endif
                                                     @else
-                                                        {{ $restocks[$data->id]['cur_num'] }}
+                                                        -
                                                     @endif
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($data->has_variants)
+                                                    <span class="badge bg-warning">{{ $data->variants_count }} 個變體</span>
                                                 @else
                                                     -
                                                 @endif
@@ -205,4 +225,88 @@
         </div>
 
     </div> <!-- container -->
+
+    <!-- 變體詳情 Modal -->
+    <div class="modal fade" id="variantsModal" tabindex="-1" aria-labelledby="variantsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="variantsModalLabel">商品變體詳情</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="variantsContent">
+                        <!-- 變體內容將在這裡動態載入 -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('script')
+<script>
+function showVariants(productId) {
+    // 顯示載入中
+    $('#variantsContent').html('<div class="text-center"><i class="mdi mdi-loading mdi-spin"></i> 載入中...</div>');
+    $('#variantsModal').modal('show');
+    
+    // 發送 AJAX 請求獲取變體資料
+    $.ajax({
+        url: '{{ route("product.variants") }}',
+        method: 'GET',
+        data: { product_id: productId },
+        success: function(response) {
+            if (response.success) {
+                var html = '<div class="table-responsive">';
+                html += '<table class="table table-bordered">';
+                html += '<thead class="table-light">';
+                html += '<tr>';
+                html += '<th>變體名稱</th>';
+                html += '<th>顏色</th>';
+                html += '<th>SKU</th>';
+                html += '<th>價格</th>';
+                html += '<th>成本</th>';
+                html += '<th>庫存</th>';
+                html += '<th>狀態</th>';
+                html += '</tr>';
+                html += '</thead>';
+                html += '<tbody>';
+                
+                response.variants.forEach(function(variant) {
+                    html += '<tr>';
+                    html += '<td>' + variant.variant_name + '</td>';
+                    html += '<td>' + (variant.color || '-') + '</td>';
+                    html += '<td>' + (variant.sku || '-') + '</td>';
+                    html += '<td>' + (variant.price ? 'NT$ ' + variant.price : '-') + '</td>';
+                    html += '<td>' + (variant.cost ? 'NT$ ' + variant.cost : '-') + '</td>';
+                    html += '<td>' + variant.stock_quantity + '</td>';
+                    html += '<td>';
+                    if (variant.status === 'active') {
+                        html += '<span class="badge bg-success">啟用</span>';
+                    } else {
+                        html += '<span class="badge bg-danger">停用</span>';
+                    }
+                    html += '</td>';
+                    html += '</tr>';
+                });
+                
+                html += '</tbody>';
+                html += '</table>';
+                html += '</div>';
+                
+                $('#variantsContent').html(html);
+            } else {
+                $('#variantsContent').html('<div class="alert alert-danger">載入變體資料失敗</div>');
+            }
+        },
+        error: function() {
+            $('#variantsContent').html('<div class="alert alert-danger">載入變體資料失敗</div>');
+        }
+    });
+}
+</script>
 @endsection
