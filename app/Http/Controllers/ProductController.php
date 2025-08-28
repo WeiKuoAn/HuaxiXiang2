@@ -476,8 +476,16 @@ class ProductController extends Controller
         
         // 取得商品的變體資料
         $variants = $data->variants;
+        
+        // 取得 promTypes 和 proms 資料
+        $promTypes = PromType::where('status', 'up')->get();
+        if (isset($data->prom_id)) {
+            $proms = Prom::where('type', $data->prom_data->type)->get();
+        } else {
+            $proms = [];
+        }
 
-        return view('product.delete')->with('products', $datas)->with('categorys', $categorys)->with('data', $data)->with('combo_datas', $combo_datas)->with('variants', $variants);
+        return view('product.delete')->with('products', $datas)->with('categorys', $categorys)->with('data', $data)->with('combo_datas', $combo_datas)->with('variants', $variants)->with('promTypes', $promTypes)->with('proms', $proms);
     }
 
     public function destroy($id)
