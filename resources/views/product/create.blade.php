@@ -79,6 +79,12 @@
                             <label for="seq" class="form-label">商品排序</label>
                             <input type="number" class="form-control" id="seq" name="seq" value="999">
                         </div>
+                        
+                        <div class="mb-3 col-md-4">
+                            <label for="initial_stock" class="form-label">起始庫存</label>
+                            <input type="number" class="form-control" id="initial_stock" name="initial_stock" value="0" min="0">
+                            <small class="form-text text-muted">商品建立時的初始庫存數量</small>
+                        </div>
 
                          <div class="mb-3 col-md-4">
                             <label for="promTypes" class="form-label">安葬處理/後續處理類別</label>

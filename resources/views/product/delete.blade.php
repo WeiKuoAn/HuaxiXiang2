@@ -81,6 +81,13 @@
                         </div>
 
                         <div class="mb-3 col-md-4">
+                            <label for="initial_stock" class="form-label">起始庫存</label>
+                            <input type="number" class="form-control" id="initial_stock" name="initial_stock" 
+                                value="{{ $data->initial_stock ?? 0 }}" min="0" readonly>
+                            <small class="form-text text-muted">商品建立時的初始庫存數量</small>
+                        </div>
+
+                        <div class="mb-3 col-md-4">
                             <label for="promTypes" class="form-label">安葬處理/後續處理類別</label>
                             <select id="promTypes" class="form-select" name="promTypes">
                                 <option value="" selected>請選擇...</option>

@@ -89,6 +89,13 @@
                                         value="{{ $data->seq }}">
                                 </div>
 
+                                <div class="mb-3 col-md-4">
+                                    <label for="initial_stock" class="form-label">起始庫存</label>
+                                    <input type="number" class="form-control" id="initial_stock" name="initial_stock" 
+                                        value="{{ $data->initial_stock ?? 0 }}" min="0">
+                                    <small class="form-text text-muted">商品建立時的初始庫存數量</small>
+                                </div>
+
 
                                 {{-- <div class="mb-3 col-md-4">
                             <label for="alarm" class="form-label">警報數量</label>

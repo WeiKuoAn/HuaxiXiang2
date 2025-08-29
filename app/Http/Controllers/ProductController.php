@@ -290,6 +290,7 @@ class ProductController extends Controller
         $data->description = $request->description;
         $data->price = $request->price;
         $data->seq = $request->seq;
+        $data->initial_stock = $request->initial_stock ?? 0;
         $data->cost = $request->cost;
         $data->alarm_num = $request->alarm_num;
         $data->status = $request->status;
@@ -392,6 +393,7 @@ class ProductController extends Controller
         $data->description = $request->description;
         $data->price = $request->price;
         $data->seq = $request->seq;
+        $data->initial_stock = $request->initial_stock ?? 0;
         $data->cost = $request->cost;
         $data->alarm_num = $request->alarm_num;
         $data->status = $request->status;
