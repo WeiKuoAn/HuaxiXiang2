@@ -572,7 +572,7 @@
                                                 <a href="{{ route('check-sale', $sale->id) }}"><button type="button"
                                                         class="btn btn-danger btn-sm">查看</button></a>
                                             @endif --}}
-                                                @if (Auth::user()->level != 2 || $sale->user_id == Auth::user()->id)
+                                                @if (Auth::user()->level != 2 || $sale->user_id == Auth::user()->id || Auth::user()->job_id == 10)
                                                     @if ($sale->status != '9')
                                                         <div class="btn-group dropdown">
                                                             <a href="javascript: void(0);"
@@ -618,9 +618,11 @@
                                                                 <a class="dropdown-item"
                                                                     href="{{ route('sale.history', $sale->id) }}"><i
                                                                         class="mdi mdi-eye me-2 font-18 text-muted vertical-middle"></i>業務軌跡</a>
-                                                                <a class="dropdown-item"
-                                                                    href="{{ route('sale.change_plan', $sale->id) }}"><i
-                                                                        class="mdi mdi-vanish me-2 text-muted font-18 vertical-middle"></i>修改方案</a>
+                                                                @if (Auth::user()->level != 2 && Auth::user()->job_id == 10)
+                                                                    <a class="dropdown-item"
+                                                                        href="{{ route('sale.change_plan', $sale->id) }}"><i
+                                                                            class="mdi mdi-vanish me-2 text-muted font-18 vertical-middle"></i>修改方案</a>
+                                                                @endif
                                                                 {{-- <a class="dropdown-item" href="{{ route('sale.change',$sale->id) }}"><i class="mdi mdi-autorenew me-2 text-muted font-18 vertical-middle"></i>轉單/對拆</a>
                                                             <a class="dropdown-item" href="{{ route('sale.change.record',$sale->id) }}"><i class="mdi mdi-cash me-2 text-muted font-18 vertical-middle"></i>轉單/對拆紀錄</a> --}}
                                                             </div>
