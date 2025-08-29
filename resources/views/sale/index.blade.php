@@ -618,7 +618,7 @@
                                                                 <a class="dropdown-item"
                                                                     href="{{ route('sale.history', $sale->id) }}"><i
                                                                         class="mdi mdi-eye me-2 font-18 text-muted vertical-middle"></i>業務軌跡</a>
-                                                                @if (Auth::user()->level != 2 && Auth::user()->job_id == 10)
+                                                                @if (Auth::user()->level <= 1 || (Auth::user()->job_id == 10 && Auth::user()->level == 2))
                                                                     <a class="dropdown-item"
                                                                         href="{{ route('sale.change_plan', $sale->id) }}"><i
                                                                             class="mdi mdi-vanish me-2 text-muted font-18 vertical-middle"></i>修改方案</a>
