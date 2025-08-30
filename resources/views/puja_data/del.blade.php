@@ -214,6 +214,7 @@
                                 <option value="" selected>請選擇</option>
                                 <option value="A" @if($data->pay_method == 'A') selected @endif>現金</option>
                                 <option value="B" @if($data->pay_method == 'B') selected @endif>匯款</option>
+                                <option value="D" @if($data->pay_method == 'D') selected @endif>臨櫃</option>
                                 <option value="C" @if($data->pay_method == 'C') selected @endif>現金與匯款</option>
                             </select>
                         </div>

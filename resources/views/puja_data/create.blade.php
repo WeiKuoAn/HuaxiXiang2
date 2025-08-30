@@ -216,6 +216,7 @@
                                 <option value="" selected>請選擇</option>
                                 <option value="A">現金</option>
                                 <option value="B">匯款</option>
+                                <option value="D">臨櫃</option>
                                 <option value="C">現金與匯款</option>
                             </select>
                         </div>

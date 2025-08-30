@@ -96,13 +96,18 @@ class PujaDataController extends Controller
                 $datas = $datas->where('pet_name', 'like' ,$pet_name);
             }
 
+            // 年份和法會篩選邏輯
+            $year = $request->year;
             $puja_id = $request->puja_id;
 
-            if ($puja_id != "null") {
-                if (isset($puja_id)) {
-                    $datas = $datas->where('puja_id',  $puja_id);
-                }else{
-                    $datas = $datas ;
+            if ($puja_id != "null" && isset($puja_id)) {
+                // 如果選擇了特定法會，直接篩選該法會
+                $datas = $datas->where('puja_id', $puja_id);
+            } elseif ($year != "null" && isset($year)) {
+                // 如果只選擇了年份，篩選該年份的所有法會報名記錄
+                $puja_ids = Puja::where('date', 'like', $year.'%')->pluck('id');
+                if ($puja_ids->count() > 0) {
+                    $datas = $datas->whereIn('puja_id', $puja_ids);
                 }
             }
                 
@@ -324,13 +329,18 @@ class PujaDataController extends Controller
                 $datas = $datas->where('pet_name', 'like' ,$pet_name);
             }
 
+            // 年份和法會篩選邏輯
+            $year = $request->year;
             $puja_id = $request->puja_id;
 
-            if ($puja_id != "null") {
-                if (isset($puja_id)) {
-                    $datas = $datas->where('puja_id',  $puja_id);
-                }else{
-                    $datas = $datas ;
+            if ($puja_id != "null" && isset($puja_id)) {
+                // 如果選擇了特定法會，直接篩選該法會
+                $datas = $datas->where('puja_id', $puja_id);
+            } elseif ($year != "null" && isset($year)) {
+                // 如果只選擇了年份，篩選該年份的所有法會報名記錄
+                $puja_ids = Puja::where('date', 'like', $year.'%')->pluck('id');
+                if ($puja_ids->count() > 0) {
+                    $datas = $datas->whereIn('puja_id', $puja_ids);
                 }
             }
             $datas = $datas->orderby('date', 'desc')->get();
