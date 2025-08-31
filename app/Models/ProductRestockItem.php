@@ -14,6 +14,7 @@ class ProductRestockItem extends Model
         'date',
         'restock_id',
         'product_id',
+        'variant_id',
         'product_cost',
         'product_num',
         'product_total',
@@ -22,5 +23,13 @@ class ProductRestockItem extends Model
     public function product_data()
     {
         return $this->hasOne('App\Models\Product','id','product_id');
+    }
+
+    /**
+     * 關聯到商品變體
+     */
+    public function variant()
+    {
+        return $this->belongsTo(\App\Models\ProductVariant::class, 'variant_id');
     }
 }

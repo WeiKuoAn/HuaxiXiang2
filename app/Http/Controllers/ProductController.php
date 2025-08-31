@@ -38,11 +38,49 @@ class ProductController extends Controller
                 'is_custom_product' => 0
             ]);
         }
-        $products = Product::where('prom_id', $query)->get(); // 查詢商品
+        
+        $products = Product::where('prom_id', $query)->with('variants')->get(); // 查詢商品並包含變體
         $prom = \App\Models\Prom::find($query);
+        
+
+        
         if ($products->count() > 0) {
+            // 處理商品資料，包含變體資訊
+            $processedProducts = [];
+            foreach ($products as $product) {
+                $productData = [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'has_variants' => $product->has_variants,
+                    'variants' => []
+                ];
+                
+
+                
+                // 如果有變體，加入變體資訊
+                if ($product->has_variants && $product->variants->count() > 0) {
+                    foreach ($product->variants as $variant) {
+                        if ($variant->status === 'active') {
+                            $productData['variants'][] = [
+                                'id' => $variant->id,
+                                'variant_name' => $variant->variant_name,
+                                'color' => $variant->color,
+                                'sku' => $variant->sku,
+                                'price' => $variant->price ?: $product->price, // 如果變體沒有價格，使用主商品價格
+                                'stock_quantity' => $variant->stock_quantity
+                            ];
+                        }
+                    }
+                }
+                
+                $processedProducts[] = $productData;
+            }
+            
+
+            
             return response()->json([
-                'products' => $products
+                'products' => $processedProducts
             ]);
         } else {
             return response()->json([

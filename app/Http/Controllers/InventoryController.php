@@ -17,6 +17,7 @@ use App\Models\Sale_gdpaper;
 use App\Models\ComboProduct;
 use App\Models\PujaData;
 use App\Models\PujaDataAttchProduct;
+use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -109,23 +110,34 @@ class InventoryController extends Controller
       ? $query->get()
       : $query->where('category_id', $request->category_id)->get();
 
-    // 新增庫存項目
+    // 新增庫存項目（支援變體）
     if ($InventoryData->type) {  // 確認有選擇類型後才執行
       foreach ($products as $product) {
-        // 查詢該產品的最新庫存，按照 inventory_id 降序，取最新的一筆
-        $oldInventory = GdpaperInventoryItem::where('product_id', $product->id)
-          ->where('type', $InventoryData->type)
-          ->orderby('gdpaper_inventory_id', 'desc')
-          ->first();
-
-        // 建立新的庫存項目，預設新數量為 null，舊數量為查詢結果或 0
-        GdpaperInventoryItem::create([
-          'gdpaper_inventory_id' => $inventory_no,  // 關聯的單號
-          'product_id' => $product->id,  // 產品 ID
-          'type' => $request->category_id,  // 分類 ID
-          'old_num' => $this->calculateCurrentStock($product->id),  // 舊庫存，沒有則預設為 0
-          'new_num' => null,  // 新庫存預設為 null
-        ]);
+        // 若此商品有變體，逐一建立變體的盤點項目
+        if ($product->has_variants) {
+          $variants = ProductVariant::where('product_id', $product->id)->where('status', 'active')->orderBy('sort_order', 'asc')->get();
+          foreach ($variants as $variant) {
+            GdpaperInventoryItem::create([
+              'gdpaper_inventory_id' => $inventory_no,
+              'product_id' => $product->id,
+              'variant_id' => $variant->id,
+              'is_variant' => 1,
+              'type' => $request->category_id,
+              'old_num' => $this->calculateCurrentStockForVariant($variant->id),
+              'new_num' => null,
+            ]);
+          }
+        } else {
+          // 無變體，維持以商品為單位
+          GdpaperInventoryItem::create([
+            'gdpaper_inventory_id' => $inventory_no,
+            'product_id' => $product->id,
+            'is_variant' => 0,
+            'type' => $request->category_id,
+            'old_num' => $this->calculateCurrentStock($product->id),
+            'new_num' => null,
+          ]);
+        }
       }
     }
 
@@ -170,10 +182,23 @@ class InventoryController extends Controller
     $datas = GdpaperInventoryItem::where('gdpaper_inventory_id', $product_inventory_id)->get();
 
     foreach ($datas as $data) {
-      $i = $data->product_id;
-      // dd($request->product);
-      $data->new_num = $request->product[$data->product_id];
-      $data->comment = $request->comment[$data->product_id];
+      // 變體記錄：從 variant[] 陣列取值；否則沿用 product[]
+      if (!empty($data->variant_id)) {
+        $data->new_num = $request->variant[$data->variant_id] ?? null;
+        $data->comment = $request->comment_variant[$data->variant_id] ?? null;
+        
+        // 同步更新變體的實際庫存量
+        if ($data->new_num !== null) {
+          $variant = ProductVariant::find($data->variant_id);
+          if ($variant) {
+            $variant->stock_quantity = intval($data->new_num);
+            $variant->save();
+          }
+        }
+      } else {
+        $data->new_num = $request->product[$data->product_id] ?? null;
+        $data->comment = $request->comment[$data->product_id] ?? null;
+      }
       $data->save();
     }
     // dd($inventory_data);
@@ -332,7 +357,8 @@ class InventoryController extends Controller
       $base_stock = $inventory_item->new_num ?? $inventory_item->old_num ?? 0;
       $base_date = $inventory_item->inventory_date;
     } else {
-      $base_stock = 0;
+      // 沒有盤點記錄時，使用商品的初始庫存量
+      $base_stock = $product->initial_stock ?? 0;
       $base_date = '2023-06-09 11:59:59';
     }
 
@@ -379,6 +405,51 @@ class InventoryController extends Controller
 
     $current_stock = intval($base_stock) + intval($restock_amount) - intval($total_sold);
 
+    return $current_stock;
+  }
+
+  /**
+   * 計算變體的目前庫存
+   * 規則：以最近一次「已完成盤點」的變體基準數為底，之後的進貨/銷售/法會/組合使用都以變體為單位
+   * 若尚無變體盤點紀錄，基準視為 0，自 2023-06-09 11:59:59 開始累加
+   */
+  public function calculateCurrentStockForVariant($variantId)
+  {
+    $variant = ProductVariant::find($variantId);
+    if (!$variant) return 0;
+
+    // 取得最近一筆「變體」的盤點（已完成）
+    $inventory_item = GdpaperInventoryItem::where('variant_id', $variantId)
+      ->where('is_variant', 1)  // 確保是變體記錄
+      ->join('gdpaper_inventory_data', 'gdpaper_inventory_item.gdpaper_inventory_id', '=', 'gdpaper_inventory_data.inventory_no')
+      ->where('gdpaper_inventory_data.state', '1')
+      ->where('gdpaper_inventory_item.created_at', '>', '2023-06-09 11:59:59')
+      ->orderBy('gdpaper_inventory_item.updated_at', 'desc')
+      ->select('gdpaper_inventory_item.*', 'gdpaper_inventory_data.date as inventory_date')
+      ->first();
+
+    if ($inventory_item) {
+      $base_stock = $inventory_item->new_num ?? $inventory_item->old_num ?? 0;
+      $base_date = $inventory_item->inventory_date;
+    } else {
+      // 沒有盤點記錄時，使用變體的庫存量
+      $base_stock = $variant->stock_quantity ?? 0;
+      $base_date = '2023-06-09 11:59:59';
+    }
+
+    // 進貨：目前進貨尚未做變體，暫以 0（未來導入變體進貨後，改查 variant 層）
+    $restock_amount = 0;
+
+    // 銷售：目前銷售也尚未變體化，暫以 0（未來導入再補）
+    $direct_sale = 0;
+
+    // 組合用掉、法會附加用掉：同上，暫以 0，避免錯扣
+    $combo_used = 0;
+    $puja_direct_used = 0;
+    $puja_combo_used = 0;
+
+    $total_sold = $direct_sale + $combo_used + $puja_direct_used + $puja_combo_used;
+    $current_stock = intval($base_stock) + intval($restock_amount) - intval($total_sold);
     return $current_stock;
   }
 }

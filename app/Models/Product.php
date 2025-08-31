@@ -27,7 +27,8 @@ class Product extends Model
         'stock',
         'restock',
         'prom_id',
-        'has_variants'
+        'has_variants',
+        'initial_stock'
     ];
 
     public function category_data()

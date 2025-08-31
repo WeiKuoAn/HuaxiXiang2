@@ -38,19 +38,17 @@
                     <div class="row">
                         <div class="col-xl-12">
                             <div class="mb-3">
-                                <div class="mb-3">
-                                    <label for="project-priority" class="form-label">商品類別<span class="text-danger">*</span></label>
-                                    <select class="form-control" data-toggle="select" data-width="100%" name="category_id">
-                                        <option value="all">全部類別</option>
-                                        @foreach($categorys as $category)
-                                            <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                        @endforeach
-                                    </select>
-                               </div>
-                           </div>
+                                <label for="category-select" class="form-label">商品類別<span class="text-danger">*</span></label>
+                                <select class="form-control" data-toggle="select" data-width="100%" name="category_id" id="category-select">
+                                    <option value="all">全部類別</option>
+                                    @foreach($categorys  as $category)
+                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                             <div class="mb-3">
-                                <label for="project-priority" class="form-label">指定盤點人<span class="text-danger">*</span></label>
-                                <select class="form-control" data-toggle="select" data-width="100%" name="update_user_id">
+                                <label for="user-select" class="form-label">指定盤點人<span class="text-danger">*</span></label>
+                                <select class="form-control" data-toggle="select" data-width="100%" name="update_user_id" id="user-select">
                                     @foreach($users as $user)
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
                                     @endforeach
@@ -80,9 +78,6 @@
 
 @section('script')
 <!-- third party js -->
-
-<script src="{{ asset('assets/js/twzipcode-1.4.1-min.js') }}"></script>
-<script src="{{ asset('assets/js/twzipcode.js') }}"></script>
 <script src="{{asset('assets/libs/dropzone/dropzone.min.js')}}"></script>
 <script src="{{asset('assets/libs/select2/select2.min.js')}}"></script>
 <script src="{{asset('assets/libs/flatpickr/flatpickr.min.js')}}"></script>
