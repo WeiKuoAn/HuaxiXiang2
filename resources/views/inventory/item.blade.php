@@ -38,6 +38,11 @@
                     <div class="table-responsive">
 
                         <table class="table table-centered mb-0">
+                            @php
+                                $grouped = $datas->groupBy('product_id');
+                                $hasPending = $datas->contains(function($i){ return $i->new_num === null; });
+                                $rowIndex = 1;
+                            @endphp
                             <thead>
                                 <tr align="center">
                                     <th scope="col">編號</th>
@@ -47,41 +52,76 @@
                                     <th scope="col" width="25%">備註</th>
                                 </tr>
                             </thead>
+                            <tbody align="center">
+                                @foreach ($grouped as $productId => $items)
+                                    @php
+                                        $first = $items->first();
+                                        $productName = optional($first->gdpaper_name)->name ?? '未知商品';
+                                        $hasVariants = $items->contains(function($i){ return !empty($i->variant_id); });
+                                    @endphp
 
-                            <tbody>
-                                <tbody align="center">
-                                    @foreach ($datas as $key=>$data)
+                                    @if($hasVariants)
                                         <tr>
-                                            <td>{{ $key+1 }}</td>
-                                            @if($data->type == 'gd_paper')
-                                                <td>{{ $data->gdpaper_name->name }}</td>
-                                            @else
-                                                <td>{{ $data->gdpaper_name->name }}</td>
-                                            @endif
-                                            <td>{{ $data->old_num }}</td>
-                                            @if(!isset($data->new_num))
-                                            <td>
-                                                <input type="text" class="form-control date" id="before_date" name="product[{{ $data->product_id }}]" value="" required>
+                                            <td colspan="5" style="text-align:left; font-weight:600; background:#f9f9f9;">
+                                                {{ $productName }}
                                             </td>
-                                            @else
-                                            <td>{{ $data->new_num }}</td>
-                                            @endif
-                                            @if($data->new_num == null)
-                                            <td>
-                                                <input type="text" class="form-control date" id="before_date" name="comment[{{ $data->product_id }}]"  value="">
-                                            </td>
-                                            @else
-                                            <td>{{ $data->comment }}</td>
-                                            @endif
                                         </tr>
-                                    @endforeach
+                                        @foreach ($items as $item)
+                                            @if(!empty($item->variant_id))
+                                                <tr>
+                                                    <td>{{ $rowIndex++ }}</td>
+                                                    <td>
+                                                        {{ $productName }} - {{ optional($item->variant)->variant_name ?? ('變體#'.$item->variant_id) }}
+                                                    </td>
+                                                    <td>{{ $item->old_num }}</td>
+                                                    @if($item->new_num === null)
+                                                        <td>
+                                                            <input type="text" class="form-control" name="variant[{{ $item->variant_id }}]" value="" required>
+                                                        </td>
+                                                    @else
+                                                        <td>{{ $item->new_num }}</td>
+                                                    @endif
+                                                    @if($item->new_num === null)
+                                                        <td>
+                                                            <input type="text" class="form-control" name="comment_variant[{{ $item->variant_id }}]" value="">
+                                                        </td>
+                                                    @else
+                                                        <td>{{ $item->comment }}</td>
+                                                    @endif
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                    @else
+                                        @foreach ($items as $item)
+                                            <tr>
+                                                <td>{{ $rowIndex++ }}</td>
+                                                <td>{{ $productName }}</td>
+                                                <td>{{ $item->old_num }}</td>
+                                                @if($item->new_num === null)
+                                                    <td>
+                                                        <input type="text" class="form-control" name="product[{{ $item->product_id }}]" value="" required>
+                                                    </td>
+                                                @else
+                                                    <td>{{ $item->new_num }}</td>
+                                                @endif
+                                                @if($item->new_num === null)
+                                                    <td>
+                                                        <input type="text" class="form-control" name="comment[{{ $item->product_id }}]" value="">
+                                                    </td>
+                                                @else
+                                                    <td>{{ $item->comment }}</td>
+                                                @endif
+                                            </tr>
+                                        @endforeach
+                                    @endif
+                                @endforeach
                             </tbody>
                         </table>
                     </div> <!-- end .table-responsive-->
                 </div> <!-- end card-body -->
                 <div class="row col-lg-12 mx-auto mb-4">
                     <div class="col-auto me-auto"></div>
-                        @if($data->new_num == null)
+                        @if($hasPending)
                             <div class="col-auto">
                                 <button type="submit" class="btn btn-primary">送出盤點</button>
                             </div>
