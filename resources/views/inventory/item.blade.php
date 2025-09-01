@@ -40,7 +40,8 @@
                         <table class="table table-centered mb-0">
                             @php
                                 $grouped = $datas->groupBy('product_id');
-                                $hasPending = $datas->contains(function($i){ return $i->new_num === null; });
+                                // 根據盤點狀態判斷是否顯示送出按鈕
+                                $hasPending = $inventory_data->state == 0; // 只有未完成的盤點才顯示送出按鈕
                                 $rowIndex = 1;
                             @endphp
                             <thead>
@@ -74,16 +75,16 @@
                                                         {{ $productName }} - {{ optional($item->variant)->variant_name ?? ('變體#'.$item->variant_id) }}
                                                     </td>
                                                     <td>{{ $item->old_num }}</td>
-                                                    @if($item->new_num === null)
+                                                    @if($inventory_data->state == 0)
                                                         <td>
-                                                            <input type="text" class="form-control" name="variant[{{ $item->variant_id }}]" value="" required>
+                                                            <input type="text" class="form-control" name="variant[{{ $item->variant_id }}]" value="{{ $item->new_num }}" required>
                                                         </td>
                                                     @else
                                                         <td>{{ $item->new_num }}</td>
                                                     @endif
-                                                    @if($item->new_num === null)
+                                                    @if($inventory_data->state == 0)
                                                         <td>
-                                                            <input type="text" class="form-control" name="comment_variant[{{ $item->variant_id }}]" value="">
+                                                            <input type="text" class="form-control" name="comment_variant[{{ $item->variant_id }}]" value="{{ $item->comment }}">
                                                         </td>
                                                     @else
                                                         <td>{{ $item->comment }}</td>
@@ -97,16 +98,16 @@
                                                 <td>{{ $rowIndex++ }}</td>
                                                 <td>{{ $productName }}</td>
                                                 <td>{{ $item->old_num }}</td>
-                                                @if($item->new_num === null)
+                                                @if($inventory_data->state == 0)
                                                     <td>
-                                                        <input type="text" class="form-control" name="product[{{ $item->product_id }}]" value="" required>
+                                                        <input type="text" class="form-control" name="product[{{ $item->product_id }}]" value="{{ $item->new_num }}" required>
                                                     </td>
                                                 @else
                                                     <td>{{ $item->new_num }}</td>
                                                 @endif
-                                                @if($item->new_num === null)
+                                                @if($inventory_data->state == 0)
                                                     <td>
-                                                        <input type="text" class="form-control" name="comment[{{ $item->product_id }}]" value="">
+                                                        <input type="text" class="form-control" name="comment[{{ $item->product_id }}]" value="{{ $item->comment }}">
                                                     </td>
                                                 @else
                                                     <td>{{ $item->comment }}</td>

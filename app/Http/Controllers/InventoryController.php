@@ -172,8 +172,11 @@ class InventoryController extends Controller
   {
     $inventory_no = $product_inventory_id;
     $datas = GdpaperInventoryItem::where('gdpaper_inventory_id', $product_inventory_id)->get();
+    
+    // 取得盤點狀態
+    $inventory_data = GdpaperInventoryData::where('inventory_no', $product_inventory_id)->first();
 
-    return view('inventory.item')->with('datas', $datas)->with('inventory_no', $inventory_no);
+    return view('inventory.item')->with('datas', $datas)->with('inventory_no', $inventory_no)->with('inventory_data', $inventory_data);
   }
 
   public function inventoryItem_edit(Request $request, $product_inventory_id)
