@@ -6,12 +6,15 @@ use App\Http\Controllers\CashController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ContractTypeController;
+use App\Http\Controllers\CrematoriumController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomrtGruopController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeregistrationController;
+use App\Http\Controllers\GiveController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\IncomeDataController;
+use App\Http\Controllers\IncreaseController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\JobMenuController;
@@ -22,7 +25,9 @@ use App\Http\Controllers\LeaveDayController;
 use App\Http\Controllers\LeaveSettingController;
 use App\Http\Controllers\LiffController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\MeritController;
 use App\Http\Controllers\OnlineColumbariumController;
+use App\Http\Controllers\OvertimeController;
 use App\Http\Controllers\PayController;
 use App\Http\Controllers\PayDataController;
 use App\Http\Controllers\PersonController;
@@ -66,10 +71,10 @@ use App\Http\Controllers\Rpg30Controller;
 use App\Http\Controllers\Rpg31Controller;
 use App\Http\Controllers\Rpg32Controller;
 use App\Http\Controllers\Rpg33Controller;
-use App\Http\Controllers\CrematoriumController;
 use App\Http\Controllers\SaleDataController;
 use App\Http\Controllers\SaleDataControllerNew;
 use App\Http\Controllers\SaleSourceController;
+use App\Http\Controllers\ScrappedController;
 use App\Http\Controllers\SeniorityPausesController;
 use App\Http\Controllers\SouvenirController;
 use App\Http\Controllers\SouvenirTypeController;
@@ -78,23 +83,18 @@ use App\Http\Controllers\TargetCategoriesController;
 use App\Http\Controllers\TargetController;
 use App\Http\Controllers\TargetItemController;
 use App\Http\Controllers\TaskController;
-use App\Http\Controllers\UserBankDataController;    
+use App\Http\Controllers\UserBankDataController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserSaleDataController;
 use App\Http\Controllers\VacationController;
 use App\Http\Controllers\VenderController;
 use App\Http\Controllers\VisitController;
 use App\Http\Controllers\WorkController;
-use App\Http\Controllers\MeritController;
-use App\Http\Controllers\ScrappedController;
 use App\Models\Pay;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
-use App\Http\Controllers\GiveController;
-use App\Http\Controllers\IncreaseController;
-use App\Http\Controllers\OvertimeController;
 
 /*
  * |--------------------------------------------------------------------------
@@ -218,11 +218,17 @@ Route::group(['prefix' => '/'], function () {
     Route::get('search_district', [VisitController::class, 'search_district'])->name('search.district');  // ajax搜尋區域
 
     Route::get('hospitals', [VisitController::class, 'hospitals'])->name('hospitals');  // 醫院
-    Route::get('etiquettes', [VisitController::class, 'etiquettes'])->name('etiquettes');  // 禮儀社
-    Route::get('reproduces', [VisitController::class, 'reproduces'])->name('reproduces');  // 繁殖場
+Route::get('hospitals/export', [VisitController::class, 'hospitalsExport'])->name('hospitals.export');  // 醫院匯出
+Route::get('etiquettes', [VisitController::class, 'etiquettes'])->name('etiquettes');  // 禮儀社
+Route::get('etiquettes/export', [VisitController::class, 'etiquettesExport'])->name('etiquettes.export');  // 禮儀社匯出
+Route::get('reproduces', [VisitController::class, 'reproduces'])->name('reproduces');  // 繁殖場
+Route::get('reproduces/export', [VisitController::class, 'reproducesExport'])->name('reproduces.export');  // 繁殖場匯出
     Route::get('dogparks', [VisitController::class, 'dogparks'])->name('dogparks');  // 狗園
+    Route::get('dogparks/export', [VisitController::class, 'dogparksExport'])->name('dogparks.export');  // 狗園匯出
     Route::get('salons', [VisitController::class, 'salons'])->name('salons');  // 美容院
+    Route::get('salons/export', [VisitController::class, 'salonsExport'])->name('salons.export');  // 美容院匯出
     Route::get('others', [VisitController::class, 'others'])->name('others');  // 其他合作廠商
+    Route::get('others/export', [VisitController::class, 'othersExport'])->name('others.export');  // 其他業者匯出
     Route::get('source/sales/{id}', [VisitController::class, 'source_sale'])->name('visit.source.sale');  // 來源銷售
 
     Route::get('visit/{id}', [VisitController::class, 'index'])->name('visits');
@@ -294,7 +300,7 @@ Route::group(['prefix' => '/'], function () {
     /* 業務管理 */
     Route::get('/sales', [SaleDataController::class, 'index'])->name('sales');
     Route::get('/sales/export', [SaleDataController::class, 'export'])->name('sales.export');
-    
+
     Route::get('/sales/excel', [SaleDataController::class, 'excel'])->name('sales.excel');
 
     Route::get('/sale/create', [SaleDataController::class, 'create'])->name('sale.create');
@@ -309,8 +315,14 @@ Route::group(['prefix' => '/'], function () {
 
     Route::get('/sale/create/gpt', [SaleDataControllerNew::class, 'create_gpt'])->name('sale.create.gpt');
     Route::post('/sale/create/gpt', [SaleDataControllerNew::class, 'store_gpt'])->name('sale.data.create.gpt');
+    Route::get('/sale/edit/gpt/{id}', [SaleDataControllerNew::class, 'edit_gpt'])->name('sale.edit.gpt');
+    Route::post('/sale/update/gpt/{id}', [SaleDataControllerNew::class, 'update_gpt'])->name('sale.data.update.gpt');
+    Route::get('/sale/del/gpt/{id}', [SaleDataControllerNew::class, 'delete_gpt'])->name('sale.del.gpt');
+    Route::delete('/sale/del/gpt/{id}', [SaleDataControllerNew::class, 'destroy_gpt'])->name('sale.data.del.gpt');
+    Route::get('/sale/check/gpt/{id}', [SaleDataControllerNew::class, 'check_show_gpt'])->name('sale.check.gpt');
+    Route::post('/sale/check/gpt/{id}', [SaleDataControllerNew::class, 'check_update_gpt'])->name('sale.data.check.gpt');
 
-    //報廢單
+    // 報廢單
     Route::get('/sale/scrapped/create', [ScrappedController::class, 'create'])->name('sale.scrapped.create');
     Route::post('/sale/scrapped/create', [ScrappedController::class, 'store'])->name('sale.scrapped.create.data');
     Route::get('/sale/scrapped/{id}/edit', [ScrappedController::class, 'edit'])->name('sale.scrapped.edit');
@@ -334,6 +346,7 @@ Route::group(['prefix' => '/'], function () {
     Route::post('/sale/change_plan/{id}', [SaleDataController::class, 'change_plan_update'])->name('sale.data.change_plan');
     // 尾款ajax
     Route::get('/sales/final_price', [SaleDataController::class, 'final_price'])->name('sales.final_price');
+    Route::get('/sales/deposit_amount', [SaleDataController::class, 'deposit_amount'])->name('sales.deposit_amount');
 
     Route::get('/prom/search', [SaleDataController::class, 'prom_search'])->name('prom.search');
     Route::get('/gdpaper/search', [SaleDataController::class, 'gdpaper_search'])->name('gdpaper.search');
@@ -596,7 +609,7 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg30/detail/urn-souvenir/{season_start}/{season_end}/{urn_souvenir}', [Rpg30Controller::class, 'season_urn_souvenir_detail'])->name('rpg30.season.urn_souvenir.detail');
         Route::get('/rpg/rpg33', [Rpg33Controller::class, 'index'])->name('rpg33');
         Route::get('/rpg/rpg33/export', [Rpg33Controller::class, 'export'])->name('rpg33.export');
-        
+
         // 火化爐管理路由
         Route::prefix('crematorium')->name('crematorium.')->group(function () {
             // 設備管理
@@ -606,12 +619,12 @@ Route::group(['prefix' => '/'], function () {
             Route::get('/{id}/edit', [CrematoriumController::class, 'edit'])->name('edit');
             Route::put('/{id}/update', [CrematoriumController::class, 'update'])->name('update');
             Route::delete('/{id}', [CrematoriumController::class, 'destroy'])->name('destroy');
-            
+
             // 預約管理
             Route::get('/bookings', [CrematoriumController::class, 'bookings'])->name('bookings');
             Route::get('/bookings/create', [CrematoriumController::class, 'createBooking'])->name('createBooking');
             Route::post('/bookings/store', [CrematoriumController::class, 'storeBooking'])->name('storeBooking');
-            
+
             // 維護記錄管理
             Route::get('/maintenance', [CrematoriumController::class, 'maintenance'])->name('maintenance');
             Route::get('/maintenance/create', [CrematoriumController::class, 'createMaintenance'])->name('createMaintenance');
@@ -626,17 +639,15 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg05', [Rpg05Controller::class, 'rpg05'])->name('rpg05');
         Route::get('/rpg/rpg06/export', [Rpg06Controller::class, 'export'])->name('rpg06.export');  // 舊法會查詢
         Route::get('/rpg/rpg11', [Rpg11Controller::class, 'rpg11'])->name('rpg11');
-        
-       
+
         Route::get('/rpg/rpg18', [Rpg18Controller::class, 'rpg18'])->name('rpg18');
         Route::get('/rpg/rpg19', [Rpg19Controller::class, 'rpg19'])->name('rpg19');
         Route::get('/rpg/rpg20', [Rpg20Controller::class, 'rpg20'])->name('rpg20');
-        
+
         Route::get('/rpg/rpg26', [Rpg26Controller::class, 'rpg26'])->name('rpg26');
         Route::get('/rpg/rpg28', [Rpg28Controller::class, 'rpg28'])->name('rpg28');
         Route::get('/rpg/rpg29', [Rpg29Controller::class, 'rpg29'])->name('rpg29');
-        
-        
+
         Route::get('/rpg/rpg32', [Rpg32Controller::class, 'rpg32'])->name('rpg32');
     });
 
@@ -698,7 +709,7 @@ Route::group(['prefix' => '/'], function () {
 
     Route::get('/online-columbarium', [OnlineColumbariumController::class, 'index'])->name('columbarium.index');
 
-    //儲戶
+    // 儲戶
     Route::get('/deregistration', [DeregistrationController::class, 'index'])->name('deregistration.index');
     Route::get('/deregistration/create', [DeregistrationController::class, 'create'])->name('deregistration.create');
     Route::post('/deregistration/create', [DeregistrationController::class, 'store'])->name('deregistration.create.data');
@@ -707,7 +718,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/deregistration/del/{id}', [DeregistrationController::class, 'delete'])->name('deregistration.del');
     Route::post('/deregistration/del/{id}', [DeregistrationController::class, 'destroy'])->name('deregistration.del.data');
 
-    //功德件
+    // 功德件
     Route::get('/merit', [MeritController::class, 'index'])->name('merit.index');
     Route::get('/merit/create', [MeritController::class, 'create'])->name('merit.create');
     Route::post('/merit/create', [MeritController::class, 'store'])->name('merit.create.data');
@@ -716,8 +727,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/merit/del/{id}', [MeritController::class, 'delete'])->name('merit.del');
     Route::post('/merit/del/{id}', [MeritController::class, 'destroy'])->name('merit.del.data');
 
-
-    //贈送管理
+    // 贈送管理
     Route::get('/give', [GiveController::class, 'index'])->name('give.index');
     Route::get('/give/create', [GiveController::class, 'create'])->name('give.create');
     Route::post('/give/create', [GiveController::class, 'store'])->name('give.create.data');
@@ -726,7 +736,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/give/del/{id}', [GiveController::class, 'delete'])->name('give.del');
     Route::post('/give/del/{id}', [GiveController::class, 'destroy'])->name('give.del.data');
 
-    //加成管理
+    // 加成管理
     Route::get('/increase', [IncreaseController::class, 'index'])->name('increase.index');
     Route::get('/increase/create', [IncreaseController::class, 'create'])->name('increase.create');
     Route::post('/increase/create', [IncreaseController::class, 'store'])->name('increase.create.data');
@@ -736,23 +746,20 @@ Route::group(['prefix' => '/'], function () {
     Route::delete('/increase/del/{id}', [IncreaseController::class, 'destroy'])->name('increase.del.data');
     Route::get('/increase/export', [IncreaseController::class, 'export'])->name('increase.export');
 
-//加班管理
-Route::get('/overtime', [OvertimeController::class, 'index'])->name('overtime.index');
-Route::get('/overtime/create', [OvertimeController::class, 'create'])->name('overtime.create');
-Route::post('/overtime/create', [OvertimeController::class, 'store'])->name('overtime.create.data');
-Route::get('/overtime/edit/{id}', [OvertimeController::class, 'edit'])->name('overtime.edit');
-Route::put('/overtime/edit/{id}', [OvertimeController::class, 'update'])->name('overtime.edit.data');
-Route::get('/overtime/del/{id}', [OvertimeController::class, 'delete'])->name('overtime.del');
-Route::delete('/overtime/del/{id}', [OvertimeController::class, 'destroy'])->name('overtime.del.data');
-Route::get('/overtime/approve/{id}', [OvertimeController::class, 'approve'])->name('overtime.approve');
-Route::post('/overtime/reject/{id}', [OvertimeController::class, 'reject'])->name('overtime.reject');
-Route::get('/overtime/export', [OvertimeController::class, 'export'])->name('overtime.export');
-
+    // 加班管理
+    Route::get('/overtime', [OvertimeController::class, 'index'])->name('overtime.index');
+    Route::get('/overtime/create', [OvertimeController::class, 'create'])->name('overtime.create');
+    Route::post('/overtime/create', [OvertimeController::class, 'store'])->name('overtime.create.data');
+    Route::get('/overtime/edit/{id}', [OvertimeController::class, 'edit'])->name('overtime.edit');
+    Route::put('/overtime/edit/{id}', [OvertimeController::class, 'update'])->name('overtime.edit.data');
+    Route::get('/overtime/del/{id}', [OvertimeController::class, 'delete'])->name('overtime.del');
+    Route::delete('/overtime/del/{id}', [OvertimeController::class, 'destroy'])->name('overtime.del.data');
+    Route::get('/overtime/approve/{id}', [OvertimeController::class, 'approve'])->name('overtime.approve');
+    Route::post('/overtime/reject/{id}', [OvertimeController::class, 'reject'])->name('overtime.reject');
+    Route::get('/overtime/export', [OvertimeController::class, 'export'])->name('overtime.export');
 
     Route::get('image', function () {
         $img = Image::make('https://images.pexels.com/photos/4273439/pexels-photo-4273439.jpeg')->resize(300, 200);  // 這邊可以隨便用網路上的image取代
         return $img->response('jpg');
     });
-
-
 });

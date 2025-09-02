@@ -168,6 +168,23 @@ class VisitController extends Controller
                     $datas = $datas;
                 }
             }
+            
+            $has_bank_account = $request->has_bank_account;
+            if ($has_bank_account != "null") {
+                if (isset($has_bank_account)) {
+                    if ($has_bank_account == '1') {
+                        // 有匯款帳號：bank 不為空且 bank_number 不為空
+                        $datas = $datas->whereNotNull('bank')->whereNotNull('bank_number')->where('bank_number', '!=', '');
+                    } else {
+                        // 沒有匯款帳號：bank 為空或 bank_number 為空
+                        $datas = $datas->where(function($query) {
+                            $query->whereNull('bank')
+                                  ->orWhereNull('bank_number')
+                                  ->orWhere('bank_number', '=', '');
+                        });
+                    }
+                }
+            }
             $seq = $request->seq;
             $recently_date_sort = $request->recently_date_sort;
             
@@ -238,6 +255,41 @@ class VisitController extends Controller
                 $mobile = $request->mobile . '%';
                 $datas = $datas->where('mobile', 'like', $mobile);
             }
+            $county = $request->county;
+            if ($county != "null") {
+                if (isset($county)) {
+                    $datas = $datas->where('county', $county);
+                }
+            }
+            $district = $request->district;
+            if ($district != "null") {
+                if (isset($district)) {
+                    $datas = $datas->where('district', $district);
+                }
+            }
+            $commission = $request->commission;
+            if ($commission != "null") {
+                if (isset($commission)) {
+                    $datas = $datas->where('commission', $commission);
+                }
+            }
+            
+            $has_bank_account = $request->has_bank_account;
+            if ($has_bank_account != "null") {
+                if (isset($has_bank_account)) {
+                    if ($has_bank_account == '1') {
+                        // 有匯款帳號：bank 不為空且 bank_number 不為空
+                        $datas = $datas->whereNotNull('bank')->whereNotNull('bank_number')->where('bank_number', '!=', '');
+                    } else {
+                        // 沒有匯款帳號：bank 為空或 bank_number 為空
+                        $datas = $datas->where(function($query) {
+                            $query->whereNull('bank')
+                                  ->orWhereNull('bank_number')
+                                  ->orWhere('bank_number', '=', '');
+                        });
+                    }
+                }
+            }
         }
         
         $recently_date_sort = $request->recently_date_sort;
@@ -265,7 +317,26 @@ class VisitController extends Controller
         }
 
 
-        return view('visit.etiquettes')->with('datas', $datas)->with('request', $request);
+        // 載入地區資料
+        $data_countys = Customer::where('group_id', 5)->get();
+        foreach ($data_countys as $data_county) {
+            $countys[] = $data_county->county;
+        }
+        $countys = array_unique($countys);
+
+        $county = $request->county;
+        if (isset($county)) {
+            $data_districts = Customer::where('group_id', 5)->where('county', $county)->get();
+        } else {
+            $data_districts = [];
+        }
+        $districts = [];
+        foreach ($data_districts as $data_district) {
+            $districts[] = $data_district->district;
+        }
+        $districts = array_unique($districts);
+
+        return view('visit.etiquettes')->with('datas', $datas)->with('request', $request)->with('countys', $countys)->with('districts', $districts);
     }
 
     public function reproduces(Request $request) //繁殖場
@@ -282,6 +353,41 @@ class VisitController extends Controller
                 $mobile = $request->mobile . '%';
                 $datas = $datas->where('mobile', 'like', $mobile);
             }
+            $county = $request->county;
+            if ($county != "null") {
+                if (isset($county)) {
+                    $datas = $datas->where('county', $county);
+                }
+            }
+            $district = $request->district;
+            if ($district != "null") {
+                if (isset($district)) {
+                    $datas = $datas->where('district', $district);
+                }
+            }
+            $commission = $request->commission;
+            if ($commission != "null") {
+                if (isset($commission)) {
+                    $datas = $datas->where('commission', $commission);
+                }
+            }
+            
+            $has_bank_account = $request->has_bank_account;
+            if ($has_bank_account != "null") {
+                if (isset($has_bank_account)) {
+                    if ($has_bank_account == '1') {
+                        // 有匯款帳號：bank 不為空且 bank_number 不為空
+                        $datas = $datas->whereNotNull('bank')->whereNotNull('bank_number')->where('bank_number', '!=', '');
+                    } else {
+                        // 沒有匯款帳號：bank 為空或 bank_number 為空
+                        $datas = $datas->where(function($query) {
+                            $query->whereNull('bank')
+                                  ->orWhereNull('bank_number')
+                                  ->orWhere('bank_number', '=', '');
+                        });
+                    }
+                }
+            }
         }
         
         $recently_date_sort = $request->recently_date_sort;
@@ -307,7 +413,26 @@ class VisitController extends Controller
             $data->sale_count = SaleCompanyCommission::where('company_id', $data->id)->count();
             $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
         }
-        return view('visit.reproduces')->with('datas', $datas)->with('request', $request);
+        // 載入地區資料
+        $data_countys = Customer::where('group_id', 4)->get();
+        foreach ($data_countys as $data_county) {
+            $countys[] = $data_county->county;
+        }
+        $countys = array_unique($countys);
+
+        $county = $request->county;
+        if (isset($county)) {
+            $data_districts = Customer::where('group_id', 4)->where('county', $county)->get();
+        } else {
+            $data_districts = [];
+        }
+        $districts = [];
+        foreach ($data_districts as $data_district) {
+            $districts[] = $data_district->district;
+        }
+        $districts = array_unique($districts);
+
+        return view('visit.reproduces')->with('datas', $datas)->with('request', $request)->with('countys', $countys)->with('districts', $districts);
     }
 
     public function dogparks(Request $request) //狗園
@@ -324,6 +449,41 @@ class VisitController extends Controller
                 $mobile = $request->mobile . '%';
                 $datas = $datas->where('mobile', 'like', $mobile);
             }
+            $county = $request->county;
+            if ($county != "null") {
+                if (isset($county)) {
+                    $datas = $datas->where('county', $county);
+                }
+            }
+            $district = $request->district;
+            if ($district != "null") {
+                if (isset($district)) {
+                    $datas = $datas->where('district', $district);
+                }
+            }
+            $commission = $request->commission;
+            if ($commission != "null") {
+                if (isset($commission)) {
+                    $datas = $datas->where('commission', $commission);
+                }
+            }
+            
+            $has_bank_account = $request->has_bank_account;
+            if ($has_bank_account != "null") {
+                if (isset($has_bank_account)) {
+                    if ($has_bank_account == '1') {
+                        // 有匯款帳號：bank 不為空且 bank_number 不為空
+                        $datas = $datas->whereNotNull('bank')->whereNotNull('bank_number')->where('bank_number', '!=', '');
+                    } else {
+                        // 沒有匯款帳號：bank 為空或 bank_number 為空
+                        $datas = $datas->where(function($query) {
+                            $query->whereNull('bank')
+                                  ->orWhereNull('bank_number')
+                                  ->orWhere('bank_number', '=', '');
+                        });
+                    }
+                }
+            }
         }
         
         $recently_date_sort = $request->recently_date_sort;
@@ -349,7 +509,26 @@ class VisitController extends Controller
             $data->sale_count = SaleCompanyCommission::where('company_id', $data->id)->count();
             $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
         }
-        return view('visit.dogparks')->with('datas', $datas)->with('request', $request);
+        // 載入地區資料
+        $data_countys = Customer::where('group_id', 3)->get();
+        foreach ($data_countys as $data_county) {
+            $countys[] = $data_county->county;
+        }
+        $countys = array_unique($countys);
+
+        $county = $request->county;
+        if (isset($county)) {
+            $data_districts = Customer::where('group_id', 3)->where('county', $county)->get();
+        } else {
+            $data_districts = [];
+        }
+        $districts = [];
+        foreach ($data_districts as $data_district) {
+            $districts[] = $data_district->district;
+        }
+        $districts = array_unique($districts);
+
+        return view('visit.dogparks')->with('datas', $datas)->with('request', $request)->with('countys', $countys)->with('districts', $districts);
     }
 
     public function salons(Request $request) //美容院
@@ -366,6 +545,41 @@ class VisitController extends Controller
                 $mobile = $request->mobile . '%';
                 $datas = $datas->where('mobile', 'like', $mobile);
             }
+            $county = $request->county;
+            if ($county != "null") {
+                if (isset($county)) {
+                    $datas = $datas->where('county', $county);
+                }
+            }
+            $district = $request->district;
+            if ($district != "null") {
+                if (isset($district)) {
+                    $datas = $datas->where('district', $district);
+                }
+            }
+            $commission = $request->commission;
+            if ($commission != "null") {
+                if (isset($commission)) {
+                    $datas = $datas->where('commission', $commission);
+                }
+            }
+            
+            $has_bank_account = $request->has_bank_account;
+            if ($has_bank_account != "null") {
+                if (isset($has_bank_account)) {
+                    if ($has_bank_account == '1') {
+                        // 有匯款帳號：bank 不為空且 bank_number 不為空
+                        $datas = $datas->whereNotNull('bank')->whereNotNull('bank_number')->where('bank_number', '!=', '');
+                    } else {
+                        // 沒有匯款帳號：bank 為空或 bank_number 為空
+                        $datas = $datas->where(function($query) {
+                            $query->whereNull('bank')
+                                  ->orWhereNull('bank_number')
+                                  ->orWhere('bank_number', '=', '');
+                        });
+                    }
+                }
+            }
         }
         
         $recently_date_sort = $request->recently_date_sort;
@@ -391,7 +605,26 @@ class VisitController extends Controller
             $data->sale_count = SaleCompanyCommission::where('company_id', $data->id)->count();
             $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
         }
-        return view('visit.salons')->with('datas', $datas)->with('request', $request);
+        // 載入地區資料
+        $data_countys = Customer::where('group_id', 6)->get();
+        foreach ($data_countys as $data_county) {
+            $countys[] = $data_county->county;
+        }
+        $countys = array_unique($countys);
+
+        $county = $request->county;
+        if (isset($county)) {
+            $data_districts = Customer::where('group_id', 6)->where('county', $county)->get();
+        } else {
+            $data_districts = [];
+        }
+        $districts = [];
+        foreach ($data_districts as $data_district) {
+            $districts[] = $data_district->district;
+        }
+        $districts = array_unique($districts);
+
+        return view('visit.salons')->with('datas', $datas)->with('request', $request)->with('countys', $countys)->with('districts', $districts);
     }
 
     public function others(Request $request)
@@ -408,6 +641,41 @@ class VisitController extends Controller
                 $mobile = $request->mobile . '%';
                 $datas = $datas->where('mobile', 'like', $mobile);
             }
+            $county = $request->county;
+            if ($county != "null") {
+                if (isset($county)) {
+                    $datas = $datas->where('county', $county);
+                }
+            }
+            $district = $request->district;
+            if ($district != "null") {
+                if (isset($district)) {
+                    $datas = $datas->where('district', $district);
+                }
+            }
+            $commission = $request->commission;
+            if ($commission != "null") {
+                if (isset($commission)) {
+                    $datas = $datas->where('commission', $commission);
+                }
+            }
+            
+            $has_bank_account = $request->has_bank_account;
+            if ($has_bank_account != "null") {
+                if (isset($has_bank_account)) {
+                    if ($has_bank_account == '1') {
+                        // 有匯款帳號：bank 不為空且 bank_number 不為空
+                        $datas = $datas->whereNotNull('bank')->whereNotNull('bank_number')->where('bank_number', '!=', '');
+                    } else {
+                        // 沒有匯款帳號：bank 為空或 bank_number 為空
+                        $datas = $datas->where(function($query) {
+                            $query->whereNull('bank')
+                                  ->orWhereNull('bank_number')
+                                  ->orWhere('bank_number', '=', '');
+                        });
+                    }
+                }
+            }
         }
         
         $recently_date_sort = $request->recently_date_sort;
@@ -433,7 +701,26 @@ class VisitController extends Controller
             $data->sale_count = SaleCompanyCommission::where('company_id', $data->id)->count();
             $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
         }
-        return view('visit.others')->with('datas', $datas)->with('request', $request);
+        // 載入地區資料
+        $data_countys = Customer::where('group_id', 7)->get();
+        foreach ($data_countys as $data_county) {
+            $countys[] = $data_county->county;
+        }
+        $countys = array_unique($countys);
+
+        $county = $request->county;
+        if (isset($county)) {
+            $data_districts = Customer::where('group_id', 7)->where('county', $county)->get();
+        } else {
+            $data_districts = [];
+        }
+        $districts = [];
+        foreach ($data_districts as $data_district) {
+            $districts[] = $data_district->district;
+        }
+        $districts = array_unique($districts);
+
+        return view('visit.others')->with('datas', $datas)->with('request', $request)->with('countys', $countys)->with('districts', $districts);
     }
 
     //新增公司
@@ -647,4 +934,806 @@ class VisitController extends Controller
         }
         return '未知分行';
     }
+
+    // 匯出醫院資料為 Excel
+    public function hospitalsExport(Request $request)
+    {
+        $datas = Customer::where('group_id', 2);
+        
+        // 應用相同的篩選邏輯
+        if ($request) {
+            $name = $request->name;
+            if (!empty($name)) {
+                $name = '%' . $request->name . '%';
+                $datas = $datas->where('name', 'like', $name);
+            }
+            $mobile = $request->mobile;
+            if (!empty($mobile)) {
+                $mobile = $request->mobile . '%';
+                $datas = $datas->where('mobile', 'like', $mobile);
+            }
+            $county = $request->county;
+            if ($county != "null") {
+                if (isset($county)) {
+                    $datas = $datas->where('county', $county);
+                }
+            }
+            $district = $request->district;
+            if ($district != "null") {
+                if (isset($district)) {
+                    $datas = $datas->where('district', $district);
+                }
+            }
+            $commission = $request->commission;
+            if ($commission != "null") {
+                if (isset($commission)) {
+                    $datas = $datas->where('commission', $commission);
+                }
+            }
+            
+            $has_bank_account = $request->has_bank_account;
+            if ($has_bank_account != "null") {
+                if (isset($has_bank_account)) {
+                    if ($has_bank_account == '1') {
+                        // 有匯款帳號：bank 不為空且 bank_number 不為空
+                        $datas = $datas->whereNotNull('bank')->whereNotNull('bank_number')->where('bank_number', '!=', '');
+                    } else {
+                        // 沒有匯款帳號：bank 為空或 bank_number 為空
+                        $datas = $datas->where(function($query) {
+                            $query->whereNull('bank')
+                                  ->orWhereNull('bank_number')
+                                  ->orWhere('bank_number', '=', '');
+                        });
+                    }
+                }
+            }
+            
+            $seq = $request->seq;
+            $recently_date_sort = $request->recently_date_sort;
+            
+            // 如果兩個排序都有選擇，優先使用叫件日期排序
+            if ($recently_date_sort != "null" && isset($recently_date_sort)) {
+                // 使用子查詢來排序叫件日期
+                $datas = $datas->orderByRaw("(
+                    SELECT MAX(sale_date) 
+                    FROM sale_company_commission 
+                    WHERE company_id = customer.id
+                ) " . $recently_date_sort);
+            } elseif ($seq != "null" && isset($seq)) {
+                $datas = $datas->orderby('created_at', $seq);
+            }
+        }
+        
+        // 如果沒有選擇任何排序，使用預設排序
+        if (!isset($request->seq) && !isset($request->recently_date_sort)) {
+            $datas = $datas->orderby('name', 'desc');
+        }
+        
+        $datas = $datas->get();
+
+        $bankData = $this->getFlatBankData();
+        foreach ($datas as $data) {
+            $data->visit_count = Visit::where('customer_id', $data->id)->count();
+            $data->sale_count = SaleCompanyCommission::where('company_id', $data->id)->count();
+            $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
+            
+            // 新增銀行/分行中文欄位（匯出用）
+            if ($data->bank && $data->bank_number) {
+                $data->export_bank_name = $this->getBankNameFromFlatJson($data->bank, $bankData);
+                $data->export_branch_name = $this->getBranchNameFromFlatJson($data->bank, $data->branch, $bankData);
+            } else {
+                $data->export_bank_name = '';
+                $data->export_branch_name = '';
+            }
+        }
+
+        // 生成 CSV 內容（不使用套件）
+        $filename = '醫院列表_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
+
+        $callback = function() use ($datas) {
+            $file = fopen('php://output', 'w');
+            
+            // 寫入 BOM 以支援中文
+            fwrite($file, "\xEF\xBB\xBF");
+            
+            // 寫入標題行
+            fputcsv($file, [
+                '編號',
+                '姓名',
+                '電話',
+                '縣市',
+                '地區',
+                '地址',
+                '銀行',
+                '分行',
+                '帳號',
+                '佣金',
+                '拜訪狀態',
+                '拜訪次數',
+                '叫件次數',
+                '最近叫件日期',
+                '新增時間'
+            ]);
+            
+            // 寫入資料行
+            foreach ($datas as $key => $data) {
+                // 處理帳號，確保顯示為文字格式
+                $accountNumber = $data->bank_number ?: '';
+                if ($accountNumber && is_numeric($accountNumber)) {
+                    // 如果是數字，在前面加上單引號強制為文字格式
+                    $accountNumber = "'" . $accountNumber;
+                }
+                
+                fputcsv($file, [
+                    $key + 1,
+                    $data->name,
+                    $data->mobile,
+                    $data->county,
+                    $data->district,
+                    $data->address,
+                    $data->export_bank_name,
+                    $data->export_branch_name,
+                    $accountNumber,
+                    $data->commission == 1 ? '有' : '無',
+                    $data->visit_status == 1 ? '有' : '無',
+                    $data->visit_count,
+                    $data->sale_count,
+                    $data->recently_date ?: '-',
+                    date('Y-m-d', strtotime($data->created_at))
+                ]);
+            }
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    // 生成 XLSX 檔案內容（不使用套件）
+    private function generateXLSX($datas)
+    {
+        // 建立 ZIP 檔案（XLSX 本質上是 ZIP 檔案）
+        $zip = new \ZipArchive();
+        $tempFile = tempnam(sys_get_temp_dir(), 'xlsx_');
+        
+        if ($zip->open($tempFile, \ZipArchive::CREATE) !== TRUE) {
+            return '';
+        }
+
+        // 標題行
+        $headers = [
+            '編號',
+            '姓名',
+            '電話',
+            '縣市',
+            '地區',
+            '地址',
+            '銀行',
+            '分行',
+            '帳號',
+            '佣金',
+            '拜訪狀態',
+            '拜訪次數',
+            '叫件次數',
+            '最近叫件日期',
+            '新增時間'
+        ];
+
+        // 建立工作表 XML
+        $worksheetContent = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . "\n";
+        $worksheetContent .= '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' . "\n";
+        $worksheetContent .= '  <sheetData>' . "\n";
+
+        // 寫入標題行
+        $worksheetContent .= '    <row r="1">' . "\n";
+        foreach ($headers as $index => $header) {
+            $cellRef = $this->getCellReference($index, 1);
+            $worksheetContent .= '      <c r="' . $cellRef . '" t="s">' . "\n";
+            $worksheetContent .= '        <v>' . $index . '</v>' . "\n";
+            $worksheetContent .= '      </c>' . "\n";
+        }
+        $worksheetContent .= '    </row>' . "\n";
+
+        // 寫入資料行
+        foreach ($datas as $key => $data) {
+            $rowNumber = $key + 2;
+            $worksheetContent .= '    <row r="' . $rowNumber . '">' . "\n";
+            
+            $rowData = [
+                $key + 1,
+                $data->name,
+                $data->mobile,
+                $data->county,
+                $data->district,
+                $data->address,
+                $data->export_bank_name,
+                $data->export_branch_name,
+                $data->bank_number ?: '',
+                $data->commission == 1 ? '有' : '無',
+                $data->visit_status == 1 ? '有' : '無',
+                $data->visit_count,
+                $data->sale_count,
+                $data->recently_date ?: '-',
+                date('Y-m-d', strtotime($data->created_at))
+            ];
+
+            foreach ($rowData as $index => $cellValue) {
+                $cellRef = $this->getCellReference($index, $rowNumber);
+                $worksheetContent .= '      <c r="' . $cellRef . '" t="s">' . "\n";
+                $worksheetContent .= '        <v>' . htmlspecialchars($cellValue) . '</v>' . "\n";
+                $worksheetContent .= '      </c>' . "\n";
+            }
+            
+            $worksheetContent .= '    </row>' . "\n";
+        }
+
+        $worksheetContent .= '  </sheetData>' . "\n";
+        $worksheetContent .= '</worksheet>';
+
+        // 建立工作簿 XML
+        $workbookContent = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . "\n";
+        $workbookContent .= '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' . "\n";
+        $workbookContent .= '  <sheets>' . "\n";
+        $workbookContent .= '    <sheet name="醫院列表" sheetId="1" r:id="rId1"/>' . "\n";
+        $workbookContent .= '  </sheets>' . "\n";
+        $workbookContent .= '</workbook>';
+
+        // 建立共享字串表
+        $sharedStrings = [];
+        $sharedStrings[] = '編號';
+        $sharedStrings[] = '姓名';
+        $sharedStrings[] = '電話';
+        $sharedStrings[] = '縣市';
+        $sharedStrings[] = '地區';
+        $sharedStrings[] = '地址';
+        $sharedStrings[] = '銀行';
+        $sharedStrings[] = '分行';
+        $sharedStrings[] = '帳號';
+        $sharedStrings[] = '佣金';
+        $sharedStrings[] = '拜訪狀態';
+        $sharedStrings[] = '拜訪次數';
+        $sharedStrings[] = '叫件次數';
+        $sharedStrings[] = '最近叫件日期';
+        $sharedStrings[] = '新增時間';
+
+        // 添加資料到共享字串表
+        foreach ($datas as $data) {
+            $sharedStrings[] = $data->name;
+            $sharedStrings[] = $data->mobile;
+            $sharedStrings[] = $data->county;
+            $sharedStrings[] = $data->district;
+            $sharedStrings[] = $data->address;
+            $sharedStrings[] = $data->export_bank_name;
+            $sharedStrings[] = $data->export_branch_name;
+            $sharedStrings[] = $data->bank_number ?: '';
+            $sharedStrings[] = $data->commission == 1 ? '有' : '無';
+            $sharedStrings[] = $data->visit_status == 1 ? '有' : '無';
+            $sharedStrings[] = (string)$data->visit_count;
+            $sharedStrings[] = (string)$data->sale_count;
+            $sharedStrings[] = $data->recently_date ?: '-';
+            $sharedStrings[] = date('Y-m-d', strtotime($data->created_at));
+        }
+
+        // 建立共享字串表 XML
+        $sharedStringsContent = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . "\n";
+        $sharedStringsContent .= '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="' . count($sharedStrings) . '" uniqueCount="' . count(array_unique($sharedStrings)) . '">' . "\n";
+        foreach (array_unique($sharedStrings) as $string) {
+            $sharedStringsContent .= '  <si><t>' . htmlspecialchars($string) . '</t></si>' . "\n";
+        }
+        $sharedStringsContent .= '</sst>';
+
+        // 建立關係檔案
+        $relsContent = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . "\n";
+        $relsContent .= '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' . "\n";
+        $relsContent .= '  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>' . "\n";
+        $relsContent .= '  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>' . "\n";
+        $relsContent .= '</Relationships>';
+
+        // 建立內容類型檔案
+        $contentTypesContent = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . "\n";
+        $contentTypesContent .= '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' . "\n";
+        $contentTypesContent .= '  <Default Extension="xml" ContentType="application/xml"/>' . "\n";
+        $contentTypesContent .= '  <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats.spreadsheetml.sheet.main+xml"/>' . "\n";
+        $contentTypesContent .= '  <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats.spreadsheetml.worksheet+xml"/>' . "\n";
+        $contentTypesContent .= '  <Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats.spreadsheetml.sharedStrings+xml"/>' . "\n";
+        $contentTypesContent .= '</Types>';
+
+        try {
+            // 添加檔案到 ZIP
+            $zip->addFromString('xl/worksheets/sheet1.xml', $worksheetContent);
+            $zip->addFromString('xl/workbook.xml', $workbookContent);
+            $zip->addFromString('xl/sharedStrings.xml', $sharedStringsContent);
+            $zip->addFromString('xl/_rels/workbook.xml.rels', $relsContent);
+            $zip->addFromString('[Content_Types].xml', $contentTypesContent);
+            
+            $zip->close();
+            
+            // 讀取 ZIP 檔案內容
+            $xlsxContent = file_get_contents($tempFile);
+            
+            // 清理臨時檔案
+            unlink($tempFile);
+            
+            return $xlsxContent;
+        } catch (Exception $e) {
+            // 如果出錯，清理臨時檔案並返回空
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+            return '';
+        }
+    }
+
+    // 獲取儲存格引用（A1, B1, C1...）
+    private function getCellReference($columnIndex, $rowNumber)
+    {
+        $column = '';
+        while ($columnIndex >= 0) {
+            $column = chr(65 + ($columnIndex % 26)) . $column;
+            $columnIndex = intval($columnIndex / 26) - 1;
+        }
+        return $column . $rowNumber;
+    }
+
+    // 匯出禮儀社資料為 CSV
+    public function etiquettesExport(Request $request)
+    {
+        $datas = Customer::where('group_id', 5);
+        
+        // 應用相同的篩選邏輯
+        if ($request) {
+            $name = $request->name;
+            if (!empty($name)) {
+                $name = '%' . $request->name . '%';
+                $datas = $datas->where('name', 'like', $name);
+            }
+            $mobile = $request->mobile;
+            if (!empty($mobile)) {
+                $mobile = $request->mobile . '%';
+                $datas = $datas->where('mobile', 'like', $mobile);
+            }
+            $county = $request->county;
+            if ($county != "null") {
+                if (isset($county)) {
+                    $datas = $datas->where('county', $county);
+                }
+            }
+            $district = $request->district;
+            if ($district != "null") {
+                if (isset($district)) {
+                    $datas = $datas->where('district', $district);
+                }
+            }
+            $commission = $request->commission;
+            if ($commission != "null") {
+                if (isset($commission)) {
+                    $datas = $datas->where('commission', $commission);
+                }
+            }
+            
+            $has_bank_account = $request->has_bank_account;
+            if ($has_bank_account != "null") {
+                if (isset($has_bank_account)) {
+                    if ($has_bank_account == '1') {
+                        // 有匯款帳號：bank 不為空且 bank_number 不為空
+                        $datas = $datas->whereNotNull('bank')->whereNotNull('bank_number')->where('bank_number', '!=', '');
+                    } else {
+                        // 沒有匯款帳號：bank 為空或 bank_number 為空
+                        $datas = $datas->where(function($query) {
+                            $query->whereNull('bank')
+                                  ->orWhereNull('bank_number')
+                                  ->orWhere('bank_number', '=', '');
+                        });
+                    }
+                }
+            }
+        }
+        
+        $recently_date_sort = $request->recently_date_sort;
+        if ($recently_date_sort != "null" && isset($recently_date_sort)) {
+            $datas = $datas->orderByRaw("(
+                SELECT MAX(sale_date) 
+                FROM sale_company_commission 
+                WHERE company_id = customer.id
+            ) " . $recently_date_sort);
+        }
+        
+        $datas = $datas->get();
+
+        $bankData = $this->getFlatBankData();
+        foreach ($datas as $data) {
+            $data->visit_count = Visit::where('customer_id', $data->id)->count();
+            $data->sale_count = SaleCompanyCommission::where('company_id', $data->id)->count();
+            $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
+            
+            // 新增銀行/分行中文欄位（匯出用）
+            if ($data->bank && $data->bank_number) {
+                $data->export_bank_name = $this->getBankNameFromFlatJson($data->bank, $bankData);
+                $data->export_branch_name = $this->getBranchNameFromFlatJson($data->bank, $data->branch, $bankData);
+            } else {
+                $data->export_bank_name = '';
+                $data->export_branch_name = '';
+            }
+        }
+
+        // 生成 CSV 內容
+        $filename = '禮儀社列表_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
+
+        $callback = function() use ($datas) {
+            $file = fopen('php://output', 'w');
+            
+            // 寫入 BOM 以支援中文
+            fwrite($file, "\xEF\xBB\xBF");
+            
+            // 寫入標題行
+            fputcsv($file, [
+                '編號',
+                '姓名',
+                '電話',
+                '縣市',
+                '地區',
+                '地址',
+                '銀行',
+                '分行',
+                '帳號',
+                '佣金',
+                '拜訪狀態',
+                '拜訪次數',
+                '叫件次數',
+                '最近叫件日期',
+                '新增時間'
+            ]);
+            
+            // 寫入資料行
+            foreach ($datas as $key => $data) {
+                // 處理帳號，確保顯示為文字格式
+                $accountNumber = $data->bank_number ?: '';
+                if ($accountNumber && is_numeric($accountNumber)) {
+                    // 如果是數字，在前面加上單引號強制為文字格式
+                    $accountNumber = "'" . $accountNumber;
+                }
+                
+                fputcsv($file, [
+                    $key + 1,
+                    $data->name,
+                    $data->mobile,
+                    $data->county,
+                    $data->district,
+                    $data->address,
+                    $data->export_bank_name,
+                    $data->export_branch_name,
+                    $accountNumber,
+                    $data->commission == 1 ? '有' : '無',
+                    $data->visit_status == 1 ? '有' : '無',
+                    $data->visit_count,
+                    $data->sale_count,
+                    $data->recently_date ?: '-',
+                    date('Y-m-d', strtotime($data->created_at))
+                ]);
+            }
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    // 匯出繁殖場資料為 CSV
+    public function reproducesExport(Request $request)
+    {
+        $datas = Customer::where('group_id', 4);
+        
+        // 應用相同的篩選邏輯
+        if ($request) {
+            $name = $request->name;
+            if (!empty($name)) {
+                $name = '%' . $request->name . '%';
+                $datas = $datas->where('name', 'like', $name);
+            }
+            $mobile = $request->mobile;
+            if (!empty($mobile)) {
+                $mobile = $request->mobile . '%';
+                $datas = $datas->where('mobile', 'like', $mobile);
+            }
+            $county = $request->county;
+            if ($county != "null") {
+                if (isset($county)) {
+                    $datas = $datas->where('county', $county);
+                }
+            }
+            $district = $request->district;
+            if ($district != "null") {
+                if (isset($district)) {
+                    $datas = $datas->where('district', $district);
+                }
+            }
+            $commission = $request->commission;
+            if ($commission != "null") {
+                if (isset($commission)) {
+                    $datas = $datas->where('commission', $commission);
+                }
+            }
+            
+            $has_bank_account = $request->has_bank_account;
+            if ($has_bank_account != "null") {
+                if (isset($has_bank_account)) {
+                    if ($has_bank_account == '1') {
+                        // 有匯款帳號：bank 不為空且 bank_number 不為空
+                        $datas = $datas->whereNotNull('bank')->whereNotNull('bank_number')->where('bank_number', '!=', '');
+                    } else {
+                        // 沒有匯款帳號：bank 為空或 bank_number 為空
+                        $datas = $datas->where(function($query) {
+                            $query->whereNull('bank')
+                                  ->orWhereNull('bank_number')
+                                  ->orWhere('bank_number', '=', '');
+                        });
+                    }
+                }
+            }
+        }
+        
+        $recently_date_sort = $request->recently_date_sort;
+        if ($recently_date_sort != "null" && isset($recently_date_sort)) {
+            $datas = $datas->orderByRaw("(
+                SELECT MAX(sale_date) 
+                FROM sale_company_commission 
+                WHERE company_id = customer.id
+            ) " . $recently_date_sort);
+        }
+        
+        $datas = $datas->get();
+
+        $bankData = $this->getFlatBankData();
+        foreach ($datas as $data) {
+            $data->visit_count = Visit::where('customer_id', $data->id)->count();
+            $data->sale_count = SaleCompanyCommission::where('company_id', $data->id)->count();
+            $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
+            
+            // 新增銀行/分行中文欄位（匯出用）
+            if ($data->bank && $data->bank_number) {
+                $data->export_bank_name = $this->getBankNameFromFlatJson($data->bank, $bankData);
+                $data->export_branch_name = $this->getBranchNameFromFlatJson($data->bank, $data->branch, $bankData);
+            } else {
+                $data->export_bank_name = '';
+                $data->export_branch_name = '';
+            }
+        }
+
+        // 生成 CSV 內容
+        $filename = '繁殖場列表_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
+
+        $callback = function() use ($datas) {
+            $file = fopen('php://output', 'w');
+            
+            // 寫入 BOM 以支援中文
+            fwrite($file, "\xEF\xBB\xBF");
+            
+            // 寫入標題行
+            fputcsv($file, [
+                '編號',
+                '姓名',
+                '電話',
+                '縣市',
+                '地區',
+                '地址',
+                '銀行',
+                '分行',
+                '帳號',
+                '佣金',
+                '拜訪狀態',
+                '拜訪次數',
+                '叫件次數',
+                '最近叫件日期',
+                '新增時間'
+            ]);
+            
+            // 寫入資料行
+            foreach ($datas as $key => $data) {
+                // 處理帳號，確保顯示為文字格式
+                $accountNumber = $data->bank_number ?: '';
+                if ($accountNumber && is_numeric($accountNumber)) {
+                    // 如果是數字，在前面加上單引號強制為文字格式
+                    $accountNumber = "'" . $accountNumber;
+                }
+                
+                fputcsv($file, [
+                    $key + 1,
+                    $data->name,
+                    $data->mobile,
+                    $data->county,
+                    $data->district,
+                    $data->address,
+                    $data->export_bank_name,
+                    $data->export_branch_name,
+                    $accountNumber,
+                    $data->commission == 1 ? '有' : '無',
+                    $data->visit_status == 1 ? '有' : '無',
+                    $data->visit_count,
+                    $data->sale_count,
+                    $data->recently_date ?: '-',
+                    date('Y-m-d', strtotime($data->created_at))
+                ]);
+            }
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    // 匯出狗園資料為 CSV
+    public function dogparksExport(Request $request)
+    {
+        $datas = Customer::where('group_id', 3);
+        
+        // 應用相同的篩選邏輯
+        if ($request) {
+            $name = $request->name;
+            if (!empty($name)) {
+                $name = '%' . $request->name . '%';
+                $datas = $datas->where('name', 'like', $name);
+            }
+            $mobile = $request->mobile;
+            if (!empty($mobile)) {
+                $mobile = $request->mobile . '%';
+                $datas = $datas->where('mobile', 'like', $mobile);
+            }
+            $county = $request->county;
+            if ($county != "null") {
+                if (isset($county)) {
+                    $datas = $datas->where('county', $county);
+                }
+            }
+            $district = $request->district;
+            if ($district != "null") {
+                if (isset($district)) {
+                    $datas = $datas->where('district', $district);
+                }
+            }
+            $commission = $request->commission;
+            if ($commission != "null") {
+                if (isset($commission)) {
+                    $datas = $datas->where('commission', $commission);
+                }
+            }
+            
+            $has_bank_account = $request->has_bank_account;
+            if ($has_bank_account != "null") {
+                if (isset($has_bank_account)) {
+                    if ($has_bank_account == '1') {
+                        // 有匯款帳號：bank 不為空且 bank_number 不為空
+                        $datas = $datas->whereNotNull('bank')->whereNotNull('bank_number')->where('bank_number', '!=', '');
+                    } else {
+                        // 沒有匯款帳號：bank 為空或 bank_number 為空
+                        $datas = $datas->where(function($query) {
+                            $query->whereNull('bank')
+                                  ->orWhereNull('bank_number')
+                                  ->orWhere('bank_number', '=', '');
+                        });
+                    }
+                }
+            }
+        }
+        
+        $recently_date_sort = $request->recently_date_sort;
+        if ($recently_date_sort != "null" && isset($recently_date_sort)) {
+            $datas = $datas->orderByRaw("(
+                SELECT MAX(sale_date) 
+                FROM sale_company_commission 
+                WHERE company_id = customer.id
+            ) " . $recently_date_sort);
+        }
+        
+        $datas = $datas->get();
+
+        $bankData = $this->getFlatBankData();
+        foreach ($datas as $data) {
+            $data->visit_count = Visit::where('customer_id', $data->id)->count();
+            $data->sale_count = SaleCompanyCommission::where('company_id', $data->id)->count();
+            $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
+            
+            // 新增銀行/分行中文欄位（匯出用）
+            if ($data->bank && $data->bank_number) {
+                $data->export_bank_name = $this->getBankNameFromFlatJson($data->bank, $bankData);
+                $data->export_branch_name = $this->getBranchNameFromFlatJson($data->bank, $data->branch, $bankData);
+            } else {
+                $data->export_bank_name = '';
+                $data->export_branch_name = '';
+            }
+        }
+
+        // 生成 CSV 內容
+        $filename = '狗園列表_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
+
+        $callback = function() use ($datas) {
+            $file = fopen('php://output', 'w');
+            
+            // 寫入 BOM 以支援中文
+            fwrite($file, "\xEF\xBB\xBF");
+            
+            // 寫入標題行
+            fputcsv($file, [
+                '編號',
+                '姓名',
+                '電話',
+                '縣市',
+                '地區',
+                '地址',
+                '銀行',
+                '分行',
+                '帳號',
+                '佣金',
+                '拜訪狀態',
+                '拜訪次數',
+                '叫件次數',
+                '最近叫件日期',
+                '新增時間'
+            ]);
+            
+            // 寫入資料行
+            foreach ($datas as $key => $data) {
+                // 處理帳號，確保顯示為文字格式
+                $accountNumber = $data->bank_number ?: '';
+                if ($accountNumber && is_numeric($accountNumber)) {
+                    // 如果是數字，在前面加上單引號強制為文字格式
+                    $accountNumber = "'" . $accountNumber;
+                }
+                
+                fputcsv($file, [
+                    $key + 1,
+                    $data->name,
+                    $data->mobile,
+                    $data->county,
+                    $data->district,
+                    $data->address,
+                    $data->export_bank_name,
+                    $data->export_branch_name,
+                    $accountNumber,
+                    $data->commission == 1 ? '有' : '無',
+                    $data->visit_status == 1 ? '有' : '無',
+                    $data->visit_count,
+                    $data->sale_count,
+                    $data->recently_date ?: '-',
+                    date('Y-m-d', strtotime($data->created_at))
+                ]);
+            }
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
 }

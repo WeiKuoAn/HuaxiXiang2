@@ -73,6 +73,15 @@
                                     </div>
 
                                     <div class="me-sm-1">
+                                        <select class="form-select my-1 my-lg-0" id="status-select" name="has_bank_account"
+                                            onchange="this.form.submit()">
+                                            <option value="null" @if (!isset($request->has_bank_account) || $request->has_bank_account == 'null') selected @endif>是否有匯款帳號</option>
+                                            <option value="1" @if ($request->has_bank_account === '1') selected @endif>有</option>
+                                            <option value="0" @if ($request->has_bank_account === '0') selected @endif>沒有</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="me-sm-1">
                                         <select class="form-select my-1 my-lg-0" id="status-select" name="seq"
                                             onchange="this.form.submit()">
                                             <option value="null" @if (!isset($request->seq) || $request->seq == 'null') selected @endif>建立時間排序</option>
@@ -101,6 +110,9 @@
                             <div class="col-auto">
                                 <div class="text-lg-end my-1 my-lg-0">
                                     {{-- <button type="button" class="btn btn-success waves-effect waves-light me-1"><i class="mdi mdi-cog"></i></button> --}}
+                                    <button type="button" class="btn btn-info waves-effect waves-light me-1" onclick="exportToExcel()">
+                                        <i class="mdi mdi-download me-1"></i>匯出 Excel
+                                    </button>
                                     <a href="{{ route('visit.company.create') }}"
                                         class="btn btn-danger waves-effect waves-light"><i
                                             class="mdi mdi-plus-circle me-1"></i>新增醫院</a>
@@ -212,20 +224,37 @@
     </div> <!-- container -->
 @endsection
 @section('script')
-    {{-- <script>
-    function chgCountys(obj) {
-        var value = $(obj).val();
-
-        $.ajax({
-            type: 'get',
-            url: '{{ route('search.district') }}',
-            data: { 'county': value },
-            success: function(data) {
-            console.log(data);
-                $('#district').html(data);
+    <script>
+        function exportToExcel() {
+            // 獲取當前的篩選條件
+            var currentUrl = new URL(window.location.href);
+            var searchParams = currentUrl.searchParams;
+            
+            // 構建匯出 URL
+            var exportUrl = '{{ route("hospitals.export") }}';
+            if (searchParams.toString()) {
+                exportUrl += '?' + searchParams.toString();
             }
-        });
-    }
-    $.ajaxSetup({ headers: { 'csrftoken' : '{{ csrf_token() }}' } });
-</script> --}}
+            
+            // 下載檔案
+            window.location.href = exportUrl;
+        }
+        
+        {{-- <script>
+        function chgCountys(obj) {
+            var value = $(obj).val();
+
+            $.ajax({
+                type: 'get',
+                url: '{{ route('search.district') }}',
+                data: { 'county': value },
+                success: function(data) {
+                console.log(data);
+                    $('#district').html(data);
+                }
+            });
+        }
+        $.ajaxSetup({ headers: { 'csrftoken' : '{{ csrf_token() }}' } });
+        </script> --}}
+    </script>
 @endsection

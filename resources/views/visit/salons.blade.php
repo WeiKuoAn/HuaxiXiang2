@@ -39,6 +39,49 @@
                                             name="mobile" placeholder="電話" value="{{ $request->mobile }}">
                                     </div>
                                     <div class="me-sm-1">
+                                        <select class="form-select my-1 my-lg-0" id="status-select" name="county"
+                                            onchange="this.form.submit()">
+                                            <option value="null" selected>選擇地區</option>
+                                            @foreach ($countys as $county)
+                                                <option value="{{ $county }}"
+                                                    @if ($county == $request->county) selected @endif>{{ $county }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="me-sm-2">
+                                        <select class="form-select my-1 my-lg-0" id="district" name="district"
+                                            onchange="this.form.submit()">
+                                            <option value="null" selected>選擇地區</option>
+                                            @foreach ($districts as $district)
+                                                <option value="{{ $district }}"
+                                                    @if ($district == $request->district) selected @endif>{{ $district }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="me-sm-1">
+                                        <select class="form-select my-1 my-lg-0" id="status-select" name="commission"
+                                            onchange="this.form.submit()">
+                                            <option value="null" @if (is_null($request->commission)) selected @endif>是否有佣金
+                                            </option>
+                                            <option value="1" @if ($request->commission === 1) selected @endif>有
+                                            </option>
+                                            <option value="0" @if ($request->commission === 0) selected @endif>沒有
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="me-sm-1">
+                                        <select class="form-select my-1 my-lg-0" id="status-select" name="has_bank_account"
+                                            onchange="this.form.submit()">
+                                            <option value="null" @if (!isset($request->has_bank_account) || $request->has_bank_account == 'null') selected @endif>是否有匯款帳號</option>
+                                            <option value="1" @if ($request->has_bank_account === '1') selected @endif>有</option>
+                                            <option value="0" @if ($request->has_bank_account === '0') selected @endif>沒有</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="me-sm-1">
                                         <select class="form-select my-1 my-lg-0" id="recently-date-sort" name="recently_date_sort"
                                             onchange="this.form.submit()">
                                             <option value="null" @if (!isset($request->recently_date_sort) || $request->recently_date_sort == 'null') selected @endif>叫件日期排序</option>
@@ -57,6 +100,9 @@
                             <div class="col-auto">
                                 <div class="text-lg-end my-1 my-lg-0">
                                     {{-- <button type="button" class="btn btn-success waves-effect waves-light me-1"><i class="mdi mdi-cog"></i></button> --}}
+                                    <button type="button" class="btn btn-info waves-effect waves-light me-1" onclick="exportToExcel()">
+                                        <i class="mdi mdi-download me-1"></i>匯出 Excel
+                                    </button>
                                     <a href="{{ route('visit.company.create') }}"
                                         class="btn btn-danger waves-effect waves-light"><i
                                             class="mdi mdi-plus-circle me-1"></i>新增美容院</a>
@@ -166,4 +212,23 @@
 
 
     </div> <!-- container -->
+@endsection
+
+@section('script')
+    <script>
+        function exportToExcel() {
+            // 獲取當前的篩選條件
+            var currentUrl = new URL(window.location.href);
+            var searchParams = currentUrl.searchParams;
+            
+            // 構建匯出 URL
+            var exportUrl = '{{ route("salons.export") }}';
+            if (searchParams.toString()) {
+                exportUrl += '?' + searchParams.toString();
+            }
+            
+            // 下載檔案
+            window.location.href = exportUrl;
+        }
+    </script>
 @endsection
