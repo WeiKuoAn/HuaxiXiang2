@@ -32,7 +32,7 @@ class IncreaseController extends Controller
 
     public function create()
     {
-        $users = User::where('status', '0')->orderby('level')->orderby('seq')->whereNotIn('job_id', [0,1,4,8,9,6,11])->get();
+        $users = User::where('status', '0')->orderby('level')->orderby('seq')->whereNotIn('job_id', [4,8,9,6,11])->get();
         return view('increase.create', compact('users'));
     }
 
@@ -119,7 +119,7 @@ class IncreaseController extends Controller
     public function edit($id)
     {
         $increase = Increase::with(['items.phonePerson', 'items.receivePerson'])->findOrFail($id);
-        $users = User::where('status', '0')->orderby('level')->orderby('seq')->whereNotIn('job_id', [0,1,4,8,9,6,11])->get();
+        $users = User::where('status', '0')->orderby('level')->orderby('seq')->whereNotIn('job_id', [4,8,9,6,11])->get();
         
         return view('increase.edit', compact('increase', 'users'));
     }
