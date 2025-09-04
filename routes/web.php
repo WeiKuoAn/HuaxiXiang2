@@ -311,6 +311,8 @@ Route::group(['prefix' => '/'], function () {
     // Route::post('/sale/edit/{id}', [SaleDataController::class, 'update'])->name('sale.data.edit');
     // Route::get('/sale/del/{id}', [SaleDataController::class, 'delete'])->name('sale.del');
     // Route::post('/sale/del/{id}', [SaleDataController::class, 'destroy'])->name('sale.data.del');
+    // Route::get('/sale/check/{id}', [SaleDataController::class, 'check_show'])->name('sale.check');
+    // Route::post('/sale/check/{id}', [SaleDataController::class, 'check_update'])->name('sale.data.check');
 
     /* 業務管理-new */
     Route::get('/sale/create', [SaleDataControllerNew::class, 'create_gpt'])->name('sale.create');
@@ -321,11 +323,9 @@ Route::group(['prefix' => '/'], function () {
     Route::delete('/sale/del/{id}', [SaleDataControllerNew::class, 'destroy_gpt'])->name('sale.data.del');
     Route::get('/sale/check/{id}', [SaleDataControllerNew::class, 'check_show_gpt'])->name('sale.check');
     Route::post('/sale/check/{id}', [SaleDataControllerNew::class, 'check_update_gpt'])->name('sale.data.check');
-    //業務對帳明細
+    // 業務對帳明細
     Route::get('/sale/check/history', [SaleDataController::class, 'checkHistory'])->name('sales.checkHistory');
     Route::get('/sale/history/{id}', [SaleDataController::class, 'history'])->name('sale.history');
-
-    
 
     // 報廢單
     Route::get('/sale/scrapped/create', [ScrappedController::class, 'create'])->name('sale.scrapped.create');
@@ -338,8 +338,6 @@ Route::group(['prefix' => '/'], function () {
     Route::put('/sale/scrapped/{id}/check', [ScrappedController::class, 'check_data'])->name('sale.scrapped.check.data');
 
     // 業務確認對帳
-    Route::get('/sale/check/{id}', [SaleDataController::class, 'check_show'])->name('sale.check');
-    Route::post('/sale/check/{id}', [SaleDataController::class, 'check_update'])->name('sale.data.check');
 
     Route::get('/sale/show/{sale_on}', [SaleDataController::class, 'sale_on_show'])->name('sale.sale_on_show');
     // 業務轉單或是對拆
@@ -759,7 +757,7 @@ Route::group(['prefix' => '/'], function () {
     Route::put('/overtime/edit/{id}', [OvertimeController::class, 'update'])->name('overtime.edit.data');
     Route::get('/overtime/del/{id}', [OvertimeController::class, 'delete'])->name('overtime.del');
     Route::delete('/overtime/del/{id}', [OvertimeController::class, 'destroy'])->name('overtime.del.data');
-    
+
     Route::get('/overtime/export', [OvertimeController::class, 'export'])->name('overtime.export');
 
     Route::get('image', function () {
