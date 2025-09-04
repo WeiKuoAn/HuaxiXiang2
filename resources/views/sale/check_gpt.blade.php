@@ -223,46 +223,7 @@
                                 </div>
                             </div>
                             
-                            <!-- 佛道教重要日期顯示 -->
-                            <div class="row" id="memorial_dates_section" style="display: none;">
-                                <div class="col-12">
-                                    <h6 class="text-uppercase bg-warning p-2 mt-3 mb-3">重要日期提醒 <small class="text-muted">（僅供參考）</small></h6>
-                                    <div class="row" id="memorial_dates_content">
-                                        <div class="col-md-3 col-6 mb-2">
-                                            <div class="card border-primary">
-                                                <div class="card-body text-center p-2">
-                                                    <h6 class="card-title text-primary mb-1">頭七</h6>
-                                                    <p class="card-text" id="seventh_day">-</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 col-6 mb-2">
-                                            <div class="card border-success">
-                                                <div class="card-body text-center p-2">
-                                                    <h6 class="card-title text-success mb-1">四十九日</h6>
-                                                    <p class="card-text" id="forty_ninth_day">-</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 col-6 mb-2">
-                                            <div class="card border-info">
-                                                <div class="card-body text-center p-2">
-                                                    <h6 class="card-title text-info mb-1">百日</h6>
-                                                    <p class="card-text" id="hundredth_day">-</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 col-6 mb-2">
-                                            <div class="card border-warning">
-                                                <div class="card-body text-center p-2">
-                                                    <h6 class="card-title text-warning mb-1">對年</h6>
-                                                    <p class="card-text" id="anniversary_day">-</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
                     </div> <!-- end card -->
                 </div> <!-- end col -->
@@ -620,7 +581,7 @@
                                 <div class="mb-3 col-md-4">
                                     <label for="pay_method" class="form-label">收款方式<span
                                             class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" value="@if($data->pay_method == 'A')現金@elseif($data->pay_method == 'B')匯款@elseif($data->pay_method == 'C')現金與匯款@endif" readonly>
+                                    <input type="text" class="form-control" value="@if($data->pay_method == 'A')現金@elseif($data->pay_method == 'B')匯款@elseif($data->pay_method == 'C')現金與匯款@elseif($data->pay_method == 'D')匯款@endif" readonly>
                                 </div>
                                 <div class="mb-3 col-md-4" id="cash_price_div">
                                     <label for="pay_price" class="form-label">現金收款<span
@@ -692,7 +653,6 @@
             <input type="hidden" id="row_id" name="row_id" value="">
             <input type="hidden" id="original_pay_id" value="{{ $data->pay_id ?? '' }}">
             <input type="hidden" id="sale_id" value="{{ $data->id ?? '' }}">
-            <input type="hidden" id="memorial_dates_data" value="{{ json_encode($data->memorialDate ?? null) }}">
 
 
         </form>
@@ -1997,70 +1957,7 @@
             }
         }
 
-        // 在 check_gpt.blade.php 中，宗教和往生日期欄位是只讀的，
-        // 不需要動態變更邏輯，只需要在頁面載入時根據資料庫值決定是否顯示
 
-        // 顯示重要日期的函數
-        function displayMemorialDates(memorialDates) {
-            // 格式化日期函數：只顯示日期部分，不顯示時間
-            function formatDate(dateString) {
-                if (!dateString) return '-';
-                try {
-                    // 如果是 ISO 格式的日期時間字串，只取日期部分
-                    if (dateString.includes('T')) {
-                        return dateString.split('T')[0];
-                    }
-                    // 如果只是日期字串，直接返回
-                    return dateString;
-                } catch (e) {
-                    console.error('日期格式化失敗:', e);
-                    return '-';
-                }
-            }
-            
-            // 更新各個日期顯示
-            $('#seventh_day').text(formatDate(memorialDates.seventh_day));
-            $('#forty_ninth_day').text(formatDate(memorialDates.forty_ninth_day));
-            $('#hundredth_day').text(formatDate(memorialDates.hundredth_day));
-            $('#anniversary_day').text(formatDate(memorialDates.anniversary_day));
-        }
-
-        // 頁面載入時初始化宗教和往生日期欄位
-        $(document).ready(function() {
-            // 從隱藏欄位獲取宗教資料
-            var memorialDatesData = $('#memorial_dates_data').val();
-            
-            // 檢查是否為佛道教且有memorial_dates資料
-            var isBuddhismTaoism = '{{ $data->religion }}' === 'buddhism_taoism';
-            
-            if (isBuddhismTaoism) {
-                // 顯示宗教和往生日期欄位
-                $('#religion_field').show();
-                $('#death_date_field').show();
-                
-                // 檢查是否有memorial_dates資料
-                if (memorialDatesData && memorialDatesData !== 'null') {
-                    try {
-                        var memorialDates = JSON.parse(memorialDatesData);
-                        if (memorialDates && memorialDates.sale_id) {
-                            // 有memorial_dates資料，顯示重要日期提醒
-                            $('#memorial_dates_section').show();
-                            displayMemorialDates(memorialDates);
-                        }
-                    } catch (e) {
-                        console.error('解析memorial_dates資料失敗:', e);
-                    }
-                }
-            } else if ('{{ $data->religion }}' && '{{ $data->religion }}' !== '') {
-                // 其他宗教，只顯示宗教欄位
-                $('#religion_field').show();
-                if ('{{ $data->death_date }}' && '{{ $data->death_date }}' !== '') {
-                    $('#death_date_field').show();
-                }
-            }
-            
-            // 初始化時不需要監聽變更事件，因為這些是只讀欄位
-        });
 
         // 表單提交檢查
         $('#your-form').on('submit', function(e) {

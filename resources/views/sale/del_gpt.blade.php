@@ -621,7 +621,7 @@
                                 <div class="mb-3 col-md-4">
                                     <label for="pay_method" class="form-label">收款方式<span
                                             class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" value="@if($data->pay_method == 'A')現金@elseif($data->pay_method == 'B')匯款@elseif($data->pay_method == 'C')現金與匯款@endif" readonly>
+                                    <input type="text" class="form-control" value="@if($data->pay_method == 'A')現金@elseif($data->pay_method == 'B')匯款@elseif($data->pay_method == 'C')現金與匯款@elseif($data->pay_method == 'D')匯款@endif" readonly>
                                 </div>
                                 <div class="mb-3 col-md-4" id="cash_price_div">
                                     <label for="pay_price" class="form-label">現金收款<span

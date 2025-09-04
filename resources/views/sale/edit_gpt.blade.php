@@ -669,8 +669,6 @@
                                         </option>
                                         <option value="C" @if ($data->pay_method == 'C') selected @endif>現金與匯款
                                         </option>
-                                        <option value="D" @if ($data->pay_method == 'D') selected @endif>臨櫃匯款
-                                        </option>
                                     </select>
                                 </div>
                                 <div class="mb-3 col-md-4" id="cash_price_div">
@@ -694,6 +692,7 @@
                                         </option>
                                         <option value="Line Pay" @if ($data->transfer_channel == 'Line Pay') selected @endif>Line
                                             Pay</option>
+                                        <option value="臨櫃匯款" @if ($data->transfer_channel == '臨櫃匯款') selected @endif>臨櫃匯款</option>
                                     </select>
                                 </div>
                                 <div class="mb-3 col-md-4" id="transfer_number_div">
@@ -1345,15 +1344,6 @@
             $("#pay_price").prop('required', true);
             $("#cash_price").prop('required', false);
             $("#transfer_price").prop('required', false);
-        } else if (payMethod == 'D') {
-            // 臨櫃匯款：顯示匯款相關欄位，隱藏現金欄位
-            $("#cash_price_div").hide(300);
-            $("#transfer_price_div").show(300);
-            $("#transfer_number_div").show(300);
-            $("#transfer_channel_div").show(300);
-            $("#pay_price").prop('required', false);
-            $("#cash_price").prop('required', false);
-            $("#transfer_price").prop('required', true);
         } else {
             $("#cash_price_div").hide(300);
             $("#transfer_price_div").hide(300);
@@ -1380,15 +1370,6 @@
                 $("#pay_price").prop('required', true);
                 $("#cash_price").prop('required', false);
                 $("#transfer_price").prop('required', false);
-            } else if ($(this).val() == 'D') {
-                // 臨櫃匯款：顯示匯款相關欄位，隱藏現金欄位
-                $("#cash_price_div").hide(300);
-                $("#transfer_price_div").show(300);
-                $("#transfer_number_div").show(300);
-                $("#transfer_channel_div").show(300);
-                $("#pay_price").prop('required', false);
-                $("#cash_price").prop('required', false);
-                $("#transfer_price").prop('required', true);
             } else {
                 $("#cash_price_div").hide(300);
                 $("#transfer_price_div").hide(300);
