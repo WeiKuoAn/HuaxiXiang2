@@ -523,7 +523,6 @@
                                         <option value="A">現金</option>
                                         <option value="B">匯款</option>
                                         <option value="C">現金與匯款</option>
-                                        <option value="D">臨櫃匯款</option>
                                     </select>
                                 </div>
                                 <div class="mb-3 col-md-4" id="cash_price_div">
@@ -544,6 +543,7 @@
                                         <option value="" selected>請選擇</option>
                                         <option value="銀行轉帳">銀行轉帳</option>
                                         <option value="Line Pay">Line Pay</option>
+                                        <option value="臨櫃匯款">臨櫃匯款</option>
                                     </select>
                                 </div>
                                 <div class="mb-3 col-md-4" id="transfer_number_div">
