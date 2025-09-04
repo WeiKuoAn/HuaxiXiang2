@@ -16,6 +16,7 @@ class SaleSouvenir extends Model
         'souvenir_type',
         'product_name',
         'product_num',
+        'product_variant_id',
         'total',
         'comment'
     ];
@@ -25,5 +26,13 @@ class SaleSouvenir extends Model
         dd($this->sale_id); 
         return $this->hasOne(\App\Models\SaleSouvenir::class, 'prom_id', 'prom_id')
             ->where('sale_id', $this->sale_id);
+    }
+
+    /**
+     * 關聯到商品變體
+     */
+    public function variant()
+    {
+        return $this->belongsTo(\App\Models\ProductVariant::class, 'product_variant_id');
     }
 }

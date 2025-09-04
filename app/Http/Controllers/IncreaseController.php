@@ -79,6 +79,7 @@ class IncreaseController extends Controller
                     'increase_id' => $increase->id,
                     'phone_person_id' => $itemData['phone_person'] ?? null,
                     'receive_person_id' => $itemData['receive_person'] ?? null,
+                    'phone_exclude_bonus' => isset($itemData['phone_exclude_bonus']) && $itemData['phone_exclude_bonus'] == '1',
                 ]);
 
                 // 設定各類別金額
@@ -159,6 +160,7 @@ class IncreaseController extends Controller
                     'increase_id' => $increase->id,
                     'phone_person_id' => $itemData['phone_person'] ?? null,
                     'receive_person_id' => $itemData['receive_person'] ?? null,
+                    'phone_exclude_bonus' => isset($itemData['phone_exclude_bonus']) && $itemData['phone_exclude_bonus'] == '1',
                 ]);
 
                 // 設定各類別金額

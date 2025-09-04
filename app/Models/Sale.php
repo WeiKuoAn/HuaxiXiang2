@@ -28,6 +28,8 @@ class Sale extends Model
         'pay_price',
         'variety',
         'total',
+        'religion',
+        'death_date',
         'send',
         'connector_address',
         'hospital_address',
@@ -186,5 +188,53 @@ class Sale extends Model
     public function contracts()
     {
         return $this->hasMany('App\Models\ContractData', 'sale_id');
+    }
+
+    // 關聯到重要日期資料（一個業務單可能對應一個重要日期記錄）
+    public function memorialDate()
+    {
+        return $this->hasOne('App\Models\MemorialDate', 'sale_id');
+    }
+
+    /**
+     * 取得宗教中文名稱
+     */
+    public function getReligionNameAttribute()
+    {
+        $religions = [
+            'buddhism' => '佛教',
+            'taoism' => '道教',
+            'buddhism_taoism' => '佛道教',
+            'christianity' => '基督教',
+            'catholicism' => '天主教',
+            'none' => '無宗教',
+            'other' => '其他'
+        ];
+
+        return $religions[$this->religion] ?? '';
+    }
+
+    /**
+     * 檢查是否為佛道教相關宗教
+     */
+    public function isBuddhistOrTaoist()
+    {
+        return in_array($this->religion, ['buddhism', 'taoism', 'buddhism_taoism']);
+    }
+
+    /**
+     * 檢查是否有往生日期
+     */
+    public function hasDeathDate()
+    {
+        return !empty($this->death_date);
+    }
+
+    /**
+     * 檢查是否需要計算重要日期
+     */
+    public function needsMemorialDates()
+    {
+        return $this->isBuddhistOrTaoist() && $this->hasDeathDate();
     }
 }

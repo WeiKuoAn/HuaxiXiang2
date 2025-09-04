@@ -13,6 +13,7 @@ class IncreaseItem extends Model
         'increase_id',
         'phone_person_id',
         'receive_person_id',
+        'phone_exclude_bonus',
         'night_phone_amount',
         'night_receive_amount',
         'evening_phone_amount',
@@ -25,6 +26,7 @@ class IncreaseItem extends Model
     ];
 
     protected $casts = [
+        'phone_exclude_bonus' => 'boolean',
         'night_phone_amount' => 'decimal:2',
         'night_receive_amount' => 'decimal:2',
         'evening_phone_amount' => 'decimal:2',
@@ -65,8 +67,16 @@ class IncreaseItem extends Model
      */
     public function calculateTotalAmount()
     {
-        // 計算接電話總金額
-        $this->total_phone_amount = $this->night_phone_amount + $this->evening_phone_amount + $this->typhoon_phone_amount;
+        // 計算接電話總金額（如果不計入獎金則為0）
+        if ($this->phone_exclude_bonus) {
+            $this->total_phone_amount = 0;
+            // 細項金額也設為0
+            $this->night_phone_amount = 0;
+            $this->evening_phone_amount = 0;
+            $this->typhoon_phone_amount = 0;
+        } else {
+            $this->total_phone_amount = $this->night_phone_amount + $this->evening_phone_amount + $this->typhoon_phone_amount;
+        }
         
         // 計算接件總金額
         $this->total_receive_amount = $this->night_receive_amount + $this->evening_receive_amount + $this->typhoon_receive_amount;

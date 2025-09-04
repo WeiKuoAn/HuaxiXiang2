@@ -218,11 +218,11 @@ Route::group(['prefix' => '/'], function () {
     Route::get('search_district', [VisitController::class, 'search_district'])->name('search.district');  // ajax搜尋區域
 
     Route::get('hospitals', [VisitController::class, 'hospitals'])->name('hospitals');  // 醫院
-Route::get('hospitals/export', [VisitController::class, 'hospitalsExport'])->name('hospitals.export');  // 醫院匯出
-Route::get('etiquettes', [VisitController::class, 'etiquettes'])->name('etiquettes');  // 禮儀社
-Route::get('etiquettes/export', [VisitController::class, 'etiquettesExport'])->name('etiquettes.export');  // 禮儀社匯出
-Route::get('reproduces', [VisitController::class, 'reproduces'])->name('reproduces');  // 繁殖場
-Route::get('reproduces/export', [VisitController::class, 'reproducesExport'])->name('reproduces.export');  // 繁殖場匯出
+    Route::get('hospitals/export', [VisitController::class, 'hospitalsExport'])->name('hospitals.export');  // 醫院匯出
+    Route::get('etiquettes', [VisitController::class, 'etiquettes'])->name('etiquettes');  // 禮儀社
+    Route::get('etiquettes/export', [VisitController::class, 'etiquettesExport'])->name('etiquettes.export');  // 禮儀社匯出
+    Route::get('reproduces', [VisitController::class, 'reproduces'])->name('reproduces');  // 繁殖場
+    Route::get('reproduces/export', [VisitController::class, 'reproducesExport'])->name('reproduces.export');  // 繁殖場匯出
     Route::get('dogparks', [VisitController::class, 'dogparks'])->name('dogparks');  // 狗園
     Route::get('dogparks/export', [VisitController::class, 'dogparksExport'])->name('dogparks.export');  // 狗園匯出
     Route::get('salons', [VisitController::class, 'salons'])->name('salons');  // 美容院
@@ -303,24 +303,29 @@ Route::get('reproduces/export', [VisitController::class, 'reproducesExport'])->n
 
     Route::get('/sales/excel', [SaleDataController::class, 'excel'])->name('sales.excel');
 
-    Route::get('/sale/create', [SaleDataController::class, 'create'])->name('sale.create');
-    Route::get('/sale/create/test', [SaleDataController::class, 'test'])->name('sale.test');
-    Route::post('/sale/create', [SaleDataController::class, 'store'])->name('sale.data.create');
-    Route::get('/sale/edit/{id}', [SaleDataController::class, 'show'])->name('sale.edit');
-    Route::post('/sale/edit/{id}', [SaleDataController::class, 'update'])->name('sale.data.edit');
-    Route::get('/sale/del/{id}', [SaleDataController::class, 'delete'])->name('sale.del');
-    Route::post('/sale/del/{id}', [SaleDataController::class, 'destroy'])->name('sale.data.del');
+    /* 業務管理-old */
+    // Route::get('/sale/create', [SaleDataController::class, 'create'])->name('sale.create');
+    // Route::get('/sale/create/test', [SaleDataController::class, 'test'])->name('sale.test');
+    // Route::post('/sale/create', [SaleDataController::class, 'store'])->name('sale.data.create');
+    // Route::get('/sale/edit/{id}', [SaleDataController::class, 'show'])->name('sale.edit');
+    // Route::post('/sale/edit/{id}', [SaleDataController::class, 'update'])->name('sale.data.edit');
+    // Route::get('/sale/del/{id}', [SaleDataController::class, 'delete'])->name('sale.del');
+    // Route::post('/sale/del/{id}', [SaleDataController::class, 'destroy'])->name('sale.data.del');
+
+    /* 業務管理-new */
+    Route::get('/sale/create', [SaleDataControllerNew::class, 'create_gpt'])->name('sale.create');
+    Route::post('/sale/create', [SaleDataControllerNew::class, 'store_gpt'])->name('sale.data.create');
+    Route::get('/sale/edit/{id}', [SaleDataControllerNew::class, 'edit_gpt'])->name('sale.edit');
+    Route::post('/sale/update/{id}', [SaleDataControllerNew::class, 'update_gpt'])->name('sale.data.update');
+    Route::get('/sale/del/{id}', [SaleDataControllerNew::class, 'delete_gpt'])->name('sale.del');
+    Route::delete('/sale/del/{id}', [SaleDataControllerNew::class, 'destroy_gpt'])->name('sale.data.del');
+    Route::get('/sale/check/{id}', [SaleDataControllerNew::class, 'check_show_gpt'])->name('sale.check');
+    Route::post('/sale/check/{id}', [SaleDataControllerNew::class, 'check_update_gpt'])->name('sale.data.check');
+    //業務對帳明細
     Route::get('/sale/check/history', [SaleDataController::class, 'checkHistory'])->name('sales.checkHistory');
     Route::get('/sale/history/{id}', [SaleDataController::class, 'history'])->name('sale.history');
 
-    Route::get('/sale/create/gpt', [SaleDataControllerNew::class, 'create_gpt'])->name('sale.create.gpt');
-    Route::post('/sale/create/gpt', [SaleDataControllerNew::class, 'store_gpt'])->name('sale.data.create.gpt');
-    Route::get('/sale/edit/gpt/{id}', [SaleDataControllerNew::class, 'edit_gpt'])->name('sale.edit.gpt');
-    Route::post('/sale/update/gpt/{id}', [SaleDataControllerNew::class, 'update_gpt'])->name('sale.data.update.gpt');
-    Route::get('/sale/del/gpt/{id}', [SaleDataControllerNew::class, 'delete_gpt'])->name('sale.del.gpt');
-    Route::delete('/sale/del/gpt/{id}', [SaleDataControllerNew::class, 'destroy_gpt'])->name('sale.data.del.gpt');
-    Route::get('/sale/check/gpt/{id}', [SaleDataControllerNew::class, 'check_show_gpt'])->name('sale.check.gpt');
-    Route::post('/sale/check/gpt/{id}', [SaleDataControllerNew::class, 'check_update_gpt'])->name('sale.data.check.gpt');
+    
 
     // 報廢單
     Route::get('/sale/scrapped/create', [ScrappedController::class, 'create'])->name('sale.scrapped.create');
@@ -754,8 +759,7 @@ Route::get('reproduces/export', [VisitController::class, 'reproducesExport'])->n
     Route::put('/overtime/edit/{id}', [OvertimeController::class, 'update'])->name('overtime.edit.data');
     Route::get('/overtime/del/{id}', [OvertimeController::class, 'delete'])->name('overtime.del');
     Route::delete('/overtime/del/{id}', [OvertimeController::class, 'destroy'])->name('overtime.del.data');
-    Route::get('/overtime/approve/{id}', [OvertimeController::class, 'approve'])->name('overtime.approve');
-    Route::post('/overtime/reject/{id}', [OvertimeController::class, 'reject'])->name('overtime.reject');
+    
     Route::get('/overtime/export', [OvertimeController::class, 'export'])->name('overtime.export');
 
     Route::get('image', function () {
