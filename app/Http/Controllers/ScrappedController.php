@@ -30,7 +30,7 @@ class ScrappedController extends Controller
         ]);
 
         $sale = new Sale();
-        $sale->sale_on = $request->sale_on;
+        $sale->sale_on = 'No.' .$request->sale_on;
         $sale->sale_date = $request->sale_date;
         $sale->type_list = 'scrapped';
         $sale->comm = $request->comm;
@@ -62,7 +62,7 @@ class ScrappedController extends Controller
         ]);
 
         $scrapped = Sale::where('id', $id)->where('type_list', 'scrapped')->firstOrFail();
-        $scrapped->sale_on = $request->sale_on;
+        $scrapped->sale_on = 'No.' .$request->sale_on;
         $scrapped->sale_date = $request->sale_date;
         $scrapped->comm = $request->comm;
         $scrapped->save();

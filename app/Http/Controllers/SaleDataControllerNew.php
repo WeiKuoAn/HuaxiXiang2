@@ -404,7 +404,7 @@ class SaleDataControllerNew extends Controller
     {
         // 使用正則表達式匹配No.後的數字(客戶)
         $sale = new Sale();
-        $sale->sale_on = $request->sale_on;
+        $sale->sale_on = 'No.' . $request->sale_on;
         $sale->user_id = Auth::user()->id;
         $sale->sale_date = $request->sale_date;
         $sale->type_list = $request->type_list;
@@ -594,25 +594,6 @@ class SaleDataControllerNew extends Controller
         $sale_history->save();
 
         return redirect()->route('sale.create');
-    }
-
-    public function scrapped_create()
-    {
-        $date = date('Y-m-d');
-        return view('sale.scrapped_create')->with('date', $date);
-    }
-
-    public function scrapped_store(Request $request)
-    {
-        $sale = new Sale();
-        $sale->sale_on = $request->sale_on;
-        $sale->sale_date = $request->sale_date;
-        $sale->type_list = 'scrapped';
-        $sale->comm = $request->comm;
-        $sale->user_id = Auth::user()->id;
-        $sale->save();
-
-        return redirect()->route('sale.scrapped.create');
     }
 
     public function index(Request $request)

@@ -137,7 +137,7 @@
                                     </div>
                                 </div>
                                 <div class="mb-3 col-md-4" id="death_date_field" style="display: none;">
-                                    <label for="death_date" class="form-label">往生日期<span class="text-danger">*</span></label>
+                                    <label for="death_date" class="form-label">往生日期</label>
                                     <input type="text" class="form-control" value="{{ $data->death_date }}" readonly>
                                 </div>
                                 {{-- <div class="mb-3 col-md-4 not_memorial_show" id="final_price">

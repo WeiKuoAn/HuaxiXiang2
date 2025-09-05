@@ -136,7 +136,7 @@
                                     </div>
                                 </div>
                                 <div class="mb-3 col-md-4" id="death_date_field" style="display: none;">
-                                    <label for="death_date" class="form-label">往生日期<span class="text-danger">*</span></label>
+                                    <label for="death_date" class="form-label">往生日期</label>
                                     <input type="text" class="form-control" value="{{ $data->death_date }}" readonly>
                                 </div>
                                 {{-- <div class="mb-3 col-md-4 not_memorial_show" id="final_price">
@@ -686,6 +686,9 @@
         var payIdValue = '{{ $data->pay_id }}';
         var payMethod = '{{ $data->pay_method }}';
        $(document).ready(function() {
+            // 初始化宗教信仰和往生日期欄位顯示
+            initializeReligionAndDeathDateFields();
+            
             var saleAddress = <?php echo json_encode(isset($sale_address) ? $sale_address : null); ?>;
             // Check if $sale_address exists
             var connector_address = $('input[name="connector_address"]').val();
@@ -1958,6 +1961,70 @@
         }
 
 
+
+        // 初始化宗教信仰和往生日期欄位顯示
+        function initializeReligionAndDeathDateFields() {
+            var typeList = '{{ $data->type_list }}';
+            var payId = '{{ $data->pay_id }}';
+            var planId = '{{ $data->plan_id }}';
+            var religion = '{{ $data->religion }}';
+            var deathDate = '{{ $data->death_date }}';
+            
+            console.log('初始化宗教信仰和往生日期欄位:', { typeList, payId, planId, religion, deathDate });
+            
+            // 根據案件類別和支付類別決定是否顯示宗教欄位
+            if (typeList === 'dispatch' && (payId === 'A' || payId === 'C')) {
+                // 將 planId 轉換為字串進行比較
+                var planIdStr = String(planId);
+                
+                if (planIdStr === '1' || planIdStr === '2' || planIdStr === '3') {
+                    // 個人、團體、浪浪方案：顯示宗教欄位
+                    $('#religion_field').show();
+                    console.log('顯示宗教欄位 - 方案ID:', planIdStr);
+                    
+                    // 如果有宗教信仰資料，顯示宗教提醒
+                    if (religion && religion !== 'buddhism_taoism') {
+                        $('#religion_reminder').show();
+                    }
+                } else {
+                    // 其他方案：不顯示宗教欄位
+                    $('#religion_field').hide();
+                    console.log('隱藏宗教欄位 - 方案ID:', planIdStr);
+                }
+            } else {
+                // 非派件單或非一次付清/訂金，隱藏宗教欄位
+                $('#religion_field').hide();
+                console.log('隱藏宗教欄位 - 非派件單或非一次付清/訂金');
+            }
+            
+            // 根據案件類別、支付類別、方案和宗教決定是否顯示往生日期欄位
+            if (typeList === 'dispatch' && (payId === 'A' || payId === 'C')) {
+                var planIdStr = String(planId);
+                
+                // 浪浪方案永遠不顯示往生日期
+                if (planIdStr === '3') {
+                    $('#death_date_field').hide();
+                    console.log('隱藏往生日期欄位 - 浪浪方案');
+                } else if (planIdStr === '1' || planIdStr === '2') {
+                    // 個人、團體方案：只有佛道教相關宗教才顯示往生日期
+                    if (religion === 'buddhism' || religion === 'taoism' || religion === 'buddhism_taoism') {
+                        $('#death_date_field').show();
+                        console.log('顯示往生日期欄位 - 個人/團體方案 + 佛道教');
+                    } else {
+                        $('#death_date_field').hide();
+                        console.log('隱藏往生日期欄位 - 個人/團體方案 + 非佛道教');
+                    }
+                } else {
+                    // 其他方案：不顯示往生日期
+                    $('#death_date_field').hide();
+                    console.log('隱藏往生日期欄位 - 其他方案');
+                }
+            } else {
+                // 非派件單或非一次付清/訂金，隱藏往生日期欄位
+                $('#death_date_field').hide();
+                console.log('隱藏往生日期欄位 - 非派件單或非一次付清/訂金');
+            }
+        }
 
         // 表單提交檢查
         $('#your-form').on('submit', function(e) {

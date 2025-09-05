@@ -210,7 +210,7 @@
                                     </div>
                                 </div>
                                 <div class="mb-3 col-md-4" id="death_date_field" style="display: none;">
-                                    <label for="death_date" class="form-label">往生日期<span class="text-danger">*</span></label>
+                                    <label for="death_date" class="form-label">往生日期</label>
                                     <input type="date" class="form-control" id="death_date" name="death_date" value="{{ $data->death_date }}">
                                 </div>
                                 <div class="mb-3 col-md-4">
@@ -1472,8 +1472,8 @@
                     // 個人、團體方案：根據宗教選擇決定是否顯示往生日期
                     if (religion === 'buddhism' || religion === 'taoism' || religion === 'buddhism_taoism') {
                         $('#death_date_field').show(300);
-                        $('#death_date').prop('required', true);
-                        console.log('個人/團體方案 (ID:', planIdStr, ') + 佛道教：顯示往生日期');
+                        $('#death_date').prop('required', false); // 改為非必填
+                        console.log('個人/團體方案 (ID:', planIdStr, ') + 佛道教：顯示往生日期（非必填）');
                     } else {
                         $('#death_date_field').hide(300);
                         $('#death_date').val('').prop('required', false);
@@ -1542,7 +1542,7 @@
                     
                     // 如果已有宗教選擇，檢查是否應該顯示往生日期
                     if (religion && (religion === 'buddhism' || religion === 'taoism' || religion === 'buddhism_taoism')) {
-                        $('#death_date').prop('required', true);
+                        $('#death_date').prop('required', false); // 改為非必填
                     } else {
                         $('#death_date').prop('required', false);
                     }

@@ -233,7 +233,7 @@
                                     </div>
                                 </div>
                                 <div class="mb-3 col-md-4" id="death_date_field" style="display: none;">
-                                    <label for="death_date" class="form-label">往生日期<span class="text-danger">*</span></label>
+                                    <label for="death_date" class="form-label">往生日期</label>
                                     <input type="date" class="form-control" id="death_date" name="death_date">
                                 </div>
                                 <div class="mb-3 col-md-4">
@@ -1228,12 +1228,8 @@
             // 客戶選擇永遠必填
             $("#cust_name_q").prop('required', true);
             
-            // 如果選擇了佛道教相關宗教且往生日期欄位顯示，則往生日期必填
-            var religion = $('#religion').val();
-            if ((religion === 'buddhism' || religion === 'taoism' || religion === 'buddhism_taoism') && 
-                $('#death_date_field').is(':visible')) {
-                $('#death_date').prop('required', true);
-            }
+            // 往生日期改為非必填（因為不一定知道往生日期）
+            // 移除原本的必填邏輯
         }
 
         // 顯示支付類別提示訊息
@@ -1520,9 +1516,9 @@
                 $('#death_date').prop('required', false);
                 hideMemorialDates();
             } else {
-                // 應該顯示往生日期
+                // 應該顯示往生日期（但改為非必填）
                 $('#death_date_field').show(300);
-                $('#death_date').prop('required', true);
+                $('#death_date').prop('required', false);
             }
         }
 
@@ -1752,10 +1748,11 @@
                 var planIdStr = String(planId);
                 
                 if (planIdStr === '1' || planIdStr === '2') {
-                    // 個人、團體方案：顯示宗教和往生日期
+                    // 個人、團體方案：顯示宗教和往生日期（往生日期為非必填）
                     $('#religion_field').show(300);
                     $('#death_date_field').show(300);
-                    console.log('個人/團體方案 (ID:', planIdStr, ')：顯示宗教和往生日期');
+                    $('#death_date').prop('required', false); // 確保為非必填
+                    console.log('個人/團體方案 (ID:', planIdStr, ')：顯示宗教和往生日期（非必填）');
                 } else if (planIdStr === '3') {
                     // 浪浪方案：只顯示宗教，不顯示往生日期
                     $('#religion_field').show(300);
@@ -1808,8 +1805,8 @@
                     // 個人、團體方案：根據宗教選擇決定是否顯示往生日期
                     if (religion === 'buddhism' || religion === 'taoism' || religion === 'buddhism_taoism') {
                         $('#death_date_field').show(300);
-                        $('#death_date').prop('required', true);
-                        console.log('個人/團體方案 (ID:', planIdStr, ') + 佛道教：顯示往生日期');
+                        $('#death_date').prop('required', false); // 改為非必填
+                        console.log('個人/團體方案 (ID:', planIdStr, ') + 佛道教：顯示往生日期（非必填）');
                     } else {
                         $('#death_date_field').hide(300);
                         $('#death_date').val('').prop('required', false);
