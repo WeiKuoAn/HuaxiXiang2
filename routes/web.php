@@ -25,6 +25,7 @@ use App\Http\Controllers\LeaveDayController;
 use App\Http\Controllers\LeaveSettingController;
 use App\Http\Controllers\LiffController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\MemorialDateController;
 use App\Http\Controllers\MeritController;
 use App\Http\Controllers\OnlineColumbariumController;
 use App\Http\Controllers\OvertimeController;
@@ -213,6 +214,11 @@ Route::group(['prefix' => '/'], function () {
     Route::post('customer/del/{id}', [CustomerController::class, 'destroy'])->name('customer.del.data');
     Route::get('customer/{id}/sales', [CustomerController::class, 'sales'])->name('customer.sales');
     Route::get('customers/export', [CustomerController::class, 'export'])->name('customer.export');
+
+    /* 紀念日管理 */
+    Route::get('memorial-dates', [MemorialDateController::class, 'index'])->name('memorial.dates');
+    Route::get('memorial-dates/edit/{id}', [MemorialDateController::class, 'edit'])->name('memorial.dates.edit');
+    Route::post('memorial-dates/update/{id}', [MemorialDateController::class, 'update'])->name('memorial.dates.update');
 
     /* 拜訪管理 */
     Route::get('search_district', [VisitController::class, 'search_district'])->name('search.district');  // ajax搜尋區域
