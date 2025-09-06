@@ -120,7 +120,14 @@
                                 <div class="mb-3 col-md-4" id="suit_field" style="display: none;">
                                     <label for="suit_id" class="form-label">套裝選擇<span
                                             class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" value="{{ $suits->where('id', $data->suit_id)->first()->name ?? '' }}" readonly>
+                                    <select id="suit_id" class="form-select" name="suit_id" disabled>
+                                        <option value="">請選擇...</option>
+                                        @foreach ($suits as $suit)
+                                            <option value="{{ $suit->id }}"
+                                                @if ($data->suit_id == $suit->id) selected @endif>{{ $suit->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="mb-3 col-md-4">
                                     <label for="user_id" class="form-label">服務專員<span
@@ -140,8 +147,8 @@
                                     <input type="text" class="form-control" value="{{ $data->death_date }}" readonly>
                                 </div>
                                 {{-- <div class="mb-3 col-md-4 not_memorial_show" id="final_price">
-                            <label for="plan_price" class="form-label">方案追加/收款金額<span class="text-danger">*</span></label>
-                            <input type="text" class="form-control total_number"  name="final_price" value="{{ $data->plan_price }}" >
+                            <label for="plan_price" class="form-label" id="final_price_label">收款金額<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control total_number"  name="final_price" value="{{ $data->pay_price }}" readonly >
                         </div> --}}
                                 <div class="row">
                                     <div class="mb-1 mt-1">
@@ -653,6 +660,9 @@
             <input type="hidden" id="row_id" name="row_id" value="">
             <input type="hidden" id="original_pay_id" value="{{ $data->pay_id ?? '' }}">
             <input type="hidden" id="sale_id" value="{{ $data->id ?? '' }}">
+            <input type="hidden" id="hidden_plan_id" value="{{ $data->plan_id ?? '' }}">
+            <input type="hidden" id="hidden_customer_id" value="{{ $data->customer_id ?? '' }}">
+            <input type="hidden" id="hidden_pet_name" value="{{ $data->pet_name ?? '' }}">
 
 
         </form>
@@ -818,17 +828,19 @@
             checkFinalAndSuit();
 
             // 綁定欄位變更事件
-            $('#pay_id, #cust_name_q, #pet_name, #plan_id, #type_list').on('change keyup', function() {
+            $('#original_pay_id, #hidden_customer_id, #hidden_pet_name, #hidden_plan_id').on('change keyup', function() {
                 checkFinalAndSuit();
             });
 
             function checkFinalAndSuit() {
-            const payId = $('#pay_id').val();
-            const customerId = $('#cust_name_q').val();
-            const petName = $('#pet_name').val();
-                const planId = $('#plan_id').val();
-            const typeList = $('#type_list').val();
+            const payId = $('#original_pay_id').val();
+            const customerId = $('#hidden_customer_id').val();
+            const petName = $('#hidden_pet_name').val();
+                const planId = $('#hidden_plan_id').val();
+            const typeList = type_list;
                 const saleId = $('#sale_id').val();
+
+                console.log('checkFinalAndSuit 參數:', { payId, customerId, petName, planId, typeList, saleId });
 
                 if (payId && customerId && petName || planId) {
                 $.ajax({
@@ -854,19 +866,25 @@
                     $('#submit_btn').prop('disabled', true);
                 }
 
+            console.log('套裝顯示檢查:', { typeList, payId, planId, responseData: response?.data });
+            
             if (typeList === 'dispatch' && (payId === 'A' || payId === 'D' || payId === 'E')) {
                 if (planId === '1' && (payId === 'A' || payId === 'E')) {
+                    console.log('顯示套裝 - 一次付清/追加 + 方案1');
                     $('#suit_id').prop('required', true);
                     $('#suit_field').show(300);
                 } else if (response && response.data && response.data.plan_id === '1' && payId === 'D') {
+                    console.log('顯示套裝 - 尾款 + 方案1 (來自AJAX回應)');
                     $('#suit_id').prop('required', true);
                     $('#suit_field').show(300);
                 } else {
+                    console.log('隱藏套裝 - 條件不符');
                     $('#suit_field').hide(300);
                     $('#suit_id').val('');
                     $('#suit_id').prop('required', false);
                 }
             } else {
+                console.log('隱藏套裝 - 非派件單或支付類別不符');
                 $('#suit_field').hide(300);
                 $('#suit_id').val('');
                 $('#suit_id').prop('required', false);
@@ -1021,9 +1039,27 @@
                 if (payIdValue == 'D') {
                     $(".plan").hide(300);
                     $("#plan_id").prop('required', false);
+                    // 尾款(D)時，檢查是否需要顯示套裝欄位
+                    var currentPlanId = $("#hidden_plan_id").val();
+                    if (currentPlanId === '1') {
+                        $("#suit_id").prop('required', true);
+                        $("#suit_field").show(300);
+                    } else {
+                        $("#suit_id").prop('required', false);
+                        $("#suit_field").hide(300);
+                    }
                 } else {
                     $(".plan").show(300);
                     $("#plan_id").prop('required', true);
+                    // 追加(E)時，如果方案ID為1，套裝欄位應該顯示
+                    var currentPlanId = $("#hidden_plan_id").val();
+                    if (currentPlanId === '1') {
+                        $("#suit_id").prop('required', true);
+                        $("#suit_field").show(300);
+                    } else {
+                        $("#suit_id").prop('required', false);
+                        $("#suit_field").hide(300);
+                    }
                 }
                 $("#kg").prop('required', false);
                 $("#variety").prop('required', false);
@@ -1054,138 +1090,7 @@
             }
         }
 
-        $('select[name="type_list"]').on('change', function() {
-            payIdValue = $('select[name="pay_id"]').val();
-            if ($(this).val() == 'memorial') {
-                $(".not_memorial_show").hide(300);
-                $("#final_price").hide(300);
-                $("#cust_name_q").prop('required', false);
-                // $("#pet_name").prop('required', false);
-                $("#kg").prop('required', false);
-                $("#variety").prop('required', false);
-                $("#type").prop('required', false);
-                $("#suit_id").prop('required', false);
-                $("#plan_id").prop('required', false);
-                $("#plan_price").prop('required', false);
-                $("#hospital_address").prop('required', false);
-                $(".required").hide();
-            } else if ($(this).val() == 'dispatch') {
-                $(".not_memorial_show").show(300);
-                $("#cust_name_q").prop('required', true);
-                $(".required").show();
-                if (payIdValue == 'D' || payIdValue == 'E') {
-            $("#final_price").show(300);
-                    $(".not_final_show").hide();
-                    if (payIdValue == 'D') {
-                        $(".plan").hide(300);
-                        $("#plan_id").prop('required', false);
-                        $("#suit_id").prop('required', false);
-                } else {
-                        $(".plan").show(300);
-                        $("#plan_id").prop('required', true);
-                        // 追加(E)時，如果方案ID為1，套裝欄位應該顯示
-                        var currentPlanId = $("#plan_id").val();
-                        if (currentPlanId === '1') {
-                            $("#suit_id").prop('required', true);
-                        } else {
-                            $("#suit_id").prop('required', false);
-                        }
-                    }
-                    $("#kg").prop('required', false);
-                    $("#variety").prop('required', false);
-                    $("#type").prop('required', false);
-                    $("#plan_price").prop('required', false);
-            } else {
-                    $("#prom_div").show(300);
-                    $("#souvenir_div").show(300);
-                    $("#gdpaper_div").show(300);
-                    $("#final_price").hide(300);
-                    $(".not_final_show").show(300);
-                    $("#pet_name").prop('required', true);
-                    $("#kg").prop('required', true);
-                    $("#variety").prop('required', true);
-                    $("#type").prop('required', true);
-                    $("#suit_id").prop('required', true);
-                    $("#plan_id").prop('required', true);
-                    $("#plan_price").prop('required', true);
-                    if (payIdValue == 'C') {
-                        $("#prom_div").hide(300);
-                        $("#souvenir_div").hide(300);
-                        $("#gdpaper_div").hide(300);
-                    }
-                }
-            }
-        });
 
-        $('select[name="pay_id"]').on('change', function() {
-            type_list = $('select[name="type_list"]').val();
-            var a = $(this).val();
-            console.log(a);
-            if ($(this).val() == 'D' || $(this).val() == 'E') {
-                $(".not_final_show").hide(300);
-                if ($(this).val() == 'D') {
-                    $(".plan").hide(300);
-                    $("#plan_id").prop('required', false);
-                    $("#suit_id").prop('required', false);
-                } else {
-                    $(".plan").show(300);
-                    $("#plan_id").prop('required', true);
-                    // 追加(E)時，如果方案ID為1，套裝欄位應該顯示
-                    var currentPlanId = $("#plan_id").val();
-                    if (currentPlanId === '1') {
-                        $("#suit_id").prop('required', true);
-                    } else {
-                        $("#suit_id").prop('required', false);
-                    }
-                }
-                $("#kg").prop('required', false);
-                $("#variety").prop('required', false);
-                $("#type").prop('required', false);
-                $("#plan_price").prop('required', false);
-                if (type_list == 'memorial') {
-                    $("#final_price").hide();
-                    $(".not_memorial_show").hide();
-                    $("#send_div").hide(300);
-                    $("#connector_div").hide(300);
-                    $("#connector_hospital_div").hide(300);
-                }
-                $("#send_div").hide();
-                $("#connector_div").hide();
-                $("#connector_hospital_div").hide();
-            } else {
-                $("#prom_div").show(300);
-                $("#gdpaper_div").show(300);
-                $("#souvenir_div").show(300);
-                $("#final_price").hide(300);
-                $("#send_div").show(300);
-                $("#connector_div").show(300);
-                $("#connector_hospital_div").show(300);
-                if (type_list == 'memorial') {
-                    $("#final_price").hide();
-                    $(".not_memorial_show").hide();
-                    $("#send_div").hide();
-                    $("#connector_div").hide();
-                    $("#connector_hospital_div").hide();
-                } else {
-                    $(".not_memorial_show").show();
-                    $("#pet_name").prop('required', true);
-                    $("#kg").prop('required', true);
-                    $("#variety").prop('required', true);
-                    $("#type").prop('required', true);
-                    $("#suit_id").prop('required', true);
-                    $("#plan_id").prop('required', true);
-                    $("#plan_price").prop('required', true);
-                    $("#send_div").show();
-                    $("#connector_div").show();
-                    $("#connector_hospital_div").show();
-                    if ($(this).val() == 'C') {
-                        $("#prom_div").hide(300);
-                        $("#souvenir_div").hide(300);
-                        $("#gdpaper_div").hide(300);
-                    }
-                }
-            }
-        });
 
         // 載入指定類型的客戶
         function loadCustomersByType(type) {
@@ -1307,25 +1212,6 @@
             calculate_price();
         });
 
-        // 方案變更時檢查套裝欄位顯示
-        $("#plan_id").on('change', function() {
-            var planId = $(this).val();
-            var payId = $('select[name="pay_id"]').val();
-            var typeList = $('select[name="type_list"]').val();
-            
-            // 檢查是否應該顯示套裝欄位
-            if (typeList === 'dispatch' && (payId === 'A' || payId === 'E') && planId === '1') {
-                $('#suit_id').prop('required', true);
-                $('#suit_field').show(300);
-            } else if (typeList === 'dispatch' && payId === 'D' && planId === '1') {
-                $('#suit_id').prop('required', true);
-                $('#suit_field').show(300);
-            } else {
-                $('#suit_id').prop('required', false);
-                $('#suit_field').hide(300);
-                $('#suit_id').val('');
-            }
-        });
 
         $(document).on('input', '.total_number', function() {
             calculate_price();

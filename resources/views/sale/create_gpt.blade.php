@@ -204,11 +204,11 @@
                                     <input type="number" class="form-control total_number" id="plan_price"
                                         name="plan_price" min="0">
                                 </div>
-                                <div class="mb-3 col-md-4" id="final_price">
+                                {{-- <div class="mb-3 col-md-4" id="final_price">
                                     <label for="final_price" class="form-label" id="final_price_label">方案追加/收款金額<span
                                             class="text-danger">*</span></label>
                                     <input type="number" class="form-control total_number" id="final_price_input" name="final_price" min="0">
-                                </div>
+                                </div> --}}
                                 <div class="mb-3 col-md-4" id="suit_field" style="display: none;">
                                     <label for="suit_id" class="form-label">套裝選擇<span class="text-danger">*</span></label>
                                     <select id="suit_id" class="form-select" name="suit_id">
@@ -632,8 +632,6 @@
         function initializeFormFields() {
             console.log('初始化表單欄位');
             
-            // 預設隱藏收款金額欄位
-            $("#final_price").hide();
             
             // 預設隱藏來源公司欄位
             $("#source_company").hide();
@@ -947,7 +945,6 @@
         }
 
 
-        $("#final_price").hide();
 
         $("#source_company").hide();
         
@@ -1057,16 +1054,14 @@
         // 重置所有欄位為預設狀態
         function resetAllFields() {
             // 移除所有必填限制
-            $("#kg, #variety, #type, #plan_id, #plan_price, #final_price_input").prop('required', false);
+            $("#kg, #variety, #type, #plan_id, #plan_price").prop('required', false);
             
             // 隱藏部分區塊（not_memorial_show欄位的顯示由各個支付類別函數控制）
-            $(".not_final_show, .plan, #final_price").hide();
+            $(".not_final_show, .plan").hide();
             $("#send_div, #connector_div, #connector_hospital_div").hide();
             // 後續處理和金紙區塊的顯示由 showPromSectionsIfNeeded 控制
             $("#prom_div, #gdpaper_div, #souvenir_div").hide();
             
-            // 重置標籤文字
-            $("#final_price_label").html('方案追加/收款金額<span class="text-danger">*</span>');
             
             // 隱藏提示訊息
             hidePaymentTypeHint();
@@ -1079,7 +1074,6 @@
             if (typeList === 'memorial') {
                 // 追思單：只顯示基本必要資訊，隱藏寵物詳細資料和方案資訊
                 $(".not_memorial_show").hide(); // 隱藏不必要欄位
-                $("#final_price").hide();
                 showPaymentSections(false);
                 setRequiredFields(['pet_name']); // 只有寵物名稱必填
                 showPaymentTypeHint('一次付清（追思單）', '請填寫客戶名稱、寵物名稱、後續處理、金紙選購和付款資訊。');
@@ -1105,7 +1099,6 @@
             if (typeList === 'memorial') {
                 // 追思單訂金：只顯示基本必要資訊，隱藏寵物詳細資料和方案資訊
                 $(".not_memorial_show").hide(); // 隱藏不必要欄位
-                    $("#final_price").hide();
                 showPaymentSections(false);
                 setRequiredFields(['pet_name']); // 只有寵物名稱必填
                 showPaymentTypeHint('訂金（追思單）', '請填寫客戶名稱、寵物名稱、金紙選購和付款資訊。後續處理項目將在尾款時處理。');
@@ -1132,10 +1125,6 @@
             $(".not_final_show").hide(); // 隱藏寵物詳細資訊、方案等
             $(".plan").hide(); // 隱藏方案選擇
             
-            // 顯示收款相關欄位並更新標籤
-            $("#final_price").show(300);
-            $("#final_price_label").html('尾款金額<span class="text-danger">*</span>');
-            $("#final_price_input").prop('required', true);
             
             // 隱藏接體相關設定（尾款不需要）
             showPaymentSections(false);
@@ -1168,10 +1157,6 @@
             // 追加顯示：客戶選擇、寵物名稱、方案選擇、後續處理、收款
             $(".not_final_show").hide(); // 隱藏寵物詳細資訊
             
-            // 顯示收款相關欄位並更新標籤
-            $("#final_price").show(300);
-            $("#final_price_label").html('追加金額<span class="text-danger">*</span>');
-            $("#final_price_input").prop('required', true);
             
             // 隱藏接體相關設定
             showPaymentSections(false);
@@ -1874,9 +1859,6 @@
             validateReligionAndDeathDate();
         });
 
-        $("#final_price").on('input', function() {
-            calculate_price();
-        });
 
         $("#plan_price").on('input', function() {
             calculate_price();

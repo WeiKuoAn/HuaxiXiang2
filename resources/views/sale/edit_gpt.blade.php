@@ -220,8 +220,8 @@
                                         value="{{ $data->user_name->name }}" readonly>
                                 </div>
                                 {{-- <div class="mb-3 col-md-4 not_memorial_show" id="final_price">
-                            <label for="plan_price" class="form-label">方案追加/收款金額<span class="text-danger">*</span></label>
-                            <input type="text" class="form-control total_number"  name="final_price" value="{{ $data->plan_price }}" >
+                            <label for="plan_price" class="form-label" id="final_price_label">收款金額<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control total_number"  name="final_price" value="{{ $data->pay_price }}" >
                         </div> --}}
                                 <div class="row">
                                     <div class="mb-1 mt-1">
