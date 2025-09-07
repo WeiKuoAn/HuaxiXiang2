@@ -319,7 +319,9 @@ Route::group(['prefix' => '/'], function () {
     // Route::post('/sale/del/{id}', [SaleDataController::class, 'destroy'])->name('sale.data.del');
     // Route::get('/sale/check/{id}', [SaleDataController::class, 'check_show'])->name('sale.check');
     // Route::post('/sale/check/{id}', [SaleDataController::class, 'check_update'])->name('sale.data.check');
-
+    // 業務對帳明細
+    Route::get('/sale/check/history', [SaleDataController::class, 'checkHistory'])->name('sales.checkHistory');
+    Route::get('/sale/history/{id}', [SaleDataController::class, 'history'])->name('sale.history');
     /* 業務管理-new */
     Route::get('/sale/create', [SaleDataControllerNew::class, 'create_gpt'])->name('sale.create');
     Route::post('/sale/create', [SaleDataControllerNew::class, 'store_gpt'])->name('sale.data.create');
@@ -329,9 +331,7 @@ Route::group(['prefix' => '/'], function () {
     Route::delete('/sale/del/{id}', [SaleDataControllerNew::class, 'destroy_gpt'])->name('sale.data.del');
     Route::get('/sale/check/{id}', [SaleDataControllerNew::class, 'check_show_gpt'])->name('sale.check');
     Route::post('/sale/check/{id}', [SaleDataControllerNew::class, 'check_update_gpt'])->name('sale.data.check');
-    // 業務對帳明細
-    Route::get('/sale/check/history', [SaleDataController::class, 'checkHistory'])->name('sales.checkHistory');
-    Route::get('/sale/history/{id}', [SaleDataController::class, 'history'])->name('sale.history');
+
 
     // 報廢單
     Route::get('/sale/scrapped/create', [ScrappedController::class, 'create'])->name('sale.scrapped.create');
