@@ -52,9 +52,8 @@ class Rpg09Controller extends Controller
             $datas[$key]['end_date'] = $this->date_text($month['end_date']);
             //抓取每月起始至末的日期，並取出（個別、團體、流浪）方案且不是尾款的單。
             $datas[$key]['cur_count'] = Sale::where('status', '9')->where('sale_date','>=',$month['start_date'])->where('sale_date','<=',$month['end_date'])->whereIn('plan_id',[1,2,3])->whereIn('pay_id', ['A', 'C'])->count();
-            // $datas[$key]['cur_puja_count'] = PujaData::where('date','>=',$month['start_date'])->where('date','<=',$month['end_date'])->whereIn('pay_id', ['A', 'C'])->count();
             $datas[$key]['cur_income_price'] = IncomeData::where('income_date','>=',$month['start_date'])->where('income_date','<=',$month['end_date'])->sum('price');
-            // $datas[$key]['cur_puja_price'] = PujaData::where('date','>=',$month['start_date'])->where('date','<=',$month['end_date'])->sum('pay_price');
+            $datas[$key]['cur_puja_price'] = PujaData::where('date','>=',$month['start_date'])->where('date','<=',$month['end_date'])->sum('pay_price');
             //抓取每月起始至末的日期並取出每張單的收入金額
             $datas[$key]['cur_sale_price'] = Sale::where('status', '9')->where('sale_date','>=',$month['start_date'])->where('sale_date','<=',$month['end_date'])->sum('pay_price');
             $datas[$key]['cur_price_amount'] = $datas[$key]['cur_income_price'] + $datas[$key]['cur_sale_price'];
@@ -69,7 +68,7 @@ class Rpg09Controller extends Controller
                                                         ->select('pay_item.*') // 選擇 pay_item 的欄位
                                                         ->sum('price');
             $datas[$key]['cur_pay_price'] = $datas[$key]['cur_pay_data_price']+$datas[$key]['cur_pay_item_price'];
-            $datas[$key]['cur_month_total'] = $datas[$key]['cur_price_amount'] - $datas[$key]['cur_pay_price'];
+            $datas[$key]['cur_month_total'] = $datas[$key]['cur_price_amount'] + $datas[$key]['cur_puja_price'] - $datas[$key]['cur_pay_price'];
         }
         // dd($datas);
         $sums['total_count'] = 0;
@@ -84,14 +83,13 @@ class Rpg09Controller extends Controller
         foreach($datas as $key=>$data)
         {
             $sums['total_count'] += $data['cur_count'];
-            // $sums['total_puja_count'] += $data['cur_puja_count'];
             $sums['total_income_price'] += $data['cur_income_price'];
-            // $sums['total_puja_price'] += $data['cur_puja_price'];
+            $sums['total_puja_price'] += $data['cur_puja_price'];
             $sums['total_sale_price'] += $data['cur_sale_price'];
             $sums['total_price_amount'] += $data['cur_price_amount'];
             $sums['total_pay_price'] += $data['cur_pay_price'];
             $sums['total_month_total'] += $datas[$key]['cur_month_total'];
-            $sums[$key]['month_income'] = $sums['total_price_amount'] - $sums['total_pay_price'];
+            $sums[$key]['month_income'] = $sums['total_price_amount'] + $sums['total_puja_price'] - $sums['total_pay_price'];
         }
         // dd($sums);
         return view('rpg09.index')->with('datas',$datas)
