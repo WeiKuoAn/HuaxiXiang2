@@ -70,7 +70,6 @@
                                     <tr align="center">
                                         <th scope="col" width="10%">日期</th>
                                         <th scope="col" width="">業務收入</th>
-                                        <th scope="col" width="">法會收入</th>
                                         <th scope="col" width="">其他收入</th>
                                         <th scope="col" width="">支出</th>
                                         <th scope="col" width="">當日營收</th>
@@ -81,7 +80,6 @@
                                     <tr align="center" style="font-weight:bold;">
                                         <td>當月個別總計</td>
                                         <td>{{ number_format($sums['sum_total']) }}</td>
-                                        <td>{{ number_format($sums['puja_total']) }}</td>
                                         <td>{{ number_format($sums['income_total']) }}</td>
                                         <td>{{ number_format($sums['pay_total']) }}</td>
                                         <td>{{ number_format($sums['all_income_total']) }}</td>

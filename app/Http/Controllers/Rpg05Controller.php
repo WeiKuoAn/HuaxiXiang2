@@ -9,7 +9,6 @@ use App\Models\Sale;
 use App\Models\PayData;
 use App\Models\PayItem;
 use App\Models\IncomeData;
-use App\Models\PujaData;
 
 class Rpg05Controller extends Controller
 {
@@ -17,7 +16,6 @@ class Rpg05Controller extends Controller
     {
         $first_date = Carbon::now()->firstOfMonth();
         $last_date = Carbon::now()->lastOfMonth();
-
         // $after_date = Carbon::now()->firstOfMonth();
         // $before_date = Carbon::now()->lastOfMonth();
 
@@ -27,7 +25,6 @@ class Rpg05Controller extends Controller
 
 
         $sale_datas = Sale::where('status', '9')->where('sale_date', '>=', $after_date)->where('sale_date', '<=', $before_date)->get();
-        $puja_datas = PujaData::where('date', '>=', $after_date)->where('date', '<=', $before_date)->get();
         $income_datas = IncomeData::where('income_date', '>=', $after_date)->where('income_date', '<=', $before_date)->get();
         $pay_datas = PayData::where('status', '1')->where('pay_date', '>=', $after_date)->where('pay_date', '<=', $before_date)->where('created_at', '<=', '2023-01-08 14:22:21')->get();
         $pay_items = PayItem::join('pay', 'pay_item.pay_id', '=', 'pay.id')
@@ -39,48 +36,42 @@ class Rpg05Controller extends Controller
                               ->get();
         if ($request->input() != null) {
             $after_date = $request->after_date;
+            $before_date = $request->before_date;
+            
+            
             if ($after_date) {
                 $sale_datas = Sale::where('status', '9')->where('sale_date', '>=', $after_date)->get();
-                $puja_datas = PujaData::where('date', '>=', $after_date)->get();
                 $income_datas = IncomeData::where('income_date', '>=', $after_date)->get();
                 $pay_datas = PayData::where('status', '1')->where('pay_date', '>=', $after_date)->where('created_at', '<=', '2023-01-08 14:22:21')->get();
-                // $pay_items = PayItem::where('status', '1')->where('pay_date', '>=', $after_date)->whereNotIn('pay_id', ['23'])->get();
                 $pay_items = PayItem::join('pay', 'pay_item.pay_id', '=', 'pay.id')
                                     ->where('pay_item.status', '1')
                                     ->where('pay_item.pay_date', '>=', $after_date)
                                     ->where('pay.calculate', '!=', 1)
-                                    ->select('pay_item.*') // 選擇 pay_item 的欄位
+                                    ->select('pay_item.*')
                                     ->get();
             }
-            $before_date = $request->before_date;
             if ($before_date) {
                 $sale_datas = Sale::where('status', '9')->where('sale_date', '<=', $before_date)->get();
-                $puja_datas = PujaData::where('date', '<=', $before_date)->get();
                 $income_datas = IncomeData::where('income_date', '<=', $before_date)->get();
                 $pay_datas = PayData::where('status', '1')->where('pay_date', '<=', $before_date)->where('created_at', '<=', '2023-01-08 14:22:21')->get();
-                // $pay_items = PayItem::where('status', '1')->where('pay_date', '<=', $before_date)->whereNotIn('pay_id', ['23'])->get();
                 $pay_items = PayItem::join('pay', 'pay_item.pay_id', '=', 'pay.id')
                                     ->where('pay_item.status', '1')
                                     ->where('pay_item.pay_date', '<=', $before_date)
                                     ->where('pay.calculate', '!=', 1)
-                                    ->select('pay_item.*') // 選擇 pay_item 的欄位
+                                    ->select('pay_item.*')
                                     ->get();
             }
             if ($after_date && $before_date) {
                 $sale_datas = Sale::where('status', '9')->where('sale_date', '>=', $after_date)->where('sale_date', '<=', $before_date)->get();
-                $puja_datas = PujaData::where('date', '>=', $after_date)->where('date', '<=', $before_date)->get();
                 $income_datas = IncomeData::where('income_date', '>=', $after_date)->where('income_date', '<=', $before_date)->get();
                 $pay_datas = PayData::where('status', '1')->where('pay_date', '>=', $after_date)->where('pay_date', '<=', $before_date)->where('created_at', '<=', '2023-01-08 14:22:21')->get();
-                // $pay_items = PayItem::where('status', '1')->where('pay_date', '>=', $after_date)->where('pay_date', '<=', $before_date)->whereNotIn('pay_id', ['23'])->get();
                 $pay_items = PayItem::join('pay', 'pay_item.pay_id', '=', 'pay.id')
                                     ->where('pay_item.status', '1')
                                     ->where('pay_item.pay_date', '>=', $after_date)
                                     ->where('pay_item.pay_date', '<=', $before_date)
                                     ->where('pay.calculate', '!=', 1)
-                                    ->select('pay_item.*') // 選擇 pay_item 的欄位
+                                    ->select('pay_item.*')
                                     ->get();
-            }
-            if ($after_date && $before_date) {
                 $periods = CarbonPeriod::create($request->after_date,  $request->before_date);
             }
         }
@@ -91,7 +82,6 @@ class Rpg05Controller extends Controller
 
         foreach ($periods as $period) {
             $datas[$period->format("Y-m-d")]['sum_total'] = 0;
-            $datas[$period->format("Y-m-d")]['puja_total'] = 0;
             $datas[$period->format("Y-m-d")]['income_total'] = 0;
             $datas[$period->format("Y-m-d")]['pay_total'] = 0;
         }
@@ -99,10 +89,6 @@ class Rpg05Controller extends Controller
         //業務收入
         foreach ($sale_datas as $sale_data) {
             $datas[$sale_data->sale_date]['sum_total'] += $sale_data->pay_price;
-        }
-        //其他收入
-        foreach ($puja_datas as $puja_data) {
-            $datas[$puja_data->date]['puja_total'] += $puja_data->pay_price;
         }
         //其他收入
         foreach ($income_datas as $income_data) {
@@ -118,20 +104,18 @@ class Rpg05Controller extends Controller
         }
 
         $sums['sum_total'] = 0;
-        $sums['puja_total'] = 0;
         $sums['income_total'] = 0;
         $sums['pay_total'] = 0;
         $sums['total'] = 0;
         foreach ($datas as $date => $data) {
             $sums['sum_total'] += $data['sum_total'];
-            $sums['puja_total'] += $data['puja_total'];
             $sums['income_total'] += $data['income_total'];
             $sums['pay_total'] += $data['pay_total'];
-            $sums['all_income_total'] = $sums['sum_total'] + $sums['income_total'] + $sums['puja_total']; //業務+其他+法會收入
-            $sums['total'] = $sums['sum_total'] + $sums['income_total'] + $sums['puja_total'] - $sums['pay_total']; //業務+其他+法會收入-支出
+            $sums['all_income_total'] = $sums['sum_total'] + $sums['income_total']; //業務+其他收入
+            $sums['total'] = $sums['sum_total'] + $sums['income_total'] - $sums['pay_total']; //業務+其他收入-支出
             //每日累計
-            $sums[$date]['day_income'] = $data['sum_total'] + $data['income_total'] + $data['puja_total'];//業務+其他+法會收入
-            $sums[$date]['day_total'] =  $sums['sum_total'] +  $sums['income_total'] + $sums['puja_total'] - $sums['pay_total']; //業務+其他+法會收入-支出
+            $sums[$date]['day_income'] = $data['sum_total'] + $data['income_total'];//業務+其他收入
+            $sums[$date]['day_total'] =  $sums['sum_total'] +  $sums['income_total'] - $sums['pay_total']; //業務+其他收入-支出
         }
 
         // foreach($datas as $date=>$data){
