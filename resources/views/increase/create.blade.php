@@ -170,12 +170,20 @@
                                                 <div class="row">
                                                     <div class="col-md-6">
                                                         <label class="form-label">接電話人員</label>
-                                                        <select class="form-control" name="increase[0][phone_person]" data-toggle="select">
+                                                        <select class="form-control" name="increase[0][phone_person]" data-toggle="select" onchange="calculateBonus(0)">
                                                             <option value="">請選擇人員</option>
                                                             @foreach ($users ?? [] as $user)
                                                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
                                                             @endforeach
                                                         </select>
+                                                        <div class="mt-2">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" name="increase[0][phone_exclude_bonus]" value="1" id="phone_exclude_bonus_0" onchange="calculateBonus(0)">
+                                                                <label class="form-check-label" for="phone_exclude_bonus_0">
+                                                                    <small class="text-muted">不計入獎金</small>
+                                                                </label>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <label class="form-label">接件人員</label>
@@ -333,12 +341,20 @@
                  <div class="row">
                      <div class="col-md-6">
                          <label class="form-label">接電話人員</label>
-                         <select class="form-control" name="increase[${newIndex}][phone_person]" data-toggle="select">
+                         <select class="form-control" name="increase[${newIndex}][phone_person]" data-toggle="select" onchange="calculateBonus(${newIndex})">
                              <option value="">請選擇人員</option>
                              @foreach ($users ?? [] as $user)
                                  <option value="{{ $user->id }}">{{ $user->name }}</option>
                              @endforeach
                          </select>
+                         <div class="mt-2">
+                             <div class="form-check">
+                                 <input class="form-check-input" type="checkbox" name="increase[${newIndex}][phone_exclude_bonus]" value="1" id="phone_exclude_bonus_${newIndex}" onchange="calculateBonus(${newIndex})">
+                                 <label class="form-check-label" for="phone_exclude_bonus_${newIndex}">
+                                     <small class="text-muted">不計入獎金</small>
+                                 </label>
+                             </div>
+                         </div>
                      </div>
                      <div class="col-md-6">
                          <label class="form-label">接件人員</label>
@@ -390,16 +406,26 @@
                                 `increase[${index}]`));
                         }
                     });
-                    // 重新設定 checkbox 的 id 和 for
-                    row.querySelectorAll('input[type="checkbox"]').forEach(input => {
-                        const oldId = input.id;
-                        const newId = oldId.replace(/\d+$/, index);
-                        input.id = newId;
-                        const label = row.querySelector(`label[for="${oldId}"]`);
-                        if (label) {
-                            label.setAttribute('for', newId);
-                        }
-                    });
+                                    // 重新設定 checkbox 的 id 和 for
+                row.querySelectorAll('input[type="checkbox"]').forEach(input => {
+                    const oldId = input.id;
+                    const newId = oldId.replace(/\d+$/, index);
+                    input.id = newId;
+                    const label = row.querySelector(`label[for="${oldId}"]`);
+                    if (label) {
+                        label.setAttribute('for', newId);
+                    }
+                });
+                
+                // 重新設定 onchange 事件
+                row.querySelectorAll('input[type="checkbox"]').forEach(input => {
+                    input.setAttribute('onchange', `calculateBonus(${index})`);
+                });
+                row.querySelectorAll('select').forEach(select => {
+                    if (select.name.includes('phone_person')) {
+                        select.setAttribute('onchange', `calculateBonus(${index})`);
+                    }
+                });
                 });
             }
         }
@@ -533,31 +559,48 @@
                 return;
             }
 
+            // 檢查接電話人員是否不計入獎金
+            const phoneExcludeBonus = document.getElementById(`phone_exclude_bonus_${index}`).checked;
+
             let displayText = '';
             let totalPhoneBonus = 0;
             let totalReceiveBonus = 0;
 
             // 計算各類別獎金
             if (nightChecked) {
-                totalPhoneBonus += 100;
+                if (!phoneExcludeBonus) {
+                    totalPhoneBonus += 100;
+                }
                 totalReceiveBonus += 500;
                 displayText += `<div><span class="badge bg-primary">夜間：電話$100、接件$500</span></div>`;
             }
 
             if (eveningChecked) {
-                totalPhoneBonus += 50;
+                if (!phoneExcludeBonus) {
+                    totalPhoneBonus += 50;
+                }
                 totalReceiveBonus += 250;
                 displayText += `<div><span class="badge bg-success">晚間：電話$50、接件$250</span></div>`;
             }
 
             if (typhoonChecked) {
-                totalPhoneBonus += 100;
+                if (!phoneExcludeBonus) {
+                    totalPhoneBonus += 100;
+                }
                 totalReceiveBonus += 500;
                 displayText += `<div><span class="badge bg-warning">颱風：電話$100、接件$500</span></div>`;
             }
 
             // 顯示總計
-            displayText += `<div class="mt-2"><strong>總計：電話$${totalPhoneBonus}、接件$${totalReceiveBonus}</strong></div>`;
+            let totalDisplay = `<div class="mt-2"><strong>總計：接件$${totalReceiveBonus}`;
+            if (!phoneExcludeBonus) {
+                totalDisplay += `、電話$${totalPhoneBonus}`;
+            } else {
+                totalDisplay += `、電話不計入獎金`;
+            }
+            totalDisplay += `</strong></div>`;
+            
+            displayText += totalDisplay;
 
             calculationDiv.innerHTML = displayText;
         }

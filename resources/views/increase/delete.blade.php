@@ -81,8 +81,18 @@
                                         @foreach($increase->items as $item)
                                             @if($item->phone_person_id)
                                             <tr>
-                                                <td>{{ $item->phonePerson->name ?? '未指定' }}</td>
-                                                <td><span class="badge bg-primary">接電話</span></td>
+                                                <td>
+                                                    {{ $item->phonePerson->name ?? '未指定' }}
+                                                    @if($item->phone_exclude_bonus)
+                                                        <br><small class="text-muted">(不計入獎金)</small>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-primary">接電話</span>
+                                                    @if($item->phone_exclude_bonus)
+                                                        <br><small class="text-muted">不計入獎金</small>
+                                                    @endif
+                                                </td>
                                                 <td>${{ number_format($item->night_phone_amount, 0) }}</td>
                                                 <td>${{ number_format($item->evening_phone_amount, 0) }}</td>
                                                 <td>${{ number_format($item->typhoon_phone_amount, 0) }}</td>
