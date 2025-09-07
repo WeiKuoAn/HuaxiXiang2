@@ -621,9 +621,9 @@ class PayDataController extends Controller
             'pay_name' => $payItem && $payItem->pay_name ? $payItem->pay_name->name : '',
             'invoice_type' => $payItem ? $this->getInvoiceTypeName($payItem->invoice_type) : '',
             'invoice_number' => $payItem ? $payItem->invoice_number : '',
-            'item_price' => $payItem ? number_format($payItem->price) : '',
+            'item_price' => $payItem ? (float)$payItem->price : '',
             'item_comment' => $payItem ? $payItem->comment : '',
-            'total_price' => $isFirstItem ? number_format($payData->price) : '',
+            'total_price' => $isFirstItem ? (float)$payData->price : '',
             'comment' => $isFirstItem ? $payData->comment : '',
             'user_name' => $isFirstItem ? ($payData->user_name ? $payData->user_name->name : '') : '',
             'status' => $isFirstItem ? ($payData->status == 1 ? '已審核' : '未審核') : '',
@@ -763,8 +763,8 @@ class PayDataController extends Controller
                 $colLetter = $this->numberToLetter($colIndex + 1);
                 $cellRef = $colLetter . ($rowIndex + 1);
                 
-                // 檢查是否為數字
-                if (is_numeric($cell)) {
+                // 檢查是否為數字（包括浮點數）
+                if (is_numeric($cell) && $cell !== '') {
                     $sheetData .= '<c r="' . $cellRef . '" t="n"><v>' . $cell . '</v></c>';
                 } else {
                     $sheetData .= '<c r="' . $cellRef . '" t="inlineStr"><is><t>' . htmlspecialchars($cell) . '</t></is></c>';
