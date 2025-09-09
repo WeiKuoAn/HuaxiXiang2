@@ -120,7 +120,7 @@ class PujaDataController extends Controller
         }
         // dd($pujas);
 
-        $products = Product::where('status', 'up')->orderby('seq','asc')->orderby('price','desc')->get();
+        $products = Product::orderby('seq','asc')->orderby('price','desc')->get();
         foreach($products as $product)
         {
             $product_name[$product->id] = $product->name;
