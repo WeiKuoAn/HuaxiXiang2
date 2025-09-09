@@ -90,9 +90,16 @@
                                 <div class="mb-3 col-md-4 not_final_show not_memorial_show">
                                     <label for="type" class="form-label">案件來源<span
                                             class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" value="{{ $sources->where('code', $data->type)->first()->name ?? '' }}" readonly>
+                                    <select id="type" class="form-select" name="type" disabled>
+                                        <option value="">請選擇...</option>
+                                        @foreach ($sources as $source)
+                                            <option value="{{ $source->code }}"
+                                                @if ($source->code == $data->type) selected @endif>{{ $source->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                                <div class="mb-3 col-md-4" id="source_company" @if(!in_array($data->type, ['H', 'B', 'Salon', 'G', 'dogpark', 'other', 'self'])) style="display: none;" @endif>
+                                <div class="mb-3 col-md-4" id="source_company">
                                     <label for="source_company_id" class="form-label">來源公司名稱<span
                                             class="text-danger">*</span>
                                         @if (isset($sale_company))
@@ -1149,7 +1156,20 @@
             $("#source_company_name_q").prop('required', false);
         }
 
-        // 在 check_gpt.blade.php 中不需要監聽 type 變更事件，因為是只讀模式
+        $('select[name="type"]').on('change', function() {
+            var selectedType = $(this).val();
+            if (selectedType == 'H' || selectedType == 'B' || selectedType == 'Salon' || selectedType == 'G' ||
+                selectedType == 'dogpark' || selectedType == 'other' || selectedType == 'self') {
+                $("#source_company").show(300);
+                $("#source_company_name_q").prop('required', true);
+                // 載入對應類型的客戶
+                loadCustomersByType(selectedType);
+            } else {
+                $("#source_company").hide(300);
+                $("#source_company_name_q").prop('required', false);
+                $("#source_company_name_q").val('');
+            }
+        });
 
         $("#cash_price_div").hide();
         $("#transfer_price_div").hide();
