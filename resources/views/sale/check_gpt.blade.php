@@ -92,7 +92,7 @@
                                             class="text-danger">*</span></label>
                                     <input type="text" class="form-control" value="{{ $sources->where('code', $data->type)->first()->name ?? '' }}" readonly>
                                 </div>
-                                <div class="mb-3 col-md-4" id="source_company">
+                                <div class="mb-3 col-md-4" id="source_company" @if(!in_array($data->type, ['H', 'B', 'Salon', 'G', 'dogpark', 'other', 'self'])) style="display: none;" @endif>
                                     <label for="source_company_id" class="form-label">來源公司名稱<span
                                             class="text-danger">*</span>
                                         @if (isset($sale_company))
@@ -105,7 +105,25 @@
                                             @endif
                                         @endif
                                     </label>
-                                    <input type="text" class="form-control" value="@if(isset($sale_company) && $sale_company->company_id)@if($data->type == 'self')（員工）{{ $source_companys->where('id', $sale_company->company_id)->first()->name ?? '' }}（{{ $source_companys->where('id', $sale_company->company_id)->first()->mobile ?? '' }}）@else@if(isset($source_companys->where('id', $sale_company->company_id)->first()->group))（{{ $source_companys->where('id', $sale_company->company_id)->first()->group->name }}）@endif{{ $source_companys->where('id', $sale_company->company_id)->first()->name ?? '' }}（{{ $source_companys->where('id', $sale_company->company_id)->first()->mobile ?? '' }}）@endif@endif" readonly>
+                                    @php
+                                        $selectedCompany = null;
+                                        $companyDisplayValue = '';
+                                        if(isset($sale_company) && $sale_company->company_id) {
+                                            $selectedCompany = $source_companys->where('id', $sale_company->company_id)->first();
+                                            if($selectedCompany) {
+                                                if($data->type == 'self') {
+                                                    $companyDisplayValue = '（員工）' . $selectedCompany->name . '（' . $selectedCompany->mobile . '）';
+                                                } else {
+                                                    if(isset($selectedCompany->group) && $selectedCompany->group) {
+                                                        $companyDisplayValue = '（' . $selectedCompany->group->name . '）' . $selectedCompany->name . '（' . $selectedCompany->mobile . '）';
+                                                    } else {
+                                                        $companyDisplayValue = $selectedCompany->name . '（' . $selectedCompany->mobile . '）';
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    @endphp
+                                    <input type="text" class="form-control" value="{{ $companyDisplayValue }}" readonly>
                                 </div>
                                 <div class="mb-3 col-md-4 not_memorial_show plan">
                                     <label for="plan_id" class="form-label">方案選擇<span
@@ -1119,7 +1137,7 @@
             });
         }
 
-        var type = $('select[name="type"]').val();
+        var type = '{{ $data->type }}';
         if (type == 'H' || type == 'B' || type == 'Salon' || type == 'G' || type == 'dogpark' || type == 'other' || type ==
             'self') {
             $("#source_company").show(300);
@@ -1131,20 +1149,7 @@
             $("#source_company_name_q").prop('required', false);
         }
 
-        $('select[name="type"]').on('change', function() {
-            var selectedType = $(this).val();
-            if (selectedType == 'H' || selectedType == 'B' || selectedType == 'Salon' || selectedType == 'G' ||
-                selectedType == 'dogpark' || selectedType == 'other' || selectedType == 'self') {
-                $("#source_company").show(300);
-                $("#source_company_name_q").prop('required', true);
-                // 載入對應類型的客戶
-                loadCustomersByType(selectedType);
-                } else {
-                $("#source_company").hide(300);
-                $("#source_company_name_q").prop('required', false);
-                $("#source_company_name_q").val('');
-            }
-        });
+        // 在 check_gpt.blade.php 中不需要監聽 type 變更事件，因為是只讀模式
 
         $("#cash_price_div").hide();
         $("#transfer_price_div").hide();
