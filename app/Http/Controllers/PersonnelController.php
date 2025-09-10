@@ -160,7 +160,7 @@ class PersonnelController extends Controller
     {
         $year = Carbon::now()->year;  // 取得當年
         $this_month = Carbon::now()->month;
-        $users = User::where('status', '0')->whereIn('job_id', [3, 4, 5])->orderby('job_id')->get();
+        $users = User::where('status', '0')->whereIn('job_id', [3, 4, 5, 10])->orderby('job_id')->get();
         $months = [
             '01' => ['name' => '一月'],
             '02' => ['name' => '二月'],
