@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ["page_title"=> "專員金紙獎金"])
+@extends('layouts.vertical', ["page_title"=> "專員金紙銷售狀況"])
 
 @section('content')
 <!-- Start Content-->
@@ -12,10 +12,10 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="javascript: void(0);">報表管理</a></li>
-                        <li class="breadcrumb-item active">專員金紙獎金</li>
+                        <li class="breadcrumb-item active">專員金紙銷售狀況</li>
                     </ol>
                 </div>
-                <h4 class="page-title">專員金紙獎金</h4>
+                <h4 class="page-title">專員金紙銷售狀況</h4>
             </div>
         </div>
     </div>
@@ -86,7 +86,7 @@
                     <div class="table-responsive ">
                         <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
                             <thead class="table-light">
-                                <tr>
+                                <tr align="center">
                                     <th>No</th>
                                     <th>日期</th>
                                     <th>方案</th>
@@ -94,7 +94,6 @@
                                     <th>金紙名稱</th>
                                     <th>金紙數量</th>
                                     <th>小計</th>
-                                    <th>佣金</th>
                                 </tr>
                             </thead>
                             <thead >
@@ -102,7 +101,6 @@
                                     <th colspan="5"></th>
                                     <th>總共：{{ $sums['total_num'] }}份</th>
                                     <th>總計：{{ number_format($sums['total_price']) }}元</th>
-                                    <th>佣金總計：{{ number_format($sums['total_comm_price']) }}元</th>
                                 </tr>
                             </thead>
                             @foreach($datas as $user_name => $data)
@@ -128,14 +126,12 @@
                                         <td align="center">{{ $da->name }}</td>
                                         <td align="right">{{ $da->gdpaper_num }}</td>
                                         <td align="right">{{ $da->gdpaper_total }}</td>
-                                        <td align="right">{{ $da->comm_price }}</td>
                                     </tr>
                                    @endforeach
                                    <tr>
                                        <td colspan="5"></td>
                                        <td align="right">共：{{ number_format($data['total_num']) }}份</td>
                                        <td align="right">小計：{{ number_format($data['total_price']) }}元</td>
-                                       <td align="right">佣金小計：{{ number_format($data['total_comm_price']) }}元</td>
                                    </tr>
                                 </tbody>
                             @endforeach
