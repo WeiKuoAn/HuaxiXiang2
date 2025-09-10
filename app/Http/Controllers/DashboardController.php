@@ -94,7 +94,14 @@ class DashboardController extends Controller
                 $work->worktime = $request->worktime;
                 $work->dutytime = $request->dutytime;
                 $work->status = '1';
-                $work->total = floor(Carbon::parse($request->worktime)->floatDiffInHours($request->dutytime));
+                $work_hours = Carbon::parse($request->worktime)->floatDiffInHours($request->dutytime);
+                
+                // 滿8小時要休息1小時，所以如果工作滿9小時就要減1小時
+                if ($work_hours >= 9) {
+                    $work_hours = $work_hours - 1;
+                }
+                
+                $work->total = floor($work_hours);
                 $work->remark = $request->remark;
                 $work->save();
             }
