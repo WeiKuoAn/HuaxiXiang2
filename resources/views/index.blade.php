@@ -310,7 +310,7 @@
                                 </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center">沒有待辦事項</td>
+                                        <td colspan="11" class="text-center">尚無假單需要審核</td>
                                     </tr>
                                 @endforelse
                         </table>
@@ -386,6 +386,7 @@
         </div> <!-- end col -->
     </div>
 
+    @if (Auth::user()->job_id == 1 || Auth::user()->job_id == 2 || Auth::user()->job_id == 3 || Auth::user()->job_id == 7 || Auth::user()->job_id == 10)
     <div class="row p-2">
         <div class="col-xl-12">
             <div class="card">
@@ -445,7 +446,8 @@
             </div>
         </div> <!-- end col -->
     </div>
-
+    @endif
+    
     {{-- 放在最下面 --}}
     <div class="modal fade" id="taskModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
