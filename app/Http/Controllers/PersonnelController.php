@@ -36,7 +36,7 @@ class PersonnelController extends Controller
             $users = $users->where('name', 'like', $request->name . '%');
         }
 
-        $users = $users->orderby('level')->orderby('seq')->whereNotIn('job_id', [1,8,9,6])->paginate(30);
+        $users = $users->orderby('level')->orderby('seq')->whereNotIn('job_id', [1, 8, 9, 6])->paginate(30);
 
         $year = Vacation::where('year', Carbon::now()->year)->first();  // 取得當年
         // 計算當前專員餘額
@@ -100,7 +100,7 @@ class PersonnelController extends Controller
             $year = Carbon::now()->year;  // 取得當年
         }
         $years = range(Carbon::now()->year, 2022);
-        $users = User::where('status', '0')->whereIn('job_id', [3, 4, 5])->orderby('job_id')->get();
+        $users = User::where('status', '0')->whereIn('job_id', [3, 4, 5, 10])->orderby('job_id')->get();
         $year_holiday = Vacation::where('year', $year)->sum('day');  // 取放假天數
         // dd($year_holiday);
         $datas = [];
@@ -233,7 +233,7 @@ class PersonnelController extends Controller
         if ($user_entry_date != null) {
             $today = date('Y-m-d', strtotime(Carbon::now()->locale('zh-tw')));
             $startDate = Carbon::parse($user_entry_date);  // 將起始日期字串轉換為 Carbon 日期物件
-            
+
             // 如果有提供 user_id，檢查是否有年資暫停記錄
             if ($user_id) {
                 $pauseRecords = SeniorityPauses::where('user_id', $user_id)
@@ -259,7 +259,7 @@ class PersonnelController extends Controller
             $years = floor($diffDays / 365);
             $remainingDays = $diffDays % 365;
             $months = floor($remainingDays / 30);
-            
+
             // 格式化輸出
             if ($years > 0 && $months > 0) {
                 return $years . '年' . $months . '個月';
