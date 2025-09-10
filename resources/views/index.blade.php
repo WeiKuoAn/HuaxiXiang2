@@ -7,12 +7,13 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- third party css end -->
-    
+
     <style>
         .selectize-control {
             min-height: 80px !important;
             height: auto !important;
         }
+
         .selectize-input {
             min-height: 80px !important;
             height: auto !important;
@@ -25,7 +26,7 @@
     <div class="container-fluid">
 
         <!-- 顯示錯誤訊息 -->
-        @if(session('error'))
+        @if (session('error'))
             <div class="row">
                 <div class="col-12">
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -50,76 +51,77 @@
 
 
         @if (Auth::user()->job_id != 5)
-        <div class="row">
-            <div class="col-12">
-                <div class="widget-rounded-circle card">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-auto">
-                                <h4 class="header-title mb-3">線上打卡</h4>
-                            </div>
-                            <form action="{{ route('index.worktime') }}" method="POST">
-                                <div class="alert alert-primary" role="alert">
-                                    目前時間為 <b>{{ $now }}</b>
+            <div class="row">
+                <div class="col-12">
+                    <div class="widget-rounded-circle card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-auto">
+                                    <h4 class="header-title mb-3">線上打卡</h4>
                                 </div>
-                                @csrf
-                                @if (!isset($work->worktime))
-                                    <button type="Submit" class="btn btn-primary" name="work_time"
-                                        value="0">上班</button>
-                                    <button type="button" class="btn btn-success" name="overtime" value="1"
-                                        id="overtime">補簽</button>
-                                    <div id="overtimecontent">
-                                        <br>
-                                        <div class="mb-3">
-                                            <label for="exampleFormControlTextarea1" class="form-label">上班時間</label>
-                                            <input type="datetime-local" class="form-control" id="name" name="worktime"
-                                                value="">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="exampleFormControlTextarea1" class="form-label">下班時間</label>
-                                            <input type="datetime-local" class="form-control" id="name" name="dutytime"
-                                                value="">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="exampleFormControlTextarea1" class="form-label">補簽原因</label>
-                                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="remark"></textarea><br>
-                                            <button type="Submit" class="btn btn-danger" name="overtime"
-                                                value="1">送出</button>
-                                        </div>
+                                <form action="{{ route('index.worktime') }}" method="POST">
+                                    <div class="alert alert-primary" role="alert">
+                                        目前時間為 <b>{{ $now }}</b>
                                     </div>
-                                @elseif($work->dutytime != null)
-                                    <button type="Submit" class="btn btn-primary" name="work_time"
-                                        value="0">上班</button>
-                                    <button type="button" class="btn btn-success" value="1" id="overtime">補簽</button>
-                                    <div id="overtimecontent">
-                                        <br>
-                                        <div class="mb-3">
-                                            <label for="exampleFormControlTextarea1" class="form-label">上班時間</label>
-                                            <input type="datetime-local" class="form-control" id="name" name="worktime"
-                                                value="">
+                                    @csrf
+                                    @if (!isset($work->worktime))
+                                        <button type="Submit" class="btn btn-primary" name="work_time"
+                                            value="0">上班</button>
+                                        <button type="button" class="btn btn-success" name="overtime" value="1"
+                                            id="overtime">補簽</button>
+                                        <div id="overtimecontent">
+                                            <br>
+                                            <div class="mb-3">
+                                                <label for="exampleFormControlTextarea1" class="form-label">上班時間</label>
+                                                <input type="datetime-local" class="form-control" id="name"
+                                                    name="worktime" value="">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="exampleFormControlTextarea1" class="form-label">下班時間</label>
+                                                <input type="datetime-local" class="form-control" id="name"
+                                                    name="dutytime" value="">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="exampleFormControlTextarea1" class="form-label">補簽原因</label>
+                                                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="remark"></textarea><br>
+                                                <button type="Submit" class="btn btn-danger" name="overtime"
+                                                    value="1">送出</button>
+                                            </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="exampleFormControlTextarea1" class="form-label">下班時間</label>
-                                            <input type="datetime-local" class="form-control" id="name" name="dutytime"
-                                                value="">
+                                    @elseif($work->dutytime != null)
+                                        <button type="Submit" class="btn btn-primary" name="work_time"
+                                            value="0">上班</button>
+                                        <button type="button" class="btn btn-success" value="1"
+                                            id="overtime">補簽</button>
+                                        <div id="overtimecontent">
+                                            <br>
+                                            <div class="mb-3">
+                                                <label for="exampleFormControlTextarea1" class="form-label">上班時間</label>
+                                                <input type="datetime-local" class="form-control" id="name"
+                                                    name="worktime" value="">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="exampleFormControlTextarea1" class="form-label">下班時間</label>
+                                                <input type="datetime-local" class="form-control" id="name"
+                                                    name="dutytime" value="">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="exampleFormControlTextarea1" class="form-label">補簽原因</label>
+                                                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="remark"></textarea><br>
+                                                <button type="Submit" class="btn btn-danger" name="overtime"
+                                                    value="1">送出</button>
+                                            </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="exampleFormControlTextarea1" class="form-label">補簽原因</label>
-                                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="remark"></textarea><br>
-                                            <button type="Submit" class="btn btn-danger" name="overtime"
-                                                value="1">送出</button>
-                                        </div>
-                                    </div>
-                                @elseif($work->dutytime == null)
-                                    <button type="Submit" class="btn btn-danger" name="dutytime"
-                                        value="2">下班</button>
-                                @endif
-                        </div>
-                        </form>
-                    </div> <!-- end row-->
-                </div>
-            </div> <!-- end widget-rounded-circle-->
-        </div> <!-- end col-->
+                                    @elseif($work->dutytime == null)
+                                        <button type="Submit" class="btn btn-danger" name="dutytime"
+                                            value="2">下班</button>
+                                    @endif
+                            </div>
+                            </form>
+                        </div> <!-- end row-->
+                    </div>
+                </div> <!-- end widget-rounded-circle-->
+            </div> <!-- end col-->
     </div> <!-- container -->
     @endif
 
@@ -161,16 +163,16 @@
                                         <td>{{ $task->created_users->name ?? '' }}</td>
                                         <td>{{ $task->title }}</td>
                                         <td>
-                                            @foreach($task->items as $item)
+                                            @foreach ($task->items as $item)
                                                 <div class="d-flex align-items-center mb-1">
                                                     <span class="me-2">
-                                                        @if($item->user_id == null)
+                                                        @if ($item->user_id == null)
                                                             不指定（大家都可以完成）
                                                         @else
                                                             {{ $item->user->name ?? '' }}
                                                         @endif
                                                     </span>
-                                                    @if($item->status == 1)
+                                                    @if ($item->status == 1)
                                                         <span class="badge bg-success">已完成</span>
                                                     @else
                                                         <span class="badge bg-warning">未完成</span>
@@ -185,11 +187,12 @@
                                                 $completedCount = $task->items->where('status', 1)->count();
                                                 $totalCount = $task->items->count();
                                             @endphp
-                                            @if($totalCount > 0)
-                                                @if($completedCount == $totalCount)
+                                            @if ($totalCount > 0)
+                                                @if ($completedCount == $totalCount)
                                                     <span class="badge bg-success">全部完成</span>
                                                 @else
-                                                    <span class="badge bg-warning">{{ $completedCount }}/{{ $totalCount }}</span>
+                                                    <span
+                                                        class="badge bg-warning">{{ $completedCount }}/{{ $totalCount }}</span>
                                                 @endif
                                             @else
                                                 <span class="badge bg-secondary">無指派</span>
@@ -200,8 +203,8 @@
                                                 $myItem = $task->items->where('user_id', Auth::id())->first();
                                                 $hasUnassignedItem = $task->items->where('user_id', null)->first();
                                             @endphp
-                                            @if($myItem)
-                                                @if($myItem->status == 0)
+                                            @if ($myItem)
+                                                @if ($myItem->status == 0)
                                                     <button
                                                         class="btn-sm btn btn-danger waves-effect waves-light mt-1 btn-complete"
                                                         data-id="{{ $myItem->id }}">
@@ -234,6 +237,89 @@
             </div>
         </div> <!-- end col -->
     </div>
+
+    <div class="row p-2">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row justify-content-between">
+                        <div class="col-auto">
+                            <h4 class="header-title mb-3">假單待審核</h4>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-borderless table-hover table-nowrap table-centered m-0">
+
+                            <thead class="table-light">
+                                <tr align="center">
+                                    <th width="5%">編號</th>
+                                    <th width="8%">申請人</th>
+                                    <th width="8%">申請時間</th>
+                                    <th width="8%">假別</th>
+                                    <th width="15%">請假開始時間</th>
+                                    <th width="15%">請假結束時間</th>
+                                    <th width="8%">總時數</th>
+                                    <th width="15%">備註</th>
+                                    <th width="5%">附件</th>
+                                    <th width="5%">狀態</th>
+                                    <th width="8%">審核</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leavesTableBody">
+                                @forelse($leaves_datas as $key => $leaves_data)
+                                <tr align="center">
+                                    <td>{{ $key + 1 }}</td>
+                                    <td>{{ $leaves_data->user_name->name }}</td>
+                                    <td>{{ date('Y-m-d', strtotime($leaves_data->created_at)) }}</td>
+                                            @if ($leaves_data->leave_check)
+                                                {{ $leaves_data->leave_check->check_day }}
+                                            @endif
+                                        </td>
+                                    <td>{{ $leaves_data->leave_name->name }}</td>
+                                    <td>{{ $leaves_data->start_datetime }}</td>
+                                    <td>{{ $leaves_data->end_datetime }}</td>
+                                    <td>
+                                        {{ $leaves_data->total }}
+                                        @if ($leaves_data->unit == 'hour')
+                                            小時
+                                        @elseif($leaves_data->unit == 'week')
+                                            週
+                                        @elseif($leaves_data->unit == 'month')
+                                            月
+                                        @else
+                                            天
+                                        @endif
+                                    </td>
+                                    <td>{{ $leaves_data->comment }}</td>
+                                    <td><a href="{{ $leaves_data->file }}" target="_blank" class="action-icon">
+                                            <i class="mdi mdi-file-document"></i>
+                                        </a></td>
+                                    <td>{{ $leaves_data->leave_status() }}</td>
+                                    <td>
+                                        @if ($leaves_data->state == '2')
+                                            <a href="{{ route('leave_day.check', $leaves_data->id) }}"><button
+                                                    type="button"
+                                                    class="btn btn-secondary waves-effect waves-light">審核</button></a>
+                                        @elseif($leaves_data->state == '9')
+                                            <a href="{{ route('leave_day.check', $leaves_data->id) }}"><button
+                                                    type="button"
+                                                    class="btn btn-secondary waves-effect waves-light">查看</button></a>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center">沒有待辦事項</td>
+                                    </tr>
+                                @endforelse
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- end col -->
+    </div>
+
     <div class="row p-2">
         <div class="col-xl-12">
             <div class="card">
@@ -404,7 +490,8 @@
                             {{-- 指派給（可多選） --}}
                             <div class="col-md-12 mb-3">
                                 <label>指派給</label>
-                                <select name="assigned_to[]" id="assigned_to_select" class="form-select" multiple style="min-height: 150px; height: 150px;">
+                                <select name="assigned_to[]" id="assigned_to_select" class="form-select" multiple
+                                    style="min-height: 150px; height: 150px;">
                                     <option value="0">不指定（大家都可以完成）</option>
                                     @foreach ($users as $user)
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -450,7 +537,7 @@
                     sortField: 'text',
                     placeholder: '可多選被指派者'
                 });
-                
+
                 // 確保 Selectize 容器也有正確的高度
                 setTimeout(function() {
                     $('#assigned_to_select').next('.selectize-control').css({
@@ -504,8 +591,10 @@
 
             // 使用 TaskItem 完成 API
             let apiUrl = "{{ route('task.item.complete') }}";
-            let data = { id: taskItemId };
-            
+            let data = {
+                id: taskItemId
+            };
+
             $.ajax({
                 url: apiUrl,
                 method: 'POST',

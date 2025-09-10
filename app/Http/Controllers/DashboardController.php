@@ -23,6 +23,7 @@ use App\Models\Task;
 use App\Models\TaskItem;
 use App\Models\Suit;
 use App\Models\Product;
+use App\Models\LeaveDay;
 
 class DashboardController extends Controller
 {
@@ -49,6 +50,7 @@ class DashboardController extends Controller
             $work = Works::where('user_id', Auth::user()->id)->orderBy('id', 'desc')->first();
             $contract_datas = Contract::whereIn('renew', [0, 1])->where('end_date', '>=', $now_day)->where('end_date', '<=', $two_month_day)->whereNull('close_date')->orderby('end_date', 'asc')->get();
             $lamp_datas = Lamp::whereIn('renew', [0, 1])->where('end_date', '>=', $now_day)->where('end_date', '<=', $one_month_day)->whereNull('close_date')->orderby('end_date', 'asc')->get();
+            $leaves_datas = LeaveDay::where('state', 2)->where('director_id', Auth::user()->job_id)->get();
             // dd($contract_datas);
             // $low_stock_products = [];
 
@@ -65,7 +67,7 @@ class DashboardController extends Controller
             // }
             // dd($low_stock_products);
             // ->with('low_stock_products', $low_stock_products)
-            return view('index')->with('now', $now)->with('work', $work)->with('contract_datas', $contract_datas)->with('lamp_datas', $lamp_datas)->with('tasks', $tasks)->with('users', $users);
+            return view('index')->with('now', $now)->with('work', $work)->with('contract_datas', $contract_datas)->with('lamp_datas', $lamp_datas)->with('tasks', $tasks)->with('users', $users)->with('leaves_datas', $leaves_datas);
         } else {
             return redirect('/');
         }
