@@ -69,7 +69,7 @@
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="projectname" class="form-label">排序</label>
+                                        <label for="projectname" class="form-label">員工編號</label>
                                         <input type="text" class="form-control" name="seq" value="0">
                                     </div>
 
@@ -95,13 +95,6 @@
                                             <label for="project-overview" class="form-label">密碼<span
                                                     class="text-danger">*</span></label>
                                             <input type="text" id="projectname" class="form-control" name="password"
-                                                required>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="project-budget" class="form-label">電話<span
-                                                    class="text-danger">*</span></label>
-                                            <input type="text" id="project-budget" class="form-control" name="mobile"
                                                 required>
                                         </div>
                                     </div> <!-- end col-->

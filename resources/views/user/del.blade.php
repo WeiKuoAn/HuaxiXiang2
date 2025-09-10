@@ -49,7 +49,7 @@
                         <form action="{{ route('user.edit.data', $user->id) }}" method="POST">
                             @csrf
                             <div class="mb-3">
-                                <label class="form-label">排序設定<span class="text-danger">*</span></label>
+                                <label class="form-label">員工編號<span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="seq" value="{{ $user->seq }}">
                             </div>
 
