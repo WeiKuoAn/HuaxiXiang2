@@ -45,15 +45,6 @@
                                         <option value="combo"  @if($request->type == 'combo') selected @endif>組合</option>
                                     </select>
                                 </div>
-                                <label for="status-select" class="me-2">產品類別</label>
-                                <div class="me-sm-3">
-                                    <select class="form-select my-1 my-lg-0" id="status-select" name="category_id" onchange="this.form.submit()">
-                                        <option value="null" selected>不限</option>
-                                        @foreach($categorys as $category)
-                                            <option value="{{ $category->id }}" @if($request->category_id == $category->id) selected @endif>{{ $category->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
                                 <div class="me-3">
                                     <button type="submit" class="btn btn-success waves-effect waves-light me-1"><i class="fe-search me-1"></i>搜尋</button>
                                 </div>
