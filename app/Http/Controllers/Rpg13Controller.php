@@ -83,7 +83,7 @@ class Rpg13Controller extends Controller
             
             $datas['sets'] = []; //套組商品
 
-            $datas['combos'] = []; //組合商品
+            // $datas['combos'] = []; //組合商品
 
             $datas['pujas'] = []; //法會資訊商品
         }
@@ -128,28 +128,28 @@ class Rpg13Controller extends Controller
         }
 
         //計算業務單，商品類型是的組合
-        foreach($combo_sale_products as $combo_sale_product)
-        {
-            $combos_products = ComboProduct::where('product_id',$combo_sale_product->gdpaper_id)->get();
-            $product_data =  Product::where('id',$combo_sale_product->gdpaper_id)->first();
-            $datas['combos'][$combo_sale_product->gdpaper_id]['name'] = $product_data->name;
-                if(isset($datas['combos'][$combo_sale_product->gdpaper_id]['count'] )){
-                    $datas['combos'][$combo_sale_product->gdpaper_id]['count'] ++;
-                }else{
-                    $datas['combos'][$combo_sale_product->gdpaper_id]['count'] = 1;
-                }
-            foreach($combos_products as $combos_product)
-            {
-                $combo_product_data =  Product::where('id',$combos_product->include_product_id)->first();
-                $datas['combos'][$combo_sale_product->gdpaper_id]['details'][$combos_product->include_product_id]['name'] = $combo_product_data->name;
-                $datas['products'][$combos_product->include_product_id]['num'] += $combos_product->num;
-                if(isset($datas['combos'][$combo_sale_product->gdpaper_id]['details'][$combos_product->include_product_id]['num'])){
-                    $datas['combos'][$combo_sale_product->gdpaper_id]['details'][$combos_product->include_product_id]['num'] += $combos_product->num;
-                }else{
-                    $datas['combos'][$combo_sale_product->gdpaper_id]['details'][$combos_product->include_product_id]['num'] = $combos_product->num;
-                }
-            }
-        }
+        // foreach($combo_sale_products as $combo_sale_product)
+        // {
+        //     $combos_products = ComboProduct::where('product_id',$combo_sale_product->gdpaper_id)->get();
+        //     $product_data =  Product::where('id',$combo_sale_product->gdpaper_id)->first();
+        //     $datas['combos'][$combo_sale_product->gdpaper_id]['name'] = $product_data->name;
+        //         if(isset($datas['combos'][$combo_sale_product->gdpaper_id]['count'] )){
+        //             $datas['combos'][$combo_sale_product->gdpaper_id]['count'] ++;
+        //         }else{
+        //             $datas['combos'][$combo_sale_product->gdpaper_id]['count'] = 1;
+        //         }
+        //     foreach($combos_products as $combos_product)
+        //     {
+        //         $combo_product_data =  Product::where('id',$combos_product->include_product_id)->first();
+        //         $datas['combos'][$combo_sale_product->gdpaper_id]['details'][$combos_product->include_product_id]['name'] = $combo_product_data->name;
+        //         $datas['products'][$combos_product->include_product_id]['num'] += $combos_product->num;
+        //         if(isset($datas['combos'][$combo_sale_product->gdpaper_id]['details'][$combos_product->include_product_id]['num'])){
+        //             $datas['combos'][$combo_sale_product->gdpaper_id]['details'][$combos_product->include_product_id]['num'] += $combos_product->num;
+        //         }else{
+        //             $datas['combos'][$combo_sale_product->gdpaper_id]['details'][$combos_product->include_product_id]['num'] = $combos_product->num;
+        //         }
+        //     }
+        // }
 
         //法會商品
         foreach($puja_data_products as $puja_data_product)
