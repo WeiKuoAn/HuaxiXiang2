@@ -71,6 +71,7 @@
                                     <th scope="col">寶貝名稱</th>
                                     <th scope="col">客戶電話</th>
                                     <th scope="col">法會費用</th>
+                                    <th scope="col">備註</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -81,6 +82,7 @@
                                         <td>{{ $data->sale_data->pet_name }}</td>
                                         <td>{{ $data->sale_data->cust_name->mobile }}</td>
                                         <td>{{  number_format($data->prom_total) }}</td>
+                                        <td>{{ $data->comment }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
