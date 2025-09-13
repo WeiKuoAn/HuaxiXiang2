@@ -15,16 +15,19 @@ class Rpg06Controller extends Controller
     {
 
         if($request){
-            $datas = Sale_prom::where('prom_type','B')->where('prom_id',8);
+            $datas = Sale_prom::join('sale_data', 'sale_prom.sale_id', '=', 'sale_data.id')
+                ->where('sale_prom.prom_type','B')
+                ->where('sale_prom.prom_id',8)
+                ->select('sale_prom.*');
             $after_date = $request->after_date;
             if($after_date){
                 $after_date = $after_date.' 00:00:00';
-                $datas = $datas->where('created_at','>=',$after_date);
+                $datas = $datas->where('sale_data.sale_date','>=',$after_date);
             }
             $before_date = $request->before_date;
             if($before_date){
                 $before_date = $before_date.' 23:59:59';
-                $datas = $datas->where('created_at','<=',$before_date);
+                $datas = $datas->where('sale_data.sale_date','<=',$before_date);
             }
             $cust_name = $request->cust_name;
             if($cust_name){
@@ -37,7 +40,7 @@ class Rpg06Controller extends Controller
                 foreach($sale_datas as $sale_data){
                     $sale_ids[] = $sale_data->id; 
                 }
-                $datas = $datas->whereIn('sale_id',$sale_ids);
+                $datas = $datas->whereIn('sale_prom.sale_id',$sale_ids);
             }
             $cust_mobile = $request->cust_mobile;
             if($cust_mobile){
@@ -50,12 +53,16 @@ class Rpg06Controller extends Controller
                 foreach($sale_datas as $sale_data){
                     $sale_ids[] = $sale_data->id; 
                 }
-                $datas = $datas->whereIn('sale_id',$sale_ids);
+                $datas = $datas->whereIn('sale_prom.sale_id',$sale_ids);
             }
-            $datas = $datas->orderby('created_at', 'desc')->paginate(50);
+            $datas = $datas->orderby('sale_data.sale_date', 'desc')->paginate(50);
             $condition = $request->all();
         }else{
-            $datas = Sale_prom::where('prom_type','B')->where('prom_id',8)->orderby('created_at', 'desc')->paginate(50);
+            $datas = Sale_prom::join('sale_data', 'sale_prom.sale_id', '=', 'sale_data.id')
+                ->where('sale_prom.prom_type','B')
+                ->where('sale_prom.prom_id',8)
+                ->select('sale_prom.*')
+                ->orderby('sale_data.sale_date', 'desc')->paginate(50);
             $condition = '';
         }
         
@@ -65,16 +72,19 @@ class Rpg06Controller extends Controller
     public function export(Request $request)
     {
         if($request){
-            $datas = Sale_prom::where('prom_type','B')->where('prom_id',8);
+            $datas = Sale_prom::join('sale_data', 'sale_prom.sale_id', '=', 'sale_data.id')
+                ->where('sale_prom.prom_type','B')
+                ->where('sale_prom.prom_id',8)
+                ->select('sale_prom.*');
             $after_date = $request->after_date;
             if($after_date){
                 $after_date = $after_date.' 00:00:00';
-                $datas = $datas->where('created_at','>=',$after_date);
+                $datas = $datas->where('sale_data.sale_date','>=',$after_date);
             }
             $before_date = $request->before_date;
             if($before_date){
                 $before_date = $before_date.' 23:59:59';
-                $datas = $datas->where('created_at','<=',$before_date);
+                $datas = $datas->where('sale_data.sale_date','<=',$before_date);
             }
             $cust_name = $request->cust_name;
             if($cust_name){
@@ -87,7 +97,7 @@ class Rpg06Controller extends Controller
                 foreach($sale_datas as $sale_data){
                     $sale_ids[] = $sale_data->id; 
                 }
-                $datas = $datas->whereIn('sale_id',$sale_ids);
+                $datas = $datas->whereIn('sale_prom.sale_id',$sale_ids);
             }
             $cust_mobile = $request->cust_mobile;
             if($cust_mobile){
@@ -100,11 +110,15 @@ class Rpg06Controller extends Controller
                 foreach($sale_datas as $sale_data){
                     $sale_ids[] = $sale_data->id; 
                 }
-                $datas = $datas->whereIn('sale_id',$sale_ids);
+                $datas = $datas->whereIn('sale_prom.sale_id',$sale_ids);
             }
-            $datas = $datas->orderby('created_at', 'desc')->get();
+            $datas = $datas->orderby('sale_data.sale_date', 'desc')->get();
         }else{
-            $datas = Sale_prom::where('prom_type','B')->where('prom_id',8)->orderby('created_at', 'desc')->get();
+            $datas = Sale_prom::join('sale_data', 'sale_prom.sale_id', '=', 'sale_data.id')
+                ->where('sale_prom.prom_type','B')
+                ->where('sale_prom.prom_id',8)
+                ->select('sale_prom.*')
+                ->orderby('sale_data.sale_date', 'desc')->get();
         }
 
         $fileName = '套組法會資料匯出' . date("Y-m-d") . '.csv';
@@ -126,7 +140,7 @@ class Rpg06Controller extends Controller
 
             foreach ($datas as $key=>$data) {
                 $row['編號'] = $key+1;
-                $row['報名日期'] = date('Y-m-d',strtotime($data->created_at));
+                $row['報名日期'] = date('Y-m-d',strtotime($data->sale_data->sale_date));
                 $row['客戶姓名'] = $data->sale_data->cust_name->name;
                 $row['寶貝名稱'] = $data->sale_data->pet_name;
                 $row['客戶電話'] = $data->sale_data->cust_name->mobile;

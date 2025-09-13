@@ -77,7 +77,7 @@
                             <tbody>
                                 @foreach($datas as $key=>$data)
                                     <tr align="center">
-                                        <td>{{ date('Y-m-d',strtotime($data->created_at)) }}</td>
+                                        <td>{{ date('Y-m-d',strtotime($data->sale_data->sale_date)) }}</td>
                                         <td>{{ $data->sale_data->cust_name->name }}</td>
                                         <td>{{ $data->sale_data->pet_name }}</td>
                                         <td>{{ $data->sale_data->cust_name->mobile }}</td>
