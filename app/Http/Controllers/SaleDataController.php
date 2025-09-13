@@ -184,6 +184,56 @@ class SaleDataController extends Controller
         return response()->json(['error' => '無效的請求'], 400);
     }
 
+    public function deposit_amount(Request $request)
+    {
+        if ($request->ajax()) {
+            $customerId = $request->customer_id;
+            $petName = $request->pet_name;
+            $typeList = $request->type_list;
+            
+            try {
+                // 查詢上一筆訂金單的金額
+                $depositSale = Sale::where('customer_id', $customerId)
+                    ->where('pet_name', $petName)
+                    ->where('type_list', '!=', 'memorial') // 排除追思單
+                    ->where('pay_id', 'C') // 只查詢訂金單
+                    ->orderBy('id', 'desc')
+                    ->first();
+                
+                if ($depositSale) {
+                    // 直接抓取訂金單的 pay_price
+                    $totalAmount = $depositSale->pay_price ?? 0;
+                    
+                    return response()->json([
+                        'success' => true,
+                        'deposit_amount' => $totalAmount,
+                        'deposit_sale_id' => $depositSale->id,
+                        'message' => '找到訂金單，金額：' . $totalAmount . ' 元'
+                    ]);
+                } else {
+                    return response()->json([
+                        'success' => true,
+                        'deposit_amount' => 0,
+                        'deposit_sale_id' => null,
+                        'message' => '未找到訂金單'
+                    ]);
+                }
+            } catch (\Exception $e) {
+                \Log::error('查詢訂金金額失敗: ' . $e->getMessage());
+                return response()->json([
+                    'success' => false,
+                    'deposit_amount' => 0,
+                    'deposit_sale_id' => null,
+                    'message' => '查詢失敗：' . $e->getMessage()
+                ], 500);
+            }
+        }
+        
+        return response()->json(['error' => '無效的請求'], 400);
+    }
+    
+
+
     public function final_price(Request $request)
     {
         if ($request->ajax()) {
@@ -713,7 +763,7 @@ class SaleDataController extends Controller
             $sales = $sales->orderby('sale_date', 'desc')->orderby('user_id', 'desc')->orderby('sale_on', 'desc');
         }
         $sales = $sales->get();
-        $users = User::where('status', '0')->whereIn('job_id', [3, 5, 10])->get();
+        $users = User::whereIn('job_id', [3, 5, 10])->get();
 
         $total = 0;
         foreach ($sales as $sale) {
