@@ -59,9 +59,13 @@ class Rpg31Controller extends Controller
             ];
         }
 
+
         $datas = [];
         $sums = [];
-
+        $sums[1]['totals'] = 50;
+        $sums[2]['totals'] = 170;
+        $sums[3]['totals'] = 50;
+        $sums[4]['totals'] = 170;
         $lampTypes = LampType::where('status', 'up')->orderby('id')->get();
 
         foreach ($months as $key => $month) {
@@ -82,12 +86,12 @@ class Rpg31Controller extends Controller
                 $datas[$lamp->type]['months'][$key]['count']++;
             }
         }
-        // dd($datas);
 
         foreach ($datas as $key => $data) {
             $sums[$key]['count'] = 0;
             foreach ($data['months'] as $month) {
                 $sums[$key]['count'] += $month['count'];
+                $sums[$key]['last'] = $sums[$key]['totals'] - $sums[$key]['count'];
             }
         }
 

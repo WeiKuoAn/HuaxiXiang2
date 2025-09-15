@@ -93,6 +93,16 @@
                                                 </td>
                                             @endforeach
                                         </tr>
+                                        <tr align="center" class="text-danger">
+                                            <td>總剩餘</td>
+                                            @foreach ($sums as $key => $sum)
+                                                <td>
+                                                    @if (isset($sum['last']))
+                                                        {{ number_format($sum['last']) }}
+                                                    @endif
+                                                </td>
+                                            @endforeach
+                                        </tr>
                                         @foreach ($months as $key => $month)
                                             <tr align="center">
                                                 <td>{{ $month['monthName'] }}</td>
