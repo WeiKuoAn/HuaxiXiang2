@@ -799,7 +799,7 @@
                 var extra_text_col = $("#prom_extra_text_col_" + row_id);
                 var prom_product_container = $("#prom_product_" + row_id);
                 
-                if (prom_id == '8') {
+                if (prom_id == '8' || prom_id == '7') {
                     // 套組法會：顯示備註，隱藏商品欄位
                     extra_text_col.show();
                     prom_product_container.hide();
@@ -1597,7 +1597,7 @@
             var extra_text_col = $("#prom_extra_text_col_" + row_id);
             var prom_product_container = $("#prom_product_" + row_id);
             
-            if (prom_id == '8') {
+            if (prom_id == '8' || prom_id == '7') {
                 // 套組法會：顯示備註，隱藏商品欄位
                 extra_text_col.show();
                 prom_product_container.hide();

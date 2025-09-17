@@ -332,7 +332,7 @@
                                                                 <!-- 套組法會額外備註 (prom value=8) - 移到 prom_product 容器外 -->
                                                                 <div class="row mt-2" id="prom_extra_text_col_{{ $key }}" style="display:none;">
                                                                     <div class="col-12">
-                                                                        <input class="form-control" type="text" id="prom_extra_text_{{$key}}" name="prom_extra_text[]" placeholder="套組法會備註" value="{{ $sale_prom->comment }}">
+                                                                        <input class="form-control" type="text" id="prom_extra_text_{{$key}}" name="prom_extra_text[]" placeholder="備註" value="{{ $sale_prom->comment }}">
                                                                     </div>
                                                                 </div>
                                                                 <!-- 商品相關欄位 - 根據 prom_id 決定顯示 -->
@@ -430,7 +430,7 @@
                                                             <!-- 套組法會額外備註 (prom value=8) - 移到 prom_product 容器外 -->
                                                             <div class="row mt-2" id="prom_extra_text_col_{{ $i }}" style="display:none;">
                                                                 <div class="col-12">
-                                                                    <input class="form-control" type="text" id="prom_extra_text_{{$i}}" name="prom_extra_text[]" placeholder="套組法會備註">
+                                                                    <input class="form-control" type="text" id="prom_extra_text_{{$i}}" name="prom_extra_text[]" placeholder="備註">
                                                                 </div>
                                                             </div>
                                                                 <!-- 商品相關欄位 - 根據 prom_id 決定顯示 -->
@@ -738,7 +738,7 @@
                 var extra_text_col = $("#prom_extra_text_col_" + row_id);
                 var prom_product_container = $("#prom_product_" + row_id);
                 
-                if (prom_id == '8') {
+                if (prom_id == '8' || prom_id == '7') {
                     // 套組法會：顯示備註，隱藏商品欄位
                     extra_text_col.show();
                     prom_product_container.hide();
@@ -1375,7 +1375,7 @@
             var extra_text_col = $("#prom_extra_text_col_" + row_id);
             var prom_product_container = $("#prom_product_" + row_id);
             
-            if (prom_id == '8') {
+            if (prom_id == '8' || prom_id == '7') {
                 // 套組法會：顯示備註，隱藏商品欄位
                 extra_text_col.show();
                 prom_product_container.hide();
@@ -1755,7 +1755,7 @@
             cols += '<!-- 套組法會額外備註 (prom value=8) - 移到 prom_product 容器外 -->';
             cols += '<div class="row mt-2" id="prom_extra_text_col_' + $rowCount + '" style="display:none;">';
             cols += '<div class="col-12">';
-            cols += '<input class="form-control" type="text" id="prom_extra_text_' + $rowCount + '" name="prom_extra_text[]" placeholder="套組法會備註">';
+            cols += '<input class="form-control" type="text" id="prom_extra_text_' + $rowCount + '" name="prom_extra_text[]" placeholder="備註">';
             cols += '</div>';
             cols += '</div>';
             cols += '<!-- 商品相關欄位 - 根據 prom_id 決定顯示 -->';

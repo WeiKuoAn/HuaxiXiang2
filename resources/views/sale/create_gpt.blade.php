@@ -382,7 +382,7 @@
                                                             <!-- 套組法會額外備註 (prom value=8) - 移到 prom_product 容器外 -->
                                                             <div class="row mt-2" id="prom_extra_text_col_{{ $i }}" style="display:none;">
                                                                 <div class="col-12">
-                                                                    <input class="form-control" type="text" id="prom_extra_text_{{$i}}" name="prom_extra_text[]" placeholder="套組法會備註">
+                                                                    <input class="form-control" type="text" id="prom_extra_text_{{$i}}" name="prom_extra_text[]" placeholder="備註">
                                                                 </div>
                                                             </div>
                                                             <div class="row mt-1 prom-product-container" id="prom_product_{{ $i }}">
@@ -672,7 +672,7 @@
                 var promId = $(this).val();
 
                 // 檢查是否為套組法會 (prom value=8)，顯示/隱藏額外備註欄位
-                if (promId == '8') {
+                if (promId == '8' || promId == '7') {
                     $('#prom_extra_text_col_' + idx).show(300);
                 } else {
                     $('#prom_extra_text_col_' + idx).hide(300);
@@ -2169,7 +2169,7 @@
             // 套組法會額外備註 (prom value=8) - 移到 prom_product 容器外
             cols += '<div class="row mt-2" id="prom_extra_text_col_' + rowCount + '" style="display:none;">';
             cols += '<div class="col-12">';
-            cols += '<input class="form-control" type="text" id="prom_extra_text_' + rowCount + '" name="prom_extra_text[]" placeholder="套組法會備註">';
+            cols += '<input class="form-control" type="text" id="prom_extra_text_' + rowCount + '" name="prom_extra_text[]" placeholder="備註">';
             cols += '</div>';
             cols += '</div>';
             cols += '</td>';

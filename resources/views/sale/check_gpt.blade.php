@@ -651,16 +651,15 @@
 
             </div>
             <!-- end row -->
-
             <div class="row">
                 <div class="col-12">
                     <div class="text-center mb-3">
-                        @if (Auth::user()->level != '2' || Auth::user()->job_id == 9)
+                        @if (Auth::user()->level != '2' || Auth::user()->job_id == 9 || Auth::user()->job_id == 10)
                             @if ($data->status == '3')
                                 <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
                                 <button type="submit" class="btn w-sm btn-danger waves-effect" value="not_check" name="admin_check">撤回對帳</button>
                                 <button type="submit" class="btn w-sm btn-success waves-effect waves-light" value="check" name="admin_check" onclick="if(!confirm('是否已確定對帳，若要取消對帳，請進行撤回')){event.returnValue=false;return false;}">確定對帳</button>
-                            @elseif ($data->status == '1' && $data->user_id == Auth::user()->id || $data->status == '1' && Auth::user()->job_id == 1)
+                            @elseif ($data->status == '1' && ($data->user_id == Auth::user()->id || Auth::user()->job_id == 1))
                                 <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
                                 <button type="submit" class="btn w-sm btn-success waves-effect waves-light" value="check" name="admin_check" onclick="if(!confirm('是否已確定對帳，若要取消對帳，請進行撤回')){event.returnValue=false;return false;}">確定對帳</button>
                             @elseif($data->status == '9')
@@ -670,10 +669,12 @@
                                 <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
                             @endif
                         @else
-                            @if ($data->status == '1')
+                            @if ($data->status == '1' && $data->user_id == Auth::user()->id)
                                 <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
                                 <button type="submit" class="btn w-sm btn-success waves-effect waves-light" value="usercheck" name="user_check" onclick="if(!confirm('是否已確定對帳，若要取消對帳，請進行撤回')){event.returnValue=false;return false;}">確定對帳</button>
                             @elseif($data->status == '3' || $data->status == '9')
+                                <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
+                            @else
                                 <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
                             @endif
                         @endif
@@ -754,7 +755,7 @@
                 var extra_text_col = $("#prom_extra_text_col_" + row_id);
                 var prom_product_container = $("#prom_product_" + row_id);
                 
-                if (prom_id == '8') {
+                if (prom_id == '8' || prom_id == '7') {
                     // 套組法會：顯示備註，隱藏商品欄位
                     extra_text_col.show();
                     prom_product_container.hide();
@@ -1267,7 +1268,7 @@
             var extra_text_col = $("#prom_extra_text_col_" + row_id);
             var prom_product_container = $("#prom_product_" + row_id);
             
-            if (prom_id == '8') {
+            if (prom_id == '8' || prom_id == '7') {
                 // 套組法會：顯示備註，隱藏商品欄位
                 extra_text_col.show();
                 prom_product_container.hide();
