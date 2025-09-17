@@ -292,7 +292,7 @@ class SaleDataControllerNew extends Controller
     {
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $customers = Customer::orderby('created_at', 'desc')->get();
         $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
         $suits = Suit::where('status', 'up')->get();
@@ -314,7 +314,7 @@ class SaleDataControllerNew extends Controller
     {
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $customers = Customer::orderby('created_at', 'desc')->get();
         $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
         $suits = Suit::where('status', 'up')->get();
@@ -386,7 +386,7 @@ class SaleDataControllerNew extends Controller
     {
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
 
         return view('sale.create_test')
             ->with('products', $products)
@@ -885,7 +885,7 @@ class SaleDataControllerNew extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
         $data = Sale::where('id', $id)->first();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
@@ -922,7 +922,7 @@ class SaleDataControllerNew extends Controller
     {
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $customers = Customer::orderby('created_at', 'desc')->get();
         $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
         $suits = Suit::where('status', 'up')->get();
@@ -1054,7 +1054,7 @@ class SaleDataControllerNew extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
         $data = Sale::where('id', $id)->first();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
@@ -1120,7 +1120,7 @@ class SaleDataControllerNew extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
         $data = Sale::where('sale_on', $sale_on)->first();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $data->id)->get();
@@ -1233,7 +1233,7 @@ class SaleDataControllerNew extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
         $data = Sale::where('id', $id)->first();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
@@ -1271,7 +1271,7 @@ class SaleDataControllerNew extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
         $data = Sale::where('id', $id)->first();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
@@ -1613,7 +1613,7 @@ class SaleDataControllerNew extends Controller
     {
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $customers = Customer::orderby('created_at', 'desc')->get();
         $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
         $suits = Suit::where('status', 'up')->get();
@@ -1688,7 +1688,7 @@ class SaleDataControllerNew extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
         $data = Sale::where('id', $id)->first();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
