@@ -1999,9 +1999,8 @@
                 $('#religion').val('');
             }
             
-            // 根據宗教和案件類別決定是否顯示往生日期欄位
-            if (religion && (religion === 'buddhism' || religion === 'taoism' || religion === 'buddhism_taoism') && 
-                (typeList === 'memorial' || typeList === 'dispatch')) {
+            // 根據案件類別決定是否顯示往生日期欄位（所有宗教都可以填寫，非必填）
+            if ((typeList === 'memorial' || typeList === 'dispatch')) {
                 $('#death_date_field').show();
             } else {
                 $('#death_date_field').hide();

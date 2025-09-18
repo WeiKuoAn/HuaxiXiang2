@@ -1481,16 +1481,10 @@
                 var planIdStr = String(planId);
                 
                 if (planIdStr === '1' || planIdStr === '2') {
-                    // 個人、團體方案：根據宗教選擇決定是否顯示往生日期
-                    if (religion === 'buddhism' || religion === 'taoism' || religion === 'buddhism_taoism') {
-                        $('#death_date_field').show(300);
-                        $('#death_date').prop('required', false); // 改為非必填
-                        console.log('個人/團體方案 (ID:', planIdStr, ') + 佛道教：顯示往生日期（非必填）');
-                    } else {
-                        $('#death_date_field').hide(300);
-                        $('#death_date').val('').prop('required', false);
-                        console.log('個人/團體方案 (ID:', planIdStr, ') + 非佛道教：隱藏往生日期');
-                    }
+                    // 個人、團體方案：所有宗教都可以填寫往生日期（非必填）
+                    $('#death_date_field').show(300);
+                    $('#death_date').prop('required', false); // 非必填
+                    console.log('個人/團體方案 (ID:', planIdStr, ')：顯示往生日期（所有宗教都可填寫，非必填）');
                 } else if (planIdStr === '3') {
                     // 浪浪方案：永遠不顯示往生日期
                     $('#death_date_field').hide(300);
@@ -1522,13 +1516,16 @@
                 return;
             }
             
-            // 只有個人、團體方案且佛道教相關宗教才需要往生日期
+            // 只有個人、團體方案且佛道教相關宗教才計算重要日期
             var planIdStr = String(planId);
             
             if (deathDate && typeList === 'dispatch' && (payId === 'A' || payId === 'C') && 
                 (planIdStr === '1' || planIdStr === '2') && 
                 (religion === 'buddhism' || religion === 'taoism' || religion === 'buddhism_taoism')) {
-                console.log('個人/團體方案 (ID:', planIdStr, ')：往生日期已設定');
+                console.log('個人/團體方案 (ID:', planIdStr, ') + 佛道教：往生日期已設定，可計算重要日期');
+            } else if (deathDate && typeList === 'dispatch' && (payId === 'A' || payId === 'C') && 
+                (planIdStr === '1' || planIdStr === '2')) {
+                console.log('個人/團體方案 (ID:', planIdStr, ') + 非佛道教：往生日期已設定，但不計算重要日期');
             }
         });
 

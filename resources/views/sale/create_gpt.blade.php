@@ -1568,13 +1568,8 @@
                 return false;
             }
             
-            // 只有佛道教相關宗教才顯示往生日期
-            if (religion !== 'buddhism' && religion !== 'taoism' && religion !== 'buddhism_taoism') {
-                console.log('非佛道教：不顯示往生日期');
-                return false;
-            }
-            
-            console.log('個人/團體方案 + 佛道教：顯示往生日期');
+            // 所有宗教都可以填寫往生日期（非必填）
+            console.log('個人/團體方案：顯示往生日期（所有宗教都可填寫）');
             return true;
         }
 
@@ -1816,17 +1811,10 @@
                 var planIdStr = String(planId);
                 
                 if (planIdStr === '1' || planIdStr === '2') {
-                    // 個人、團體方案：根據宗教選擇決定是否顯示往生日期
-                    if (religion === 'buddhism' || religion === 'taoism' || religion === 'buddhism_taoism') {
-                        $('#death_date_field').show(300);
-                        $('#death_date').prop('required', false); // 改為非必填
-                        console.log('個人/團體方案 (ID:', planIdStr, ') + 佛道教：顯示往生日期（非必填）');
-                    } else {
-                        $('#death_date_field').hide(300);
-                        $('#death_date').val('').prop('required', false);
-                        hideMemorialDates();
-                        console.log('個人/團體方案 (ID:', planIdStr, ') + 非佛道教：隱藏往生日期');
-                    }
+                    // 個人、團體方案：所有宗教都可以填寫往生日期（非必填）
+                    $('#death_date_field').show(300);
+                    $('#death_date').prop('required', false); // 非必填
+                    console.log('個人/團體方案 (ID:', planIdStr, ')：顯示往生日期（所有宗教都可填寫，非必填）');
                 } else if (planIdStr === '3') {
                     // 浪浪方案：永遠不顯示往生日期
                     $('#death_date_field').hide(300);
@@ -1868,10 +1856,10 @@
                 (planIdStr === '1' || planIdStr === '2') && 
                 (religion === 'buddhism' || religion === 'taoism' || religion === 'buddhism_taoism')) {
                 calculateMemorialDates(deathDate, planId);
-                console.log('個人/團體方案 (ID:', planIdStr, ')：計算重要日期（包含頭七）');
+                console.log('個人/團體方案 (ID:', planIdStr, ') + 佛道教：計算重要日期（包含頭七）');
             } else {
                 hideMemorialDates();
-                console.log('浪浪方案或其他情況 (ID:', planIdStr, ')：不計算重要日期');
+                console.log('非佛道教或其他情況 (ID:', planIdStr, ')：不計算重要日期');
             }
         });
 

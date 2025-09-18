@@ -169,16 +169,17 @@
                                         <small class="text-danger">提醒：資材帶為佛道教用品</small>
                                     </div>
                                 </div>
+                                <div class="mb-3 col-md-4" id="death_date_field" style="display: none;">
+                                    <label for="death_date" class="form-label">往生日期</label>
+                                    <input type="text" class="form-control" value="{{ $data->death_date }}" readonly>
+                                </div>
                                 <div class="mb-3 col-md-4">
                                     <label for="user_id" class="form-label">服務專員<span
                                             class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="user_id" name="user_id"
                                         value="{{ $data->user_name->name }}" readonly>
                                 </div>
-                                <div class="mb-3 col-md-4" id="death_date_field" style="display: none;">
-                                    <label for="death_date" class="form-label">往生日期</label>
-                                    <input type="text" class="form-control" value="{{ $data->death_date }}" readonly>
-                                </div>
+                               
                                 {{-- <div class="mb-3 col-md-4 not_memorial_show" id="final_price">
                             <label for="plan_price" class="form-label" id="final_price_label">收款金額<span class="text-danger">*</span></label>
                             <input type="text" class="form-control total_number"  name="final_price" value="{{ $data->pay_price }}" readonly >
@@ -1926,14 +1927,9 @@
                     $('#death_date_field').hide();
                     console.log('隱藏往生日期欄位 - 浪浪方案');
                 } else if (planIdStr === '1' || planIdStr === '2') {
-                    // 個人、團體方案：只有佛道教相關宗教才顯示往生日期
-                    if (religion === 'buddhism' || religion === 'taoism' || religion === 'buddhism_taoism') {
-                        $('#death_date_field').show();
-                        console.log('顯示往生日期欄位 - 個人/團體方案 + 佛道教');
-                    } else {
-                        $('#death_date_field').hide();
-                        console.log('隱藏往生日期欄位 - 個人/團體方案 + 非佛道教');
-                    }
+                    // 個人、團體方案：所有宗教都可以填寫往生日期（非必填）
+                    $('#death_date_field').show();
+                    console.log('顯示往生日期欄位 - 個人/團體方案（所有宗教都可填寫，非必填）');
                 } else {
                     // 其他方案：不顯示往生日期
                     $('#death_date_field').hide();
