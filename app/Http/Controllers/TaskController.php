@@ -50,7 +50,7 @@ class TaskController extends Controller
             $datas = $datas->where('end_date', '<=', $end_date . ' 23:59:59');
         }
 
-        $datas = $datas->with('created_users', 'close_users', 'items.user')->paginate(50);
+        $datas = $datas->with('created_users', 'close_users', 'items.user')->orderby('end_date', 'desc')->paginate(50);
         $users = User::where('status','0')->get();
 
         return view('task.index')->with('datas', $datas)->with('users', $users);
