@@ -150,7 +150,7 @@
                                             @foreach ($source_companys as $source_company)
                                                 <option value="{{ $source_company->id }}"
                                                     @if ($sale_company->company_id == $source_company->id) selected @endif>
-                                                    @if ($data->type == 'self')
+                                                    @if ($sale_company->type == 'self')
                                                         （員工）{{ $source_company->name }}（{{ $source_company->mobile }}）
                                                     @else
                                                         @if (isset($source_company->group) && $source_company->group)
@@ -196,7 +196,7 @@
                                 </div>
                                 
                                 <div class="mb-3 col-md-4" id="religion_field" style="display: none;">
-                                    <label for="religion" class="form-label">宗教信仰</label>
+                                    <label for="religion" class="form-label">宗教信仰<span class="text-danger">*</span></label>
                                     <select id="religion" class="form-select" name="religion">
                                         <option value="">請選擇...</option>
                                         <option value="buddhism_taoism" @if($data->religion == 'buddhism_taoism') selected @endif>佛道教</option>
@@ -205,6 +205,9 @@
                                         <option value="none" @if($data->religion == 'none') selected @endif>無宗教</option>
                                         <option value="other" @if($data->religion == 'other') selected @endif>其他</option>
                                     </select>
+                                    <div id="religion_other_input" class="mt-2" style="display: none;">
+                                        <input type="text" class="form-control" id="religion_other" name="religion_other" placeholder="請輸入其他宗教信仰" value="{{ $data->religion_other ?? '' }}">
+                                    </div>
                                     <div id="religion_reminder" class="mt-1" style="display: none;">
                                         <small class="text-danger">提醒：資財袋為佛道教用品</small>
                                     </div>
@@ -1455,6 +1458,15 @@
             
             console.log('宗教變更:', religion, '方案:', planId);
             
+            // 處理「其他」選項的顯示/隱藏
+            if (religion === 'other') {
+                $('#religion_other_input').show(300);
+                $('#religion_other').prop('required', true);
+            } else {
+                $('#religion_other_input').hide(300);
+                $('#religion_other').val('').prop('required', false);
+            }
+            
             // 檢查是否顯示宗教提醒
             if (religion && religion !== 'buddhism_taoism') {
                 // 非佛道教，顯示提醒
@@ -1537,6 +1549,7 @@
                 if (planIdStr === '1' || planIdStr === '2') {
                     // 個人、團體方案：顯示宗教和往生日期
                     $('#religion_field').show(300);
+                    $('#religion').prop('required', true); // 設為必填
                     $('#death_date_field').show(300);
                     console.log('個人/團體方案 (ID:', planIdStr, ')：顯示宗教和往生日期');
                     
@@ -1549,18 +1562,21 @@
                 } else if (planIdStr === '3') {
                     // 浪浪方案：只顯示宗教，不顯示往生日期
                     $('#religion_field').show(300);
+                    $('#religion').prop('required', true); // 設為必填
                     $('#death_date_field').hide(300);
                     $('#death_date').val('').prop('required', false);
                     console.log('浪浪方案 (ID:', planIdStr, ')：只顯示宗教，不顯示往生日期');
                 } else {
                     // 其他方案：不顯示宗教和往生日期
                     $('#religion_field').hide(300);
+                    $('#religion').prop('required', false);
                     $('#death_date_field').hide(300);
                     console.log('其他方案 (ID:', planIdStr, ')：不顯示宗教和往生日期');
                 }
             } else {
                 // 非派件單或非一次付清/訂金，隱藏所有宗教相關欄位
                 $('#religion_field').hide(300);
+                $('#religion').prop('required', false);
                 $('#death_date_field').hide(300);
             }
             
@@ -1569,6 +1585,15 @@
                 $('#religion_reminder').show(300);
             } else {
                 $('#religion_reminder').hide(300);
+            }
+            
+            // 如果當前選擇的是「其他」，顯示輸入框
+            if (religion === 'other') {
+                $('#religion_other_input').show(300);
+                $('#religion_other').prop('required', true);
+            } else {
+                $('#religion_other_input').hide(300);
+                $('#religion_other').prop('required', false);
             }
         }
 
@@ -2246,6 +2271,28 @@
                 e.preventDefault();
                 alert('單號有重複，請檢查後再提交');
                 return false;
+            }
+            
+            // 檢查宗教信仰必填
+            if ($('#religion_field').is(':visible')) {
+                var religion = $('#religion').val();
+                if (!religion || religion === '') {
+                    e.preventDefault();
+                    alert('請選擇宗教信仰');
+                    $('#religion').focus();
+                    return false;
+                }
+                
+                // 如果選擇「其他」，檢查是否填寫了其他宗教信仰
+                if (religion === 'other') {
+                    var religionOther = $('#religion_other').val().trim();
+                    if (!religionOther) {
+                        e.preventDefault();
+                        alert('請輸入其他宗教信仰');
+                        $('#religion_other').focus();
+                        return false;
+                    }
+                }
             }
             
             // 檢查商品變體選擇
