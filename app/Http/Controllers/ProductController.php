@@ -118,9 +118,11 @@ class ProductController extends Controller
                     $datas = $datas;
                 }
             }
-            $datas = $datas->get();
+            $datas = $datas->paginate(30);
+            $condition = $request->all();
         } else {
-            $datas = $datas->get();
+            $datas = $datas->paginate(30);
+            $condition = [];
         }
 
         $restocks = [];
@@ -303,7 +305,7 @@ class ProductController extends Controller
         // }
         // dd($restocks);
 
-        return view('product.index')->with('datas', $datas)->with('categorys', $categorys)->with('request', $request)->with('restocks', $restocks);
+        return view('product.index')->with('datas', $datas)->with('categorys', $categorys)->with('request', $request)->with('restocks', $restocks)->with('condition', $condition);
     }
 
     public function create()

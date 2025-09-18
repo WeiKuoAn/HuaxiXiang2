@@ -44,8 +44,8 @@
                                             </option>
                                             <option value="set" @if ($request->type == 'set') selected @endif>套組
                                             </option>
-                                            <option value="combo" @if ($request->type == 'combo') selected @endif>組合
-                                            </option>
+                                            {{-- <option value="combo" @if ($request->type == 'combo') selected @endif>組合
+                                            </option> --}}
                                         </select>
                                     </div>
                                     <div class="me-3">
@@ -216,9 +216,9 @@
                                 </tbody>
                             </table>
                         </div>
-                        {{-- 
-                    {{ $users->links() }} --}}
-
+                        <ul class="pagination pagination-rounded justify-content-end mt-2 mb-0">
+                            {{ $datas->appends($condition)->links('vendor.pagination.bootstrap-4') }}
+                        </ul>
                     </div> <!-- end card-body-->
                 </div> <!-- end card-->
             </div> <!-- end col -->
