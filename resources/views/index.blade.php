@@ -181,7 +181,7 @@
                                             @endforeach
                                         </td>
                                         <td>{{ optional($task->end_date)->format('Y-m-d') }}</td>
-                                        <td>{{ $task->description }}</td>
+                                        <td style="white-space: pre-line;">{{ $task->description }}</td>
                                         <td>
                                             @php
                                                 $completedCount = $task->items->where('status', 1)->count();
