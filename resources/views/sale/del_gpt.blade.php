@@ -130,8 +130,13 @@
                                         value="{{ $data->user_name->name }}" readonly>
                                 </div>
                                 <div class="mb-3 col-md-4" id="religion_field" style="display: none;">
-                                    <label for="religion" class="form-label">宗教信仰</label>
+                                    <label for="religion" class="form-label">宗教信仰<span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" value="@if($data->religion == 'buddhism_taoism')佛道教@elseif($data->religion == 'christianity')基督教@elseif($data->religion == 'catholicism')天主教@elseif($data->religion == 'none')無宗教@elseif($data->religion == 'other')其他@endif" readonly>
+                                    @if($data->religion == 'other' && isset($data->religion_other))
+                                        <div class="mt-2">
+                                            <input type="text" class="form-control" value="{{ $data->religion_other }}" readonly placeholder="其他宗教信仰">
+                                        </div>
+                                    @endif
                                     <div id="religion_reminder" class="mt-1" style="display: none;">
                                         <small class="text-danger">提醒：資材帶為佛道教用品</small>
                                     </div>

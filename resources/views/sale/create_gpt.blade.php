@@ -219,7 +219,7 @@
                                     </select>
                                 </div>
                                 <div class="mb-3 col-md-4" id="religion_field" style="display: none;">
-                                    <label for="religion" class="form-label">宗教信仰</label>
+                                    <label for="religion" class="form-label">宗教信仰<span class="text-danger">*</span></label>
                                     <select id="religion" class="form-select" name="religion">
                                         <option value="">請選擇...</option>
                                         <option value="buddhism_taoism">佛道教</option>
@@ -228,6 +228,9 @@
                                         <option value="none">無宗教</option>
                                         <option value="other">其他</option>
                                     </select>
+                                    <div id="religion_other_input" class="mt-2" style="display: none;">
+                                        <input type="text" class="form-control" id="religion_other" name="religion_other" placeholder="請輸入其他宗教信仰">
+                                    </div>
                                     <div id="religion_reminder" class="mt-1" style="display: none;">
                                         <small class="text-danger">提醒：資財袋為佛道教用品</small>
                                     </div>
@@ -1203,7 +1206,7 @@
         // 設定必填欄位
         function setRequiredFields(fields) {
             // 先清除所有必填
-            $("#kg, #variety, #type, #plan_id, #plan_price, #pet_name, #cust_name_q, #death_date").prop('required', false);
+            $("#kg, #variety, #type, #plan_id, #plan_price, #pet_name, #cust_name_q, #death_date, #religion").prop('required', false);
             
             // 設定指定欄位為必填
             fields.forEach(function(field) {
@@ -1212,6 +1215,11 @@
             
             // 客戶選擇永遠必填
             $("#cust_name_q").prop('required', true);
+            
+            // 宗教信仰在顯示時為必填
+            if ($("#religion_field").is(':visible')) {
+                $("#religion").prop('required', true);
+            }
             
             // 往生日期改為非必填（因為不一定知道往生日期）
             // 移除原本的必填邏輯
@@ -1481,7 +1489,9 @@
                 // 不應該顯示宗教欄位時，隱藏並清除相關數據
                 console.log('隱藏宗教相關欄位');
                 $('#religion_field').hide(300); // 隱藏整個宗教欄位
-                $('#religion').val('');
+                $('#religion').val('').prop('required', false);
+                $('#religion_other').val('').prop('required', false);
+                $('#religion_other_input').hide(300);
                 $('#death_date').val('');
                 $('#death_date_field').hide(300);
                 $('#death_date').prop('required', false);
@@ -1491,6 +1501,16 @@
                 // 應該顯示宗教欄位
                 console.log('顯示宗教欄位');
                 $('#religion_field').show(300); // 顯示宗教欄位
+                $('#religion').prop('required', true); // 設為必填
+                
+                // 如果當前選擇的是「其他」，顯示輸入框
+                if (religion === 'other') {
+                    $('#religion_other_input').show(300);
+                    $('#religion_other').prop('required', true);
+                } else {
+                    $('#religion_other_input').hide(300);
+                    $('#religion_other').val('').prop('required', false);
+                }
             }
             
             if (!shouldShowDeathDate) {
@@ -1772,6 +1792,15 @@
             var payId = $('#pay_id').val();
             
             console.log('宗教變更:', religion, '方案:', planId);
+            
+            // 處理「其他」選項的顯示/隱藏
+            if (religion === 'other') {
+                $('#religion_other_input').show(300);
+                $('#religion_other').prop('required', true);
+            } else {
+                $('#religion_other_input').hide(300);
+                $('#religion_other').val('').prop('required', false);
+            }
             
             // 檢查是否顯示宗教提醒
             if (religion && religion !== 'buddhism_taoism') {
@@ -2434,6 +2463,28 @@
                 e.preventDefault();
                 alert('單號有重複，請檢查後再提交');
                 return false;
+            }
+            
+            // 檢查宗教信仰必填
+            if ($('#religion_field').is(':visible')) {
+                var religion = $('#religion').val();
+                if (!religion || religion === '') {
+                    e.preventDefault();
+                    alert('請選擇宗教信仰');
+                    $('#religion').focus();
+                    return false;
+                }
+                
+                // 如果選擇「其他」，檢查是否填寫了其他宗教信仰
+                if (religion === 'other') {
+                    var religionOther = $('#religion_other').val().trim();
+                    if (!religionOther) {
+                        e.preventDefault();
+                        alert('請輸入其他宗教信仰');
+                        $('#religion_other').focus();
+                        return false;
+                    }
+                }
             }
             
             // 檢查商品變體選擇

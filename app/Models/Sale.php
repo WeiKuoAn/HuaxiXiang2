@@ -29,6 +29,7 @@ class Sale extends Model
         'variety',
         'total',
         'religion',
+        'religion_other',
         'death_date',
         'send',
         'connector_address',

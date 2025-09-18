@@ -113,18 +113,20 @@
                                         @endif
                                     </label>
                                     @php
-                                        $selectedCompany = null;
                                         $companyDisplayValue = '';
                                         if(isset($sale_company) && $sale_company->company_id) {
-                                            $selectedCompany = $source_companys->where('id', $sale_company->company_id)->first();
-                                            if($selectedCompany) {
-                                                if($data->type == 'self') {
-                                                    $companyDisplayValue = '（員工）' . $selectedCompany->name . '（' . $selectedCompany->mobile . '）';
-                                                } else {
-                                                    if(isset($selectedCompany->group) && $selectedCompany->group) {
-                                                        $companyDisplayValue = '（' . $selectedCompany->group->name . '）' . $selectedCompany->name . '（' . $selectedCompany->mobile . '）';
+                                            if($sale_company->type == 'self') {
+                                                // 員工個人件：使用 self_name 關聯
+                                                if(isset($sale_company->self_name)) {
+                                                    $companyDisplayValue = '（員工）' . $sale_company->self_name->name . '（' . $sale_company->self_name->mobile . '）';
+                                                }
+                                            } else {
+                                                // 其他案件來源：使用 company_name 關聯
+                                                if(isset($sale_company->company_name)) {
+                                                    if(isset($sale_company->company_name->group) && $sale_company->company_name->group) {
+                                                        $companyDisplayValue = '（' . $sale_company->company_name->group->name . '）' . $sale_company->company_name->name . '（' . $sale_company->company_name->mobile . '）';
                                                     } else {
-                                                        $companyDisplayValue = $selectedCompany->name . '（' . $selectedCompany->mobile . '）';
+                                                        $companyDisplayValue = $sale_company->company_name->name . '（' . $sale_company->company_name->mobile . '）';
                                                     }
                                                 }
                                             }
@@ -154,18 +156,24 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                
+                                <div class="mb-3 col-md-4" id="religion_field" style="display: none;">
+                                    <label for="religion" class="form-label">宗教信仰<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" value="@if($data->religion == 'buddhism_taoism')佛道教@elseif($data->religion == 'christianity')基督教@elseif($data->religion == 'catholicism')天主教@elseif($data->religion == 'none')無宗教@elseif($data->religion == 'other')其他@endif" readonly>
+                                    @if($data->religion == 'other' && isset($data->religion_other))
+                                        <div class="mt-2">
+                                            <input type="text" class="form-control" value="{{ $data->religion_other }}" readonly placeholder="其他宗教信仰">
+                                        </div>
+                                    @endif
+                                    <div id="religion_reminder" class="mt-1" style="display: none;">
+                                        <small class="text-danger">提醒：資材帶為佛道教用品</small>
+                                    </div>
+                                </div>
                                 <div class="mb-3 col-md-4">
                                     <label for="user_id" class="form-label">服務專員<span
                                             class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="user_id" name="user_id"
                                         value="{{ $data->user_name->name }}" readonly>
-                                </div>
-                                <div class="mb-3 col-md-4" id="religion_field" style="display: none;">
-                                    <label for="religion" class="form-label">宗教信仰</label>
-                                    <input type="text" class="form-control" value="@if($data->religion == 'buddhism_taoism')佛道教@elseif($data->religion == 'christianity')基督教@elseif($data->religion == 'catholicism')天主教@elseif($data->religion == 'none')無宗教@elseif($data->religion == 'other')其他@endif" readonly>
-                                    <div id="religion_reminder" class="mt-1" style="display: none;">
-                                        <small class="text-danger">提醒：資材帶為佛道教用品</small>
-                                    </div>
                                 </div>
                                 <div class="mb-3 col-md-4" id="death_date_field" style="display: none;">
                                     <label for="death_date" class="form-label">往生日期</label>

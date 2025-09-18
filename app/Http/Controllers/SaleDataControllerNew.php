@@ -438,6 +438,7 @@ class SaleDataControllerNew extends Controller
         $sale->comm = $request->comm;
         // 儲存宗教與往生日期（若前端未顯示則可能為空）
         $sale->religion = $request->religion;
+        $sale->religion_other = $request->religion_other;
         $sale->death_date = $request->death_date;
         if (Auth::user()->job_id == '8') {
             $sale->status = '100';
@@ -1429,6 +1430,7 @@ class SaleDataControllerNew extends Controller
         $sale->comm = $request->comm;
         // 儲存宗教與往生日期（若前端未顯示則可能為空）
         $sale->religion = $request->religion;
+        $sale->religion_other = $request->religion_other;
         $sale->death_date = $request->death_date;
         $sale->save();
 
