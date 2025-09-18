@@ -29,7 +29,7 @@ class SaleSouvenir extends Model
     }
 
     /**
-     * 關聯到商品變體
+     * 關聯到商品細項
      */
     public function variant()
     {

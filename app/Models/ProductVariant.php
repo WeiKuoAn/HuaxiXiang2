@@ -39,7 +39,7 @@ class ProductVariant extends Model
     }
 
     /**
-     * 取得變體的完整名稱
+     * 取得細項的完整名稱
      */
     public function getFullNameAttribute()
     {
@@ -47,7 +47,7 @@ class ProductVariant extends Model
     }
 
     /**
-     * 取得變體的實際價格（如果變體沒有特定價格，則使用主商品價格）
+     * 取得細項的實際價格（如果細項沒有特定價格，則使用主商品價格）
      */
     public function getActualPriceAttribute()
     {
@@ -55,7 +55,7 @@ class ProductVariant extends Model
     }
 
     /**
-     * 取得變體的實際成本（如果變體沒有特定成本，則使用主商品成本）
+     * 取得細項的實際成本（如果細項沒有特定成本，則使用主商品成本）
      */
     public function getActualCostAttribute()
     {

@@ -62,7 +62,7 @@ class Product extends Model
     }
 
     /**
-     * 關聯到商品變體
+     * 關聯到商品細項
      */
     public function variants()
     {
@@ -70,7 +70,7 @@ class Product extends Model
     }
 
     /**
-     * 取得啟用的變體
+     * 取得啟用的細項
      */
     public function activeVariants()
     {
@@ -78,7 +78,7 @@ class Product extends Model
     }
 
     /**
-     * 取得變體總數
+     * 取得細項總數
      */
     public function getVariantsCountAttribute()
     {
@@ -86,7 +86,7 @@ class Product extends Model
     }
 
     /**
-     * 取得所有變體的總庫存
+     * 取得所有細項的總庫存
      */
     public function getTotalVariantsStockAttribute()
     {
@@ -94,7 +94,7 @@ class Product extends Model
     }
 
     /**
-     * 取得變體的最低價格
+     * 取得細項的最低價格
      */
     public function getMinVariantPriceAttribute()
     {
@@ -103,7 +103,7 @@ class Product extends Model
     }
 
     /**
-     * 取得變體的最高價格
+     * 取得細項的最高價格
      */
     public function getMaxVariantPriceAttribute()
     {

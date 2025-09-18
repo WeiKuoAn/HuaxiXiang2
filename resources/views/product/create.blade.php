@@ -72,7 +72,7 @@
                         <div class="mb-3 col-md-4">
                             <label for="price" class="form-label">商品價格<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="price" name="price" required>
-                            <small class="form-text text-muted">基準價格，變體可選擇性覆蓋此價格</small>
+                            <small class="form-text text-muted">基準價格，細項可選擇性覆蓋此價格</small>
                         </div>
 
                         <div class="mb-3 col-md-4">
@@ -225,27 +225,27 @@
                         </div>
                     </div>
 
-                    <!-- 商品變體管理區塊 -->
+                    <!-- 商品細項管理區塊 -->
                     <div class="mb-3 mt-3">
-                        <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">商品變體管理</h5>
+                        <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">商品細項管理</h5>
                         
-                        <!-- 變體類型選擇 -->
+                        <!-- 細項類型選擇 -->
                         <div class="row">
                             <div class="mb-3 col-md-4">
-                                <label for="has_variants" class="form-label">此商品是否有變體？</label>
+                                <label for="has_variants" class="form-label">此商品是否有細項？</label>
                                 <select id="has_variants" class="form-select" name="has_variants">
-                                    <option value="0">無變體（單一商品）</option>
-                                    <option value="1">有變體（如：不同顏色）</option>
+                                    <option value="0">無細項（單一商品）</option>
+                                    <option value="1">有細項（如：不同顏色）</option>
                                 </select>
                             </div>
                         </div>
                         
-                        <!-- 變體管理區塊（預設隱藏） -->
+                        <!-- 細項管理區塊（預設隱藏） -->
                         <div id="variants-section" style="display: none;">
                             <div class="row">
                                 <div class="col-12">
                                     <button type="button" class="btn btn-sm btn-primary mb-2" id="add-variant">
-                                        <i class="mdi mdi-plus"></i> 新增變體
+                                        <i class="mdi mdi-plus"></i> 新增細項
                                     </button>
                                 </div>
                             </div>
@@ -254,7 +254,7 @@
                                 <table class="table table-bordered" id="variants-table">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>變體名稱</th>
+                                            <th>細項名稱</th>
                                             <th>顏色</th>
                                             <th>SKU</th>
                                             <th>價格<br><small class="text-muted">(留空使用主商品價格)</small></th>
@@ -265,7 +265,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <!-- 動態新增的變體列 -->
+                                        <!-- 動態新增的細項列 -->
                                     </tbody>
                                 </table>
                             </div>
@@ -384,8 +384,8 @@
         }
     });
 
-    // 變體管理功能
-    // 切換變體管理區塊顯示
+    // 細項管理功能
+    // 切換細項管理區塊顯示
     $('#has_variants').change(function() {
         if ($(this).val() == '1') {
             $('#variants-section').show();
@@ -394,21 +394,21 @@
         }
     });
     
-    // 新增變體
+    // 新增細項
     $('#add-variant').click(function() {
         addVariantRow();
     });
     
-    // 刪除變體
+    // 刪除細項
     $(document).on('click', '.remove-variant', function() {
         $(this).closest('tr').remove();
     });
 
-    // 新增變體列的函數
+    // 新增細項列的函數
     function addVariantRow() {
         var newRow = `
             <tr>
-                <td><input type="text" class="form-control" name="variant_names[]" placeholder="變體名稱（如：黑、深藍）" required></td>
+                <td><input type="text" class="form-control" name="variant_names[]" placeholder="細項名稱（如：黑、深藍）" required></td>
                 <td><input type="text" class="form-control" name="variant_colors[]" placeholder="顏色"></td>
                 <td><input type="text" class="form-control" name="variant_skus[]" placeholder="SKU"></td>
                 <td><input type="number" class="form-control" name="variant_prices[]" placeholder="價格" step="0.01"></td>

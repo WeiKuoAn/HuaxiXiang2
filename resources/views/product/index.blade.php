@@ -105,7 +105,7 @@
                                             <th>後續處理類別/細項</th>
                                             <th>售價</th>
                                             <th>庫存</th>
-                                            <th>變體</th>
+                                            <th>細項</th>
                                             <th>計算佣金</th>
                                             <th>最近進貨日期</th>
                                             <th>排序</th>
@@ -148,7 +148,7 @@
                                                 @if ($data->has_variants)
                                                     <span class="badge bg-success">{{ $data->total_variants_stock }}</span>
                                                     <button class="btn btn-sm btn-outline-primary" onclick="showVariants({{ $data->id }})">
-                                                        查看變體
+                                                        查看細項
                                                     </button>
                                                 @else
                                                     @if ($data->stock == '1')
@@ -164,7 +164,7 @@
                                             </td>
                                             <td>
                                                 @if ($data->has_variants)
-                                                    <span class="badge bg-warning">{{ $data->variants_count }} 個變體</span>
+                                                    <span class="badge bg-warning">{{ $data->variants_count }} 個細項</span>
                                                 @else
                                                     -
                                                 @endif
@@ -226,17 +226,17 @@
 
     </div> <!-- container -->
 
-    <!-- 變體詳情 Modal -->
+    <!-- 細項詳情 Modal -->
     <div class="modal fade" id="variantsModal" tabindex="-1" aria-labelledby="variantsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="variantsModalLabel">商品變體詳情</h5>
+                    <h5 class="modal-title" id="variantsModalLabel">商品細項詳情</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div id="variantsContent">
-                        <!-- 變體內容將在這裡動態載入 -->
+                        <!-- 細項內容將在這裡動態載入 -->
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -254,7 +254,7 @@ function showVariants(productId) {
     $('#variantsContent').html('<div class="text-center"><i class="mdi mdi-loading mdi-spin"></i> 載入中...</div>');
     $('#variantsModal').modal('show');
     
-    // 發送 AJAX 請求獲取變體資料
+    // 發送 AJAX 請求獲取細項資料
     $.ajax({
         url: '{{ route("product.variants") }}',
         method: 'GET',
@@ -265,7 +265,7 @@ function showVariants(productId) {
                 html += '<table class="table table-bordered">';
                 html += '<thead class="table-light">';
                 html += '<tr>';
-                html += '<th>變體名稱</th>';
+                html += '<th>細項名稱</th>';
                 html += '<th>顏色</th>';
                 html += '<th>SKU</th>';
                 html += '<th>價格</th>';
@@ -300,11 +300,11 @@ function showVariants(productId) {
                 
                 $('#variantsContent').html(html);
             } else {
-                $('#variantsContent').html('<div class="alert alert-danger">載入變體資料失敗</div>');
+                $('#variantsContent').html('<div class="alert alert-danger">載入細項資料失敗</div>');
             }
         },
         error: function() {
-            $('#variantsContent').html('<div class="alert alert-danger">載入變體資料失敗</div>');
+            $('#variantsContent').html('<div class="alert alert-danger">載入細項資料失敗</div>');
         }
     });
 }

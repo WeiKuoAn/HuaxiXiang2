@@ -563,7 +563,7 @@ class SaleDataControllerNew extends Controller
                     }
                     $souvenir->product_num = $request->product_num[$key];
                     
-                    // 處理變體 ID
+                    // 處理細項 ID
                     if (isset($request->product_variants[$key]) && !empty($request->product_variants[$key])) {
                         $souvenir->product_variant_id = $request->product_variants[$key];
                     }
@@ -1518,7 +1518,7 @@ class SaleDataControllerNew extends Controller
                         }
                         $souvenir->product_num = $request->product_num[$key];
                         
-                        // 處理變體 ID
+                        // 處理細項 ID
                         if (isset($request->product_variants[$key]) && !empty($request->product_variants[$key])) {
                             $souvenir->product_variant_id = $request->product_variants[$key];
                         }

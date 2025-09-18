@@ -627,7 +627,7 @@
             // 初始化防呆機制
             initializeFieldValidation();
             
-            // 初始化商品變體必填驗證
+            // 初始化商品細項必填驗證
             initializeProductVariantValidation();
         });
 
@@ -703,7 +703,7 @@
                             $('#product_num_col_' + idx).show().removeClass('col-4').addClass('col-3');
                             $('#product_comment_col_' + idx).show().removeClass('col-4').addClass('col-3');
                             
-                            // 填入商品下拉，不包含變體選項
+                            // 填入商品下拉，不包含細項選項
                             var html = '<select id="product_prom_' + idx + '" class="form-select" name="product_proms[]" onchange="checkProductVariants(' + idx + ')">';
                             html += '<option value="">請選擇</option>';
                             data.products.forEach(function(item) {
@@ -712,11 +712,11 @@
                             });
                             html += '</select>';
                             
-                            // 變體選擇下拉選單已經在初始 HTML 中，不需要重複新增
+                            // 細項選擇下拉選單已經在初始 HTML 中，不需要重複新增
                             
                             $('#product_prom_col_' + idx).html(html);
                             
-                            // 儲存商品資料供變體選擇使用
+                            // 儲存商品資料供細項選擇使用
                             window.productData = window.productData || {};
                             window.productData[idx] = data.products;
                             window.productData[idx].is_custom_product = data.is_custom_product;
@@ -725,7 +725,7 @@
                             $('#souvenir_type_col_' + idx).show().removeClass('col-4').addClass('col-3');
                             $('#product_name_col_' + idx).show().removeClass('col-4').addClass('col-3');
                             $('#product_prom_col_' + idx).hide();
-                            $('#variant_select_' + idx).hide(); // 隱藏變體選擇
+                            $('#variant_select_' + idx).hide(); // 隱藏細項選擇
                             $('#product_num_col_' + idx).show().removeClass('col-4').addClass('col-3');
                             $('#product_comment_col_' + idx).show().removeClass('col-4').addClass('col-3');
                         }
@@ -2364,7 +2364,7 @@
             }
         });
 
-        // 初始化商品變體必填驗證
+        // 初始化商品細項必填驗證
         function initializeProductVariantValidation() {
             // 檢查所有現有的商品選擇，設定適當的必填驗證
             $('select[name="product_proms[]"]').each(function() {
@@ -2373,13 +2373,13 @@
                 var variantSelect = $('#product_variant_' + idx);
                 
                 if (selectedProductId && selectedProductId !== '') {
-                    // 如果有選擇商品，檢查變體狀態
+                    // 如果有選擇商品，檢查細項狀態
                     checkProductVariants(idx);
                 }
             });
         }
 
-        // 檢查商品變體並更新變體選擇下拉選單
+        // 檢查商品細項並更新細項選擇下拉選單
         function checkProductVariants(idx) {
             var selectedProductId = $('#product_prom_' + idx).val();
             var variantSelectDiv = $('#variant_select_' + idx);
@@ -2389,14 +2389,14 @@
             var isCustomProduct = window.productData && window.productData[idx] && window.productData[idx].is_custom_product == 1;
             
             if (isCustomProduct) {
-                // 自訂商品模式，隱藏變體選擇
+                // 自訂商品模式，隱藏細項選擇
                 variantSelectDiv.hide();
-                // 自訂商品不需要變體，移除必填驗證
+                // 自訂商品不需要細項，移除必填驗證
                 variantSelect.prop('required', false);
                 return;
             }
             
-            // 重置變體選擇為預設狀態
+            // 重置細項選擇為預設狀態
             var defaultVariantHtml = '<option value="">無</option>';
             variantSelect.html(defaultVariantHtml);
             
@@ -2406,7 +2406,7 @@
                 return;
             }
             
-            // 檢查選擇的商品是否有變體
+            // 檢查選擇的商品是否有細項
             var selectedOption = $('#product_prom_' + idx + ' option:selected');
             var hasVariants = selectedOption.attr('data-has-variants');
             
@@ -2417,8 +2417,8 @@
                 });
                 
                 if (product && product.variants && product.variants.length > 0) {
-                    // 有變體，更新變體選擇下拉選單
-                    var variantHtml = '<option value="">請選擇變體</option>';
+                    // 有細項，更新細項選擇下拉選單
+                    var variantHtml = '<option value="">請選擇細項</option>';
                     product.variants.forEach(function(variant) {
                         var variantDisplayName = variant.variant_name;
                         if (variant.color) {
@@ -2430,18 +2430,18 @@
                     
                     variantSelect.html(variantHtml);
                     
-                    // 有變體的商品，變體選擇為必填
+                    // 有細項的商品，細項選擇為必填
                     variantSelect.prop('required', true);
-                    console.log('Row ' + idx + ' - 商品有變體，變體選擇設為必填');
+                    console.log('Row ' + idx + ' - 商品有細項，細項選擇設為必填');
                 } else {
-                    // 沒有變體，移除必填驗證
+                    // 沒有細項，移除必填驗證
                     variantSelect.prop('required', false);
-                    console.log('Row ' + idx + ' - 商品沒有變體，移除必填驗證');
+                    console.log('Row ' + idx + ' - 商品沒有細項，移除必填驗證');
                 }
             } else {
-                // 沒有變體的商品，移除必填驗證
+                // 沒有細項的商品，移除必填驗證
                 variantSelect.prop('required', false);
-                console.log('Row ' + idx + ' - 商品沒有變體，移除必填驗證');
+                console.log('Row ' + idx + ' - 商品沒有細項，移除必填驗證');
             }
         }
 
@@ -2475,7 +2475,7 @@
                 }
             }
             
-            // 檢查商品變體選擇
+            // 檢查商品細項選擇
             var hasVariantError = false;
             $('select[name="product_proms[]"]').each(function() {
                 var idx = $(this).attr('id').replace('product_prom_', '');
@@ -2488,16 +2488,16 @@
                     var isCustomProduct = window.productData && window.productData[idx] && window.productData[idx].is_custom_product == 1;
                     
                     if (!isCustomProduct) {
-                        // 檢查商品是否有變體
+                        // 檢查商品是否有細項
                         var selectedOption = $(this).find('option:selected');
                         var hasVariants = selectedOption.attr('data-has-variants');
                         
                         if (hasVariants === '1') {
-                            // 有變體的商品，檢查是否選擇了變體
+                            // 有細項的商品，檢查是否選擇了細項
                             var selectedVariant = variantSelect.val();
                             if (!selectedVariant || selectedVariant === '') {
                                 hasVariantError = true;
-                                alert('商品「' + selectedOption.text() + '」有變體，請選擇變體');
+                                alert('商品「' + selectedOption.text() + '」有細項，請選擇細項');
                                 variantSelect.focus();
                                 return false;
                             }

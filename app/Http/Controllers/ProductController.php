@@ -39,13 +39,13 @@ class ProductController extends Controller
             ]);
         }
         
-        $products = Product::where('prom_id', $query)->with('variants')->get(); // 查詢商品並包含變體
+        $products = Product::where('prom_id', $query)->with('variants')->get(); // 查詢商品並包含細項
         $prom = \App\Models\Prom::find($query);
         
 
         
         if ($products->count() > 0) {
-            // 處理商品資料，包含變體資訊
+            // 處理商品資料，包含細項資訊
             $processedProducts = [];
             foreach ($products as $product) {
                 $productData = [
@@ -58,7 +58,7 @@ class ProductController extends Controller
                 
 
                 
-                // 如果有變體，加入變體資訊
+                // 如果有細項，加入細項資訊
                 if ($product->has_variants && $product->variants->count() > 0) {
                     foreach ($product->variants as $variant) {
                         if ($variant->status === 'active') {
@@ -67,7 +67,7 @@ class ProductController extends Controller
                                 'variant_name' => $variant->variant_name,
                                 'color' => $variant->color,
                                 'sku' => $variant->sku,
-                                'price' => $variant->price ?: $product->price, // 如果變體沒有價格，使用主商品價格
+                                'price' => $variant->price ?: $product->price, // 如果細項沒有價格，使用主商品價格
                                 'stock_quantity' => $variant->stock_quantity
                             ];
                         }
@@ -354,7 +354,7 @@ class ProductController extends Controller
         $data->has_variants = $request->has_variants ?? false;
         $data->save();
         
-        // 處理商品變體
+        // 處理商品細項
         if ($request->has_variants && $request->variant_names) {
             foreach ($request->variant_names as $key => $variant_name) {
                 if (!empty($variant_name)) {
@@ -417,7 +417,7 @@ class ProductController extends Controller
             $proms = [];
         }
         
-        // 取得商品的變體資料
+        // 取得商品的細項資料
         $variants = $data->variants;
         
         return view('product.edit')->with('products', $datas)->with('categorys', $categorys)->with('data', $data)->with('combo_datas', $combo_datas)->with('promTypes', $promTypes)->with('proms', $proms)->with('variants', $variants);
@@ -457,12 +457,12 @@ class ProductController extends Controller
         $data->has_variants = $request->has_variants ?? 0;
         $data->save();
 
-        // 處理商品變體更新
+        // 處理商品細項更新
         if ($request->has_variants == '1' && $request->variant_names) {
-            // 先刪除所有現有的變體
+            // 先刪除所有現有的細項
             $data->variants()->delete();
             
-            // 重新建立變體
+            // 重新建立細項
             foreach ($request->variant_names as $key => $variant_name) {
                 if (!empty($variant_name)) {
                     $variant = new \App\Models\ProductVariant();
@@ -479,7 +479,7 @@ class ProductController extends Controller
                 }
             }
         } else {
-            // 如果沒有變體，刪除所有現有變體
+            // 如果沒有細項，刪除所有現有細項
             $data->variants()->delete();
         }
 
@@ -516,7 +516,7 @@ class ProductController extends Controller
 
         $combo_datas = ComboProduct::where('product_id', $id)->get();
         
-        // 取得商品的變體資料
+        // 取得商品的細項資料
         $variants = $data->variants;
         
         // 取得 promTypes 和 proms 資料
@@ -534,7 +534,7 @@ class ProductController extends Controller
     {
         $data = Product::where('id', $id)->first();
         
-        // 刪除相關的變體資料
+        // 刪除相關的細項資料
         $data->variants()->delete();
         
         $data->delete();
@@ -564,7 +564,7 @@ class ProductController extends Controller
     }
 
     /**
-     * 取得商品變體資料 (AJAX)
+     * 取得商品細項資料 (AJAX)
      */
     public function getVariants(Request $request)
     {
@@ -582,7 +582,7 @@ class ProductController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => '載入變體資料失敗'
+                'message' => '載入細項資料失敗'
             ]);
         }
     }
