@@ -13,6 +13,7 @@ use App\Models\PayItem;
 use App\Models\Sale_gdpaper;
 use Illuminate\Support\Facades\Redis;
 use App\Models\Prom;
+use App\Models\Puja;
 use Illuminate\Support\Facades\DB;
 
 class Rpg26Controller extends Controller
@@ -97,7 +98,10 @@ class Rpg26Controller extends Controller
             //抓取每月起始至末的日期並取出每張單的收入金額
             $datas[$key]['cur_sale_price'] = Sale::where('status', '9')->where('sale_date', '>=', $month['start_date'])->where('sale_date', '<=', $month['end_date'])->sum('pay_price');
             $datas[$key]['cur_income_price'] = IncomeData::where('income_date','>=',$month['start_date'])->where('income_date','<=',$month['end_date'])->sum('price');
-            $datas[$key]['cur_price_amount'] = $datas[$key]['cur_income_price'] + $datas[$key]['cur_sale_price'];
+            
+            $puja = Puja::where('date','>=',$month['start_date'])->where('date','<=',$month['end_date'])->first();
+            $datas[$key]['cur_puja_price'] = PujaData::where('puja_id',$puja->id)->whereIn('type',['0','2'])->sum('pay_price');
+            $datas[$key]['cur_price_amount'] = $datas[$key]['cur_income_price'] + $datas[$key]['cur_sale_price'] + $datas[$key]['cur_puja_price'];
             // 計算方案價格 = cur_sale_price - gdpaper_price - sale_promC - sale_promB - sale_promA
             $datas[$key]['plan_price'] = $datas[$key]['cur_sale_price']
                 - $datas[$key]['gdpaper_price']
@@ -134,6 +138,17 @@ class Rpg26Controller extends Controller
                                                     ->sum('price');
             $datas[$key]['cur_pay_price'] = $datas[$key]['cur_pay_data_price']+$datas[$key]['cur_pay_item_price_0']+$datas[$key]['cur_pay_item_price_1']+$datas[$key]['cur_pay_item_price_2'];
             $datas[$key]['cur_month_total'] = $datas[$key]['cur_price_amount'] - $datas[$key]['cur_pay_price'];
+            
+            // 為 tooltip 準備詳細資料
+            $datas[$key]['tooltip_data'] = [
+                'sale_price' => $datas[$key]['cur_sale_price'],
+                'income_price' => $datas[$key]['cur_income_price'],
+                'puja_price' => $datas[$key]['cur_puja_price'],
+                'pay_data_price' => $datas[$key]['cur_pay_data_price'],
+                'pay_item_price_0' => $datas[$key]['cur_pay_item_price_0'],
+                'pay_item_price_1' => $datas[$key]['cur_pay_item_price_1'],
+                'pay_item_price_2' => $datas[$key]['cur_pay_item_price_2'],
+            ];
         }
 
         $sums['total_count'] = 0;

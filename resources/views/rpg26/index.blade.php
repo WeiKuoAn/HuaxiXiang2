@@ -1,6 +1,69 @@
 @extends('layouts.vertical', ['page_title' => '營收總表'])
 
 @section('content')
+<style>
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.tooltip {
+    visibility: hidden;
+    width: 300px;
+    background-color: #333;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1000;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -150px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+
+.tooltip-container:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+.tooltip-item {
+    margin: 3px 0;
+    padding: 2px 0;
+    border-bottom: 1px solid #555;
+}
+
+.tooltip-item:last-child {
+    border-bottom: none;
+}
+
+.tooltip-label {
+    display: inline-block;
+    width: 120px;
+    font-weight: bold;
+}
+
+.tooltip-value {
+    color: #ffeb3b;
+    font-weight: bold;
+}
+</style>
 
 
     <!-- Start Content-->
@@ -84,7 +147,29 @@
                                     <tr>
                                         <td>營收</td>
                                         @foreach ($datas as $data)
-                                            <td>{{ number_format($data['cur_price_amount']) }}</td>
+                                            <td>
+                                                <div class="tooltip-container">
+                                                    {{ number_format($data['cur_price_amount']) }}
+                                                    <div class="tooltip">
+                                                        <div class="tooltip-item">
+                                                            <span class="tooltip-label">銷售金額：</span>
+                                                            <span class="tooltip-value">{{ number_format($data['tooltip_data']['sale_price']) }}</span>
+                                                        </div>
+                                                        <div class="tooltip-item">
+                                                            <span class="tooltip-label">收入金額：</span>
+                                                            <span class="tooltip-value">{{ number_format($data['tooltip_data']['income_price']) }}</span>
+                                                        </div>
+                                                        <div class="tooltip-item">
+                                                            <span class="tooltip-label">法會金額：</span>
+                                                            <span class="tooltip-value">{{ number_format($data['tooltip_data']['puja_price']) }}</span>
+                                                        </div>
+                                                        <div class="tooltip-item">
+                                                            <span class="tooltip-label">營收總額：</span>
+                                                            <span class="tooltip-value">{{ number_format($data['cur_price_amount']) }}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
                                         @endforeach
                                         <td>{{ number_format($sums['total_price_amount']) }}</td>
                                     </tr>
