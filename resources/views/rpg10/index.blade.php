@@ -93,14 +93,12 @@
                                     <th>寶貝名稱</th>
                                     <th>金紙名稱</th>
                                     <th>金紙數量</th>
-                                    <th>小計</th>
                                 </tr>
                             </thead>
                             <thead >
-                                <tr style="color:red;" align="right">
+                                <tr style="color:red;" align="center">
                                     <th colspan="5"></th>
                                     <th>總共：{{ $sums['total_num'] }}份</th>
-                                    <th>總計：{{ number_format($sums['total_price']) }}元</th>
                                 </tr>
                             </thead>
                             @foreach($datas as $user_name => $data)
@@ -124,14 +122,12 @@
                                         </td>
                                         <td align="center">{{ $da->pet_name }}</td>
                                         <td align="center">{{ $da->name }}</td>
-                                        <td align="right">{{ $da->gdpaper_num }}</td>
-                                        <td align="right">{{ $da->gdpaper_total }}</td>
+                                        <td align="center">{{ $da->gdpaper_num }}</td>
                                     </tr>
                                    @endforeach
                                    <tr>
                                        <td colspan="5"></td>
-                                       <td align="right">共：{{ number_format($data['total_num']) }}份</td>
-                                       <td align="right">小計：{{ number_format($data['total_price']) }}元</td>
+                                       <td align="center">共：{{ number_format($data['total_num']) }}份</td>
                                    </tr>
                                 </tbody>
                             @endforeach
