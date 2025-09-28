@@ -46,7 +46,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">公斤<span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" name="kg" value="{{ $data->kg }}" required>
+                                    <input type="number" class="form-control" name="kg" value="{{ $data->kg }}" step="0.01" required>
                                 </div>
                             </div> <!-- end col-->
                         </div>

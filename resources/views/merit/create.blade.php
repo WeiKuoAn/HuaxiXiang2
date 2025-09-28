@@ -46,7 +46,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">公斤<span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" name="kg" value="" required>
+                                    <input type="number" class="form-control" name="kg" value="" step="0.01" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">功德人姓名<span class="text-danger">*</span></label>
