@@ -31,6 +31,14 @@ class Product extends Model
         'initial_stock'
     ];
 
+    /**
+     * 只取得未刪除的商品
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', '!=', 'deleted');
+    }
+
     public function category_data()
     {
         return $this->hasOne('App\Models\Category', 'id', 'category_id');
@@ -62,9 +70,19 @@ class Product extends Model
     }
 
     /**
-     * 關聯到商品細項
+     * 關聯到商品細項（只顯示啟用的）
      */
     public function variants()
+    {
+        return $this->hasMany(ProductVariant::class, 'product_id')
+            ->where('status', 'active')
+            ->orderBy('sort_order', 'asc');
+    }
+
+    /**
+     * 取得所有細項（包含已刪除的）
+     */
+    public function allVariants()
     {
         return $this->hasMany(ProductVariant::class, 'product_id')->orderBy('sort_order', 'asc');
     }
