@@ -164,8 +164,22 @@ class RestockController extends Controller
         $data->comm = $request->comm;
         $data->save();
 
+        // 先扣回原本的庫存數量
+        $oldItems = ProductRestockItem::where('restock_id',$id)->get();
+        foreach ($oldItems as $oldItem) {
+            if ($oldItem->variant_id) {
+                $variant = ProductVariant::find($oldItem->variant_id);
+                if ($variant) {
+                    $variant->stock_quantity -= intval($oldItem->product_num);
+                    $variant->save();
+                }
+            }
+        }
+
+        // 刪除舊的進貨項目
         ProductRestockItem::where('restock_id',$id)->delete();
 
+        // 新增新的進貨項目並更新庫存
         foreach($request->gdpaper_ids as $key=>$gdpaper_id)
         {
             if(isset($gdpaper_id)){
