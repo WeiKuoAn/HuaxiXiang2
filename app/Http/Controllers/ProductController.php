@@ -417,8 +417,8 @@ class ProductController extends Controller
             $proms = [];
         }
         
-        // 取得商品的細項資料
-        $variants = $data->variants;
+        // 取得商品的細項資料（包含已刪除的，用於編輯頁面顯示）
+        $variants = $data->allVariants;
         
         return view('product.edit')->with('products', $datas)->with('categorys', $categorys)->with('data', $data)->with('combo_datas', $combo_datas)->with('promTypes', $promTypes)->with('proms', $proms)->with('variants', $variants);
     }
@@ -459,28 +459,70 @@ class ProductController extends Controller
 
         // 處理商品細項更新
         if ($request->has_variants == '1' && $request->variant_names) {
-            // 先刪除所有現有的細項
-            $data->variants()->delete();
+            // 取得現有的細項（包含已刪除的）
+            $existingVariants = $data->allVariants->keyBy('id');
             
-            // 重新建立細項
+            // 處理提交的細項資料
+            $processedVariantIds = [];
+            
             foreach ($request->variant_names as $key => $variant_name) {
                 if (!empty($variant_name)) {
-                    $variant = new \App\Models\ProductVariant();
-                    $variant->product_id = $data->id;
-                    $variant->variant_name = $variant_name;
-                    $variant->color = $request->variant_colors[$key] ?? null;
-                    $variant->sku = $request->variant_skus[$key] ?? null;
-                    $variant->price = $request->variant_prices[$key] ?? null;
-                    $variant->cost = $request->variant_costs[$key] ?? null;
-                    $variant->stock_quantity = $request->variant_stocks[$key] ?? 0;
-                    $variant->status = $request->variant_statuses[$key] ?? 'active';
-                    $variant->sort_order = $key + 1;
-                    $variant->save();
+                    // 檢查是否有對應的現有細項 ID（通過 hidden input 傳遞）
+                    $variantId = $request->variant_ids[$key] ?? null;
+                    
+                    \Log::info('處理細項', [
+                        'key' => $key,
+                        'variant_name' => $variant_name,
+                        'variant_id' => $variantId,
+                        'existing_variants_keys' => $existingVariants->keys()->toArray()
+                    ]);
+                    
+                    if ($variantId && $existingVariants->has($variantId)) {
+                        // 更新現有細項
+                        $variant = $existingVariants[$variantId];
+                        $variant->variant_name = $variant_name;
+                        $variant->color = $request->variant_colors[$key] ?? null;
+                        $variant->sku = $request->variant_skus[$key] ?? null;
+                        $variant->price = $request->variant_prices[$key] ?? null;
+                        $variant->cost = $request->variant_costs[$key] ?? null;
+                        $variant->stock_quantity = $request->variant_stocks[$key] ?? 0;
+                        $variant->status = $request->variant_statuses[$key] ?? 'active';
+                        $variant->sort_order = $key + 1;
+                        $variant->save();
+                        
+                        \Log::info('更新現有細項', ['variant_id' => $variantId, 'variant_name' => $variant_name]);
+                        
+                        $processedVariantIds[] = $variantId;
+                    } else {
+                        // 建立新細項
+                        $variant = new \App\Models\ProductVariant();
+                        $variant->product_id = $data->id;
+                        $variant->variant_name = $variant_name;
+                        $variant->color = $request->variant_colors[$key] ?? null;
+                        $variant->sku = $request->variant_skus[$key] ?? null;
+                        $variant->price = $request->variant_prices[$key] ?? null;
+                        $variant->cost = $request->variant_costs[$key] ?? null;
+                        $variant->stock_quantity = $request->variant_stocks[$key] ?? 0;
+                        $variant->status = $request->variant_statuses[$key] ?? 'active';
+                        $variant->sort_order = $key + 1;
+                        $variant->save();
+                        
+                        \Log::info('建立新細項', ['new_variant_id' => $variant->id, 'variant_name' => $variant_name]);
+                        
+                        $processedVariantIds[] = $variant->id;
+                    }
                 }
             }
+            
+            // 將未處理的現有細項標記為停用
+            $existingVariants->whereNotIn('id', $processedVariantIds)
+                ->each(function($variant) {
+                    $variant->update(['status' => 'inactive']);
+                });
+                
         } else {
-            // 如果沒有細項，刪除所有現有細項
-            $data->variants()->delete();
+            // 如果沒有細項，將所有現有細項標記為停用
+            $data->allVariants()->update(['status' => 'inactive']);
         }
 
         if ($request->type == 'combo' || $request->type == 'set') {
@@ -516,8 +558,8 @@ class ProductController extends Controller
 
         $combo_datas = ComboProduct::where('product_id', $id)->get();
         
-        // 取得商品的細項資料
-        $variants = $data->variants;
+        // 取得商品的細項資料（包含已刪除的，用於刪除頁面顯示）
+        $variants = $data->allVariants;
         
         // 取得 promTypes 和 proms 資料
         $promTypes = PromType::where('status', 'up')->get();
@@ -534,8 +576,8 @@ class ProductController extends Controller
     {
         $data = Product::where('id', $id)->first();
         
-        // 刪除相關的細項資料
-        $data->variants()->delete();
+        // 將相關的細項資料標記為停用（軟刪除）
+        $data->allVariants()->update(['status' => 'inactive']);
         
         $data->delete();
         $old_combo_datas = ComboProduct::where('product_id', $id)->get();

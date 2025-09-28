@@ -313,25 +313,29 @@
                                             <tbody>
                                                 @if(isset($variants) && count($variants) > 0)
                                                     @foreach($variants as $variant)
-                                                        <tr>
-                                                            <td><input type="text" class="form-control" name="variant_names[]" placeholder="細項名稱（如：黑、深藍）" value="{{ $variant->variant_name }}" required></td>
-                                                            <td><input type="text" class="form-control" name="variant_colors[]" placeholder="顏色" value="{{ $variant->color }}"></td>
-                                                            <td><input type="text" class="form-control" name="variant_skus[]" placeholder="SKU" value="{{ $variant->sku }}"></td>
-                                                            <td><input type="number" class="form-control" name="variant_prices[]" placeholder="價格" step="0.01" value="{{ $variant->price }}"></td>
-                                                            <td><input type="number" class="form-control" name="variant_costs[]" placeholder="成本" step="0.01" value="{{ $variant->cost }}"></td>
-                                                            <td><input type="number" class="form-control" name="variant_stocks[]" placeholder="庫存" value="{{ $variant->stock_quantity }}"></td>
-                                                            <td>
-                                                                <select class="form-select" name="variant_statuses[]">
-                                                                    <option value="active" @if($variant->status == 'active') selected @endif>啟用</option>
-                                                                    <option value="inactive" @if($variant->status == 'inactive') selected @endif>停用</option>
-                                                                </select>
-                                                            </td>
-                                                            <td>
-                                                                <button type="button" class="btn btn-sm btn-danger remove-variant">
-                                                                    <i class="mdi mdi-delete"></i>
-                                                                </button>
-                                                            </td>
-                                                        </tr>
+                                                        @if($variant->status == 'active')
+                                                            <tr>
+                                                                <td><input type="text" class="form-control" name="variant_names[]" placeholder="細項名稱（如：黑、深藍）" value="{{ $variant->variant_name }}" required></td>
+                                                                <td><input type="text" class="form-control" name="variant_colors[]" placeholder="顏色" value="{{ $variant->color }}"></td>
+                                                                <td><input type="text" class="form-control" name="variant_skus[]" placeholder="SKU" value="{{ $variant->sku }}"></td>
+                                                                <td><input type="number" class="form-control" name="variant_prices[]" placeholder="價格" step="0.01" value="{{ $variant->price }}"></td>
+                                                                <td><input type="number" class="form-control" name="variant_costs[]" placeholder="成本" step="0.01" value="{{ $variant->cost }}"></td>
+                                                                <td><input type="number" class="form-control" name="variant_stocks[]" placeholder="庫存" value="{{ $variant->stock_quantity }}"></td>
+                                                                <td>
+                                                                    <select class="form-select" name="variant_statuses[]">
+                                                                        <option value="active" @if($variant->status == 'active') selected @endif>啟用</option>
+                                                                        <option value="inactive" @if($variant->status == 'inactive') selected @endif>停用</option>
+                                                                    </select>
+                                                                </td>
+                                                                <td>
+                                                                    <button type="button" class="btn btn-sm btn-danger remove-variant">
+                                                                        <i class="mdi mdi-delete"></i>
+                                                                    </button>
+                                                                </td>
+                                                                <!-- 隱藏的細項 ID，用於保持現有記錄 -->
+                                                                <input type="hidden" name="variant_ids[]" value="{{ $variant->id }}">
+                                                            </tr>
+                                                        @endif
                                                     @endforeach
                                                 @endif
                                             </tbody>
@@ -529,6 +533,8 @@
                             <i class="mdi mdi-delete"></i>
                         </button>
                     </td>
+                    <!-- 新增的細項沒有 ID，所以傳空值 -->
+                    <input type="hidden" name="variant_ids[]" value="">
                 </tr>
             `;
             $('#variants-table tbody').append(newRow);

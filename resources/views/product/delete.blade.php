@@ -296,6 +296,8 @@
                                                                     <i class="mdi mdi-delete"></i>
                                                                 </button>
                                                             </td>
+                                                            <!-- 隱藏的細項 ID，用於保持現有記錄 -->
+                                                            <input type="hidden" name="variant_ids[]" value="{{ $variant->id }}">
                                                         </tr>
                                                     @endforeach
                                                 @endif
