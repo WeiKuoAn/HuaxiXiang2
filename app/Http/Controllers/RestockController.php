@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductRestock;
 use App\Models\ProductRestockItem;
 use App\Models\ProductRestockPayData;
+use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -53,7 +54,22 @@ class RestockController extends Controller
     public function create()
     {
         $products = Product::where('status', 'up')->orderby('seq','asc')->where('restock',1)->orderby('price','desc')->get();
-        return view('restock.create')->with('products', $products);
+        
+        // 取得所有有細項的商品及其細項
+        $productsWithVariants = [];
+        foreach ($products as $product) {
+            if ($product->has_variants) {
+                $variants = ProductVariant::where('product_id', $product->id)
+                    ->where('status', 'active')
+                    ->orderBy('sort_order', 'asc')
+                    ->get();
+                $productsWithVariants[$product->id] = $variants;
+            }
+        }
+        
+        return view('restock.create')
+            ->with('products', $products)
+            ->with('productsWithVariants', $productsWithVariants);
     }
 
     public function store(Request $request)
@@ -79,6 +95,19 @@ class RestockController extends Controller
                 $gdpaper->restock_id = $restock->id;
                 $gdpaper->date = $request->date;
                 $gdpaper->product_id = $request->gdpaper_ids[$key];
+                
+                // 處理細項進貨
+                if (isset($request->variant_ids[$key]) && !empty($request->variant_ids[$key])) {
+                    $gdpaper->variant_id = $request->variant_ids[$key];
+                    
+                    // 更新細項的庫存量
+                    $variant = ProductVariant::find($request->variant_ids[$key]);
+                    if ($variant) {
+                        $variant->stock_quantity += intval($request->gdpaper_num[$key]);
+                        $variant->save();
+                    }
+                }
+                
                 $gdpaper->product_num = $request->gdpaper_num[$key];
                 $gdpaper->product_cost = $request->gdpaper_cost[$key];
                 $gdpaper->product_total = $request->gdpaper_total[$key];
@@ -100,8 +129,25 @@ class RestockController extends Controller
     {
         $data = ProductRestock::where('id',$id)->first();
         $items = ProductRestockItem::where('restock_id',$id)->get();
-        $products = Product::where('status', 'up')->orderby('seq','asc')->orderby('price','desc')->get();
-        return view('restock.edit')->with('data',$data)->with('products',$products)->with('items',$items);
+        $products = Product::where('status', 'up')->orderby('seq','asc')->where('restock',1)->orderby('price','desc')->get();
+        
+        // 取得所有有細項的商品及其細項
+        $productsWithVariants = [];
+        foreach ($products as $product) {
+            if ($product->has_variants) {
+                $variants = ProductVariant::where('product_id', $product->id)
+                    ->where('status', 'active')
+                    ->orderBy('sort_order', 'asc')
+                    ->get();
+                $productsWithVariants[$product->id] = $variants;
+            }
+        }
+        
+        return view('restock.edit')
+            ->with('data',$data)
+            ->with('products',$products)
+            ->with('items',$items)
+            ->with('productsWithVariants', $productsWithVariants);
     }
 
     public function update($id , Request $request)
@@ -127,6 +173,19 @@ class RestockController extends Controller
                 $gdpaper->restock_id = $id;
                 $gdpaper->date = $request->date;
                 $gdpaper->product_id = $request->gdpaper_ids[$key];
+                
+                // 處理細項進貨
+                if (isset($request->variant_ids[$key]) && !empty($request->variant_ids[$key])) {
+                    $gdpaper->variant_id = $request->variant_ids[$key];
+                    
+                    // 更新細項的庫存量
+                    $variant = ProductVariant::find($request->variant_ids[$key]);
+                    if ($variant) {
+                        $variant->stock_quantity += intval($request->gdpaper_num[$key]);
+                        $variant->save();
+                    }
+                }
+                
                 $gdpaper->product_num = $request->gdpaper_num[$key];
                 $gdpaper->product_cost = $request->gdpaper_cost[$key];
                 $gdpaper->product_total = $request->gdpaper_total[$key];
@@ -141,12 +200,41 @@ class RestockController extends Controller
     {
         $data = ProductRestock::where('id',$id)->first();
         $items = ProductRestockItem::where('restock_id',$id)->get();
-        $products = Product::where('status', 'up')->orderby('seq','asc')->orderby('price','desc')->get();
-        return view('restock.del')->with('data',$data)->with('products',$products)->with('items',$items);
+        $products = Product::where('status', 'up')->orderby('seq','asc')->where('restock',1)->orderby('price','desc')->get();
+        
+        // 取得所有有細項的商品及其細項
+        $productsWithVariants = [];
+        foreach ($products as $product) {
+            if ($product->has_variants) {
+                $variants = ProductVariant::where('product_id', $product->id)
+                    ->where('status', 'active')
+                    ->orderBy('sort_order', 'asc')
+                    ->get();
+                $productsWithVariants[$product->id] = $variants;
+            }
+        }
+        
+        return view('restock.del')
+            ->with('data',$data)
+            ->with('products',$products)
+            ->with('items',$items)
+            ->with('productsWithVariants', $productsWithVariants);
     }
 
     public function destroy($id , Request $request)
     {
+        // 在刪除進貨項目前，先扣回細項的庫存量
+        $items = ProductRestockItem::where('restock_id', $id)->get();
+        foreach ($items as $item) {
+            if ($item->variant_id) {
+                $variant = ProductVariant::find($item->variant_id);
+                if ($variant) {
+                    $variant->stock_quantity -= intval($item->product_num);
+                    $variant->save();
+                }
+            }
+        }
+        
         ProductRestock::where('id',$id)->delete();
         ProductRestockItem::where('restock_id',$id)->delete();
         ProductRestockPayData::where('restock_id',$id)->delete();

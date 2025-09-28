@@ -94,7 +94,7 @@
                                                 <select id="gdpaper_id_{{$key}}" alt="{{ $key }}" class="mobile form-select" name="gdpaper_ids[]" onchange="chgPapers(this)" >
                                                     <option value="" selected>請選擇...</option>
                                                     @foreach($products as $product)
-                                                        <option value="{{ $product->id }}" @if($item->product_id == $product->id) selected @endif>{{ $product->name }}
+                                                        <option value="{{ $product->id }}" data-has-variants="{{ $product->has_variants ? '1' : '0' }}" @if($item->product_id == $product->id) selected @endif>{{ $product->name }}
                                                             @if(isset($product->cost))
                                                             (成本：{{ $product->cost }}元)
                                                             @else
@@ -102,6 +102,10 @@
                                                             @endif
                                                         </option>
                                                     @endforeach
+                                                </select>
+                                                <br>
+                                                <select id="variant_id_{{$key}}" alt="{{ $key }}" class="mobile form-select variant-select" name="variant_ids[]" style="display:none;" onchange="chgVariantCost(this)">
+                                                    <option value="" selected>請選擇細項...</option>
                                                 </select>
                                             </td>
                                             <td>
@@ -287,6 +291,42 @@
     function chgPapers(obj){
         $("#row_id").val($("#"+ obj.id).attr('alt'));
         row_id = $("#row_id").val();
+        
+        // 檢查選中的商品是否有細項
+        var selectedOption = $("#gdpaper_id_"+row_id + " option:selected");
+        var hasVariants = selectedOption.data('has-variants');
+        var variantSelect = $("#variant_id_"+row_id);
+        
+        if (hasVariants == '1') {
+            // 顯示細項選擇
+            variantSelect.show();
+            
+            // 載入細項選項
+            var productId = $("#gdpaper_id_"+row_id).val();
+            variantSelect.html('<option value="" selected>請選擇細項...</option>');
+            
+            // 使用 JavaScript 物件來載入細項
+            var variantsData = {
+                @foreach($productsWithVariants as $productId => $variants)
+                    {{ $productId }}: [
+                        @foreach($variants as $variant)
+                            {id: {{ $variant->id }}, name: '{{ $variant->variant_name }}', cost: {{ $variant->cost ?? 0 }}},
+                        @endforeach
+                    ],
+                @endforeach
+            };
+            
+            if (variantsData[productId]) {
+                variantsData[productId].forEach(function(variant) {
+                    variantSelect.append('<option value="' + variant.id + '" data-cost="' + variant.cost + '">' + variant.name + '</option>');
+                });
+            }
+        } else {
+            // 隱藏細項選擇
+            variantSelect.hide();
+            variantSelect.val('');
+        }
+        
         $.ajax({
             url : '{{ route('gdpaper.cost.search') }}',
             data:{'gdpaper_id':$("#gdpaper_id_"+row_id).val()},
@@ -319,6 +359,24 @@
                 $("#gdpaper_cost_"+row_id).val(data);
             }
         });
+    }
+
+    function chgVariantCost(obj){
+        $("#row_id").val($("#"+ obj.id).attr('alt'));
+        row_id = $("#row_id").val();
+        
+        var selectedVariant = $("#variant_id_"+row_id + " option:selected");
+        var variantCost = selectedVariant.data('cost');
+        
+        if (variantCost && variantCost > 0) {
+            $("#gdpaper_cost_"+row_id).val(variantCost);
+            
+            if($("#gdpaper_num_"+row_id).val()){
+                var gdpaper_num = $("#gdpaper_num_"+row_id).val();
+                $("#gdpaper_total_"+row_id).val(gdpaper_num*variantCost);
+                calculate_price();
+            }
+        }
     }
 
     function chgCosts(obj){
@@ -450,7 +508,7 @@
         cols += '<select id="gdpaper_id_'+rowCount+'" alt="'+rowCount+'" class="mobile form-select" name="gdpaper_ids[]" onchange="chgPapers(this)">';
         cols += '<option value="" selected>請選擇...</option>';
             @foreach($products as $product)
-                cols += '<option value="{{ $product->id }}">{{ $product->name }}';
+                cols += '<option value="{{ $product->id }}" data-has-variants="{{ $product->has_variants ? "1" : "0" }}">{{ $product->name }}';
                 @if(isset($product->cost))
                 cols += '(成本：{{ $product->cost }}元)';
                 @else
@@ -458,6 +516,10 @@
                 @endif
                 cols += '</option>';
             @endforeach
+        cols += '</select>';
+        cols += '<br>';
+        cols += '<select id="variant_id_'+rowCount+'" alt="'+rowCount+'" class="mobile form-select variant-select" name="variant_ids[]" style="display:none;" onchange="chgVariantCost(this)">';
+        cols += '<option value="" selected>請選擇細項...</option>';
         cols += '</select>';
         cols += '</td>';
         cols += '<td>';
@@ -513,6 +575,51 @@
             $("table.prom-list tbody").append(newRow);
         });
         $.ajaxSetup({ headers: { 'csrftoken' : '{{ csrf_token() }}' } });
+        
+        // 頁面載入時初始化細項選擇
+        $(document).ready(function() {
+            $('select[name="gdpaper_ids[]"]').each(function() {
+                var rowId = $(this).attr('alt');
+                var selectedProductId = $(this).val();
+                var variantSelect = $("#variant_id_" + rowId);
+                
+                if (selectedProductId) {
+                    var selectedOption = $(this).find('option:selected');
+                    var hasVariants = selectedOption.data('has-variants');
+                    
+                    if (hasVariants == '1') {
+                        variantSelect.show();
+                        
+                        // 載入細項選項
+                        var variantsData = {
+                            @foreach($productsWithVariants as $productId => $variants)
+                                {{ $productId }}: [
+                                    @foreach($variants as $variant)
+                                        {id: {{ $variant->id }}, name: '{{ $variant->variant_name }}', cost: {{ $variant->cost ?? 0 }}},
+                                    @endforeach
+                                ],
+                            @endforeach
+                        };
+                        
+                        if (variantsData[selectedProductId]) {
+                            variantsData[selectedProductId].forEach(function(variant) {
+                                variantSelect.append('<option value="' + variant.id + '" data-cost="' + variant.cost + '">' + variant.name + '</option>');
+                            });
+                        }
+                    }
+                }
+            });
+            
+            // 設定已選擇的細項
+            @foreach($items as $key => $item)
+                @if($item->variant_id)
+                    var variantSelect_{{ $key }} = $("#variant_id_{{ $key }}");
+                    if (variantSelect_{{ $key }}.length > 0) {
+                        variantSelect_{{ $key }}.val({{ $item->variant_id }});
+                    }
+                @endif
+            @endforeach
+        });
 </script>
 <!-- end demo js-->
 @endsection

@@ -81,7 +81,11 @@
                                             {{ $data->product_data->name }}（{{ $data->num }}個）
                                         @else
                                             @foreach($data->restock_items as $restock_item)
-                                                {{ $restock_item->product_data->name }}（{{ $restock_item->product_num }}個）<br>
+                                                {{ $restock_item->product_data->name }}
+                                                @if($restock_item->variant_id && $restock_item->variant)
+                                                    - {{ $restock_item->variant->variant_name }}
+                                                @endif
+                                                （{{ $restock_item->product_num }}個）<br>
                                             @endforeach
                                         @endif
                                     </td>
