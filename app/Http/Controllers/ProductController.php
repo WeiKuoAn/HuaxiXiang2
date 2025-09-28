@@ -94,7 +94,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $categorys = Category::where('status', 'up')->get();
-        $datas = Product::orderby('status', 'asc')->orderby('seq', 'asc')->orderby('price', 'desc');
+        $datas = Product::active()->orderby('status', 'asc')->orderby('seq', 'asc')->orderby('price', 'desc');
 
         if ($request->input() != null) {
             $name = $request->name;
@@ -576,17 +576,49 @@ class ProductController extends Controller
     {
         $data = Product::where('id', $id)->first();
         
-        // 將相關的細項資料標記為停用（軟刪除）
-        $data->allVariants()->update(['status' => 'inactive']);
-        
-        $data->delete();
-        $old_combo_datas = ComboProduct::where('product_id', $id)->get();
-        if (count($old_combo_datas) > 0) {
-            foreach ($old_combo_datas as $old_combo_data) {
-                $old_combo_data->delete();
-            }
+        if (!$data) {
+            return redirect()->route('product')->with('error', '商品不存在');
         }
-        return redirect()->route('product');
+        
+        // 檢查是否有銷售記錄引用此商品
+        $hasReferences = \DB::table('sale_souvenir')
+            ->join('product_variants', 'sale_souvenir.product_variant_id', '=', 'product_variants.id')
+            ->where('product_variants.product_id', $id)
+            ->exists();
+            
+        if ($hasReferences) {
+            // 如果有引用記錄，使用軟刪除
+            $data->update(['status' => 'deleted']);
+            
+            // 將相關的細項資料標記為停用
+            $data->allVariants()->update(['status' => 'inactive']);
+            
+            // 處理組合商品（直接刪除，因為沒有外鍵約束）
+            ComboProduct::where('product_id', $id)->delete();
+            
+            \Log::info('商品軟刪除', ['product_id' => $id, 'reason' => '有銷售記錄引用']);
+            
+            return redirect()->route('product')->with('success', '商品已標記為刪除（因有相關銷售記錄，無法完全刪除）');
+        } else {
+            // 沒有引用記錄，可以安全刪除
+            // 將相關的細項資料標記為停用
+            $data->allVariants()->update(['status' => 'inactive']);
+            
+            // 刪除組合商品記錄
+            $old_combo_datas = ComboProduct::where('product_id', $id)->get();
+            if (count($old_combo_datas) > 0) {
+                foreach ($old_combo_datas as $old_combo_data) {
+                    $old_combo_data->delete();
+                }
+            }
+            
+            // 刪除商品
+            $data->delete();
+            
+            \Log::info('商品硬刪除', ['product_id' => $id, 'reason' => '無銷售記錄引用']);
+            
+            return redirect()->route('product')->with('success', '商品已成功刪除');
+        }
     }
 
     public function promProductSearch(Request $request)

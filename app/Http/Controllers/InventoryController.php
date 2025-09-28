@@ -110,10 +110,10 @@ class InventoryController extends Controller
       ? $query->get()
       : $query->where('category_id', $request->category_id)->get();
 
-    // 新增庫存項目（支援變體）
+    // 新增庫存項目（支援細項）
     if ($InventoryData->type) {  // 確認有選擇類型後才執行
       foreach ($products as $product) {
-        // 若此商品有變體，逐一建立變體的盤點項目
+        // 若此商品有細項，逐一建立細項的盤點項目
         if ($product->has_variants) {
           $variants = ProductVariant::where('product_id', $product->id)->where('status', 'active')->orderBy('sort_order', 'asc')->get();
           foreach ($variants as $variant) {
@@ -128,7 +128,7 @@ class InventoryController extends Controller
             ]);
           }
         } else {
-          // 無變體，維持以商品為單位
+          // 無細項，維持以商品為單位
           GdpaperInventoryItem::create([
             'gdpaper_inventory_id' => $inventory_no,
             'product_id' => $product->id,
@@ -185,12 +185,12 @@ class InventoryController extends Controller
     $datas = GdpaperInventoryItem::where('gdpaper_inventory_id', $product_inventory_id)->get();
 
     foreach ($datas as $data) {
-      // 變體記錄：從 variant[] 陣列取值；否則沿用 product[]
+      // 細項記錄：從 variant[] 陣列取值；否則沿用 product[]
       if (!empty($data->variant_id)) {
         $data->new_num = $request->variant[$data->variant_id] ?? null;
         $data->comment = $request->comment_variant[$data->variant_id] ?? null;
         
-        // 同步更新變體的實際庫存量
+        // 同步更新細項的實際庫存量
         if ($data->new_num !== null) {
           $variant = ProductVariant::find($data->variant_id);
           if ($variant) {
@@ -412,18 +412,18 @@ class InventoryController extends Controller
   }
 
   /**
-   * 計算變體的目前庫存
-   * 規則：以最近一次「已完成盤點」的變體基準數為底，之後的進貨/銷售/法會/組合使用都以變體為單位
-   * 若尚無變體盤點紀錄，基準視為 0，自 2023-06-09 11:59:59 開始累加
+   * 計算細項的目前庫存
+   * 規則：以最近一次「已完成盤點」的細項基準數為底，之後的進貨/銷售/法會/組合使用都以細項為單位
+   * 若尚無細項盤點紀錄，基準視為 0，自 2023-06-09 11:59:59 開始累加
    */
   public function calculateCurrentStockForVariant($variantId)
   {
     $variant = ProductVariant::find($variantId);
     if (!$variant) return 0;
 
-    // 取得最近一筆「變體」的盤點（已完成）
+    // 取得最近一筆「細項」的盤點（已完成）
     $inventory_item = GdpaperInventoryItem::where('variant_id', $variantId)
-      ->where('is_variant', 1)  // 確保是變體記錄
+      ->where('is_variant', 1)  // 確保是細項記錄
       ->join('gdpaper_inventory_data', 'gdpaper_inventory_item.gdpaper_inventory_id', '=', 'gdpaper_inventory_data.inventory_no')
       ->where('gdpaper_inventory_data.state', '1')
       ->where('gdpaper_inventory_item.created_at', '>', '2023-06-09 11:59:59')
@@ -435,15 +435,15 @@ class InventoryController extends Controller
       $base_stock = $inventory_item->new_num ?? $inventory_item->old_num ?? 0;
       $base_date = $inventory_item->inventory_date;
     } else {
-      // 沒有盤點記錄時，使用變體的庫存量
+      // 沒有盤點記錄時，使用細項的庫存量
       $base_stock = $variant->stock_quantity ?? 0;
       $base_date = '2023-06-09 11:59:59';
     }
 
-    // 進貨：目前進貨尚未做變體，暫以 0（未來導入變體進貨後，改查 variant 層）
+    // 進貨：目前進貨尚未做細項，暫以 0（未來導入細項進貨後，改查 variant 層）
     $restock_amount = 0;
 
-    // 銷售：目前銷售也尚未變體化，暫以 0（未來導入再補）
+    // 銷售：目前銷售也尚未細項化，暫以 0（未來導入再補）
     $direct_sale = 0;
 
     // 組合用掉、法會附加用掉：同上，暫以 0，避免錯扣
