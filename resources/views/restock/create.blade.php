@@ -1,10 +1,55 @@
 @extends('layouts.vertical', ["page_title"=> "新增商品進貨"])
 
 @section('css')
-{{-- <link href="{{asset('assets/libs/select2/select2.min.css')}}" rel="stylesheet" type="text/css" />
-<link href="{{asset('assets/libs/dropzone/dropzone.min.css')}}" rel="stylesheet" type="text/css" />
-<link href="{{asset('assets/libs/quill/quill.min.css')}}" rel="stylesheet" type="text/css" /> --}}
-{{-- <meta name="csrf-token" content="{{ csrf_token() }}"> --}}
+<link href="{{asset('assets/libs/select2/select2.min.css')}}" rel="stylesheet" type="text/css" />
+
+<style>
+/* 調整進貨品項表格欄位寬度 */
+.table.gdpaper-list th:nth-child(2),
+.table.gdpaper-list td:nth-child(2) {
+    width: 40% !important;
+    min-width: 300px;
+}
+
+.table.gdpaper-list th:nth-child(3),
+.table.gdpaper-list td:nth-child(3) {
+    width: 15% !important;
+    min-width: 100px;
+}
+
+.table.gdpaper-list th:nth-child(4),
+.table.gdpaper-list td:nth-child(4) {
+    width: 15% !important;
+    min-width: 100px;
+}
+
+.table.gdpaper-list th:nth-child(5),
+.table.gdpaper-list td:nth-child(5) {
+    width: 15% !important;
+    min-width: 100px;
+}
+
+.table.gdpaper-list th:nth-child(1),
+.table.gdpaper-list td:nth-child(1) {
+    width: 15% !important;
+    min-width: 80px;
+}
+
+/* 確保 Select2 下拉選單寬度 */
+.select2-container {
+    width: 100% !important;
+}
+
+.select2-container .select2-selection--single {
+    height: 38px !important;
+}
+
+.select2-container .select2-selection--single .select2-selection__rendered {
+    line-height: 36px !important;
+    padding-left: 12px !important;
+}
+</style>
+
 @endsection
 
 @section('content')
@@ -93,7 +138,7 @@
                                                     @endif
                                                 </td>
                                             <td>
-                                                <select id="gdpaper_id_{{$i}}" alt="{{ $i }}" class="mobile form-select" name="gdpaper_ids[]" onchange="chgPapers(this)" >
+                                                <select id="gdpaper_id_{{$i}}" alt="{{ $i }}" class="mobile form-select" data-toggle="select2" name="gdpaper_ids[]" onchange="chgPapers(this)" >
                                                     <option value="" selected>請選擇...</option>
                                                     @foreach($products as $product)
                                                         <option value="{{ $product->id }}" data-has-variants="{{ $product->has_variants ? '1' : '0' }}">{{ $product->name }}
@@ -205,6 +250,7 @@
 
 @section('script')
 <!-- third party js -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{{asset('assets/libs/select2/select2.min.js')}}"></script>
 <script src="{{asset('assets/libs/dropzone/dropzone.min.js')}}"></script>
 <script src="{{asset('assets/libs/quill/quill.min.js')}}"></script>
@@ -214,7 +260,6 @@
 <!-- demo app -->
 <script src="{{asset('assets/js/pages/form-fileuploads.init.js')}}"></script>
 <script src="{{asset('assets/js/pages/add-product.init.js')}}"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/smoothness/jquery-ui.css" />
 {{-- <script src="{{asset('assets/js/pages/foo-tables.init.js')}}"></script> --}}
@@ -536,6 +581,13 @@
         cols += '</tr>';
         newRow.append(cols);
         $("table.gdpaper-list tbody").append(newRow);
+        
+        // 初始化新行的 Select2
+        $('#gdpaper_id_'+rowCount).select2({
+            placeholder: '請選擇...',
+            allowClear: true,
+            width: '100%'
+        });
     });
 
 
@@ -577,6 +629,25 @@
             $("table.prom-list tbody").append(newRow);
         });
         $.ajaxSetup({ headers: { 'csrftoken' : '{{ csrf_token() }}' } });
+        
+        // 初始化 Select2
+        $(document).ready(function() {
+            // 初始化所有帶有 data-toggle="select2" 的 select 元素
+            $('select[data-toggle="select2"]').select2({
+                placeholder: '請選擇...',
+                allowClear: true,
+                width: '100%'
+            });
+        });
+        
+        // 當新增行時，也要初始化新行的 Select2
+        function initSelect2ForNewRow() {
+            $('select[data-toggle="select2"]').select2({
+                placeholder: '請選擇...',
+                allowClear: true,
+                width: '100%'
+            });
+        }
 </script>
 <!-- end demo js-->
 @endsection
