@@ -204,6 +204,7 @@
                                                         <a class="dropdown-item"
                                                             href="{{ route('product.edit', $data->id) }}"><i
                                                                 class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
+                                                        <a class="dropdown-item" href="javascript:void(0);" onclick="showInventoryTraces({{ $data->id }})"><i class="mdi mdi-chart-line me-2 font-18 text-muted vertical-middle"></i>庫存軌跡</a>
                                                         {{-- <a class="dropdown-item" href="#"><i class="mdi mdi-delete me-2 text-muted font-18 vertical-middle"></i>刪除</a> --}}
                                                         <a class="dropdown-item"
                                                             href="{{ route('product.del', $data->id) }}"><i
@@ -237,6 +238,26 @@
                 <div class="modal-body">
                     <div id="variantsContent">
                         <!-- 細項內容將在這裡動態載入 -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 庫存軌跡 Modal -->
+    <div class="modal fade" id="inventoryTracesModal" tabindex="-1" aria-labelledby="inventoryTracesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="inventoryTracesModalLabel">庫存軌跡</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="tracesContent">
+                        <!-- 軌跡內容將在這裡動態載入 -->
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -305,6 +326,74 @@ function showVariants(productId) {
         },
         error: function() {
             $('#variantsContent').html('<div class="alert alert-danger">載入細項資料失敗</div>');
+        }
+    });
+}
+
+function showInventoryTraces(productId) {
+    // 顯示載入中
+    $('#tracesContent').html('<div class="text-center"><i class="mdi mdi-loading mdi-spin"></i> 載入中...</div>');
+    $('#inventoryTracesModal').modal('show');
+    
+    // 發送 AJAX 請求獲取庫存軌跡資料
+    $.ajax({
+        url: '{{ route("product.inventory-traces") }}',
+        method: 'GET',
+        data: { product_id: productId },
+        success: function(response) {
+            if (response.success) {
+                var html = '';
+                
+                if (response.traces.length === 0) {
+                    html = '<div class="alert alert-info">暫無庫存軌跡資料</div>';
+                } else {
+                    response.traces.forEach(function(productTraces) {
+                        html += '<div class="mb-4">';
+                        html += '<h6 class="text-primary">';
+                        html += productTraces.product_name;
+                        if (productTraces.variant_name) {
+                            html += ' - ' + productTraces.variant_name;
+                        }
+                        html += '</h6>';
+                        
+                        if (productTraces.traces.length === 0) {
+                            html += '<p class="text-muted">暫無軌跡記錄</p>';
+                        } else {
+                            html += '<div class="table-responsive">';
+                            html += '<table class="table table-sm table-striped">';
+                            html += '<thead class="table-light">';
+                            html += '<tr><th>日期</th><th>類型</th><th>數量</th><th>說明</th></tr>';
+                            html += '</thead>';
+                            html += '<tbody>';
+                            
+                            productTraces.traces.forEach(function(trace) {
+                                var typeClass = trace.type === 'inventory' ? 'text-success' : 'text-primary';
+                                var typeIcon = trace.type === 'inventory' ? 'mdi mdi-clipboard-check' : 'mdi mdi-truck-delivery';
+                                
+                                html += '<tr>';
+                                html += '<td>' + trace.date + '</td>';
+                                html += '<td><i class="' + typeIcon + ' me-1 ' + typeClass + '"></i>' + trace.description + '</td>';
+                                html += '<td class="text-end"><strong>' + trace.quantity + '</strong></td>';
+                                html += '<td class="text-muted">' + trace.description + '記錄</td>';
+                                html += '</tr>';
+                            });
+                            
+                            html += '</tbody>';
+                            html += '</table>';
+                            html += '</div>';
+                        }
+                        
+                        html += '</div>';
+                    });
+                }
+                
+                $('#tracesContent').html(html);
+            } else {
+                $('#tracesContent').html('<div class="alert alert-danger">載入庫存軌跡失敗</div>');
+            }
+        },
+        error: function() {
+            $('#tracesContent').html('<div class="alert alert-danger">載入庫存軌跡失敗</div>');
         }
     });
 }

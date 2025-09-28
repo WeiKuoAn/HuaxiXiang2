@@ -23,9 +23,10 @@ use App\Http\Controllers\LampTypeController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LeaveDayController;
 use App\Http\Controllers\LeaveSettingController;
+use App\Http\Controllers\LeaveWorkflowController;
 use App\Http\Controllers\LiffController;
-use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MemorialDateController;
+use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MeritController;
 use App\Http\Controllers\OnlineColumbariumController;
 use App\Http\Controllers\OvertimeController;
@@ -86,6 +87,7 @@ use App\Http\Controllers\TargetItemController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserBankDataController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserPermissionController;
 use App\Http\Controllers\UserSaleDataController;
 use App\Http\Controllers\VacationController;
 use App\Http\Controllers\VenderController;
@@ -140,6 +142,12 @@ Route::group(['prefix' => '/'], function () {
     Route::post('user/create', [UserController::class, 'store'])->name('user.create.data');
     Route::get('user/edit/{id}', [UserController::class, 'show'])->name('user.edit');
     Route::post('user/edit/{id}', [UserController::class, 'update'])->name('user.edit.data');
+    
+    // 使用者權限管理
+    Route::get('user-permissions', [UserPermissionController::class, 'index'])->name('user-permissions.index');
+    Route::get('user-permissions/{id}/edit', [UserPermissionController::class, 'edit'])->name('user-permissions.edit');
+    Route::put('user/{id}/permissions', [UserPermissionController::class, 'update'])->name('user-permissions.update');
+    Route::post('user-permissions/{userId}/toggle/{permissionId}', [UserPermissionController::class, 'toggle'])->name('user-permissions.toggle');
 
     // 用戶出勤
     Route::get('user/work/{id}', [WorkController::class, 'user_work'])->name('user.work.index');
@@ -190,6 +198,11 @@ Route::group(['prefix' => '/'], function () {
     Route::post('leave_day/del/{id}', [LeaveDayController::class, 'destroy'])->name('leave_day.del.data');
     Route::get('leave_day/check/{id}', [LeaveDayController::class, 'check'])->name('leave_day.check');
     Route::post('leave_day/check/{id}', [LeaveDayController::class, 'check_data'])->name('leave_day.check.data');
+    
+    // 工作流程相關路由
+    Route::get('leave_day/select_workflow/{id}', [LeaveDayController::class, 'selectWorkflow'])->name('leave_day.select_workflow');
+    Route::post('leave_day/submit/{id}', [LeaveDayController::class, 'submit'])->name('leave_day.submit');
+    Route::post('leave_day/approve/{id}', [LeaveDayController::class, 'approve'])->name('leave_day.approve');
 
     // 假別管理
     Route::get('personnel/leaves', [LeaveController::class, 'index'])->name('personnel.leaves');
@@ -201,6 +214,29 @@ Route::group(['prefix' => '/'], function () {
     Route::post('personnel/leaveSetting/store', [LeaveSettingController::class, 'store'])->name('personnel.leavesitting.create.data');
     Route::get('personnel/leaveSetting/edit/{id}', [LeaveSettingController::class, 'edit'])->name('personnel.leavesitting.edit');
     Route::post('personnel/leaveSetting/edit/{id}', [LeaveSettingController::class, 'update'])->name('personnel.leavesitting.edit.data');
+
+    /* 請假流程管理 */
+    Route::prefix('leaveworkflow')->name('leaveworkflow.')->group(function () {
+        // 流程管理
+        Route::get('/', [LeaveWorkflowController::class, 'index'])->name('index');
+        Route::get('/create', [LeaveWorkflowController::class, 'create'])->name('create');
+        Route::post('/store', [LeaveWorkflowController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [LeaveWorkflowController::class, 'edit'])->name('edit');
+        Route::put('/{id}/update', [LeaveWorkflowController::class, 'update'])->name('update');
+        Route::post('/{id}/toggle-status', [LeaveWorkflowController::class, 'toggleStatus'])->name('toggle-status');
+        
+        // 流程狀態總覽
+        Route::get('/status/overview', [LeaveWorkflowController::class, 'status'])->name('status');
+        Route::get('/{id}/detail', [LeaveWorkflowController::class, 'detail'])->name('detail');
+        
+        // 關卡管理
+        Route::get('/{id}/steps', [LeaveWorkflowController::class, 'steps'])->name('steps');
+        Route::post('/{workflowId}/steps/store', [LeaveWorkflowController::class, 'storeStep'])->name('steps.store');
+        Route::get('/steps/{id}/edit', [LeaveWorkflowController::class, 'editStep'])->name('steps.edit');
+        Route::put('/steps/{id}/update', [LeaveWorkflowController::class, 'updateStep'])->name('steps.update');
+        Route::post('/steps/{id}/toggle-status', [LeaveWorkflowController::class, 'toggleStepStatus'])->name('steps.toggle-status');
+        Route::delete('/steps/{id}', [LeaveWorkflowController::class, 'deleteStep'])->name('steps.delete');
+    });
 
     /* 客戶管理 */
     Route::get('customers', [CustomerController::class, 'index'])->name('customer');
@@ -275,6 +311,7 @@ Route::group(['prefix' => '/'], function () {
     Route::post('/product/delete/{id}', [ProductController::class, 'destroy'])->name('product.del.data');
     Route::get('/product/prom_product_search', [ProductController::class, 'prom_product_search'])->name('product.prom_product_search');
     Route::get('/product/variants', [ProductController::class, 'getVariants'])->name('product.variants');
+    Route::get('/product/inventory-traces', [ProductController::class, 'getInventoryTraces'])->name('product.inventory-traces');
 
     /* 商品進貨 */
     Route::get('/product/cost_search', [RestockController::class, 'product_cost_search'])->name('gdpaper.cost.search');
@@ -331,7 +368,6 @@ Route::group(['prefix' => '/'], function () {
     Route::delete('/sale/del/{id}', [SaleDataControllerNew::class, 'destroy_gpt'])->name('sale.data.del');
     Route::get('/sale/check/{id}', [SaleDataControllerNew::class, 'check_show_gpt'])->name('sale.check');
     Route::post('/sale/check/{id}', [SaleDataControllerNew::class, 'check_update_gpt'])->name('sale.data.check');
-
 
     // 報廢單
     Route::get('/sale/scrapped/create', [ScrappedController::class, 'create'])->name('sale.scrapped.create');
@@ -638,6 +674,7 @@ Route::group(['prefix' => '/'], function () {
             Route::get('/maintenance', [CrematoriumController::class, 'maintenance'])->name('maintenance');
             Route::get('/maintenance/create', [CrematoriumController::class, 'createMaintenance'])->name('createMaintenance');
             Route::post('/maintenance/store', [CrematoriumController::class, 'storeMaintenance'])->name('storeMaintenance');
+            Route::get('/maintenance/{id}', [CrematoriumController::class, 'showMaintenance'])->name('showMaintenance');
         });
     });
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\ComboProduct;
 use App\Models\Category;
 use Intervention\Image\Facades\Image;
@@ -659,5 +660,168 @@ class ProductController extends Controller
                 'message' => '載入細項資料失敗'
             ]);
         }
+    }
+
+    /**
+     * 獲取商品庫存軌跡
+     */
+    public function getInventoryTraces(Request $request)
+    {
+        try {
+            $productId = $request->get('product_id');
+            $product = Product::find($productId);
+            
+            if (!$product) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '商品不存在'
+                ]);
+            }
+
+            $traces = [];
+
+            if ($product->has_variants) {
+                // 有細項的商品，獲取每個細項的軌跡
+                $variants = ProductVariant::where('product_id', $productId)
+                    ->where('status', 'active')
+                    ->orderBy('sort_order', 'asc')
+                    ->get();
+
+                foreach ($variants as $variant) {
+                    $variantTraces = $this->getVariantTraces($product, $variant);
+                    if (!empty($variantTraces['traces'])) {
+                        $traces[] = $variantTraces;
+                    }
+                }
+            } else {
+                // 沒有細項的商品，獲取商品本身的軌跡
+                $productTraces = $this->getProductTraces($product);
+                if (!empty($productTraces['traces'])) {
+                    $traces[] = $productTraces;
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'traces' => $traces,
+                'product_name' => $product->name
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => '載入庫存軌跡失敗'
+            ]);
+        }
+    }
+
+    /**
+     * 獲取細項的庫存軌跡
+     */
+    private function getVariantTraces($product, $variant)
+    {
+        $allTraces = collect();
+
+        // 獲取該細項的盤點記錄
+        $inventoryTraces = \App\Models\GdpaperInventoryItem::where('product_id', $product->id)
+            ->where('variant_id', $variant->id)
+            ->where('is_variant', 1)
+            ->join('gdpaper_inventory_data', 'gdpaper_inventory_item.gdpaper_inventory_id', '=', 'gdpaper_inventory_data.inventory_no')
+            ->where('gdpaper_inventory_data.state', '1')
+            ->orderBy('gdpaper_inventory_item.updated_at', 'desc')
+            ->select('gdpaper_inventory_item.*', 'gdpaper_inventory_data.date as inventory_date')
+            ->get();
+
+        // 獲取進貨記錄
+        $restockTraces = \App\Models\ProductRestockItem::where('product_restock_item.product_id', $product->id)
+            ->where('product_restock_item.variant_id', $variant->id)
+            ->join('product_restock', 'product_restock_item.restock_id', '=', 'product_restock.id')
+            ->where('product_restock.status', '1')
+            ->orderBy('product_restock_item.created_at', 'desc')
+            ->select('product_restock_item.*', 'product_restock.date as restock_date')
+            ->get();
+
+        // 添加盤點記錄
+        foreach ($inventoryTraces as $trace) {
+            $allTraces->push([
+                'type' => 'inventory',
+                'date' => $trace->inventory_date,
+                'quantity' => $trace->new_num ?? $trace->old_num ?? 0,
+                'description' => '盤點',
+            ]);
+        }
+
+        // 添加進貨記錄
+        foreach ($restockTraces as $trace) {
+            $allTraces->push([
+                'type' => 'restock',
+                'date' => $trace->restock_date,
+                'quantity' => $trace->product_num,
+                'description' => '進貨',
+            ]);
+        }
+
+        // 按日期排序
+        $allTraces = $allTraces->sortByDesc('date');
+
+        return [
+            'product_name' => $product->name,
+            'variant_name' => $variant->variant_name,
+            'traces' => $allTraces->values()->toArray()
+        ];
+    }
+
+    /**
+     * 獲取商品的庫存軌跡
+     */
+    private function getProductTraces($product)
+    {
+        $allTraces = collect();
+
+        // 獲取商品本身的盤點記錄（非細項）
+        $inventoryTraces = \App\Models\GdpaperInventoryItem::where('product_id', $product->id)
+            ->where('is_variant', 0)
+            ->join('gdpaper_inventory_data', 'gdpaper_inventory_item.gdpaper_inventory_id', '=', 'gdpaper_inventory_data.inventory_no')
+            ->where('gdpaper_inventory_data.state', '1')
+            ->orderBy('gdpaper_inventory_item.updated_at', 'desc')
+            ->select('gdpaper_inventory_item.*', 'gdpaper_inventory_data.date as inventory_date')
+            ->get();
+
+        // 獲取進貨記錄
+        $restockTraces = \App\Models\ProductRestockItem::where('product_restock_item.product_id', $product->id)
+            ->whereNull('product_restock_item.variant_id')
+            ->join('product_restock', 'product_restock_item.restock_id', '=', 'product_restock.id')
+            ->where('product_restock.status', '1')
+            ->orderBy('product_restock_item.created_at', 'desc')
+            ->select('product_restock_item.*', 'product_restock.date as restock_date')
+            ->get();
+
+        // 添加盤點記錄
+        foreach ($inventoryTraces as $trace) {
+            $allTraces->push([
+                'type' => 'inventory',
+                'date' => $trace->inventory_date,
+                'quantity' => $trace->new_num ?? $trace->old_num ?? 0,
+                'description' => '盤點',
+            ]);
+        }
+
+        // 添加進貨記錄
+        foreach ($restockTraces as $trace) {
+            $allTraces->push([
+                'type' => 'restock',
+                'date' => $trace->restock_date,
+                'quantity' => $trace->product_num,
+                'description' => '進貨',
+            ]);
+        }
+
+        // 按日期排序
+        $allTraces = $allTraces->sortByDesc('date');
+
+        return [
+            'product_name' => $product->name,
+            'variant_name' => '',
+            'traces' => $allTraces->values()->toArray()
+        ];
     }
 }
