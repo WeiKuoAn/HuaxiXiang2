@@ -15,6 +15,8 @@ use App\Models\PayData;
 use App\Models\PayItem;
 use App\Models\Sale_gdpaper;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Product;
+
 
 class WorkController extends Controller
 {
@@ -62,7 +64,8 @@ class WorkController extends Controller
         $work = Works::where('user_id', Auth::user()->id)->orderBy('id', 'desc')->first();
 
         $contract_datas = Contract::whereIn('renew',[0,1])->get();
-        // dd($work);
+
+        
         // dd($now);
         if(Auth::user()->status != 1){
             return view('dashboard')->with(['now' => $now, 'work' => $work , 'sale_today'=>$sale_today 
@@ -113,7 +116,14 @@ class WorkController extends Controller
                 $work->worktime = $request->worktime;
                 $work->dutytime = $request->dutytime;
                 $work->status = '1';
-                $work->total = floor(Carbon::parse($request->worktime)->floatDiffInHours($request->dutytime)) - 1;
+                $work_hours = Carbon::parse($request->worktime)->floatDiffInHours($request->dutytime);
+                
+                // 滿8小時要休息1小時，所以如果工作滿9小時就要減1小時
+                if ($work_hours >= 9) {
+                    $work_hours = $work_hours - 1;
+                }
+                
+                $work->total = floor($work_hours);
                 $work->remark = $request->remark;
                 $work->save();
             }
