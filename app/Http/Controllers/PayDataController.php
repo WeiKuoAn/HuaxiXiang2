@@ -30,7 +30,7 @@ class PayDataController extends Controller
 
             $status = $request->status;
 
-            if ($status) {
+            if ($status !== null && $status !== '') {
                 $datas = PayData::where('status',  $status);
             } else {
                 $datas = PayData::where('status', 0);
@@ -290,6 +290,10 @@ class PayDataController extends Controller
         // $pay->pay_date = $request->pay_date;
         $pay->price = $request->price;
         $pay->comment = $request->comment;
+        // 如果原本是退回狀態，編輯後重置為待審核
+        if ($pay->status == 2) {
+            $pay->status = 0;
+        }
         // $pay->user_id = Auth::user()->id;
         $pay->save();
         // dd($request->pay_invoice_number);
@@ -313,11 +317,15 @@ class PayDataController extends Controller
                 } else {
                     $Pay_Item->vender_id = null;
                 }
-                //權限修改問題
-                if ($user->job_id == '1' || $user->job_id == '2' || $user->job_id == '7' || $user->job_id == '9') {
-                    $Pay_Item->status = 1;
-                } else {
+                //權限修改問題 - 如果原本是退回狀態，編輯後重置為待審核
+                if ($pay->status == 0) {
                     $Pay_Item->status = 0;
+                } else {
+                    if ($user->job_id == '1' || $user->job_id == '2' || $user->job_id == '7' || $user->job_id == '9') {
+                        $Pay_Item->status = 1;
+                    } else {
+                        $Pay_Item->status = 0;
+                    }
                 }
                 $Pay_Item->comment = $request->pay_text[$key];
                 $Pay_Item->save();
@@ -372,6 +380,19 @@ class PayDataController extends Controller
                 $sale_history->pay_id = $id;
                 $sale_history->user_id = Auth::user()->id;
                 $sale_history->state = 'check';
+                $sale_history->save();
+            } elseif ($request->submit1 == 'return') {
+                $data->status = 2;
+                $data->save();
+                foreach ($items as $item) {
+                    $item->status = 2;
+                    $item->save();
+                }
+                //業務單軌跡-退回
+                $sale_history = new PayHistory();
+                $sale_history->pay_id = $id;
+                $sale_history->user_id = Auth::user()->id;
+                $sale_history->state = 'return';
                 $sale_history->save();
             } else {
                 $data->status = 0;

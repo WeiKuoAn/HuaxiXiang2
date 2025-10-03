@@ -39,6 +39,12 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">支出總資訊</h5>
+                    @if($data->status == 2)
+                        <div class="alert alert-warning" role="alert">
+                            <i class="mdi mdi-alert-circle me-1"></i>
+                            此單據已被退回，修改後將重新送審。
+                        </div>
+                    @endif
                             <div class="row">
                                 <div class="mb-3 col-md-3">
                                     <label for="pay_on" class="form-label">支出單號<span class="text-danger">*</span></label>

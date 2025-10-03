@@ -99,6 +99,8 @@
                                             </option>
                                             <option value="1" @if ($request->status == '1') selected @endif>已審核
                                             </option>
+                                            <option value="2" @if ($request->status == '2') selected @endif>已退單
+                                            </option>
                                         </select>
                                     </div>
                                     <div class="me-3 mt-3">
@@ -129,6 +131,8 @@
                                         <th width="15%">備註</th>
                                         <th width="10%">key單人員</th>
                                         @if ($request->status == '1')
+                                            <th>查看</th>
+                                        @elseif ($request->status == '2')
                                             <th>查看</th>
                                         @else
                                             <th>審核</th>
@@ -183,9 +187,11 @@
                                                         data-bs-toggle="dropdown" aria-expanded="false">動作 <i
                                                             class="mdi mdi-arrow-down-drop-circle"></i></a>
                                                     <div class="dropdown-menu dropdown-menu-end">
-                                                        <a class="dropdown-item"
-                                                            href="{{ route('pay.edit', $data->id) }}"><i
-                                                                class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
+                                                        @if ($data->status != 1)
+                                                            <a class="dropdown-item"
+                                                                href="{{ route('pay.edit', $data->id) }}"><i
+                                                                    class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
+                                                        @endif
                                                         <a class="dropdown-item"
                                                             href="{{ route('pay.history', $data->id) }}"><i
                                                                 class="mdi mdi-eye me-2 font-18 text-muted vertical-middle"></i>支出軌跡</a>

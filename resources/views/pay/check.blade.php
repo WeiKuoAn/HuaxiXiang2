@@ -146,17 +146,13 @@
             <div class="col-12">
                 <div class="text-center mb-3">
                     <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">
-                        @if($data->status != 1)
-                        不審核
-                        @else
                         回上一頁
-                        @endif
                     </button>
                     {{-- <button type="submit" name="submit1" value="flase" id="btn_submit" class="btn w-sm btn-danger waves-effect waves-light" onclick="if(!confirm('是否確定撤回?')){event.returnValue=false;return false;}">撤回</button> --}}
                     @if($data->status != 1)
                     <button type="submit" name="submit1" value="true" id="btn_submit" class="btn w-sm btn-success waves-effect waves-light" onclick="if(!confirm('是否確定審核?')){event.returnValue=false;return false;}">審核</button>
+                    <button type="submit" name="submit1" value="return" id="btn_return" class="btn w-sm btn-warning waves-effect waves-light" onclick="if(!confirm('是否確定退回?')){event.returnValue=false;return false;}">退回</button>
                     @endif
-                    {{-- <button type="submit" name="submit1" value="flase" class="btn w-sm btn-danger waves-effect waves-light" onclick="if(!confirm('是否確定退件?')){event.returnValue=false;return false;}">退件</button> --}}
                 </div>
             </div> <!-- end col -->
         </div>

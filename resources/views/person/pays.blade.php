@@ -50,8 +50,9 @@
                                 <div class="me-sm-3">
                                     <label for="before_date" class="form-label">狀態</label>
                                     <select id="inputState" class="form-select" name="status" onchange="this.form.submit()">
-                                        <option value="0" @if (!isset($request->status) || $request->status == '0') selected @endif>未審核</option>
+                                        <option value="" @if (!isset($request->status) || $request->status == '') selected @endif>未審核</option>
                                         <option value="1" @if ($request->status == '1') selected @endif>已審核</option>
+                                        {{-- <option value="2" @if ($request->status == '2') selected @endif>已退單</option> --}}
                                     </select>
                                 </div>
                                 <div class="me-3 mt-3">
@@ -91,8 +92,10 @@
                                         <th width="10%">key單人員</th>
                                         @if($request->status == '1')
                                             <th>查看</th>
+                                        @elseif($request->status == '2')
+                                            <th>查看</th>
                                         @endif
-                                        @if(!isset($request->status) || $request->status == '0')
+                                        @if(!isset($request->status) || $request->status == '' || $request->status == '0' || $request->status == '2')
                                             <th width="10%">動作</th>
                                         @endif
                                     </tr>
@@ -131,8 +134,14 @@
                                                 <i class="mdi mdi-file-document me-2 text-muted font-18 vertical-middle"></i>
                                             </a>
                                         </td>
+                                        @elseif($request->status == '2')
+                                        <td>
+                                            <a href="{{ route('pay.check',$data->id) }}">
+                                                <i class="mdi mdi-file-document me-2 text-muted font-18 vertical-middle"></i>
+                                            </a>
+                                        </td>
                                         @endif
-                                        @if($data->status == '0')
+                                        @if($data->status == '0' || $data->status == '2')
                                         <td>
                                             <div class="btn-group dropdown">
                                                 <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-outline-secondary waves-effect" data-bs-toggle="dropdown" aria-expanded="false">動作 <i class="mdi mdi-arrow-down-drop-circle"></i></a>
