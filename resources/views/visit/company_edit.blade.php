@@ -176,6 +176,18 @@
                                     </select>
                                 </div>
 
+                                <div class="mb-3">
+                                    <label for="project-priority" class="form-label">是否簽約過<span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-control" data-toggle="select" data-width="100%"
+                                        name="contract_status">
+                                        <option value="1" @if ($data->contract_status == '1') selected @endif>有
+                                        </option>
+                                        <option value="0" @if ($data->contract_status == '0' || $data->contract_status == null) selected @endif>無
+                                        </option>
+                                    </select>
+                                </div>
+
                             </div>
                             <!-- end row -->
                         </div> <!-- end card-body -->

@@ -171,6 +171,16 @@
                                     </select>
                                 </div>
 
+                                <div class="mb-3">
+                                    <label for="project-priority" class="form-label">是否簽約過<span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-control" data-toggle="select" data-width="100%"
+                                        name="contract_status">
+                                        <option value="1">有</option>
+                                        <option value="0" selected>無</option>
+                                    </select>
+                                </div>
+
                             </div>
                             <!-- end row -->
                         </div> <!-- end card-body -->

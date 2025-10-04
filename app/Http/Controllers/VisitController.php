@@ -185,6 +185,13 @@ class VisitController extends Controller
                     }
                 }
             }
+            
+            $contract_status = $request->contract_status;
+            if ($contract_status != "null") {
+                if (isset($contract_status)) {
+                    $datas = $datas->where('contract_status', $contract_status);
+                }
+            }
             $seq = $request->seq;
             $recently_date_sort = $request->recently_date_sort;
             
@@ -208,14 +215,14 @@ class VisitController extends Controller
         
         $datas = $datas->paginate(50);
 
-        $data_countys = Customer::where('group_id', 2)->get();
+        $data_countys = Customer::where('group_id', 2)->whereNotNull('county')->where('county', '!=', '')->get();
         foreach ($data_countys as $data_county) {
             $countys[] = $data_county->county;
         }
         $countys = array_unique($countys);
 
         if (isset($county)) {
-            $data_districts = Customer::where('group_id', 2)->where('county', $county)->get();
+            $data_districts = Customer::where('group_id', 2)->where('county', $county)->whereNotNull('district')->where('district', '!=', '')->get();
         } else {
             $data_districts = [];
         }
@@ -290,6 +297,13 @@ class VisitController extends Controller
                     }
                 }
             }
+            
+            $contract_status = $request->contract_status;
+            if ($contract_status != "null") {
+                if (isset($contract_status)) {
+                    $datas = $datas->where('contract_status', $contract_status);
+                }
+            }
         }
         
         $recently_date_sort = $request->recently_date_sort;
@@ -318,7 +332,7 @@ class VisitController extends Controller
 
 
         // 載入地區資料
-        $data_countys = Customer::where('group_id', 5)->get();
+        $data_countys = Customer::where('group_id', 5)->whereNotNull('county')->where('county', '!=', '')->get();
         foreach ($data_countys as $data_county) {
             $countys[] = $data_county->county;
         }
@@ -326,7 +340,7 @@ class VisitController extends Controller
 
         $county = $request->county;
         if (isset($county)) {
-            $data_districts = Customer::where('group_id', 5)->where('county', $county)->get();
+            $data_districts = Customer::where('group_id', 5)->where('county', $county)->whereNotNull('district')->where('district', '!=', '')->get();
         } else {
             $data_districts = [];
         }
@@ -388,6 +402,13 @@ class VisitController extends Controller
                     }
                 }
             }
+            
+            $contract_status = $request->contract_status;
+            if ($contract_status != "null") {
+                if (isset($contract_status)) {
+                    $datas = $datas->where('contract_status', $contract_status);
+                }
+            }
         }
         
         $recently_date_sort = $request->recently_date_sort;
@@ -414,7 +435,7 @@ class VisitController extends Controller
             $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
         }
         // 載入地區資料
-        $data_countys = Customer::where('group_id', 4)->get();
+        $data_countys = Customer::where('group_id', 4)->whereNotNull('county')->where('county', '!=', '')->get();
         foreach ($data_countys as $data_county) {
             $countys[] = $data_county->county;
         }
@@ -422,7 +443,7 @@ class VisitController extends Controller
 
         $county = $request->county;
         if (isset($county)) {
-            $data_districts = Customer::where('group_id', 4)->where('county', $county)->get();
+            $data_districts = Customer::where('group_id', 4)->where('county', $county)->whereNotNull('district')->where('district', '!=', '')->get();
         } else {
             $data_districts = [];
         }
@@ -484,6 +505,13 @@ class VisitController extends Controller
                     }
                 }
             }
+            
+            $contract_status = $request->contract_status;
+            if ($contract_status != "null") {
+                if (isset($contract_status)) {
+                    $datas = $datas->where('contract_status', $contract_status);
+                }
+            }
         }
         
         $recently_date_sort = $request->recently_date_sort;
@@ -510,7 +538,7 @@ class VisitController extends Controller
             $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
         }
         // 載入地區資料
-        $data_countys = Customer::where('group_id', 3)->get();
+        $data_countys = Customer::where('group_id', 3)->whereNotNull('county')->where('county', '!=', '')->get();
         foreach ($data_countys as $data_county) {
             $countys[] = $data_county->county;
         }
@@ -518,7 +546,7 @@ class VisitController extends Controller
 
         $county = $request->county;
         if (isset($county)) {
-            $data_districts = Customer::where('group_id', 3)->where('county', $county)->get();
+            $data_districts = Customer::where('group_id', 3)->where('county', $county)->whereNotNull('district')->where('district', '!=', '')->get();
         } else {
             $data_districts = [];
         }
@@ -580,6 +608,13 @@ class VisitController extends Controller
                     }
                 }
             }
+            
+            $contract_status = $request->contract_status;
+            if ($contract_status != "null") {
+                if (isset($contract_status)) {
+                    $datas = $datas->where('contract_status', $contract_status);
+                }
+            }
         }
         
         $recently_date_sort = $request->recently_date_sort;
@@ -606,7 +641,7 @@ class VisitController extends Controller
             $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
         }
         // 載入地區資料
-        $data_countys = Customer::where('group_id', 6)->get();
+        $data_countys = Customer::where('group_id', 6)->whereNotNull('county')->where('county', '!=', '')->get();
         foreach ($data_countys as $data_county) {
             $countys[] = $data_county->county;
         }
@@ -614,7 +649,7 @@ class VisitController extends Controller
 
         $county = $request->county;
         if (isset($county)) {
-            $data_districts = Customer::where('group_id', 6)->where('county', $county)->get();
+            $data_districts = Customer::where('group_id', 6)->where('county', $county)->whereNotNull('district')->where('district', '!=', '')->get();
         } else {
             $data_districts = [];
         }
@@ -676,6 +711,13 @@ class VisitController extends Controller
                     }
                 }
             }
+            
+            $contract_status = $request->contract_status;
+            if ($contract_status != "null") {
+                if (isset($contract_status)) {
+                    $datas = $datas->where('contract_status', $contract_status);
+                }
+            }
         }
         
         $recently_date_sort = $request->recently_date_sort;
@@ -702,7 +744,7 @@ class VisitController extends Controller
             $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
         }
         // 載入地區資料
-        $data_countys = Customer::where('group_id', 7)->get();
+        $data_countys = Customer::where('group_id', 7)->whereNotNull('county')->where('county', '!=', '')->get();
         foreach ($data_countys as $data_county) {
             $countys[] = $data_county->county;
         }
@@ -710,7 +752,7 @@ class VisitController extends Controller
 
         $county = $request->county;
         if (isset($county)) {
-            $data_districts = Customer::where('group_id', 7)->where('county', $county)->get();
+            $data_districts = Customer::where('group_id', 7)->where('county', $county)->whereNotNull('district')->where('district', '!=', '')->get();
         } else {
             $data_districts = [];
         }
@@ -759,6 +801,7 @@ class VisitController extends Controller
             }
             $customer->commission = $request->commission;
             $customer->visit_status = $request->visit_status;
+            $customer->contract_status = $request->contract_status;
         } else {
             if (isset($data)) {
                 return view('visit.company_create')->with(['hint' => '1', 'company_type' => $request->company_type]);
@@ -779,6 +822,7 @@ class VisitController extends Controller
                     }
                     $customer->commission = $request->commission;
                     $customer->visit_status = $request->visit_status;
+                    $customer->contract_status = $request->contract_status;
                 }
             }
         }
@@ -857,6 +901,7 @@ class VisitController extends Controller
         $data->bank_number = $request->bank_number;
         $data->commission = $request->commission;
         $data->visit_status = $request->visit_status;
+        $data->contract_status = $request->contract_status;
         $data->save();
 
         // 返回到原始來源頁面

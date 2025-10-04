@@ -25,6 +25,7 @@ class Customer extends Model
         'bank_number',
         'commission',
         'visit_status',
+        'contract_status',
         'comment'
     ];
     public function group()
