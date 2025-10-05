@@ -665,8 +665,12 @@
                     <div class="text-center mb-3">
                         {{-- || Auth::user()->job_id == 10 --}}
                         @if (Auth::user()->level != '2' || Auth::user()->job_id == 9)
-                            @if ($data->status == '1' && ($data->user_id == Auth::user()->id || Auth::user()->job_id == 1))
+                            @if ($data->status == '1')
                                 <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
+                                <button type="submit" class="btn w-sm btn-success waves-effect waves-light" value="check" name="admin_check" onclick="if(!confirm('是否已確定對帳，若要取消對帳，請進行撤回')){event.returnValue=false;return false;}">確定對帳</button>
+                            @elseif($data->status == '3')
+                                <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
+                                <button type="submit" class="btn w-sm btn-danger waves-effect" value="not_check" name="admin_check">撤回對帳</button>
                                 <button type="submit" class="btn w-sm btn-success waves-effect waves-light" value="check" name="admin_check" onclick="if(!confirm('是否已確定對帳，若要取消對帳，請進行撤回')){event.returnValue=false;return false;}">確定對帳</button>
                             @elseif($data->status == '9')
                                 <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
