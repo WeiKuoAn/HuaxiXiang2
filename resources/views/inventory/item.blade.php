@@ -72,7 +72,7 @@
                                                 <tr>
                                                     <td>{{ $rowIndex++ }}</td>
                                                     <td>
-                                                        {{ $productName }} - {{ optional($item->variant)->variant_name ?? ('變體#'.$item->variant_id) }}
+                                                        {{ $productName }} - {{ optional($item->variant)->variant_name ?? ('細項#'.$item->variant_id) }}
                                                     </td>
                                                     <td>{{ $item->old_num }}</td>
                                                     @if($inventory_data->state == 0)

@@ -13,17 +13,33 @@ class MemorialDate extends Model
     protected $fillable = [
         'sale_id',
         'seventh_day',
+        'seventh_reserved',
+        'seventh_reserved_at',
         'forty_ninth_day',
+        'forty_ninth_reserved',
+        'forty_ninth_reserved_at',
         'hundredth_day',
+        'hundredth_reserved',
+        'hundredth_reserved_at',
         'anniversary_day',
+        'anniversary_reserved',
+        'anniversary_reserved_at',
         'notes'
     ];
 
     protected $casts = [
         'seventh_day' => 'date',
+        'seventh_reserved' => 'boolean',
+        'seventh_reserved_at' => 'date',
         'forty_ninth_day' => 'date',
+        'forty_ninth_reserved' => 'boolean',
+        'forty_ninth_reserved_at' => 'date',
         'hundredth_day' => 'date',
+        'hundredth_reserved' => 'boolean',
+        'hundredth_reserved_at' => 'date',
         'anniversary_day' => 'date',
+        'anniversary_reserved' => 'boolean',
+        'anniversary_reserved_at' => 'date',
     ];
 
     /**
@@ -32,6 +48,14 @@ class MemorialDate extends Model
     public function sale()
     {
         return $this->belongsTo(Sale::class);
+    }
+
+    /**
+     * 關聯到 MemorialDateLog
+     */
+    public function logs()
+    {
+        return $this->hasMany(MemorialDateLog::class);
     }
 
 
@@ -47,7 +71,7 @@ class MemorialDate extends Model
             'seventh_day' => $planId == 4 ? null : $death->copy()->addDays(6)->format('Y-m-d'), // 浪浪方案無頭七
             'forty_ninth_day' => $death->copy()->addDays(48)->format('Y-m-d'),
             'hundredth_day' => $death->copy()->addDays(99)->format('Y-m-d'),
-            'anniversary_day' => $death->copy()->addYear()->format('Y-m-d'),
+            'anniversary_day' => null, // 對年設為空
         ];
 
         return $dates;
