@@ -995,7 +995,7 @@ class SaleDataControllerNew extends Controller
     {
         $sale = Sale::where('id', $id)->first();
 
-        if (Auth::user()->level != 2 || Auth::user()->job_id == 9) {
+        if (isset($request->admin_check)) {
             if ($request->admin_check == 'check') {
                 $sale->status = '9';
                 $sale->check_user_id = Auth::user()->id;
@@ -1034,6 +1034,7 @@ class SaleDataControllerNew extends Controller
             }
             return redirect()->route('sales')->with('success', '業務單狀態已更新');
         } else {
+
             if ($request->user_check == 'usercheck') {
                 $sale->status = '3';
                 $sale->save();
