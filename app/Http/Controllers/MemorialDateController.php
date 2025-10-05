@@ -15,7 +15,10 @@ class MemorialDateController extends Controller
      */
     public function index(Request $request)
     {
-        $query = MemorialDate::with(['sale.cust_name']);
+        $query = MemorialDate::with(['sale.cust_name', 'logs.user'])
+            ->whereHas('sale', function($q) {
+                $q->where('religion', 'buddhism_taoism');
+            });
 
         // 搜尋條件
         if ($request->filled('customer_name')) {
@@ -36,23 +39,168 @@ class MemorialDateController extends Controller
             });
         }
 
-        // 日期範圍篩選
-        if ($request->filled('date_from')) {
-            $query->where(function($q) use ($request) {
-                $q->where('seventh_day', '>=', $request->date_from)
-                  ->orWhere('forty_ninth_day', '>=', $request->date_from)
-                  ->orWhere('hundredth_day', '>=', $request->date_from)
-                  ->orWhere('anniversary_day', '>=', $request->date_from);
-            });
+        // 日期範圍篩選（只有在沒有指定紀念日類型時才使用）
+        if (!$request->filled('memorial_type')) {
+            if ($request->filled('date_from')) {
+                $query->where(function($q) use ($request) {
+                    $q->where('seventh_day', '>=', $request->date_from)
+                      ->orWhere('forty_ninth_day', '>=', $request->date_from)
+                      ->orWhere('hundredth_day', '>=', $request->date_from)
+                      ->orWhere('anniversary_day', '>=', $request->date_from);
+                });
+            }
+
+            if ($request->filled('date_to')) {
+                $query->where(function($q) use ($request) {
+                    $q->where('seventh_day', '<=', $request->date_to)
+                      ->orWhere('forty_ninth_day', '<=', $request->date_to)
+                      ->orWhere('hundredth_day', '<=', $request->date_to)
+                      ->orWhere('anniversary_day', '<=', $request->date_to);
+                });
+            }
         }
 
-        if ($request->filled('date_to')) {
-            $query->where(function($q) use ($request) {
-                $q->where('seventh_day', '<=', $request->date_to)
-                  ->orWhere('forty_ninth_day', '<=', $request->date_to)
-                  ->orWhere('hundredth_day', '<=', $request->date_to)
-                  ->orWhere('anniversary_day', '<=', $request->date_to);
-            });
+        // 紀念日類型篩選
+        if ($request->filled('memorial_type')) {
+            $memorialType = $request->memorial_type;
+            switch ($memorialType) {
+                case 'seventh':
+                    // 篩選有頭七日期的記錄（排除浪浪方案）
+                    $query->whereNotNull('seventh_day');
+                    
+                    // 如果有日期範圍，則進一步篩選頭七日期
+                    if ($request->filled('date_from') || $request->filled('date_to')) {
+                        if ($request->filled('date_from') && $request->filled('date_to')) {
+                            $query->whereBetween('seventh_day', [$request->date_from, $request->date_to]);
+                        } elseif ($request->filled('date_from')) {
+                            $query->where('seventh_day', '>=', $request->date_from);
+                        } elseif ($request->filled('date_to')) {
+                            $query->where('seventh_day', '<=', $request->date_to);
+                        }
+                    } else {
+                        // 如果沒有日期範圍，顯示未來30天內的頭七
+                        $query->where('seventh_day', '>=', now()->format('Y-m-d'))
+                              ->where('seventh_day', '<=', now()->addDays(30)->format('Y-m-d'));
+                    }
+                    break;
+                case 'forty_ninth':
+                    // 篩選有四十九日日期的記錄
+                    $query->whereNotNull('forty_ninth_day');
+                    
+                    // 如果有日期範圍，則進一步篩選四十九日日期
+                    if ($request->filled('date_from') || $request->filled('date_to')) {
+                        if ($request->filled('date_from') && $request->filled('date_to')) {
+                            $query->whereBetween('forty_ninth_day', [$request->date_from, $request->date_to]);
+                        } elseif ($request->filled('date_from')) {
+                            $query->where('forty_ninth_day', '>=', $request->date_from);
+                        } elseif ($request->filled('date_to')) {
+                            $query->where('forty_ninth_day', '<=', $request->date_to);
+                        }
+                    } else {
+                        // 如果沒有日期範圍，顯示未來30天內的四十九日
+                        $query->where('forty_ninth_day', '>=', now()->format('Y-m-d'))
+                              ->where('forty_ninth_day', '<=', now()->addDays(30)->format('Y-m-d'));
+                    }
+                    break;
+                case 'hundredth':
+                    // 篩選有百日日期的記錄
+                    $query->whereNotNull('hundredth_day');
+                    
+                    // 如果有日期範圍，則進一步篩選百日日期
+                    if ($request->filled('date_from') || $request->filled('date_to')) {
+                        if ($request->filled('date_from') && $request->filled('date_to')) {
+                            $query->whereBetween('hundredth_day', [$request->date_from, $request->date_to]);
+                        } elseif ($request->filled('date_from')) {
+                            $query->where('hundredth_day', '>=', $request->date_from);
+                        } elseif ($request->filled('date_to')) {
+                            $query->where('hundredth_day', '<=', $request->date_to);
+                        }
+                    } else {
+                        // 如果沒有日期範圍，顯示未來30天內的百日
+                        $query->where('hundredth_day', '>=', now()->format('Y-m-d'))
+                              ->where('hundredth_day', '<=', now()->addDays(30)->format('Y-m-d'));
+                    }
+                    break;
+                case 'anniversary':
+                    // 篩選有對年日期的記錄
+                    $query->whereNotNull('anniversary_day');
+                    
+                    // 如果有日期範圍，則進一步篩選對年日期
+                    if ($request->filled('date_from') || $request->filled('date_to')) {
+                        if ($request->filled('date_from') && $request->filled('date_to')) {
+                            $query->whereBetween('anniversary_day', [$request->date_from, $request->date_to]);
+                        } elseif ($request->filled('date_from')) {
+                            $query->where('anniversary_day', '>=', $request->date_from);
+                        } elseif ($request->filled('date_to')) {
+                            $query->where('anniversary_day', '<=', $request->date_to);
+                        }
+                    } else {
+                        // 如果沒有日期範圍，顯示未來30天內的對年
+                        $query->where('anniversary_day', '>=', now()->format('Y-m-d'))
+                              ->where('anniversary_day', '<=', now()->addDays(30)->format('Y-m-d'));
+                    }
+                    break;
+            }
+        }
+
+        // 預約狀態篩選
+        if ($request->filled('reservation_status')) {
+            $reservationStatus = $request->reservation_status;
+            $memorialType = $request->memorial_type;
+            
+            if ($reservationStatus === 'reserved') {
+                // 如果指定了紀念日類型，只篩選該類型的預約狀態
+                if ($memorialType) {
+                    switch ($memorialType) {
+                        case 'seventh':
+                            $query->where('seventh_reserved', true);
+                            break;
+                        case 'forty_ninth':
+                            $query->where('forty_ninth_reserved', true);
+                            break;
+                        case 'hundredth':
+                            $query->where('hundredth_reserved', true);
+                            break;
+                        case 'anniversary':
+                            $query->where('anniversary_reserved', true);
+                            break;
+                    }
+                } else {
+                    // 如果沒有指定紀念日類型，顯示任何類型已預約的記錄
+                    $query->where(function($q) {
+                        $q->where('seventh_reserved', true)
+                          ->orWhere('forty_ninth_reserved', true)
+                          ->orWhere('hundredth_reserved', true)
+                          ->orWhere('anniversary_reserved', true);
+                    });
+                }
+            } elseif ($reservationStatus === 'not_reserved') {
+                // 如果指定了紀念日類型，只篩選該類型的未預約狀態
+                if ($memorialType) {
+                    switch ($memorialType) {
+                        case 'seventh':
+                            $query->where('seventh_reserved', false);
+                            break;
+                        case 'forty_ninth':
+                            $query->where('forty_ninth_reserved', false);
+                            break;
+                        case 'hundredth':
+                            $query->where('hundredth_reserved', false);
+                            break;
+                        case 'anniversary':
+                            $query->where('anniversary_reserved', false);
+                            break;
+                    }
+                } else {
+                    // 如果沒有指定紀念日類型，顯示所有類型都未預約的記錄
+                    $query->where(function($q) {
+                        $q->where('seventh_reserved', false)
+                          ->where('forty_ninth_reserved', false)
+                          ->where('hundredth_reserved', false)
+                          ->where('anniversary_reserved', false);
+                    });
+                }
+            }
         }
 
         $memorialDates = $query->orderBy('created_at', 'desc')->paginate(20);
@@ -77,21 +225,97 @@ class MemorialDateController extends Controller
     {
         $request->validate([
             'seventh_day' => 'nullable|date',
+            'seventh_reserved' => 'nullable|boolean',
+            'seventh_reserved_at' => 'nullable|date',
             'forty_ninth_day' => 'required|date',
+            'forty_ninth_reserved' => 'nullable|boolean',
+            'forty_ninth_reserved_at' => 'nullable|date',
             'hundredth_day' => 'required|date',
-            'anniversary_day' => 'required|date',
-            'notes' => 'nullable|string|max:1000'
+            'hundredth_reserved' => 'nullable|boolean',
+            'hundredth_reserved_at' => 'nullable|date',
+            'anniversary_day' => 'nullable|date',
+            'anniversary_reserved' => 'nullable|boolean',
+            'anniversary_reserved_at' => 'nullable|date',
+            'notes' => 'nullable|string|max:2000'
         ]);
 
         $memorialDate = MemorialDate::findOrFail($id);
-        
-        $memorialDate->update([
+
+        // 獲取原始值
+        $original = $memorialDate->getOriginal();
+
+        $payload = [
             'seventh_day' => $request->seventh_day,
+            'seventh_reserved' => (bool) $request->seventh_reserved,
+            'seventh_reserved_at' => $request->seventh_reserved ? $request->seventh_reserved_at : null,
             'forty_ninth_day' => $request->forty_ninth_day,
+            'forty_ninth_reserved' => (bool) $request->forty_ninth_reserved,
+            'forty_ninth_reserved_at' => $request->forty_ninth_reserved ? $request->forty_ninth_reserved_at : null,
             'hundredth_day' => $request->hundredth_day,
+            'hundredth_reserved' => (bool) $request->hundredth_reserved,
+            'hundredth_reserved_at' => $request->hundredth_reserved ? $request->hundredth_reserved_at : null,
             'anniversary_day' => $request->anniversary_day,
-            'notes' => $request->notes
-        ]);
+            'anniversary_reserved' => (bool) $request->anniversary_reserved,
+            'anniversary_reserved_at' => $request->anniversary_reserved ? $request->anniversary_reserved_at : null,
+            'notes' => $request->notes,
+        ];
+
+        // 建立變更日誌 - 在更新前比較
+        try {
+            $changes = [];
+            
+            // 定義需要記錄的欄位（排除系統欄位）
+            $trackableFields = [
+                'seventh_day', 'seventh_reserved', 'seventh_reserved_at',
+                'forty_ninth_day', 'forty_ninth_reserved', 'forty_ninth_reserved_at',
+                'hundredth_day', 'hundredth_reserved', 'hundredth_reserved_at',
+                'anniversary_day', 'anniversary_reserved', 'anniversary_reserved_at',
+                'notes', 'general_notes'
+            ];
+            
+            // 比較變更並記錄（只記錄有意義的欄位）
+            foreach ($trackableFields as $field) {
+                $oldValue = $original[$field] ?? null;
+                $newValue = $payload[$field] ?? null;
+                
+                // 處理日期格式的比較
+                if (strpos($field, '_day') !== false || strpos($field, '_at') !== false) {
+                    // 日期欄位：轉換為字串格式進行比較
+                    $oldFormatted = $oldValue ? \Carbon\Carbon::parse($oldValue)->format('Y-m-d') : null;
+                    $newFormatted = $newValue ? \Carbon\Carbon::parse($newValue)->format('Y-m-d') : null;
+                    
+                    // 只有當格式化後的值真正不同時才記錄
+                    if ($oldFormatted !== $newFormatted) {
+                        $changes[$field] = [
+                            'old' => $oldValue,
+                            'new' => $newValue,
+                        ];
+                    }
+                } else {
+                    // 非日期欄位：直接比較
+                    if ($oldValue !== $newValue) {
+                        $changes[$field] = [
+                            'old' => $oldValue,
+                            'new' => $newValue,
+                        ];
+                    }
+                }
+            }
+            
+            // 只有當有實際變更時才記錄
+            if (!empty($changes)) {
+                \App\Models\MemorialDateLog::create([
+                    'memorial_date_id' => $memorialDate->id,
+                    'user_id' => auth()->id(),
+                    'action' => 'update',
+                    'changes' => $changes,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // 忽略日誌寫入錯誤，避免影響主流程
+        }
+
+        $memorialDate->update($payload);
 
         return redirect()->route('memorial.dates')
             ->with('success', '紀念日已成功更新');
