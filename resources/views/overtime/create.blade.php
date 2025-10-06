@@ -293,12 +293,12 @@
                     <div class="col-md-6">
                         <small><strong>加班時數：</strong>${timeDisplay}</small><br>
                         <small><strong>前兩小時：</strong>${firstTwoHours.toFixed(2)}小時 (1.34倍)</small><br>
-                        <small><strong>剩餘時間：</strong>${remainingHours.toFixed(2)}小時 (1.67倍)</small>
+                        <small><strong>後兩小時：：</strong>${remainingHours.toFixed(2)}小時 (1.67倍)</small>
                     </div>
                     <div class="col-md-6">
                         <small><strong>計算方式：</strong></small><br>
                         <small>前兩小時：1.34倍</small><br>
-                        <small>剩餘時間：1.67倍</small>
+                        <small>後兩小時：：1.67倍</small>
                     </div>
                 </div>
             `);
