@@ -209,6 +209,26 @@ class MemorialDateController extends Controller
     }
 
     /**
+     * 創建紀念日頁面
+     */
+    public function create()
+    {
+        // 取得所有佛教/道教的業務單，且尚未建立紀念日的
+        $sales = Sale::with(['cust_name', 'memorialDate'])
+            ->where('religion', 'buddhism_taoism')
+            ->whereNull('death_date')
+            ->orWhere(function($query) {
+                $query->where('religion', 'buddhism_taoism')
+                      ->whereNotNull('death_date')
+                      ->whereDoesntHave('memorialDate');
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+        
+        return view('memorial_dates.create', compact('sales'));
+    }
+
+    /**
      * 編輯紀念日頁面
      */
     public function edit($id)
@@ -330,37 +350,80 @@ class MemorialDateController extends Controller
             'sale_id' => 'required|exists:sale_data,id',
             'death_date' => 'required|date|before_or_equal:today',
             'religion' => 'required|in:buddhism,taoism,buddhism_taoism,christianity,catholicism,none,other',
-            'plan_id' => 'nullable|exists:plans,id'
+            'plan_id' => 'nullable|exists:plans,id',
+            'seventh_day' => 'nullable|date',
+            'seventh_reserved' => 'nullable|boolean',
+            'seventh_reserved_at' => 'nullable|date',
+            'forty_ninth_day' => 'nullable|date',
+            'forty_ninth_reserved' => 'nullable|boolean',
+            'forty_ninth_reserved_at' => 'nullable|date',
+            'hundredth_day' => 'nullable|date',
+            'hundredth_reserved' => 'nullable|boolean',
+            'hundredth_reserved_at' => 'nullable|date',
+            'anniversary_day' => 'nullable|date',
+            'anniversary_reserved' => 'nullable|boolean',
+            'anniversary_reserved_at' => 'nullable|date',
+            'notes' => 'nullable|string|max:2000'
         ]);
 
         try {
-            // 計算重要日期
+            // 更新業務單的往生日期和宗教資訊
+            $sale = Sale::findOrFail($request->sale_id);
+            $sale->update([
+                'death_date' => $request->death_date,
+                'religion' => $request->religion,
+                'plan_id' => $request->plan_id
+            ]);
+
+            // 計算重要日期（如果沒有手動輸入）
             $calculatedDates = MemorialDate::calculateMemorialDates(
                 $request->death_date,
                 $request->plan_id
             );
 
+            // 準備儲存數據
+            $memorialData = [
+                'sale_id' => $request->sale_id,
+                'seventh_day' => $request->seventh_day ?: $calculatedDates['seventh_day'],
+                'seventh_reserved' => (bool) $request->seventh_reserved,
+                'seventh_reserved_at' => $request->seventh_reserved ? $request->seventh_reserved_at : null,
+                'forty_ninth_day' => $request->forty_ninth_day ?: $calculatedDates['forty_ninth_day'],
+                'forty_ninth_reserved' => (bool) $request->forty_ninth_reserved,
+                'forty_ninth_reserved_at' => $request->forty_ninth_reserved ? $request->forty_ninth_reserved_at : null,
+                'hundredth_day' => $request->hundredth_day ?: $calculatedDates['hundredth_day'],
+                'hundredth_reserved' => (bool) $request->hundredth_reserved,
+                'hundredth_reserved_at' => $request->hundredth_reserved ? $request->hundredth_reserved_at : null,
+                'anniversary_day' => $request->anniversary_day ?: $calculatedDates['anniversary_day'],
+                'anniversary_reserved' => (bool) $request->anniversary_reserved,
+                'anniversary_reserved_at' => $request->anniversary_reserved ? $request->anniversary_reserved_at : null,
+                'notes' => $request->notes
+            ];
+
             // 儲存或更新重要日期記錄
             $memorialDate = MemorialDate::updateOrCreate(
                 ['sale_id' => $request->sale_id],
-                array_merge($calculatedDates, [
-                    'religion' => $request->religion,
-                    'plan_id' => $request->plan_id,
-                    'notes' => $request->notes
-                ])
+                $memorialData
             );
 
-            return response()->json([
-                'success' => true,
-                'message' => '重要日期已儲存',
-                'data' => $memorialDate->formatted_dates
-            ]);
+            // 建立變更日誌
+            try {
+                \App\Models\MemorialDateLog::create([
+                    'memorial_date_id' => $memorialDate->id,
+                    'user_id' => auth()->id(),
+                    'action' => 'create',
+                    'changes' => $memorialData,
+                ]);
+            } catch (\Throwable $e) {
+                // 忽略日誌寫入錯誤，避免影響主流程
+            }
+
+            return redirect()->route('memorial.dates')
+                ->with('success', '紀念日已成功建立');
 
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => '儲存失敗：' . $e->getMessage()
-            ], 500);
+            return redirect()->back()
+                ->withInput()
+                ->with('error', '儲存失敗：' . $e->getMessage());
         }
     }
 
