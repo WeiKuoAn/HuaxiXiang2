@@ -8,14 +8,22 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Increase;
 use App\Models\IncreaseItem;
 use App\Models\IncreaseSetting;
+use App\Models\NightShiftTimeSlot;
 use App\Models\User;
+use App\Models\OvertimeRecord;
 
 class IncreaseController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Increase::with(['items.phonePerson', 'items.receivePerson', 'creator'])
-            ->orderBy('increase_date', 'desc');
+        $query = Increase::with([
+            'items.phonePerson', 
+            'items.receivePerson', 
+            'items.furnacePerson',
+            'items.timeSlot',
+            'items.overtimeRecord.user',
+            'creator'
+        ])->orderBy('increase_date', 'desc');
 
         // 日期篩選
         if ($request->filled('start_date')) {
@@ -33,7 +41,8 @@ class IncreaseController extends Controller
     public function create()
     {
         $users = User::where('status', '0')->orderby('level')->orderby('seq')->whereNotIn('job_id', [4,8,9,6,11])->get();
-        return view('increase.create', compact('users'));
+        $timeSlots = NightShiftTimeSlot::getActiveTimeSlots();
+        return view('increase.create', compact('users', 'timeSlots'));
     }
 
     public function store(Request $request)
@@ -42,10 +51,16 @@ class IncreaseController extends Controller
         $request->validate([
             'increase_date' => 'required|date',
             'comment' => 'nullable|string',
-            'increase' => 'required|array',
+            'increase' => 'nullable|array',
             'increase.*.categories' => 'required|array|min:1',
             'increase.*.phone_person' => 'nullable|exists:users,id',
             'increase.*.receive_person' => 'nullable|exists:users,id',
+            'furnace' => 'nullable|array',
+            'furnace.*.time_slot_id' => 'required|exists:night_shift_time_slots,id',
+            'furnace.*.furnace_person' => 'required|exists:users,id',
+            'overtime' => 'nullable|array',
+            'overtime.*.overtime_record' => 'required|exists:overtime_records,id',
+            'overtime.*.overtime_amount' => 'nullable|numeric|min:0',
         ]);
 
         try {
@@ -61,50 +76,90 @@ class IncreaseController extends Controller
             // 取得加成設定
             $settings = IncreaseSetting::getActiveSettings();
 
-            // 處理加成項目
-            foreach ($request->increase as $itemData) {
-                $phoneAmount = 0;
-                $receiveAmount = 0;
+            // 1. 處理傳統加成項目（夜間、晚間、颱風）
+            if ($request->filled('increase')) {
+                foreach ($request->increase as $itemData) {
+                    $increaseItem = new IncreaseItem([
+                        'increase_id' => $increase->id,
+                        'item_type' => 'traditional',
+                        'phone_person_id' => $itemData['phone_person'] ?? null,
+                        'receive_person_id' => $itemData['receive_person'] ?? null,
+                        'furnace_person_id' => null,
+                        'phone_exclude_bonus' => isset($itemData['phone_exclude_bonus']) && $itemData['phone_exclude_bonus'] == '1',
+                        'time_slot_id' => null,
+                    ]);
 
-                // 計算各類別金額
-                foreach ($itemData['categories'] as $category) {
-                    if (isset($settings[$category])) {
-                        $phoneAmount += $settings[$category]->phone_bonus;
-                        $receiveAmount += $settings[$category]->receive_bonus;
-                    }
-                }
-
-                // 建立加成項目
-                $increaseItem = new IncreaseItem([
-                    'increase_id' => $increase->id,
-                    'phone_person_id' => $itemData['phone_person'] ?? null,
-                    'receive_person_id' => $itemData['receive_person'] ?? null,
-                    'phone_exclude_bonus' => isset($itemData['phone_exclude_bonus']) && $itemData['phone_exclude_bonus'] == '1',
-                ]);
-
-                // 設定各類別金額
-                foreach ($itemData['categories'] as $category) {
-                    if (isset($settings[$category])) {
-                        switch ($category) {
-                            case 'night':
-                                $increaseItem->night_phone_amount = $settings[$category]->phone_bonus;
-                                $increaseItem->night_receive_amount = $settings[$category]->receive_bonus;
-                                break;
-                            case 'evening':
-                                $increaseItem->evening_phone_amount = $settings[$category]->phone_bonus;
-                                $increaseItem->evening_receive_amount = $settings[$category]->receive_bonus;
-                                break;
-                            case 'typhoon':
-                                $increaseItem->typhoon_phone_amount = $settings[$category]->phone_bonus;
-                                $increaseItem->typhoon_receive_amount = $settings[$category]->receive_bonus;
-                                break;
+                    // 處理各類別加成
+                    foreach ($itemData['categories'] as $category) {
+                        if (isset($settings[$category])) {
+                            switch ($category) {
+                                case 'night':
+                                    $increaseItem->night_phone_amount = $settings[$category]->phone_bonus;
+                                    $increaseItem->night_receive_amount = $settings[$category]->receive_bonus;
+                                    break;
+                                case 'evening':
+                                    $increaseItem->evening_phone_amount = $settings[$category]->phone_bonus;
+                                    $increaseItem->evening_receive_amount = $settings[$category]->receive_bonus;
+                                    break;
+                                case 'typhoon':
+                                    $increaseItem->typhoon_phone_amount = $settings[$category]->phone_bonus;
+                                    $increaseItem->typhoon_receive_amount = $settings[$category]->receive_bonus;
+                                    break;
+                            }
                         }
                     }
-                }
 
-                // 計算總金額
-                $increaseItem->calculateTotalAmount();
-                $increaseItem->save();
+                    // 計算總金額
+                    $increaseItem->calculateTotalAmount();
+                    $increaseItem->save();
+                }
+            }
+
+            // 2. 處理夜間開爐項目
+            if ($request->filled('furnace')) {
+                foreach ($request->furnace as $furnaceData) {
+                    $furnaceItem = new IncreaseItem([
+                        'increase_id' => $increase->id,
+                        'item_type' => 'furnace',
+                        'phone_person_id' => null,
+                        'receive_person_id' => null,
+                        'furnace_person_id' => $furnaceData['furnace_person'],
+                        'phone_exclude_bonus' => false,
+                        'time_slot_id' => $furnaceData['time_slot_id'],
+                    ]);
+
+                    // 計算總金額（使用時段價格）
+                    $furnaceItem->calculateTotalAmount();
+                    $furnaceItem->save();
+                }
+            }
+
+            // 3. 處理加班費項目
+            if ($request->filled('overtime')) {
+                foreach ($request->overtime as $overtimeData) {
+                    $overtimeRecord = OvertimeRecord::find($overtimeData['overtime_record']);
+                    
+                    if ($overtimeRecord) {
+                        // 使用自定義金額或原始金額
+                        $customAmount = $overtimeData['overtime_amount'] ?? $overtimeRecord->overtime_pay;
+                        
+                        $overtimeItem = new IncreaseItem([
+                            'increase_id' => $increase->id,
+                            'item_type' => 'overtime',
+                            'phone_person_id' => null,
+                            'receive_person_id' => $overtimeRecord->user_id,
+                            'furnace_person_id' => null,
+                            'phone_exclude_bonus' => false,
+                            'time_slot_id' => null,
+                            'overtime_record_id' => $overtimeData['overtime_record'],
+                            'custom_amount' => $customAmount,
+                        ]);
+
+                        // 使用模型的計算方法
+                        $overtimeItem->calculateOvertimeAmount();
+                        $overtimeItem->save();
+                    }
+                }
             }
 
             DB::commit();
@@ -119,10 +174,17 @@ class IncreaseController extends Controller
 
     public function edit($id)
     {
-        $increase = Increase::with(['items.phonePerson', 'items.receivePerson'])->findOrFail($id);
+        $increase = Increase::with([
+            'items.phonePerson', 
+            'items.receivePerson', 
+            'items.furnacePerson',
+            'items.timeSlot',
+            'items.overtimeRecord.user'
+        ])->findOrFail($id);
         $users = User::where('status', '0')->orderby('level')->orderby('seq')->whereNotIn('job_id', [4,8,9,6,11])->get();
+        $timeSlots = NightShiftTimeSlot::getActiveTimeSlots();
         
-        return view('increase.edit', compact('increase', 'users'));
+        return view('increase.edit', compact('increase', 'users', 'timeSlots'));
     }
 
     public function update(Request $request, $id)
@@ -131,10 +193,16 @@ class IncreaseController extends Controller
         $request->validate([
             'increase_date' => 'required|date',
             'comment' => 'nullable|string',
-            'increase' => 'required|array',
+            'increase' => 'nullable|array',
             'increase.*.categories' => 'required|array|min:1',
             'increase.*.phone_person' => 'nullable|exists:users,id',
             'increase.*.receive_person' => 'nullable|exists:users,id',
+            'furnace' => 'nullable|array',
+            'furnace.*.time_slot_id' => 'required|exists:night_shift_time_slots,id',
+            'furnace.*.furnace_person' => 'required|exists:users,id',
+            'overtime' => 'nullable|array',
+            'overtime.*.overtime_record' => 'required|exists:overtime_records,id',
+            'overtime.*.overtime_amount' => 'nullable|numeric|min:0',
         ]);
 
         try {
@@ -153,39 +221,90 @@ class IncreaseController extends Controller
             // 取得加成設定
             $settings = IncreaseSetting::getActiveSettings();
 
-            // 處理新的加成項目
-            foreach ($request->increase as $itemData) {
-                // 建立加成項目
-                $increaseItem = new IncreaseItem([
-                    'increase_id' => $increase->id,
-                    'phone_person_id' => $itemData['phone_person'] ?? null,
-                    'receive_person_id' => $itemData['receive_person'] ?? null,
-                    'phone_exclude_bonus' => isset($itemData['phone_exclude_bonus']) && $itemData['phone_exclude_bonus'] == '1',
-                ]);
+            // 1. 處理傳統加成項目（夜間、晚間、颱風）
+            if ($request->filled('increase')) {
+                foreach ($request->increase as $itemData) {
+                    $increaseItem = new IncreaseItem([
+                        'increase_id' => $increase->id,
+                        'item_type' => 'traditional',
+                        'phone_person_id' => $itemData['phone_person'] ?? null,
+                        'receive_person_id' => $itemData['receive_person'] ?? null,
+                        'furnace_person_id' => null,
+                        'phone_exclude_bonus' => isset($itemData['phone_exclude_bonus']) && $itemData['phone_exclude_bonus'] == '1',
+                        'time_slot_id' => null,
+                    ]);
 
-                // 設定各類別金額
-                foreach ($itemData['categories'] as $category) {
-                    if (isset($settings[$category])) {
-                        switch ($category) {
-                            case 'night':
-                                $increaseItem->night_phone_amount = $settings[$category]->phone_bonus;
-                                $increaseItem->night_receive_amount = $settings[$category]->receive_bonus;
-                                break;
-                            case 'evening':
-                                $increaseItem->evening_phone_amount = $settings[$category]->phone_bonus;
-                                $increaseItem->evening_receive_amount = $settings[$category]->receive_bonus;
-                                break;
-                            case 'typhoon':
-                                $increaseItem->typhoon_phone_amount = $settings[$category]->phone_bonus;
-                                $increaseItem->typhoon_receive_amount = $settings[$category]->receive_bonus;
-                                break;
+                    // 處理各類別加成
+                    foreach ($itemData['categories'] as $category) {
+                        if (isset($settings[$category])) {
+                            switch ($category) {
+                                case 'night':
+                                    $increaseItem->night_phone_amount = $settings[$category]->phone_bonus;
+                                    $increaseItem->night_receive_amount = $settings[$category]->receive_bonus;
+                                    break;
+                                case 'evening':
+                                    $increaseItem->evening_phone_amount = $settings[$category]->phone_bonus;
+                                    $increaseItem->evening_receive_amount = $settings[$category]->receive_bonus;
+                                    break;
+                                case 'typhoon':
+                                    $increaseItem->typhoon_phone_amount = $settings[$category]->phone_bonus;
+                                    $increaseItem->typhoon_receive_amount = $settings[$category]->receive_bonus;
+                                    break;
+                            }
                         }
                     }
-                }
 
-                // 計算總金額
-                $increaseItem->calculateTotalAmount();
-                $increaseItem->save();
+                    // 計算總金額
+                    $increaseItem->calculateTotalAmount();
+                    $increaseItem->save();
+                }
+            }
+
+            // 2. 處理夜間開爐項目
+            if ($request->filled('furnace')) {
+                foreach ($request->furnace as $furnaceData) {
+                    $furnaceItem = new IncreaseItem([
+                        'increase_id' => $increase->id,
+                        'item_type' => 'furnace',
+                        'phone_person_id' => null,
+                        'receive_person_id' => null,
+                        'furnace_person_id' => $furnaceData['furnace_person'],
+                        'phone_exclude_bonus' => false,
+                        'time_slot_id' => $furnaceData['time_slot_id'],
+                    ]);
+
+                    // 計算總金額（使用時段價格）
+                    $furnaceItem->calculateTotalAmount();
+                    $furnaceItem->save();
+                }
+            }
+
+            // 3. 處理加班費項目
+            if ($request->filled('overtime')) {
+                foreach ($request->overtime as $overtimeData) {
+                    $overtimeRecord = OvertimeRecord::find($overtimeData['overtime_record']);
+                    
+                    if ($overtimeRecord) {
+                        // 使用自定義金額或原始金額
+                        $customAmount = $overtimeData['overtime_amount'] ?? $overtimeRecord->overtime_pay;
+                        
+                        $overtimeItem = new IncreaseItem([
+                            'increase_id' => $increase->id,
+                            'item_type' => 'overtime',
+                            'phone_person_id' => null,
+                            'receive_person_id' => $overtimeRecord->user_id,
+                            'furnace_person_id' => null,
+                            'phone_exclude_bonus' => false,
+                            'time_slot_id' => null,
+                            'overtime_record_id' => $overtimeData['overtime_record'],
+                            'custom_amount' => $customAmount,
+                        ]);
+
+                        // 使用模型的計算方法
+                        $overtimeItem->calculateOvertimeAmount();
+                        $overtimeItem->save();
+                    }
+                }
             }
 
             DB::commit();
@@ -223,8 +342,12 @@ class IncreaseController extends Controller
         $endDate = $request->get('end_date');
 
         // 查詢資料
-        $query = Increase::with(['items.phonePerson', 'items.receivePerson'])
-            ->orderBy('increase_date', 'asc');
+        $query = Increase::with([
+            'items.phonePerson', 
+            'items.receivePerson', 
+            'items.furnacePerson',
+            'items.overtimeRecord.user'
+        ])->orderBy('increase_date', 'asc');
 
         if ($startDate) {
             $query->where('increase_date', '>=', $startDate);
@@ -255,132 +378,86 @@ class IncreaseController extends Controller
             }
 
             foreach ($increase->items as $item) {
-                // 處理接電話人員
-                if ($item->phone_person_id) {
-                    $personName = $item->phonePerson->name ?? '未指定';
-                    
-                    // 月度統計
-                    if (!isset($monthlyStats[$month][$personName])) {
-                        $monthlyStats[$month][$personName] = [
-                            'count' => 0,
-                            'total_amount' => 0,
-                            'night_count' => 0,
-                            'evening_count' => 0,
-                            'typhoon_count' => 0
-                        ];
-                    }
-                    
-                    $monthlyStats[$month][$personName]['count']++;
-                    $monthlyStats[$month][$personName]['total_amount'] += $item->total_phone_amount;
-                    
-                    if ($item->night_phone_amount > 0) {
-                        $monthlyStats[$month][$personName]['night_count']++;
-                    }
-                    if ($item->evening_phone_amount > 0) {
-                        $monthlyStats[$month][$personName]['evening_count']++;
-                    }
-                    if ($item->typhoon_phone_amount > 0) {
-                        $monthlyStats[$month][$personName]['typhoon_count']++;
-                    }
+                // 根據項目類型處理
+                switch ($item->item_type) {
+                    case 'traditional':
+                        // 處理傳統加成（接電話人員）
+                        if ($item->phone_person_id) {
+                            $personName = $item->phonePerson->name ?? '未指定';
+                            $this->updateStats($monthlyStats, $dailyStats, $month, $date, $personName, 'traditional', '接電話', $item->total_phone_amount, $item);
+                            
+                            $excelData[] = [
+                                'date' => $date,
+                                'person' => $personName,
+                                'item_type' => '傳統加成',
+                                'category' => $this->getCategoryString($item, 'phone'),
+                                'phone_amount' => $item->phone_exclude_bonus ? 0 : $item->total_phone_amount,
+                                'receive_amount' => 0,
+                                'furnace_amount' => 0,
+                                'overtime_amount' => 0,
+                                'total_amount' => $item->phone_exclude_bonus ? 0 : $item->total_phone_amount
+                            ];
+                        }
 
-                    // 日統計
-                    if (!isset($dailyStats[$date][$personName])) {
-                        $dailyStats[$date][$personName] = [
-                            'count' => 0,
-                            'total_amount' => 0,
-                            'night_count' => 0,
-                            'evening_count' => 0,
-                            'typhoon_count' => 0
-                        ];
-                    }
-                    
-                    $dailyStats[$date][$personName]['count']++;
-                    $dailyStats[$date][$personName]['total_amount'] += $item->total_phone_amount;
-                    
-                    if ($item->night_phone_amount > 0) {
-                        $dailyStats[$date][$personName]['night_count']++;
-                    }
-                    if ($item->evening_phone_amount > 0) {
-                        $dailyStats[$date][$personName]['evening_count']++;
-                    }
-                    if ($item->typhoon_phone_amount > 0) {
-                        $dailyStats[$date][$personName]['typhoon_count']++;
-                    }
+                        // 處理傳統加成（接件人員）
+                        if ($item->receive_person_id) {
+                            $personName = $item->receivePerson->name ?? '未指定';
+                            $this->updateStats($monthlyStats, $dailyStats, $month, $date, $personName, 'traditional', '接件', $item->total_receive_amount, $item);
+                            
+                            $excelData[] = [
+                                'date' => $date,
+                                'person' => $personName,
+                                'item_type' => '傳統加成',
+                                'category' => $this->getCategoryString($item, 'receive'),
+                                'phone_amount' => 0,
+                                'receive_amount' => $item->total_receive_amount,
+                                'furnace_amount' => 0,
+                                'overtime_amount' => 0,
+                                'total_amount' => $item->total_receive_amount
+                            ];
+                        }
+                        break;
 
-                    // 準備詳細資料
-                    $excelData[] = [
-                        'date' => $date,
-                        'person' => $personName,
-                        'type' => '接電話',
-                        'night_amount' => $item->night_phone_amount,
-                        'evening_amount' => $item->evening_phone_amount,
-                        'typhoon_amount' => $item->typhoon_phone_amount,
-                        'total_amount' => $item->total_phone_amount
-                    ];
-                }
+                    case 'furnace':
+                        // 處理夜間開爐
+                        if ($item->furnace_person_id) {
+                            $personName = $item->furnacePerson->name ?? '未指定';
+                            $this->updateStats($monthlyStats, $dailyStats, $month, $date, $personName, 'furnace', '夜間開爐', $item->total_amount, $item);
+                            
+                            $excelData[] = [
+                                'date' => $date,
+                                'person' => $personName,
+                                'item_type' => '夜間開爐',
+                                'category' => '夜間開爐',
+                                'phone_amount' => 0,
+                                'receive_amount' => 0,
+                                'furnace_amount' => $item->total_amount,
+                                'overtime_amount' => 0,
+                                'total_amount' => $item->total_amount
+                            ];
+                        }
+                        break;
 
-                // 處理接件人員
-                if ($item->receive_person_id) {
-                    $personName = $item->receivePerson->name ?? '未指定';
-                    
-                    // 月度統計
-                    if (!isset($monthlyStats[$month][$personName])) {
-                        $monthlyStats[$month][$personName] = [
-                            'count' => 0,
-                            'total_amount' => 0,
-                            'night_count' => 0,
-                            'evening_count' => 0,
-                            'typhoon_count' => 0
-                        ];
-                    }
-                    
-                    $monthlyStats[$month][$personName]['count']++;
-                    $monthlyStats[$month][$personName]['total_amount'] += $item->total_receive_amount;
-                    
-                    if ($item->night_receive_amount > 0) {
-                        $monthlyStats[$month][$personName]['night_count']++;
-                    }
-                    if ($item->evening_receive_amount > 0) {
-                        $monthlyStats[$month][$personName]['evening_count']++;
-                    }
-                    if ($item->typhoon_receive_amount > 0) {
-                        $monthlyStats[$month][$personName]['typhoon_count']++;
-                    }
-
-                    // 日統計
-                    if (!isset($dailyStats[$date][$personName])) {
-                        $dailyStats[$date][$personName] = [
-                            'count' => 0,
-                            'total_amount' => 0,
-                            'night_count' => 0,
-                            'evening_count' => 0,
-                            'typhoon_count' => 0
-                        ];
-                    }
-                    
-                    $dailyStats[$date][$personName]['count']++;
-                    $dailyStats[$date][$personName]['total_amount'] += $item->total_receive_amount;
-                    
-                    if ($item->night_receive_amount > 0) {
-                        $dailyStats[$date][$personName]['night_count']++;
-                    }
-                    if ($item->evening_receive_amount > 0) {
-                        $dailyStats[$date][$personName]['evening_count']++;
-                    }
-                    if ($item->typhoon_receive_amount > 0) {
-                        $dailyStats[$date][$personName]['typhoon_count']++;
-                    }
-
-                    // 準備詳細資料
-                    $excelData[] = [
-                        'date' => $date,
-                        'person' => $personName,
-                        'type' => '接件',
-                        'night_amount' => $item->night_receive_amount,
-                        'evening_amount' => $item->evening_receive_amount,
-                        'typhoon_amount' => $item->typhoon_receive_amount,
-                        'total_amount' => $item->total_receive_amount
-                    ];
+                    case 'overtime':
+                        // 處理加班費
+                        if ($item->overtime_record_id) {
+                            $personName = $item->overtimeRecord->user->name ?? '未指定';
+                            $overtimeAmount = $item->custom_amount ?? $item->total_amount;
+                            $this->updateStats($monthlyStats, $dailyStats, $month, $date, $personName, 'overtime', '加班費', $overtimeAmount, $item);
+                            
+                            $excelData[] = [
+                                'date' => $date,
+                                'person' => $personName,
+                                'item_type' => '加班費',
+                                'category' => '加班費',
+                                'phone_amount' => 0,
+                                'receive_amount' => 0,
+                                'furnace_amount' => 0,
+                                'overtime_amount' => $overtimeAmount,
+                                'total_amount' => $overtimeAmount
+                            ];
+                        }
+                        break;
                 }
             }
         }
@@ -399,17 +476,19 @@ class IncreaseController extends Controller
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
             
             // 寫入標題
-            fputcsv($file, ['加成日期', '人員', '類型', '夜間加成', '晚間加成', '颱風加成', '總金額']);
+            fputcsv($file, ['加成日期', '人員', '項目類型', '加成類別', '接電話', '接件', '夜間開爐', '加班費', '總金額']);
             
             // 寫入詳細資料
             foreach ($excelData as $row) {
                 fputcsv($file, [
                     $row['date'],
                     $row['person'],
-                    $row['type'],
-                    $row['night_amount'],
-                    $row['evening_amount'],
-                    $row['typhoon_amount'],
+                    $row['item_type'],
+                    $row['category'],
+                    $row['phone_amount'],
+                    $row['receive_amount'],
+                    $row['furnace_amount'],
+                    $row['overtime_amount'],
                     $row['total_amount']
                 ]);
             }
@@ -419,7 +498,7 @@ class IncreaseController extends Controller
             
             // 寫入日統計
             fputcsv($file, ['日統計']);
-            fputcsv($file, ['日期', '人員', '記錄次數', '總金額', '夜間次數', '晚間次數', '颱風次數']);
+            fputcsv($file, ['日期', '人員', '記錄次數', '總金額', '傳統加成次數', '夜間開爐次數', '加班費次數']);
             
             foreach ($dailyStats as $date => $persons) {
                 foreach ($persons as $person => $stats) {
@@ -428,9 +507,9 @@ class IncreaseController extends Controller
                         $person,
                         $stats['count'],
                         $stats['total_amount'],
-                        $stats['night_count'],
-                        $stats['evening_count'],
-                        $stats['typhoon_count']
+                        $stats['traditional_count'],
+                        $stats['furnace_count'],
+                        $stats['overtime_count']
                     ]);
                 }
             }
@@ -440,7 +519,7 @@ class IncreaseController extends Controller
             
             // 寫入月度統計
             fputcsv($file, ['月度統計']);
-            fputcsv($file, ['月份', '人員', '記錄次數', '總金額', '夜間次數', '晚間次數', '颱風次數']);
+            fputcsv($file, ['月份', '人員', '記錄次數', '總金額', '傳統加成次數', '夜間開爐次數', '加班費次數']);
             
             foreach ($monthlyStats as $month => $persons) {
                 foreach ($persons as $person => $stats) {
@@ -449,9 +528,9 @@ class IncreaseController extends Controller
                         $person,
                         $stats['count'],
                         $stats['total_amount'],
-                        $stats['night_count'],
-                        $stats['evening_count'],
-                        $stats['typhoon_count']
+                        $stats['traditional_count'],
+                        $stats['furnace_count'],
+                        $stats['overtime_count']
                     ]);
                 }
             }
@@ -460,5 +539,121 @@ class IncreaseController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * 更新統計資料
+     */
+    private function updateStats(&$monthlyStats, &$dailyStats, $month, $date, $personName, $type, $subType, $amount, $item)
+    {
+        // 月度統計
+        if (!isset($monthlyStats[$month][$personName])) {
+            $monthlyStats[$month][$personName] = [
+                'count' => 0,
+                'total_amount' => 0,
+                'traditional_count' => 0,
+                'furnace_count' => 0,
+                'overtime_count' => 0
+            ];
+        }
+        
+        $monthlyStats[$month][$personName]['count']++;
+        $monthlyStats[$month][$personName]['total_amount'] += $amount;
+        
+        switch ($type) {
+            case 'traditional':
+                $monthlyStats[$month][$personName]['traditional_count']++;
+                break;
+            case 'furnace':
+                $monthlyStats[$month][$personName]['furnace_count']++;
+                break;
+            case 'overtime':
+                $monthlyStats[$month][$personName]['overtime_count']++;
+                break;
+        }
+
+        // 日統計
+        if (!isset($dailyStats[$date][$personName])) {
+            $dailyStats[$date][$personName] = [
+                'count' => 0,
+                'total_amount' => 0,
+                'traditional_count' => 0,
+                'furnace_count' => 0,
+                'overtime_count' => 0
+            ];
+        }
+        
+        $dailyStats[$date][$personName]['count']++;
+        $dailyStats[$date][$personName]['total_amount'] += $amount;
+        
+        switch ($type) {
+            case 'traditional':
+                $dailyStats[$date][$personName]['traditional_count']++;
+                break;
+            case 'furnace':
+                $dailyStats[$date][$personName]['furnace_count']++;
+                break;
+            case 'overtime':
+                $dailyStats[$date][$personName]['overtime_count']++;
+                break;
+        }
+    }
+
+    /**
+     * 取得類別字串
+     */
+    private function getCategoryString($item, $type)
+    {
+        $categories = [];
+        
+        if ($type === 'phone') {
+            if ($item->night_phone_amount > 0) $categories[] = '夜間';
+            if ($item->evening_phone_amount > 0) $categories[] = '晚間';
+            if ($item->typhoon_phone_amount > 0) $categories[] = '颱風';
+        } else {
+            if ($item->night_receive_amount > 0) $categories[] = '夜間';
+            if ($item->evening_receive_amount > 0) $categories[] = '晚間';
+            if ($item->typhoon_receive_amount > 0) $categories[] = '颱風';
+        }
+        
+        return implode('、', $categories) ?: '無';
+    }
+
+    /**
+     * 取得指定日期的加班記錄
+     */
+    public function getOvertimeRecords($date)
+    {
+        try {
+            $overtimeRecords = OvertimeRecord::with('user')
+                ->where('overtime_date', $date)
+                ->get()
+                ->map(function ($record) {
+                    return [
+                        'id' => $record->id,
+                        'user_id' => $record->user_id,
+                        'user_name' => $record->user->name ?? '未知人員',
+                        'minutes' => $record->minutes,
+                        'formatted_hours' => $record->formatted_hours,
+                        'overtime_pay' => $record->overtime_pay,
+                        'reason' => $record->reason,
+                        'first_two_hours' => $record->first_two_hours,
+                        'remaining_hours' => $record->remaining_hours,
+                        'first_two_hours_pay' => $record->first_two_hours_pay,
+                        'remaining_hours_pay' => $record->remaining_hours_pay,
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'records' => $overtimeRecords
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => '取得加班記錄失敗：' . $e->getMessage()
+            ], 500);
+        }
     }
 }

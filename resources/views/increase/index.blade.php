@@ -58,93 +58,266 @@
                         <div class="col-12">
                         <div class="card">
                             <div class="card-body">
-                        <div class="table-responsive ">
-                            <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
+                        @if($datas->count() > 0)
+                            @foreach ($datas as $data)
+                                <div class="card mb-4">
+                                    <div class="card-header bg-light">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-6">
+                                                <h5 class="mb-0">
+                                                    <i class="mdi mdi-calendar me-2"></i>
+                                                    {{ $data->increase_date->format('Y年m月d日') }} ({{ $data->increase_date->format('l') }})
+                                                </h5>
+                                            </div>
+                                            <div class="col-md-6 text-end">
+                                                <div class="btn-group">
+                                                    <a href="{{ route('increase.edit',$data->id) }}" class="btn btn-sm btn-outline-primary">
+                                                        <i class="mdi mdi-pencil me-1"></i>編輯
+                                                    </a>
+                                                    <a href="{{ route('increase.del',$data->id) }}" class="btn btn-sm btn-outline-danger">
+                                                        <i class="mdi mdi-delete me-1"></i>刪除
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @if($data->comment)
+                                            <div class="mt-2">
+                                                <small class="text-muted">
+                                                    <i class="mdi mdi-note-text me-1"></i>備註：{{ $data->comment }}
+                                                </small>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="card-body p-0">
+                                        @php
+                                            // 按人員分組統計
+                                            $personStats = [];
+                                            foreach ($data->items as $item) {
+                                                // 處理接電話人員
+                                                if ($item->phone_person_id) {
+                                                    $personId = $item->phone_person_id;
+                                                    $personName = $item->phonePerson->name ?? '未指定';
+                                                    
+                                                    if (!isset($personStats[$personId])) {
+                                                        $personStats[$personId] = [
+                                                            'name' => $personName,
+                                                            'phone_amount' => 0,
+                                                            'receive_amount' => 0,
+                                                            'furnace_amount' => 0,
+                                                            'overtime_amount' => 0,
+                                                            'total_amount' => 0,
+                                                            'categories' => [],
+                                                            'phone_exclude_bonus' => false
+                                                        ];
+                                                    }
+                                                    
+                                                    $phoneAmount = $item->phone_exclude_bonus ? 0 : $item->total_phone_amount;
+                                                    $personStats[$personId]['phone_amount'] += $phoneAmount;
+                                                    $personStats[$personId]['phone_exclude_bonus'] = $item->phone_exclude_bonus;
+                                                    
+                                                    // 記錄類別
+                                                    if ($item->night_phone_amount > 0) $personStats[$personId]['categories'][] = '夜間';
+                                                    if ($item->evening_phone_amount > 0) $personStats[$personId]['categories'][] = '晚間';
+                                                    if ($item->typhoon_phone_amount > 0) $personStats[$personId]['categories'][] = '颱風';
+                                                }
+                                                
+                                                    // 處理接件人員
+                                                if ($item->receive_person_id) {
+                                                    $personId = $item->receive_person_id;
+                                                    $personName = $item->receivePerson->name ?? '未指定';
+                                                    
+                                                    if (!isset($personStats[$personId])) {
+                                                        $personStats[$personId] = [
+                                                            'name' => $personName,
+                                                            'phone_amount' => 0,
+                                                            'receive_amount' => 0,
+                                                            'furnace_amount' => 0,
+                                                            'overtime_amount' => 0,
+                                                            'total_amount' => 0,
+                                                            'categories' => [],
+                                                            'phone_exclude_bonus' => false
+                                                        ];
+                                                    }
+                                                    
+                                                    $receiveAmount = $item->total_receive_amount;
+                                                    $personStats[$personId]['receive_amount'] += $receiveAmount;
+                                                    
+                                                    // 記錄類別
+                                                    if ($item->night_receive_amount > 0) $personStats[$personId]['categories'][] = '夜間';
+                                                    if ($item->evening_receive_amount > 0) $personStats[$personId]['categories'][] = '晚間';
+                                                    if ($item->typhoon_receive_amount > 0) $personStats[$personId]['categories'][] = '颱風';
+                                                }
+                                                
+                                                // 處理夜間開爐人員
+                                                if ($item->furnace_person_id) {
+                                                    $personId = $item->furnace_person_id;
+                                                    $personName = $item->furnacePerson->name ?? '未指定';
+                                                    
+                                                    if (!isset($personStats[$personId])) {
+                                                        $personStats[$personId] = [
+                                                            'name' => $personName,
+                                                            'phone_amount' => 0,
+                                                            'receive_amount' => 0,
+                                                            'furnace_amount' => 0,
+                                                            'overtime_amount' => 0,
+                                                            'total_amount' => 0,
+                                                            'categories' => [],
+                                                            'phone_exclude_bonus' => false
+                                                        ];
+                                                    }
+                                                    
+                                                    $furnaceAmount = $item->total_amount;
+                                                    $personStats[$personId]['furnace_amount'] += $furnaceAmount;
+                                                    $personStats[$personId]['categories'][] = '夜間開爐';
+                                                }
+                                                
+                                                // 處理加班費人員
+                                                if ($item->overtime_record_id) {
+                                                    $personId = $item->receive_person_id; // 加班費的 receive_person_id 就是加班人員
+                                                    $personName = $item->overtimeRecord->user->name ?? '未指定';
+                                                    
+                                                    if (!isset($personStats[$personId])) {
+                                                        $personStats[$personId] = [
+                                                            'name' => $personName,
+                                                            'phone_amount' => 0,
+                                                            'receive_amount' => 0,
+                                                            'furnace_amount' => 0,
+                                                            'overtime_amount' => 0,
+                                                            'total_amount' => 0,
+                                                            'categories' => [],
+                                                            'phone_exclude_bonus' => false
+                                                        ];
+                                                    }
+                                                    
+                                                    $overtimeAmount = $item->custom_amount ?? $item->total_amount;
+                                                    $personStats[$personId]['overtime_amount'] += $overtimeAmount;
+                                                    $personStats[$personId]['categories'][] = '加班費';
+                                                }
+                                            }
+                                            
+                                                    // 去重複類別並計算總計
+                                            foreach ($personStats as &$stats) {
+                                                $stats['categories'] = array_unique($stats['categories']);
+                                                $stats['categories'] = array_values($stats['categories']);
+                                                // 計算總計：接電話 + 接件 + 夜間開爐 + 加班費
+                                                $stats['total_amount'] = $stats['phone_amount'] + $stats['receive_amount'] + $stats['furnace_amount'] + $stats['overtime_amount'];
+                                            }
+                                        @endphp
+                                        
+                                        @if(count($personStats) > 0)
+                                            <div class="table-responsive">
+                                                <table class="table table-hover mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>加成日期</th>
-                                        <th>人員</th>
-                                        <th>類型</th>
-                                        <th>夜間加成</th>
-                                        <th>晚間加成</th>
-                                        <th>颱風加成</th>
-                                        <th>總金額</th>
-                                        <th>動作</th>
+                                                            <th style="width: 18%;">人員</th>
+                                                            <th style="width: 22%;">加成類別</th>
+                                                            <th style="width: 12%;">接電話</th>
+                                                            <th style="width: 12%;">接件</th>
+                                                            <th style="width: 12%;">夜間開爐</th>
+                                                            <th style="width: 12%;">加班費</th>
+                                                            <th style="width: 12%;">總計</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                @foreach ($datas as $key=>$data)
-                                    @php
-                                        $itemCount = 0;
-                                        foreach ($data->items as $item) {
-                                            if ($item->phone_person_id) $itemCount++;
-                                            if ($item->receive_person_id) $itemCount++;
-                                        }
+                                                        @foreach ($personStats as $personId => $stats)
+                                                            <tr>
+                                                                <td>
+                                                                    <div class="d-flex align-items-center">
+                                                                        <div class="avatar-sm bg-primary rounded-circle d-flex align-items-center justify-content-center me-2">
+                                                                            <span class="avatar-title text-white font-weight-bold">
+                                                                                {{ mb_substr($stats['name'], 0, 1) }}
+                                                                            </span>
+                                                                        </div>
+                                                                        <div>
+                                                                            <h6 class="mb-0">{{ $stats['name'] }}</h6>
+                                                                            @if($stats['phone_exclude_bonus'])
+                                                                                <small class="text-muted">(接電話不計入獎金)</small>
+                                                                            @endif
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    @if(count($stats['categories']) > 0)
+                                                                        @foreach ($stats['categories'] as $category)
+                                                                            @php
+                                                                                $badgeClass = match($category) {
+                                                                                    '夜間' => 'bg-primary',
+                                                                                    '晚間' => 'bg-success', 
+                                                                                    '颱風' => 'bg-warning',
+                                                                                    '加班費' => 'bg-info',
+                                                                                    '夜間開爐' => 'bg-secondary',
+                                                                                    default => 'bg-light text-dark'
+                                                                                };
                                     @endphp
-                                    
-                                    @foreach ($data->items as $index => $item)
-                                        @if($item->phone_person_id)
-                                            <tr>
-                                                @if($index == 0)
-                                                    <td rowspan="{{ $itemCount }}" class="align-middle">
-                                                        <strong>{{ $data->increase_date->format('Y-m-d') }}</strong>
+                                                                            <span class="badge {{ $badgeClass }} me-1 mb-1">{{ $category }}</span>
+                                                                        @endforeach
+                                                                    @else
+                                                                        <span class="text-muted">無</span>
+                                                                    @endif
                                                     </td>
+                                                                <td>
+                                                                    @if($stats['phone_amount'] > 0)
+                                                                        <span class="text-primary fw-bold">${{ number_format($stats['phone_amount'], 0) }}</span>
+                                                                    @else
+                                                                        <span class="text-muted">$0</span>
                                                 @endif
-                                                <td>
-                                                    {{ $item->phonePerson->name ?? '未指定' }}
-                                                    @if($item->phone_exclude_bonus)
-                                                        <br><small class="text-muted">(不計入獎金)</small>
+                                                                </td>
+                                                                <td>
+                                                                    @if($stats['receive_amount'] > 0)
+                                                                        <span class="text-success fw-bold">${{ number_format($stats['receive_amount'], 0) }}</span>
+                                                                    @else
+                                                                        <span class="text-muted">$0</span>
+                                                                    @endif
+                                                                </td>
+                                                                <td>
+                                                                    @if($stats['furnace_amount'] > 0)
+                                                                        <span class="text-secondary fw-bold">${{ number_format($stats['furnace_amount'], 0) }}</span>
+                                                                    @else
+                                                                        <span class="text-muted">$0</span>
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    <span class="badge bg-primary">接電話</span>
-                                                    @if($item->phone_exclude_bonus)
-                                                        <br><small class="text-muted">不計入獎金</small>
+                                                                    @if($stats['overtime_amount'] > 0)
+                                                                        <span class="text-info fw-bold">${{ number_format($stats['overtime_amount'], 0) }}</span>
+                                                                    @else
+                                                                        <span class="text-muted">$0</span>
                                                     @endif
                                                 </td>
-                                                <td>${{ number_format($item->night_phone_amount, 0) }}</td>
-                                                <td>${{ number_format($item->evening_phone_amount, 0) }}</td>
-                                                <td>${{ number_format($item->typhoon_phone_amount, 0) }}</td>
-                                                <td>${{ number_format($item->total_phone_amount, 0) }}</td>
-                                                <td>
-                                                    <div class="btn-group dropdown">
-                                                        <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-outline-secondary waves-effect" data-bs-toggle="dropdown" aria-expanded="false">動作 <i class="mdi mdi-arrow-down-drop-circle"></i></a>
-                                                        <div class="dropdown-menu dropdown-menu-end">
-                                                            <a class="dropdown-item" href="{{ route('increase.edit',$data->id) }}"><i class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
-                                                            <a class="dropdown-item" href="{{ route('increase.del',$data->id) }}"><i class="mdi mdi-delete me-2 text-muted font-18 vertical-middle"></i>刪除</a>
-                                                        </div>
-                                                    </div>
+                                                                <td>
+                                                                    <span class="text-dark fw-bold fs-6">${{ number_format($stats['total_amount'], 0) }}</span>
                                                 </td>
                                             </tr>
-                                        @endif
-                                        @if($item->receive_person_id)
-                                            <tr>
-                                                @if($index == 0 && !$item->phone_person_id)
-                                                    <td rowspan="{{ $itemCount }}" class="align-middle">
-                                                        <strong>{{ $data->increase_date->format('Y-m-d') }}</strong>
-                                                    </td>
-                                                @endif
-                                                <td>{{ $item->receivePerson->name ?? '未指定' }}</td>
-                                                <td><span class="badge bg-success">接件</span></td>
-                                                <td>${{ number_format($item->night_receive_amount, 0) }}</td>
-                                                <td>${{ number_format($item->evening_receive_amount, 0) }}</td>
-                                                <td>${{ number_format($item->typhoon_receive_amount, 0) }}</td>
-                                                <td>${{ number_format($item->total_receive_amount, 0) }}</td>
-                                                <td>
-                                                    <div class="btn-group dropdown">
-                                                        <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-outline-secondary waves-effect" data-bs-toggle="dropdown" aria-expanded="false">動作 <i class="mdi mdi-arrow-down-drop-circle"></i></a>
-                                                        <div class="dropdown-menu dropdown-menu-end">
-                                                            <a class="dropdown-item" href="{{ route('increase.edit',$data->id) }}"><i class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
-                                                            <a class="dropdown-item" href="{{ route('increase.del',$data->id) }}"><i class="mdi mdi-delete me-2 text-muted font-18 vertical-middle"></i>刪除</a>
-                                                        </div>
-                                                    </div>
+                                                        @endforeach
+                                                    </tbody>
+                                                    <tfoot class="table-light">
+                                                        <tr>
+                                                            <td colspan="6" class="text-end fw-bold">當日總計：</td>
+                                                            <td class="fw-bold fs-5 text-primary">
+                                                                ${{ number_format(array_sum(array_column($personStats, 'total_amount')), 0) }}
                                                 </td>
                                             </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        @else
+                                            <div class="text-center py-4">
+                                                <i class="mdi mdi-information-outline text-muted" style="font-size: 48px;"></i>
+                                                <p class="text-muted mt-2">此日期無加成記錄</p>
+                                            </div>
                                         @endif
+                                    </div>
+                                </div>
                                     @endforeach
-                                @endforeach
-                                </tbody>
-                            </table>
+                        @else
+                            <div class="text-center py-5">
+                                <i class="mdi mdi-calendar-remove-outline text-muted" style="font-size: 64px;"></i>
+                                <h4 class="text-muted mt-3">沒有找到加成記錄</h4>
+                                <p class="text-muted">請調整搜尋條件或建立新的加成記錄</p>
+                                <a href="{{ route('increase.create') }}" class="btn btn-primary">
+                                    <i class="mdi mdi-plus me-1"></i>新增加成記錄
+                                </a>
+                            </div>
+                        @endif
                             <br>
                             <ul class="pagination pagination-rounded justify-content-end mb-0">
                                 {{ $datas->links('vendor.pagination.bootstrap-4') }}

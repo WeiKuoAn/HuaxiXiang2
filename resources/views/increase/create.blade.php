@@ -83,6 +83,41 @@
             color: #28a745;
             cursor: pointer;
         }
+
+        /* 確保夜間開爐時段選擇為三欄布局 */
+        #time-slot-section-0:not([style*="display: none"]) {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            align-items: flex-start !important;
+        }
+        
+        #time-slot-section-0 .col-4 {
+            flex: 0 0 33.333333% !important;
+            max-width: 33.333333% !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        /* 修正 select2 在夜間開爐區段的樣式 */
+        #time-slot-section-0 .select2-container {
+            width: 100% !important;
+            margin-top: 0 !important;
+        }
+        
+        #time-slot-section-0 .select2-selection {
+            height: 38px !important;
+            border: 1px solid #ced4da !important;
+            border-radius: 0.375rem !important;
+        }
+        
+        #time-slot-section-0 .select2-selection__rendered {
+            line-height: 36px !important;
+            padding-left: 12px !important;
+        }
+        
+        #time-slot-section-0 .select2-selection__arrow {
+            height: 36px !important;
+        }
     </style>
 @endsection
 
@@ -131,10 +166,10 @@
                                 </div>
                             </div>
 
-                            <!-- 1-3. 加成類別（夜間、晚間、颱風） -->
+                            <!-- 1. 加成類別區段（夜間、晚間、颱風） -->
                             <div class="category-section">
                                 <h5 class="category-title">
-                                    <i class="fe-users me-2"></i>加成類別（夜間、晚間、颱風）
+                                    <i class="fe-award me-2"></i>加成類別（夜間、晚間、颱風）
                                 </h5>
                                 <div id="increase-container">
                                     <div class="person-row" data-index="0">
@@ -166,6 +201,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                
                                                 <!-- 人員選擇 -->
                                                 <div class="row">
                                                     <div class="col-md-6">
@@ -218,55 +254,103 @@
                                 </button>
                             </div>
 
-                            <!-- 4. 加班 -->
-                            {{-- <div class="category-section">
+                            <!-- 2. 夜間開爐區段 -->
+                            <div class="category-section">
                                 <h5 class="category-title">
-                                    <i class="fe-clock me-2"></i>加班
+                                    <i class="fe-thermometer me-2"></i>夜間開爐
                                 </h5>
-                                <div id="overtime-container">
-                                    <div class="overtime-row" data-index="0">
+                                <div id="furnace-container">
+                                    <div class="person-row" data-furnace-index="0">
                                         <div class="row">
-                                            <div class="col-md-3">
-                                                <label class="form-label">加班人員</label>
-                                                <select class="form-control" name="overtime[0][person]" data-toggle="select">
+                                            <div class="col-md-4">
+                                                <label class="form-label">夜間開爐時段</label>
+                                                <select class="form-control" name="furnace[0][time_slot_id]" id="furnace_time_slot_0" onchange="calculateFurnacePrice(0)">
+                                                    <option value="">請選擇時段</option>
+                                                    @foreach ($timeSlots ?? [] as $timeSlot)
+                                                        <option value="{{ $timeSlot->id }}" 
+                                                                data-price="{{ $timeSlot->price }}">
+                                                            {{ $timeSlot->full_description }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">負責人員</label>
+                                                <select class="form-control" name="furnace[0][furnace_person]" data-toggle="select">
                                                     <option value="">請選擇人員</option>
                                                     @foreach ($users ?? [] as $user)
                                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            <div class="col-md-2">
-                                                <label class="form-label">加班分鐘</label>
-                                                <input type="number" class="form-control overtime-minutes"
-                                                    name="overtime[0][minutes]" placeholder="分鐘"
-                                                    onkeyup="calculateOvertimePay(this)"
-                                                    onchange="calculateOvertimePay(this)">
+                                            <div class="col-md-4">
+                                                <label class="form-label">計算價格</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">$</span>
+                                                    <input type="text" class="form-control" id="furnace_calculated_price_0" readonly>
+                                                </div>
+                                                <small class="text-muted">根據時段自動計算</small>
                                             </div>
-                                            <div class="col-md-2">
-                                                <label class="form-label">加班費計算</label>
-                                                <div class="overtime-calculation" id="overtime-calculation-0">
-                                                    <small class="text-muted">請輸入加班分鐘</small>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-12">
+                                                <button type="button" class="btn btn-sm btn-outline-danger remove-furnace"
+                                                    onclick="removeFurnace(this)">
+                                                    <i class="fe-trash-2 me-1"></i>移除
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-success" onclick="addFurnace()">
+                                    <i class="fe-plus me-1"></i>新增夜間開爐
+                                </button>
+                            </div>
+
+                            <!-- 3. 加班費區段 -->
+                            <div class="category-section">
+                                <h5 class="category-title">
+                                    <i class="fe-clock me-2"></i>加班費
+                                </h5>
+                                <div id="overtime-container">
+                                    <div class="person-row" data-overtime-index="0">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label class="form-label">加班記錄選擇</label>
+                                                <div id="overtime-records-container-0">
+                                                    <div class="alert alert-info">
+                                                        <i class="fe-info me-2"></i>請選擇加成日期以載入該日期的加班記錄
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label">事由</label>
-                                                <input type="text" class="form-control" name="overtime[0][reason]"
-                                                    placeholder="請輸入加班事由">
+                                            <div class="col-md-6">
+                                                <div id="overtime_amount_input_dropdown_0" style="display: none;">
+                                                    <label class="form-label">調整加班費金額</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">$</span>
+                                                        <input type="number" class="form-control" name="overtime[0][overtime_amount]" 
+                                                               id="overtime_amount_field_0" min="0" step="1" 
+                                                               onchange="updateOvertimeAmountDisplay(0, this.value)">
+                                                    </div>
+                                                    <small class="text-muted">可自行調整加班費金額</small>
+                                                </div>
                                             </div>
-                                            <div class="col-md-1 d-flex align-items-end justify-content-center">
-                                                <button type="button"
-                                                    class="btn btn-sm btn-outline-danger remove-overtime"
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-12">
+                                                <button type="button" class="btn btn-sm btn-outline-danger remove-overtime"
                                                     onclick="removeOvertime(this)">
-                                                    <i class="fe-trash-2"></i>
+                                                    <i class="fe-trash-2 me-1"></i>移除
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <button type="button" class="btn btn-sm btn-outline-success" onclick="addOvertime()">
-                                    <i class="fe-plus me-1"></i>新增加班記錄
+                                    <i class="fe-plus me-1"></i>新增加班費
                                 </button>
-                            </div> --}}
+                            </div>
+
 
                             <!-- 提交按鈕 -->
                             <div class="row mt-4">
@@ -389,6 +473,112 @@
             $(newRow).find('select[data-toggle="select"]').select2();
         }
 
+        // 新增夜間開爐
+        function addFurnace() {
+            const container = document.getElementById('furnace-container');
+            const existingRows = container.querySelectorAll('.person-row');
+            const newIndex = existingRows.length;
+
+            const newRow = document.createElement('div');
+            newRow.className = 'person-row';
+            newRow.setAttribute('data-furnace-index', newIndex);
+
+            newRow.innerHTML = `
+         <div class="row">
+             <div class="col-md-4">
+                 <label class="form-label">夜間開爐時段</label>
+                 <select class="form-control" name="furnace[${newIndex}][time_slot_id]" id="furnace_time_slot_${newIndex}" onchange="calculateFurnacePrice(${newIndex})">
+                     <option value="">請選擇時段</option>
+                     @foreach ($timeSlots ?? [] as $timeSlot)
+                         <option value="{{ $timeSlot->id }}" data-price="{{ $timeSlot->price }}">
+                             {{ $timeSlot->full_description }}
+                         </option>
+                     @endforeach
+                 </select>
+             </div>
+             <div class="col-md-4">
+                 <label class="form-label">負責人員</label>
+                 <select class="form-control" name="furnace[${newIndex}][furnace_person]" data-toggle="select">
+                     <option value="">請選擇人員</option>
+                     @foreach ($users ?? [] as $user)
+                         <option value="{{ $user->id }}">{{ $user->name }}</option>
+                     @endforeach
+                 </select>
+             </div>
+             <div class="col-md-4">
+                 <label class="form-label">計算價格</label>
+                 <div class="input-group">
+                     <span class="input-group-text">$</span>
+                     <input type="text" class="form-control" id="furnace_calculated_price_${newIndex}" readonly>
+                 </div>
+                 <small class="text-muted">根據時段自動計算</small>
+             </div>
+         </div>
+         <div class="row mt-2">
+             <div class="col-md-12">
+                 <button type="button" class="btn btn-sm btn-outline-danger remove-furnace" onclick="removeFurnace(this)">
+                     <i class="fe-trash-2 me-1"></i>移除
+                 </button>
+             </div>
+         </div>
+    `;
+
+            container.appendChild(newRow);
+
+            // 重新初始化 select2
+            $(newRow).find('select[data-toggle="select"]').select2();
+        }
+
+        // 新增加班費
+        function addOvertime() {
+            const container = document.getElementById('overtime-container');
+            const existingRows = container.querySelectorAll('.person-row');
+            const newIndex = existingRows.length;
+
+            const newRow = document.createElement('div');
+            newRow.className = 'person-row';
+            newRow.setAttribute('data-overtime-index', newIndex);
+
+            newRow.innerHTML = `
+         <div class="row">
+             <div class="col-md-6">
+                 <label class="form-label">加班記錄選擇</label>
+                 <div id="overtime-records-container-${newIndex}">
+                     <div class="alert alert-info">
+                         <i class="fe-info me-2"></i>請選擇加成日期以載入該日期的加班記錄
+                     </div>
+                 </div>
+             </div>
+             <div class="col-md-6">
+                 <div id="overtime_amount_input_dropdown_${newIndex}" style="display: none;">
+                     <label class="form-label">調整加班費金額</label>
+                     <div class="input-group">
+                         <span class="input-group-text">$</span>
+                         <input type="number" class="form-control" name="overtime[${newIndex}][overtime_amount]" 
+                                id="overtime_amount_field_${newIndex}" min="0" step="1" 
+                                onchange="updateOvertimeAmountDisplay(${newIndex}, this.value)">
+                     </div>
+                     <small class="text-muted">可自行調整加班費金額</small>
+                 </div>
+             </div>
+         </div>
+         <div class="row mt-2">
+             <div class="col-md-12">
+                 <button type="button" class="btn btn-sm btn-outline-danger remove-overtime" onclick="removeOvertime(this)">
+                     <i class="fe-trash-2 me-1"></i>移除
+                 </button>
+             </div>
+         </div>
+    `;
+
+            container.appendChild(newRow);
+            
+            // 載入加班記錄（延遲執行以確保 DOM 元素已建立）
+            setTimeout(() => {
+                loadOvertimeRecordsForIndex(newIndex);
+            }, 100);
+        }
+
         // 移除加成人員
         function removePerson(button) {
             const container = document.getElementById('increase-container');
@@ -419,7 +609,13 @@
                 
                 // 重新設定 onchange 事件
                 row.querySelectorAll('input[type="checkbox"]').forEach(input => {
-                    input.setAttribute('onchange', `calculateBonus(${index})`);
+                    if (input.id.includes('night_furnace_')) {
+                        input.setAttribute('onchange', `toggleTimeSlotSelection(${index}); calculateBonus(${index})`);
+                    } else if (input.id.includes('overtime_')) {
+                        input.setAttribute('onchange', `toggleOvertimeSection(${index}); calculateBonus(${index})`);
+                    } else {
+                        input.setAttribute('onchange', `calculateBonus(${index})`);
+                    }
                 });
                 row.querySelectorAll('select').forEach(select => {
                     if (select.name.includes('phone_person')) {
@@ -430,65 +626,38 @@
             }
         }
 
-        // 新增加班記錄
-        function addOvertime() {
-            const container = document.getElementById('overtime-container');
-            const existingRows = container.querySelectorAll('.overtime-row');
-            const newIndex = existingRows.length;
 
-            const newRow = document.createElement('div');
-            newRow.className = 'overtime-row';
-            newRow.setAttribute('data-index', newIndex);
-
-            newRow.innerHTML = `
-        <div class="row">
-            <div class="col-md-3">
-                <label class="form-label">加班人員</label>
-                <select class="form-control" name="overtime[${newIndex}][person]" data-toggle="select">
-                    <option value="">請選擇人員</option>
-                    @foreach ($users ?? [] as $user)
-                        <option value="{{ $user->id }}">{{ $user->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-                         <div class="col-md-2">
-                 <label class="form-label">加班分鐘</label>
-                                   <input type="number" class="form-control overtime-minutes" name="overtime[${newIndex}][minutes]" placeholder="分鐘" onkeyup="calculateOvertimePay(this)" onchange="calculateOvertimePay(this)">
-             </div>
-             <div class="col-md-2">
-                 <label class="form-label">加班費計算</label>
-                 <div class="overtime-calculation" id="overtime-calculation-${newIndex}">
-                     <small class="text-muted">請輸入加班分鐘</small>
-                 </div>
-             </div>
-             <div class="col-md-3">
-                 <label class="form-label">事由</label>
-                 <input type="text" class="form-control" name="overtime[${newIndex}][reason]" placeholder="請輸入加班事由">
-             </div>
-                         <div class="col-md-1 d-flex align-items-end justify-content-center">
-                 <button type="button" class="btn btn-sm btn-outline-danger remove-overtime" onclick="removeOvertime(this)">
-                     <i class="fe-trash-2"></i>
-                 </button>
-             </div>
-        </div>
-    `;
-
-            container.appendChild(newRow);
-
-            // 重新初始化 select2
-            $(newRow).find('select[data-toggle="select"]').select2();
-        }
-
-        // 移除加班記錄
-        function removeOvertime(button) {
-            const container = document.getElementById('overtime-container');
-            const rows = container.querySelectorAll('.overtime-row');
+        // 移除夜間開爐
+        function removeFurnace(button) {
+            const container = document.getElementById('furnace-container');
+            const rows = container.querySelectorAll('.person-row');
 
             if (rows.length > 1) {
-                button.closest('.overtime-row').remove();
+                button.closest('.person-row').remove();
                 // 重新編號
-                container.querySelectorAll('.overtime-row').forEach((row, index) => {
-                    row.setAttribute('data-index', index);
+                container.querySelectorAll('.person-row').forEach((row, index) => {
+                    row.setAttribute('data-furnace-index', index);
+                    row.querySelectorAll('select, input').forEach(input => {
+                        const name = input.getAttribute('name');
+                        if (name) {
+                            input.setAttribute('name', name.replace(/furnace\[\d+\]/,
+                                `furnace[${index}]`));
+                        }
+                    });
+                });
+            }
+        }
+
+        // 移除加班費
+        function removeOvertime(button) {
+            const container = document.getElementById('overtime-container');
+            const rows = container.querySelectorAll('.person-row');
+
+            if (rows.length > 1) {
+                button.closest('.person-row').remove();
+                // 重新編號
+                container.querySelectorAll('.person-row').forEach((row, index) => {
+                    row.setAttribute('data-overtime-index', index);
                     row.querySelectorAll('select, input').forEach(input => {
                         const name = input.getAttribute('name');
                         if (name) {
@@ -497,6 +666,20 @@
                         }
                     });
                 });
+            }
+        }
+
+        // 計算夜間開爐價格
+        function calculateFurnacePrice(index) {
+            const timeSlotSelect = document.getElementById(`furnace_time_slot_${index}`);
+            const priceInput = document.getElementById(`furnace_calculated_price_${index}`);
+
+            if (timeSlotSelect && timeSlotSelect.value) {
+                const selectedOption = timeSlotSelect.options[timeSlotSelect.selectedIndex];
+                const price = selectedOption.dataset.price || 0;
+                priceInput.value = price;
+            } else {
+                priceInput.value = '';
             }
         }
 
@@ -544,7 +727,7 @@
             calculationDiv.innerHTML = displayText;
         }
 
-        // 計算獎金
+        // 計算獎金（只處理傳統加成：夜間、晚間、颱風）
         function calculateBonus(index) {
             const row = document.querySelector(`.person-row[data-index="${index}"]`);
             const calculationDiv = document.getElementById(`bonus-calculation-${index}`);
@@ -605,10 +788,264 @@
             calculationDiv.innerHTML = displayText;
         }
 
+
+
+        // 切換加班費功能
+        function toggleOvertimeFee() {
+            const enableCheckbox = document.getElementById('enable_overtime_fee');
+            const overtimeContainer = document.getElementById('overtime-fee-container');
+            
+            if (enableCheckbox.checked) {
+                overtimeContainer.style.display = 'block';
+                // 載入當日期的加班記錄
+                loadOvertimeRecords();
+            } else {
+                overtimeContainer.style.display = 'none';
+            }
+        }
+
+        // 載入加班記錄（用於特定索引）
+        function loadOvertimeRecordsForIndex(index) {
+            const increaseDate = document.querySelector('input[name="increase_date"]').value;
+            const container = document.getElementById(`overtime-records-container-${index}`);
+            
+            if (!increaseDate) {
+                container.innerHTML = 
+                    '<div class="alert alert-warning"><i class="fe-alert-triangle me-2"></i>請先選擇加成日期</div>';
+                return;
+            }
+
+            // 顯示載入中
+            container.innerHTML = 
+                '<div class="alert alert-info"><i class="fe-loader me-2"></i>載入中...</div>';
+
+            // 發送 AJAX 請求
+            fetch(`/increase/overtime-records/${increaseDate}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayOvertimeRecordsForIndex(data.records, index);
+                } else {
+                    container.innerHTML = 
+                        `<div class="alert alert-danger"><i class="fe-alert-triangle me-2"></i>${data.message}</div>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                container.innerHTML = 
+                    '<div class="alert alert-danger"><i class="fe-alert-triangle me-2"></i>載入失敗，請稍後再試</div>';
+            });
+        }
+
+        // 載入加班記錄（舊版本，保留用於獨立加班費區段）
+        function loadOvertimeRecords() {
+            const increaseDate = document.querySelector('input[name="increase_date"]').value;
+            if (!increaseDate) {
+                document.getElementById('overtime-records-container').innerHTML = 
+                    '<div class="alert alert-warning"><i class="fe-alert-triangle me-2"></i>請先選擇加成日期</div>';
+                return;
+            }
+
+            // 顯示載入中
+            document.getElementById('overtime-records-container').innerHTML = 
+                '<div class="alert alert-info"><i class="fe-loader me-2"></i>載入中...</div>';
+
+            // 發送 AJAX 請求
+            fetch(`/increase/overtime-records/${increaseDate}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayOvertimeRecords(data.records);
+                } else {
+                    document.getElementById('overtime-records-container').innerHTML = 
+                        `<div class="alert alert-danger"><i class="fe-alert-triangle me-2"></i>${data.message}</div>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('overtime-records-container').innerHTML = 
+                    '<div class="alert alert-danger"><i class="fe-alert-triangle me-2"></i>載入失敗，請稍後再試</div>';
+            });
+        }
+
+        // 顯示加班記錄（用於特定索引）
+        function displayOvertimeRecordsForIndex(records, index) {
+            const container = document.getElementById(`overtime-records-container-${index}`);
+            
+            if (records.length === 0) {
+                container.innerHTML = 
+                    '<div class="alert alert-info"><i class="fe-info me-2"></i>該日期無加班記錄</div>';
+                return;
+            }
+
+            let html = `
+                <select class="form-control" name="overtime[${index}][overtime_record]" 
+                        id="overtime_record_select_${index}" 
+                        onchange="toggleOvertimeAmountInputDropdown(${index})">
+                    <option value="">選擇加班人員</option>`;
+            
+            records.forEach((record, recordIndex) => {
+                html += `
+                    <option value="${record.id}" 
+                            data-formatted-hours="${record.formatted_hours}"
+                            data-overtime-pay="${record.overtime_pay}"
+                            data-user-name="${record.user_name}">
+                        ${record.user_name} - ${record.formatted_hours} ($${record.overtime_pay})
+                    </option>`;
+            });
+            
+            html += `</select>`;
+            
+            container.innerHTML = html;
+        }
+
+        // 顯示加班記錄（舊版本，保留用於獨立加班費區段）
+        function displayOvertimeRecords(records) {
+            const container = document.getElementById('overtime-records-container');
+            
+            if (records.length === 0) {
+                container.innerHTML = 
+                    '<div class="alert alert-info"><i class="fe-info me-2"></i>該日期無加班記錄</div>';
+                return;
+            }
+
+            let html = '<div class="row">';
+            records.forEach((record, index) => {
+                html += `
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <input type="checkbox" name="selected_overtime_records[]" value="${record.id}" 
+                                           id="overtime_${record.id}" onchange="toggleOvertimeAmountInputLegacy(${record.id})">
+                                    <label for="overtime_${record.id}" class="ms-2">${record.user_name}</label>
+                                </h6>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <small class="text-muted">加班時間：${record.formatted_hours}</small>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">原始加班費：$${record.overtime_pay}</small>
+                                    </div>
+                                </div>
+                                <div class="mt-2" id="overtime_amount_input_legacy_${record.id}" style="display: none;">
+                                    <label class="form-label">調整加班費金額</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" class="form-control" name="overtime_amounts[${record.id}]" 
+                                               value="${record.overtime_pay}" min="0" step="1" 
+                                               data-original-amount="${record.overtime_pay}">
+                                    </div>
+                                    <small class="text-muted">可自行調整加班費金額</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            container.innerHTML = html;
+        }
+
+        // 切換加班費金額輸入框（舊版本）
+        function toggleOvertimeAmountInputLegacy(recordId) {
+            const checkbox = document.getElementById(`overtime_${recordId}`);
+            const amountInput = document.getElementById(`overtime_amount_input_legacy_${recordId}`);
+            
+            if (checkbox.checked) {
+                amountInput.style.display = 'block';
+            } else {
+                amountInput.style.display = 'none';
+                // 重置為原始金額
+                const input = amountInput.querySelector('input[type="number"]');
+                if (input) {
+                    const originalAmount = input.getAttribute('data-original-amount');
+                    if (originalAmount) {
+                        input.value = originalAmount;
+                    }
+                }
+            }
+        }
+
+        // 切換加班費金額輸入框（用於下拉式選單）
+        function toggleOvertimeAmountInputDropdown(index) {
+            const selectElement = document.getElementById(`overtime_record_select_${index}`);
+            const amountInputDiv = document.getElementById(`overtime_amount_input_dropdown_${index}`);
+            const amountInputField = document.getElementById(`overtime_amount_field_${index}`);
+            
+            if (selectElement && selectElement.value) {
+                // 有選擇記錄時，顯示金額輸入框
+                if (amountInputDiv) {
+                    amountInputDiv.style.display = 'block';
+                }
+                
+                // 取得選中的選項資料
+                const selectedOption = selectElement.options[selectElement.selectedIndex];
+                const originalAmount = selectedOption.getAttribute('data-overtime-pay');
+                
+                // 設定金額輸入框的值
+                if (amountInputField) {
+                    amountInputField.value = originalAmount;
+                    amountInputField.setAttribute('data-original-amount', originalAmount);
+                }
+            } else {
+                // 沒有選擇記錄時，隱藏金額輸入框
+                if (amountInputDiv) {
+                    amountInputDiv.style.display = 'none';
+                }
+                
+                // 清空金額輸入框
+                if (amountInputField) {
+                    amountInputField.value = '';
+                }
+            }
+        }
+
+        // 更新加班費金額顯示
+        function updateOvertimeAmountDisplay(index, newAmount) {
+            // 可以在這裡添加即時更新顯示的邏輯
+            console.log(`更新加班費金額: 索引${index}, 金額$${newAmount}`);
+        }
+
+
+        // 監聽日期變化
+        document.querySelector('input[name="increase_date"]').addEventListener('change', function() {
+            // 載入所有加班費區段的加班記錄
+            loadAllOvertimeRecords();
+        });
+
+        // 載入所有加班費區段的加班記錄
+        function loadAllOvertimeRecords() {
+            const overtimeContainers = document.querySelectorAll('[id^="overtime-records-container-"]');
+            overtimeContainers.forEach(container => {
+                const index = container.id.match(/overtime-records-container-(\d+)/)[1];
+                loadOvertimeRecordsForIndex(index);
+            });
+        }
+
         // 初始化頁面載入時的 select2
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化所有預設的 select2 下拉選單
             $('select[data-toggle="select"]').select2();
+            
+            // 載入預設加班費區段的加班記錄
+            const increaseDate = document.querySelector('input[name="increase_date"]').value;
+            if (increaseDate) {
+                loadOvertimeRecordsForIndex(0); // 載入預設的加班費區段
+            }
         });
 
         // 表單驗證
