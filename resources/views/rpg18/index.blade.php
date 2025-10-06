@@ -70,6 +70,7 @@
                                     <th>報名收入（含水果禮籃）</th>
                                     <th>金紙收入</th>
                                     <th>實收金額</th>
+                                    <th>實收金額（含套組）</th>
                                 </tr>
                             </thead>
                                 <tbody>
@@ -80,6 +81,7 @@
                                         <td>{{ number_format($data['apply_price']) }}</td>
                                         <td>{{ number_format($data['monty_price']) }}</td>
                                         <td>{{ number_format($data['total_price']) }}</td>
+                                        <td>{{ number_format($data['total_price_amount']) }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>

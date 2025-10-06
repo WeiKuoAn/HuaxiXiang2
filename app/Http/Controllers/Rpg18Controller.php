@@ -51,15 +51,17 @@ class Rpg18Controller extends Controller
             // $datas[$puja->id]['should_price'] = 0;
             //實收金額
             $datas[$puja->id]['total_price'] = 0;
+            $datas[$puja->id]['total_price_amount'] = 0;
         }
 
         foreach($pujas as $key=>$puja)
         {
             foreach($datas[$puja->id]['puja_datas'] as $puja_data)
             {
-                if($puja_data->type == 0 || $puja_data->type == 2){
+                if($puja_data->type == 0 || $puja_data->type == 2){//一般跟套組
                     $datas[$puja->id]['total_price'] += $puja_data->pay_price;
                 }
+                $datas[$puja->id]['total_price_amount'] = $datas[$puja->id]['total_price'] + $datas[$puja->id]['suit_count'] * $puja->price;
                 foreach($puja_data->products as $product)
                 {
                     $datas[$puja->id]['monty_price'] += $product->product_total;
