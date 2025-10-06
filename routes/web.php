@@ -4,6 +4,8 @@ use App\Http\Controllers\BankController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CashController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\CertificateTypeController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ContractTypeController;
 use App\Http\Controllers\CrematoriumController;
@@ -15,6 +17,7 @@ use App\Http\Controllers\GiveController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\IncomeDataController;
 use App\Http\Controllers\IncreaseController;
+use App\Http\Controllers\NightShiftTimeSlotController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\JobMenuController;
@@ -23,7 +26,7 @@ use App\Http\Controllers\LampTypeController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LeaveDayController;
 use App\Http\Controllers\LeaveSettingController;
-use App\Http\Controllers\LeaveWorkflowController;
+use App\Http\Controllers\WorkflowController;
 use App\Http\Controllers\LiffController;
 use App\Http\Controllers\MemorialDateController;
 use App\Http\Controllers\MenuController;
@@ -215,27 +218,27 @@ Route::group(['prefix' => '/'], function () {
     Route::get('personnel/leaveSetting/edit/{id}', [LeaveSettingController::class, 'edit'])->name('personnel.leavesitting.edit');
     Route::post('personnel/leaveSetting/edit/{id}', [LeaveSettingController::class, 'update'])->name('personnel.leavesitting.edit.data');
 
-    /* 請假流程管理 */
-    Route::prefix('leaveworkflow')->name('leaveworkflow.')->group(function () {
+    /* 流程管理 */
+    Route::prefix('flow')->name('flow.')->group(function () {
         // 流程管理
-        Route::get('/', [LeaveWorkflowController::class, 'index'])->name('index');
-        Route::get('/create', [LeaveWorkflowController::class, 'create'])->name('create');
-        Route::post('/store', [LeaveWorkflowController::class, 'store'])->name('store');
-        Route::get('/{id}/edit', [LeaveWorkflowController::class, 'edit'])->name('edit');
-        Route::put('/{id}/update', [LeaveWorkflowController::class, 'update'])->name('update');
-        Route::post('/{id}/toggle-status', [LeaveWorkflowController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/', [WorkflowController::class, 'index'])->name('index');
+        Route::get('/create', [WorkflowController::class, 'create'])->name('create');
+        Route::post('/store', [WorkflowController::class, 'store'])->name('store');
+        Route::get('/{category}/edit', [WorkflowController::class, 'edit'])->name('edit');
+        Route::put('/{category}/update', [WorkflowController::class, 'update'])->name('update');
+        Route::post('/{category}/toggle-status', [WorkflowController::class, 'toggleStatus'])->name('toggle-status');
         
         // 流程狀態總覽
-        Route::get('/status/overview', [LeaveWorkflowController::class, 'status'])->name('status');
-        Route::get('/{id}/detail', [LeaveWorkflowController::class, 'detail'])->name('detail');
+        Route::get('/status/overview', [WorkflowController::class, 'status'])->name('status');
+        Route::get('/{id}/detail', [WorkflowController::class, 'detail'])->name('detail');
         
         // 關卡管理
-        Route::get('/{id}/steps', [LeaveWorkflowController::class, 'steps'])->name('steps');
-        Route::post('/{workflowId}/steps/store', [LeaveWorkflowController::class, 'storeStep'])->name('steps.store');
-        Route::get('/steps/{id}/edit', [LeaveWorkflowController::class, 'editStep'])->name('steps.edit');
-        Route::put('/steps/{id}/update', [LeaveWorkflowController::class, 'updateStep'])->name('steps.update');
-        Route::post('/steps/{id}/toggle-status', [LeaveWorkflowController::class, 'toggleStepStatus'])->name('steps.toggle-status');
-        Route::delete('/steps/{id}', [LeaveWorkflowController::class, 'deleteStep'])->name('steps.delete');
+        Route::get('/{id}/steps', [WorkflowController::class, 'steps'])->name('steps');
+        Route::post('/{workflowId}/steps/store', [WorkflowController::class, 'storeStep'])->name('steps.store');
+        Route::get('/steps/{id}/edit', [WorkflowController::class, 'editStep'])->name('steps.edit');
+        Route::put('/steps/{id}/update', [WorkflowController::class, 'updateStep'])->name('steps.update');
+        Route::post('/steps/{id}/toggle-status', [WorkflowController::class, 'toggleStepStatus'])->name('steps.toggle-status');
+        Route::delete('/steps/{id}', [WorkflowController::class, 'deleteStep'])->name('steps.delete');
     });
 
     /* 客戶管理 */
@@ -253,6 +256,8 @@ Route::group(['prefix' => '/'], function () {
 
     /* 紀念日管理 */
     Route::get('memorial-dates', [MemorialDateController::class, 'index'])->name('memorial.dates');
+    Route::get('memorial-dates/create', [MemorialDateController::class, 'create'])->name('memorial.dates.create');
+    Route::post('memorial-dates/store', [MemorialDateController::class, 'store'])->name('memorial.dates.store');
     Route::get('memorial-dates/edit/{id}', [MemorialDateController::class, 'edit'])->name('memorial.dates.edit');
     Route::post('memorial-dates/update/{id}', [MemorialDateController::class, 'update'])->name('memorial.dates.update');
 
@@ -791,6 +796,16 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/increase/del/{id}', [IncreaseController::class, 'delete'])->name('increase.del');
     Route::delete('/increase/del/{id}', [IncreaseController::class, 'destroy'])->name('increase.del.data');
     Route::get('/increase/export', [IncreaseController::class, 'export'])->name('increase.export');
+    Route::get('/increase/overtime-records/{date}', [IncreaseController::class, 'getOvertimeRecords'])->name('increase.overtime-records');
+    
+    // 夜間開爐時段管理路由
+    Route::get('/increase/time-slots', [NightShiftTimeSlotController::class, 'index'])->name('increase.time-slots.index');
+    Route::post('/increase/time-slots', [NightShiftTimeSlotController::class, 'store'])->name('increase.time-slots.store');
+    Route::put('/increase/time-slots/{id}', [NightShiftTimeSlotController::class, 'update'])->name('increase.time-slots.update');
+    Route::patch('/increase/time-slots/{id}/toggle-status', [NightShiftTimeSlotController::class, 'toggleStatus'])->name('increase.time-slots.toggle-status');
+    Route::delete('/increase/time-slots/{id}', [NightShiftTimeSlotController::class, 'destroy'])->name('increase.time-slots.destroy');
+    Route::get('/increase/time-slots/{id}', [NightShiftTimeSlotController::class, 'getTimeSlot'])->name('increase.time-slots.get');
+    Route::get('/increase/time-slots-api/active', [NightShiftTimeSlotController::class, 'getActiveTimeSlots'])->name('increase.time-slots.active');
 
     // 加班管理
     Route::get('/overtime', [OvertimeController::class, 'index'])->name('overtime.index');
@@ -806,5 +821,25 @@ Route::group(['prefix' => '/'], function () {
     Route::get('image', function () {
         $img = Image::make('https://images.pexels.com/photos/4273439/pexels-photo-4273439.jpeg')->resize(300, 200);  // 這邊可以隨便用網路上的image取代
         return $img->response('jpg');
+    });
+
+    // 證照管理路由
+    Route::prefix('certificate')->group(function () {
+        Route::get('/', [CertificateController::class, 'index'])->name('certificate.index');
+        Route::get('/create', [CertificateController::class, 'create'])->name('certificate.create');
+        Route::post('/store', [CertificateController::class, 'store'])->name('certificate.store');
+        Route::get('/{id}/edit', [CertificateController::class, 'edit'])->name('certificate.edit');
+        Route::put('/{id}', [CertificateController::class, 'update'])->name('certificate.update');
+        Route::delete('/{id}', [CertificateController::class, 'destroy'])->name('certificate.destroy');
+    });
+
+    // 證照資訊管理路由
+    Route::prefix('certificate-type')->group(function () {
+        Route::get('/', [CertificateTypeController::class, 'index'])->name('certificate-type.index');
+        Route::get('/create', [CertificateTypeController::class, 'create'])->name('certificate-type.create');
+        Route::post('/store', [CertificateTypeController::class, 'store'])->name('certificate-type.store');
+        Route::get('/{id}/edit', [CertificateTypeController::class, 'edit'])->name('certificate-type.edit');
+        Route::put('/{id}', [CertificateTypeController::class, 'update'])->name('certificate-type.update');
+        Route::delete('/{id}', [CertificateTypeController::class, 'destroy'])->name('certificate-type.destroy');
     });
 });
