@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\Gdpaper;
 use App\Models\Plan;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\Prom;
 use App\Models\Sale;
 use App\Models\Sale_gdpaper;
@@ -470,7 +471,18 @@ class SaleDataControllerNew extends Controller
             $dates = MemorialDate::calculateMemorialDates($sale->death_date, $sale->plan_id);
             MemorialDate::updateOrCreate(
                 ['sale_id' => $sale_id->id],
-                $dates
+                array_merge($dates, [
+                    'sale_id' => $sale_id->id,
+                    'seventh_reserved' => false,
+                    'seventh_reserved_at' => null,
+                    'forty_ninth_reserved' => false,
+                    'forty_ninth_reserved_at' => null,
+                    'hundredth_reserved' => false,
+                    'hundredth_reserved_at' => null,
+                    'anniversary_reserved' => false,
+                    'anniversary_reserved_at' => null,
+                    'notes' => null
+                ])
             );
         } else {
             // 不適用時移除既有的重要日期記錄
@@ -1442,7 +1454,18 @@ class SaleDataControllerNew extends Controller
             $dates = MemorialDate::calculateMemorialDates($sale->death_date, $sale->plan_id);
             MemorialDate::updateOrCreate(
                 ['sale_id' => $sale_id->id],
-                $dates
+                array_merge($dates, [
+                    'sale_id' => $sale_id->id,
+                    'seventh_reserved' => false,
+                    'seventh_reserved_at' => null,
+                    'forty_ninth_reserved' => false,
+                    'forty_ninth_reserved_at' => null,
+                    'hundredth_reserved' => false,
+                    'hundredth_reserved_at' => null,
+                    'anniversary_reserved' => false,
+                    'anniversary_reserved_at' => null,
+                    'notes' => null
+                ])
             );
         } else {
             MemorialDate::where('sale_id', $sale_id->id)->delete();
@@ -1954,7 +1977,7 @@ class SaleDataControllerNew extends Controller
             $selectedFields = [
                 '案件單類別', '單號', '專員', '日期', '客戶', '寶貝名',
                 '寵物品種', '公斤數', '方案', '方案價格', '案件來源', '套裝', '金紙', '金紙總賣價',
-                '安葬方式', '後續處理', '其他處理', '付款方式',
+                '安葬方式', '後續處理', '其他處理', '紀念品', '付款方式',
                 '實收價格', '狀態', '備註', '更改後方案',
                 '確認對帳人員', '確認對帳時間'
             ];
@@ -2259,6 +2282,59 @@ class SaleDataControllerNew extends Controller
                             $text = '無';
                         }
                     }
+                }
+                return $text;
+            case '紀念品':
+                $text = '';
+                $sale_souvenirs = SaleSouvenir::where('sale_id', $sale->id)->get();
+                if ($sale_souvenirs->count() > 0) {
+                    foreach ($sale_souvenirs as $souvenir) {
+                        $itemText = '';
+                        
+                        if ($souvenir->souvenir_type != null) {
+                            // 自訂商品：【type】-「紀念品品名」x「紀念品數量」（備註：「紀念品備註」）
+                            // 取得類型名稱
+                            $souvenirType = SouvenirType::find($souvenir->souvenir_type);
+                            $typeName = $souvenirType ? $souvenirType->name : '無類型';
+                            
+                            // 取得品名
+                            $productName = $souvenir->product_name ?? '無';
+                            
+                            // 取得數量
+                            $quantity = $souvenir->product_num ?? '1';
+                            
+                            // 組合格式：【type】-「品名」x「數量」
+                            $itemText = '【' . $typeName . '】-' . $productName . 'x' . $quantity;
+                        } else {
+                            // 關聯商品：「紀念品品名」-「紀念品細項」x「紀念品數量」（備註：「紀念品備註」）
+                            // 取得品名
+                            $product = Product::find($souvenir->product_name);
+                            $productName = $product ? $product->name : '無';
+                            
+                            // 取得細項
+                            $variantName = '';
+                            if ($souvenir->product_variant_id) {
+                                $variant = ProductVariant::find($souvenir->product_variant_id);
+                                $variantName = $variant ? '-' . $variant->variant_name : '';
+                            }
+                            
+                            // 取得數量
+                            $quantity = $souvenir->product_num ?? '1';
+                            
+                            // 組合格式：「品名」-「細項」x「數量」
+                            $itemText = $productName . $variantName . 'x' . $quantity;
+                        }
+                        
+                        // 取得備註（兩種類型都要顯示）
+                        $comment = $souvenir->comment ?? '';
+                        if (!empty($comment)) {
+                            $itemText .= '（備註：' . $comment . '）';
+                        }
+                        
+                        $text .= ($text == '' ? '' : "\r\n") . $itemText;
+                    }
+                } else {
+                    $text = '無';
                 }
                 return $text;
             case '付款類別':

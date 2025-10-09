@@ -347,7 +347,7 @@ Route::group(['prefix' => '/'], function () {
 
     /* 業務管理 */
     Route::get('/sales', [SaleDataController::class, 'index'])->name('sales');
-    Route::get('/sales/export', [SaleDataController::class, 'export'])->name('sales.export');
+    Route::get('/sales/export', [SaleDataControllerNew::class, 'export'])->name('sales.export');
 
     Route::get('/sales/excel', [SaleDataController::class, 'excel'])->name('sales.excel');
 

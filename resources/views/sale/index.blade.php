@@ -804,6 +804,11 @@
                                             value="其他處理" id="field_其他處理" checked>
                                         <label class="form-check-label" for="field_其他處理">其他處理</label>
                                     </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="紀念品" id="field_紀念品" checked>
+                                        <label class="form-check-label" for="field_紀念品">紀念品</label>
+                                    </div>
                                 </div>
 
                                 <!-- 付款資訊 -->
