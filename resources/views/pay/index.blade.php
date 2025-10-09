@@ -187,7 +187,7 @@
                                                         data-bs-toggle="dropdown" aria-expanded="false">動作 <i
                                                             class="mdi mdi-arrow-down-drop-circle"></i></a>
                                                     <div class="dropdown-menu dropdown-menu-end">
-                                                        @if ($data->status != 1)
+                                                        @if ($data->status != 1 || Auth::user()->job_id == 1 || Auth::user()->job_id == 2)
                                                             <a class="dropdown-item"
                                                                 href="{{ route('pay.edit', $data->id) }}"><i
                                                                     class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
