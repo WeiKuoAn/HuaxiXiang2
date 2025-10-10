@@ -162,8 +162,9 @@
                                                 @elseif ($data->state == '2')
                                                     {{-- 待審核狀態：檢查是否為當前審核人 --}}
                                                     @php
-                                                        $currentCheck = $data->checks()->where('state', 2)->first();
-                                                        $canApprove = $currentCheck && $currentCheck->check_user_id == Auth::user()->id;
+                                                        // $currentCheck = $data->checks()->where('state', 2)->first();
+                                                        // $canApprove = $currentCheck && $currentCheck->check_user_id == Auth::user()->id;
+                                                        $canApprove = false; // 暫時設為 false，等待 LeaveDay::checks() 方法修復
                                                     @endphp
                                                     @if ($canApprove)
                                                         <a href="{{ route('leave_day.check', $data->id) }}">
@@ -171,7 +172,8 @@
                                                         </a>
                                                     @else
                                                         <button type="button" class="btn btn-secondary waves-effect waves-light btn-sm" disabled>
-                                                            {{ $currentCheck->user->name ?? '審核中' }}
+                                                            {{-- {{ $currentCheck->user->name ?? '審核中' }} --}}
+                                                            審核中
                                                         </button>
                                                     @endif
                                                 @elseif($data->state == '3')
