@@ -90,121 +90,80 @@
                                     </div>
                                     <div class="card-body p-0">
                                         @php
-                                            // 按人員分組統計
-                                            $personStats = [];
+                                            // 直接顯示每個項目，不按人員分組統計
+                                            $displayItems = [];
                                             foreach ($data->items as $item) {
+                                                $displayItem = [
+                                                    'id' => $item->id,
+                                                    'item_type' => $item->item_type,
+                                                    'person_name' => '',
+                                                    'categories' => [],
+                                                    'phone_amount' => 0,
+                                                    'receive_amount' => 0,
+                                                    'furnace_amount' => 0,
+                                                    'overtime_amount' => 0,
+                                                    'total_amount' => 0,
+                                                    'phone_exclude_bonus' => false
+                                                ];
+                                                
                                                 // 處理接電話人員
                                                 if ($item->phone_person_id) {
-                                                    $personId = $item->phone_person_id;
-                                                    $personName = $item->phonePerson->name ?? '未指定';
-                                                    
-                                                    if (!isset($personStats[$personId])) {
-                                                        $personStats[$personId] = [
-                                                            'name' => $personName,
-                                                            'phone_amount' => 0,
-                                                            'receive_amount' => 0,
-                                                            'furnace_amount' => 0,
-                                                            'overtime_amount' => 0,
-                                                            'total_amount' => 0,
-                                                            'categories' => [],
-                                                            'phone_exclude_bonus' => false
-                                                        ];
-                                                    }
-                                                    
-                                                    $phoneAmount = $item->phone_exclude_bonus ? 0 : $item->total_phone_amount;
-                                                    $personStats[$personId]['phone_amount'] += $phoneAmount;
-                                                    $personStats[$personId]['phone_exclude_bonus'] = $item->phone_exclude_bonus;
+                                                    $displayItem['person_name'] = $item->phonePerson->name ?? '未指定';
+                                                    $displayItem['phone_amount'] = $item->phone_exclude_bonus ? 0 : $item->total_phone_amount;
+                                                    $displayItem['phone_exclude_bonus'] = $item->phone_exclude_bonus;
                                                     
                                                     // 記錄類別
-                                                    if ($item->night_phone_amount > 0) $personStats[$personId]['categories'][] = '夜間';
-                                                    if ($item->evening_phone_amount > 0) $personStats[$personId]['categories'][] = '晚間';
-                                                    if ($item->typhoon_phone_amount > 0) $personStats[$personId]['categories'][] = '颱風';
+                                                    if ($item->night_phone_amount > 0) $displayItem['categories'][] = '夜間';
+                                                    if ($item->evening_phone_amount > 0) $displayItem['categories'][] = '晚間';
+                                                    if ($item->typhoon_phone_amount > 0) $displayItem['categories'][] = '颱風';
                                                 }
                                                 
-                                                    // 處理接件人員
+                                                // 處理接件人員
                                                 if ($item->receive_person_id) {
-                                                    $personId = $item->receive_person_id;
-                                                    $personName = $item->receivePerson->name ?? '未指定';
-                                                    
-                                                    if (!isset($personStats[$personId])) {
-                                                        $personStats[$personId] = [
-                                                            'name' => $personName,
-                                                            'phone_amount' => 0,
-                                                            'receive_amount' => 0,
-                                                            'furnace_amount' => 0,
-                                                            'overtime_amount' => 0,
-                                                            'total_amount' => 0,
-                                                            'categories' => [],
-                                                            'phone_exclude_bonus' => false
-                                                        ];
+                                                    if (empty($displayItem['person_name'])) {
+                                                        $displayItem['person_name'] = $item->receivePerson->name ?? '未指定';
                                                     }
-                                                    
-                                                    $receiveAmount = $item->total_receive_amount;
-                                                    $personStats[$personId]['receive_amount'] += $receiveAmount;
+                                                    $displayItem['receive_amount'] = $item->total_receive_amount;
                                                     
                                                     // 記錄類別
-                                                    if ($item->night_receive_amount > 0) $personStats[$personId]['categories'][] = '夜間';
-                                                    if ($item->evening_receive_amount > 0) $personStats[$personId]['categories'][] = '晚間';
-                                                    if ($item->typhoon_receive_amount > 0) $personStats[$personId]['categories'][] = '颱風';
+                                                    if ($item->night_receive_amount > 0) $displayItem['categories'][] = '夜間';
+                                                    if ($item->evening_receive_amount > 0) $displayItem['categories'][] = '晚間';
+                                                    if ($item->typhoon_receive_amount > 0) $displayItem['categories'][] = '颱風';
                                                 }
                                                 
                                                 // 處理夜間開爐人員
                                                 if ($item->furnace_person_id) {
-                                                    $personId = $item->furnace_person_id;
-                                                    $personName = $item->furnacePerson->name ?? '未指定';
-                                                    
-                                                    if (!isset($personStats[$personId])) {
-                                                        $personStats[$personId] = [
-                                                            'name' => $personName,
-                                                            'phone_amount' => 0,
-                                                            'receive_amount' => 0,
-                                                            'furnace_amount' => 0,
-                                                            'overtime_amount' => 0,
-                                                            'total_amount' => 0,
-                                                            'categories' => [],
-                                                            'phone_exclude_bonus' => false
-                                                        ];
+                                                    if (empty($displayItem['person_name'])) {
+                                                        $displayItem['person_name'] = $item->furnacePerson->name ?? '未指定';
                                                     }
-                                                    
-                                                    $furnaceAmount = $item->total_amount;
-                                                    $personStats[$personId]['furnace_amount'] += $furnaceAmount;
-                                                    $personStats[$personId]['categories'][] = '夜間開爐';
+                                                    $displayItem['furnace_amount'] = $item->total_amount;
+                                                    $displayItem['categories'][] = '夜間開爐';
                                                 }
                                                 
                                                 // 處理加班費人員
                                                 if ($item->overtime_record_id) {
-                                                    $personId = $item->receive_person_id; // 加班費的 receive_person_id 就是加班人員
-                                                    $personName = $item->overtimeRecord->user->name ?? '未指定';
+                                                    $displayItem['person_name'] = $item->overtimeRecord->user->name ?? '未指定';
+                                                    $displayItem['overtime_amount'] = $item->custom_amount ?? $item->total_amount;
+                                                    $displayItem['categories'][] = '加班費';
                                                     
-                                                    if (!isset($personStats[$personId])) {
-                                                        $personStats[$personId] = [
-                                                            'name' => $personName,
-                                                            'phone_amount' => 0,
-                                                            'receive_amount' => 0,
-                                                            'furnace_amount' => 0,
-                                                            'overtime_amount' => 0,
-                                                            'total_amount' => 0,
-                                                            'categories' => [],
-                                                            'phone_exclude_bonus' => false
-                                                        ];
-                                                    }
-                                                    
-                                                    $overtimeAmount = $item->custom_amount ?? $item->total_amount;
-                                                    $personStats[$personId]['overtime_amount'] += $overtimeAmount;
-                                                    $personStats[$personId]['categories'][] = '加班費';
+                                                    // 加班費項目不應該有接電話、接件、夜間開爐獎金
+                                                    $displayItem['phone_amount'] = 0;
+                                                    $displayItem['receive_amount'] = 0;
+                                                    $displayItem['furnace_amount'] = 0;
                                                 }
-                                            }
-                                            
-                                                    // 去重複類別並計算總計
-                                            foreach ($personStats as &$stats) {
-                                                $stats['categories'] = array_unique($stats['categories']);
-                                                $stats['categories'] = array_values($stats['categories']);
-                                                // 計算總計：接電話 + 接件 + 夜間開爐 + 加班費
-                                                $stats['total_amount'] = $stats['phone_amount'] + $stats['receive_amount'] + $stats['furnace_amount'] + $stats['overtime_amount'];
+                                                
+                                                // 去重複類別
+                                                $displayItem['categories'] = array_unique($displayItem['categories']);
+                                                $displayItem['categories'] = array_values($displayItem['categories']);
+                                                
+                                                // 計算總計
+                                                $displayItem['total_amount'] = $displayItem['phone_amount'] + $displayItem['receive_amount'] + $displayItem['furnace_amount'] + $displayItem['overtime_amount'];
+                                                
+                                                $displayItems[] = $displayItem;
                                             }
                                         @endphp
                                         
-                                        @if(count($personStats) > 0)
+                                        @if(count($displayItems) > 0)
                                             <div class="table-responsive">
                                                 <table class="table table-hover mb-0">
                                 <thead class="table-light">
@@ -219,26 +178,26 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                                        @foreach ($personStats as $personId => $stats)
+                                                        @foreach ($displayItems as $item)
                                                             <tr>
                                                                 <td>
                                                                     <div class="d-flex align-items-center">
                                                                         <div class="avatar-sm bg-primary rounded-circle d-flex align-items-center justify-content-center me-2">
                                                                             <span class="avatar-title text-white font-weight-bold">
-                                                                                {{ mb_substr($stats['name'], 0, 1) }}
+                                                                                {{ mb_substr($item['person_name'], 0, 1) }}
                                                                             </span>
                                                                         </div>
                                                                         <div>
-                                                                            <h6 class="mb-0">{{ $stats['name'] }}</h6>
-                                                                            @if($stats['phone_exclude_bonus'])
+                                                                            <h6 class="mb-0">{{ $item['person_name'] }}</h6>
+                                                                            @if($item['phone_exclude_bonus'])
                                                                                 <small class="text-muted">(接電話不計入獎金)</small>
                                                                             @endif
                                                                         </div>
                                                                     </div>
                                                                 </td>
                                                                 <td>
-                                                                    @if(count($stats['categories']) > 0)
-                                                                        @foreach ($stats['categories'] as $category)
+                                                                    @if(count($item['categories']) > 0)
+                                                                        @foreach ($item['categories'] as $category)
                                                                             @php
                                                                                 $badgeClass = match($category) {
                                                                                     '夜間' => 'bg-primary',
@@ -256,35 +215,35 @@
                                                                     @endif
                                                     </td>
                                                                 <td>
-                                                                    @if($stats['phone_amount'] > 0)
-                                                                        <span class="text-primary fw-bold">${{ number_format($stats['phone_amount'], 0) }}</span>
+                                                                    @if($item['phone_amount'] > 0)
+                                                                        <span class="text-primary fw-bold">${{ number_format($item['phone_amount'], 0) }}</span>
                                                                     @else
                                                                         <span class="text-muted">$0</span>
                                                 @endif
                                                                 </td>
                                                                 <td>
-                                                                    @if($stats['receive_amount'] > 0)
-                                                                        <span class="text-success fw-bold">${{ number_format($stats['receive_amount'], 0) }}</span>
+                                                                    @if($item['receive_amount'] > 0)
+                                                                        <span class="text-success fw-bold">${{ number_format($item['receive_amount'], 0) }}</span>
                                                                     @else
                                                                         <span class="text-muted">$0</span>
-                                                                    @endif
+                                                @endif
                                                                 </td>
                                                                 <td>
-                                                                    @if($stats['furnace_amount'] > 0)
-                                                                        <span class="text-secondary fw-bold">${{ number_format($stats['furnace_amount'], 0) }}</span>
+                                                                    @if($item['furnace_amount'] > 0)
+                                                                        <span class="text-secondary fw-bold">${{ number_format($item['furnace_amount'], 0) }}</span>
                                                                     @else
                                                                         <span class="text-muted">$0</span>
-                                                    @endif
+                                                @endif
                                                 </td>
                                                 <td>
-                                                                    @if($stats['overtime_amount'] > 0)
-                                                                        <span class="text-info fw-bold">${{ number_format($stats['overtime_amount'], 0) }}</span>
+                                                                    @if($item['overtime_amount'] > 0)
+                                                                        <span class="text-info fw-bold">${{ number_format($item['overtime_amount'], 0) }}</span>
                                                                     @else
                                                                         <span class="text-muted">$0</span>
                                                     @endif
                                                 </td>
                                                                 <td>
-                                                                    <span class="text-dark fw-bold fs-6">${{ number_format($stats['total_amount'], 0) }}</span>
+                                                                    <span class="text-dark fw-bold fs-6">${{ number_format($item['total_amount'], 0) }}</span>
                                                 </td>
                                             </tr>
                                                         @endforeach
@@ -293,7 +252,7 @@
                                                         <tr>
                                                             <td colspan="6" class="text-end fw-bold">當日總計：</td>
                                                             <td class="fw-bold fs-5 text-primary">
-                                                                ${{ number_format(array_sum(array_column($personStats, 'total_amount')), 0) }}
+                                                                ${{ number_format(array_sum(array_column($displayItems, 'total_amount')), 0) }}
                                                 </td>
                                             </tr>
                                                     </tfoot>

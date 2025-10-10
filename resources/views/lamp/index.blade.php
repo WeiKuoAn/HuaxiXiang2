@@ -24,6 +24,90 @@
     </div>
     <!-- end page title -->
 
+    <!-- 統計區塊 -->
+    <div class="row">
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-1">地藏王菩薩_紅區</h4>
+                            <p class="text-muted mb-0">即時剩餘數量</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <div class="avatar-sm rounded-circle bg-soft-danger text-danger">
+                                <i class="mdi mdi-lantern font-22"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h3 class="mb-0 text-danger">{{ $stats['dizang_red'] ?? 0 }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-1">地藏王菩薩_黃區</h4>
+                            <p class="text-muted mb-0">即時剩餘數量</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <div class="avatar-sm rounded-circle bg-soft-warning text-warning">
+                                <i class="mdi mdi-lantern font-22"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h3 class="mb-0 text-warning">{{ $stats['dizang_yellow'] ?? 0 }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-1">藥師佛_紅區</h4>
+                            <p class="text-muted mb-0">即時剩餘數量</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <div class="avatar-sm rounded-circle bg-soft-danger text-danger">
+                                <i class="mdi mdi-lantern font-22"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h3 class="mb-0 text-danger">{{ $stats['yaoshi_red'] ?? 0 }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-1">藥師佛_黃區</h4>
+                            <p class="text-muted mb-0">即時剩餘數量</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <div class="avatar-sm rounded-circle bg-soft-warning text-warning">
+                                <i class="mdi mdi-lantern font-22"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h3 class="mb-0 text-warning">{{ $stats['yaoshi_yellow'] ?? 0 }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-12">
             <div class="card">

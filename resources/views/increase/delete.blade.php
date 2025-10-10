@@ -164,15 +164,25 @@
                                             </tr>
                                             @elseif($item->item_type === 'overtime')
                                             <tr>
-                                                <td>{{ $item->overtimeRecord->user->name ?? '未指定' }}</td>
+                                                <td>
+                                                    {{ $item->overtimeRecord->user->name ?? '未指定' }}
+                                                    @if($item->overtimeRecord)
+                                                        <br><small class="text-muted">
+                                                            {{ $item->overtimeRecord->formatted_hours }}
+                                                            @if($item->overtimeRecord->reason)
+                                                                - {{ $item->overtimeRecord->reason }}
+                                                            @endif
+                                                        </small>
+                                                    @endif
+                                                </td>
                                                 <td><span class="badge bg-info">加班費</span></td>
                                                 <td><span class="badge bg-info">加班費</span></td>
                                                 <td>$0</td>
                                                 <td>$0</td>
                                                 <td>$0</td>
                                                 <td>$0</td>
-                                                <td>${{ number_format($item->custom_amount ?? $item->total_amount, 0) }}</td>
-                                                <td>${{ number_format($item->custom_amount ?? $item->total_amount, 0) }}</td>
+                                                <td>${{ number_format(round($item->custom_amount ?? $item->total_amount), 0) }}</td>
+                                                <td>${{ number_format(round($item->custom_amount ?? $item->total_amount), 0) }}</td>
                                             </tr>
                                             @endif
                                         @endforeach

@@ -47,21 +47,37 @@ class IncreaseController extends Controller
 
     public function store(Request $request)
     {
-        // 驗證輸入
-        $request->validate([
-            'increase_date' => 'required|date',
-            'comment' => 'nullable|string',
-            'increase' => 'nullable|array',
-            'increase.*.categories' => 'required|array|min:1',
-            'increase.*.phone_person' => 'nullable|exists:users,id',
-            'increase.*.receive_person' => 'nullable|exists:users,id',
-            'furnace' => 'nullable|array',
-            'furnace.*.time_slot_id' => 'required|exists:night_shift_time_slots,id',
-            'furnace.*.furnace_person' => 'required|exists:users,id',
-            'overtime' => 'nullable|array',
-            'overtime.*.overtime_record' => 'required|exists:overtime_records,id',
-            'overtime.*.overtime_amount' => 'nullable|numeric|min:0',
+        // 調試信息
+        \Log::info('Increase Form Submit:', [
+            'all_data' => $request->all(),
+            'overtime' => $request->overtime,
+            'increase' => $request->increase,
+            'furnace' => $request->furnace,
         ]);
+        
+        // 驗證輸入
+        try {
+            $request->validate([
+                'increase_date' => 'required|date',
+                'comment' => 'nullable|string',
+                'increase' => 'nullable|array',
+                'increase.*.categories' => 'nullable|array',
+                'increase.*.phone_person' => 'nullable|exists:users,id',
+                'increase.*.receive_person' => 'nullable|exists:users,id',
+                'furnace' => 'nullable|array',
+                'furnace.*.time_slot_id' => 'nullable|exists:night_shift_time_slots,id',
+                'furnace.*.furnace_person' => 'nullable|exists:users,id',
+                'overtime' => 'nullable|array',
+                'overtime.*.overtime_record' => 'nullable|exists:overtime_records,id',
+                'overtime.*.overtime_amount' => 'nullable|numeric|min:0',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation failed:', [
+                'errors' => $e->errors(),
+                'input' => $request->all(),
+            ]);
+            throw $e;
+        }
 
         try {
             DB::beginTransaction();
@@ -79,6 +95,11 @@ class IncreaseController extends Controller
             // 1. 處理傳統加成項目（夜間、晚間、颱風）
             if ($request->filled('increase')) {
                 foreach ($request->increase as $itemData) {
+                    // 跳過沒有類別的項目
+                    if (empty($itemData['categories']) || !is_array($itemData['categories'])) {
+                        continue;
+                    }
+                    
                     $increaseItem = new IncreaseItem([
                         'increase_id' => $increase->id,
                         'item_type' => 'traditional',
@@ -118,6 +139,11 @@ class IncreaseController extends Controller
             // 2. 處理夜間開爐項目
             if ($request->filled('furnace')) {
                 foreach ($request->furnace as $furnaceData) {
+                    // 跳過沒有時段或人員的項目
+                    if (empty($furnaceData['time_slot_id']) || empty($furnaceData['furnace_person'])) {
+                        continue;
+                    }
+                    
                     $furnaceItem = new IncreaseItem([
                         'increase_id' => $increase->id,
                         'item_type' => 'furnace',
@@ -136,10 +162,27 @@ class IncreaseController extends Controller
 
             // 3. 處理加班費項目
             if ($request->filled('overtime')) {
-                foreach ($request->overtime as $overtimeData) {
+                foreach ($request->overtime as $index => $overtimeData) {
+                    \Log::info("處理加班費項目 {$index}:", [
+                        'overtime_record_id' => $overtimeData['overtime_record'] ?? 'null',
+                        'all_data' => $overtimeData,
+                    ]);
+                    
+                    // 跳過沒有 overtime_record 的項目
+                    if (empty($overtimeData['overtime_record'])) {
+                        \Log::info("跳過加班費項目 {$index}：沒有 overtime_record");
+                        continue;
+                    }
+                    
                     $overtimeRecord = OvertimeRecord::find($overtimeData['overtime_record']);
                     
                     if ($overtimeRecord) {
+                        \Log::info("找到加班記錄:", [
+                            'record_id' => $overtimeRecord->id,
+                            'user_id' => $overtimeRecord->user_id,
+                            'user_name' => $overtimeRecord->user->name ?? 'N/A',
+                        ]);
+                        
                         // 使用自定義金額或原始金額
                         $customAmount = $overtimeData['overtime_amount'] ?? $overtimeRecord->overtime_pay;
                         
@@ -158,6 +201,14 @@ class IncreaseController extends Controller
                         // 使用模型的計算方法
                         $overtimeItem->calculateOvertimeAmount();
                         $overtimeItem->save();
+                        
+                        \Log::info("儲存加班費項目:", [
+                            'increase_item_id' => $overtimeItem->id,
+                            'receive_person_id' => $overtimeItem->receive_person_id,
+                            'overtime_record_id' => $overtimeItem->overtime_record_id,
+                        ]);
+                    } else {
+                        \Log::warning("找不到加班記錄:", ['record_id' => $overtimeData['overtime_record']]);
                     }
                 }
             }
@@ -224,6 +275,11 @@ class IncreaseController extends Controller
             // 1. 處理傳統加成項目（夜間、晚間、颱風）
             if ($request->filled('increase')) {
                 foreach ($request->increase as $itemData) {
+                    // 跳過沒有類別的項目
+                    if (empty($itemData['categories']) || !is_array($itemData['categories'])) {
+                        continue;
+                    }
+                    
                     $increaseItem = new IncreaseItem([
                         'increase_id' => $increase->id,
                         'item_type' => 'traditional',
@@ -263,6 +319,11 @@ class IncreaseController extends Controller
             // 2. 處理夜間開爐項目
             if ($request->filled('furnace')) {
                 foreach ($request->furnace as $furnaceData) {
+                    // 跳過沒有時段或人員的項目
+                    if (empty($furnaceData['time_slot_id']) || empty($furnaceData['furnace_person'])) {
+                        continue;
+                    }
+                    
                     $furnaceItem = new IncreaseItem([
                         'increase_id' => $increase->id,
                         'item_type' => 'furnace',
@@ -282,6 +343,11 @@ class IncreaseController extends Controller
             // 3. 處理加班費項目
             if ($request->filled('overtime')) {
                 foreach ($request->overtime as $overtimeData) {
+                    // 跳過沒有 overtime_record 的項目
+                    if (empty($overtimeData['overtime_record'])) {
+                        continue;
+                    }
+                    
                     $overtimeRecord = OvertimeRecord::find($overtimeData['overtime_record']);
                     
                     if ($overtimeRecord) {
