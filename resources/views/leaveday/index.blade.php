@@ -171,10 +171,12 @@
                                                             <button type="button" class="btn btn-warning waves-effect waves-light btn-sm">審核</button>
                                                         </a>
                                                     @else
-                                                        <button type="button" class="btn btn-secondary waves-effect waves-light btn-sm" disabled>
-                                                            {{-- {{ $currentCheck->user->name ?? '審核中' }} --}}
-                                                            審核中
-                                                        </button>
+                                                        <a href="{{ route('leave_day.check', $data->id) }}">
+                                                            <button type="button" class="btn btn-warning waves-effect waves-light btn-sm">
+                                                                {{-- {{ $currentCheck->user->name ?? '審核中' }} --}}
+                                                                審核
+                                                            </button>
+                                                        </a>
                                                     @endif
                                                 @elseif($data->state == '3')
                                                     {{-- 已駁回狀態 --}}
