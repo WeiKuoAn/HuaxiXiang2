@@ -67,10 +67,11 @@
                                 <tr align="center">
                                     <th>法會名稱</th>
                                     <th>報名人數</th>
+                                    <th>報名收入（含套組）</th>
                                     <th>報名收入（含水果禮籃）</th>
                                     <th>金紙收入</th>
                                     <th>實收金額</th>
-                                    <th>實收金額（含套組）</th>
+                                    {{-- <th>實收金額（含套組）</th> --}}
                                 </tr>
                             </thead>
                                 <tbody>
@@ -78,10 +79,11 @@
                                     <tr align="center">
                                         <td>{{ $data['name'] }}</td>
                                         <td width="15%">{{ $data['count'] }}（贈與{{ $data['gift_count'] }}人、套組{{ $data['suit_count'] }}人）</td>
+                                        <td>{{ number_format($data['set_apply_price']) }}</td>
                                         <td>{{ number_format($data['apply_price']) }}</td>
                                         <td>{{ number_format($data['monty_price']) }}</td>
                                         <td>{{ number_format($data['total_price']) }}</td>
-                                        <td>{{ number_format($data['total_price_amount']) }}</td>
+                                        {{-- <td>{{ number_format($data['total_price_amount']) }}</td> --}}
                                     </tr>
                                     @endforeach
                                 </tbody>

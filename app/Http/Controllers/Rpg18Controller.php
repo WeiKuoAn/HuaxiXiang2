@@ -68,6 +68,7 @@ class Rpg18Controller extends Controller
                 }
             }
             $datas[$puja->id]['apply_price'] = $datas[$puja->id]['total_price'] - $datas[$puja->id]['monty_price'];
+            $datas[$puja->id]['set_apply_price'] = $datas[$puja->id]['apply_price'] + $datas[$puja->id]['suit_count'] * $puja->price;
             // $datas[$puja->id]['monty_price'] = $datas[$puja->id]['total_price'] - $datas[$puja->id]['apply_price'];
         }
         
