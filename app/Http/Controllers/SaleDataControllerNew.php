@@ -2166,7 +2166,7 @@ class SaleDataControllerNew extends Controller
     {
         switch ($field) {
             case '案件單類別':
-                return $sale->type_list == 'dispatch' ? '派件單' : '追思單';
+                return $sale->type_list == 'dispatch' ? '派件單' : ($sale->type_list == 'memorial' ? '追思單' : '報廢單');
             case '單號':
                 return $sale->sale_on;
             case '專員':
@@ -2213,7 +2213,11 @@ class SaleDataControllerNew extends Controller
                 return '';
             case '來源名稱':
                 if (isset($sale->sale_company_commission)) {
-                    return $sale->sale_company_commission->company_name->name;
+                    if ($sale->sale_company_commission->type == 'self') {
+                        return $sale->sale_company_commission->self_name->name;
+                    } else {
+                        return $sale->sale_company_commission->company_name->name;
+                    }
                 }
                 return '';
             case '套裝':
