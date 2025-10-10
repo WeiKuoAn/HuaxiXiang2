@@ -100,7 +100,7 @@ class PersonnelController extends Controller
             $year = Carbon::now()->year;  // 取得當年
         }
         $years = range(Carbon::now()->year, 2022);
-        $users = User::where('status', '0')->whereIn('job_id', [3, 4, 5, 10])->orderby('job_id')->get();
+        $users = User::whereIn('job_id', [3, 4, 5, 10])->orderby('status','asc')->orderby('entry_date')->get();
         $year_holiday = Vacation::where('year', $year)->sum('day');  // 取放假天數
         // dd($year_holiday);
         $datas = [];
