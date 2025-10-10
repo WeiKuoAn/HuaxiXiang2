@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use App\Models\Customer;
 use App\Models\CustGroup;
 use App\Models\SaleSource;
+use App\Models\SaleCompanyCommission;
 use Illuminate\Support\Facades\DB;
 
 class Rpg12Controller extends Controller
@@ -27,39 +28,41 @@ class Rpg12Controller extends Controller
 
         $CustGroups = CustGroup::where('id','!=',1)->get();
 
-        $sources = SaleSource::whereIn('code',['H','B','dogpark','G','other'])->get();
+        $sources = SaleSource::whereIn('code',['H','B','dogpark','G','other','self'])->get();
 
-        $sale_companys = DB::table('sale_company_commission')
-                            ->join('sale_data','sale_data.id','=','sale_company_commission.sale_id')
-                            ->join('customer','customer.id','=','sale_company_commission.company_id')
-                            ->leftjoin('sale_source','sale_source.code','=','sale_company_commission.type')
-                            ->where('sale_company_commission.sale_date','>=',$firstDay)
-                            ->where('sale_company_commission.sale_date','<=',$lastDay)
-                            ->whereIn('sale_company_commission.type',['H','B','dogpark','G','other'])
-                            ->where('sale_data.plan_id','!=','3')
-                            ->where('sale_data.status','=','9');
-                            
+        $sale_companys = SaleCompanyCommission::with(['company_name', 'self_name', 'user_name'])
+                            ->whereHas('sale', function($query) {
+                                $query->where('plan_id', '!=', '3')
+                                      ->where('status', '=', '9');
+                            })
+                            ->where('sale_date','>=',$firstDay)
+                            ->where('sale_date','<=',$lastDay)
+                            ->whereIn('type',['H','B','dogpark','G','other','self'])
+                            ->where('cooperation_price','!=','1');
 
         $source = $request->source;
         if ($source != "NULL") {
             if (isset($source)) {
-                $sale_companys = $sale_companys->where('sale_company_commission.type', $source);
-            } else {
-                $sale_companys = $sale_companys;
+                $sale_companys = $sale_companys->where('type', $source);
             }
         }
 
-        $sale_companys = $sale_companys->select('sale_company_commission.*','customer.*','sale_source.name as source_name','sale_data.status as status')
-                                       ->orderby('sale_company_commission.type','desc')
-                                        ->get();
+        $sale_companys = $sale_companys->orderBy('type','desc')->get();
                                     //    dd($sale_companys);
         $datas = [];
         $sums = [];
 
         foreach($sale_companys as $sale_company)
         {
-            $datas[$sale_company->type]['name'] = $sale_company->source_name;
-            $datas[$sale_company->type]['companys'][$sale_company->company_id]['name'] = $sale_company->name;
+            // 獲取來源名稱
+            $sourceName = SaleSource::where('code', $sale_company->type)->first();
+            $datas[$sale_company->type]['name'] = $sourceName ? $sourceName->name : $sale_company->type;
+            
+            if($sale_company->type == 'self'){
+                $datas[$sale_company->type]['companys'][$sale_company->company_id]['name'] = $sale_company->self_name ? $sale_company->self_name->name : '未知用戶';
+            }else{
+                $datas[$sale_company->type]['companys'][$sale_company->company_id]['name'] = $sale_company->company_name ? $sale_company->company_name->name : '未知公司';
+            }
             $datas[$sale_company->type]['companys'][$sale_company->company_id]['items'] = DB::table('sale_company_commission')
                                                                                             ->join('sale_data','sale_data.id','=','sale_company_commission.sale_id')
                                                                                             ->leftjoin('plan','plan.id', '=' , 'sale_data.plan_id')
