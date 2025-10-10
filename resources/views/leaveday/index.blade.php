@@ -62,14 +62,12 @@
                                         </select>
                                     </div>
                                     <div class="me-sm-3">
-                                        <label class="form-label">狀態</label>
+                                        <label class="form-label">假別</label>
                                         <select class="form-select my-1 my-lg-0" id="status-select" name="state"
                                             onchange="this.form.submit()">
                                             <option value="2" @if (!isset($request->state) || $request->state == '2') selected @endif>待審核
                                             </option>
                                             <option value="9" @if ($request->state == '9') selected @endif>已核准
-                                            </option>
-                                            <option value="3" @if ($request->state == '3') selected @endif>已駁回
                                             </option>
                                         </select>
                                     </div>
@@ -153,39 +151,14 @@
                                                 </a></td>
                                             <td>{{ $data->leave_status() }}</td>
                                             <td>
-                                                @if ($data->state == '1')
-                                                    {{-- 未送出狀態：顯示送出按鈕 --}}
-                                                    <a href="{{ route('leave_day.select_workflow', $data->id) }}" class="btn btn-success waves-effect waves-light btn-sm">
-                                                        送出
-                                                    </a>
-                                                    <a href="{{ route('leave_day.edit', $data->id) }}" class="btn btn-primary waves-effect waves-light btn-sm">編輯</a>
-                                                @elseif ($data->state == '2')
-                                                    {{-- 待審核狀態：檢查是否為當前審核人 --}}
-                                                    @php
-                                                        // $currentCheck = $data->checks()->where('state', 2)->first();
-                                                        // $canApprove = $currentCheck && $currentCheck->check_user_id == Auth::user()->id;
-                                                        $canApprove = false; // 暫時設為 false，等待 LeaveDay::checks() 方法修復
-                                                    @endphp
-                                                    @if ($canApprove)
-                                                        <a href="{{ route('leave_day.check', $data->id) }}">
-                                                            <button type="button" class="btn btn-warning waves-effect waves-light btn-sm">審核</button>
-                                                        </a>
-                                                    @else
-                                                        <a href="{{ route('leave_day.check', $data->id) }}">
-                                                            <button type="button" class="btn btn-warning waves-effect waves-light btn-sm">
-                                                                {{-- {{ $currentCheck->user->name ?? '審核中' }} --}}
-                                                                審核
-                                                            </button>
-                                                        </a>
-                                                    @endif
-                                                @elseif($data->state == '3')
-                                                    {{-- 已駁回狀態 --}}
-                                                    <span class="badge bg-danger">已駁回</span>
+                                                @if ($data->state == '2')
+                                                    <a href="{{ route('leave_day.check', $data->id) }}"><button
+                                                            type="button"
+                                                            class="btn btn-secondary waves-effect waves-light">審核</button></a>
                                                 @elseif($data->state == '9')
-                                                    {{-- 已核准狀態 --}}
-                                                    <a href="{{ route('leave_day.check', $data->id) }}">
-                                                        <button type="button" class="btn btn-secondary waves-effect waves-light btn-sm">查看</button>
-                                                    </a>
+                                                    <a href="{{ route('leave_day.check', $data->id) }}"><button
+                                                            type="button"
+                                                            class="btn btn-secondary waves-effect waves-light">查看</button></a>
                                                 @endif
                                             </td>
                                         </tr>

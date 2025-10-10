@@ -140,161 +140,57 @@
                                     <textarea class="form-control" rows="3" placeholder="" name="comment" readonly>{{ $data->comment }}</textarea>
                                 </div>
                             </div>
+                            <div class="row mt-3">
+                                <div class="col-12 text-center">
+
+                                    @if ($data->state == 2)
+                                        {{-- 待審核 --}}
+                                        <button type="submit" class="btn btn-success waves-effect waves-light m-1"
+                                            id="btn_submit" name="btn_submit" value="check"><i
+                                                class="fe-check-circle me-1"></i>確定審核</button>
+                                        <button type="submit" class="btn btn-danger waves-effect waves-light m-1"
+                                            id="btn_submit" name="btn_submit" value="not_check"><i
+                                                class="fe-check-circle me-1"></i>撤銷審核</button>
+                                    @elseif($data->state == 9)
+                                        {{-- 已審核 --}}
+                                        <button type="reset" class="btn btn-secondary waves-effect waves-light m-1"
+                                            onclick="history.go(-1)"><i class="fe-x me-1"></i>回上一頁</button>
+                                    @endif
+                                </div>
+                            </div>
                         </form>
                     </div> <!-- end card-body -->
                 </div> <!-- end card-->
-                
-                {{-- 審核按鈕表單 - 移到外層表單外面 --}}
-                @if ($data->state == 2)
-                    {{-- 待審核：檢查是否為當前審核人 --}}
-                    @php
-                        // $currentCheck = $data->checks()->where('state', 2)->first();
-                        // $canApprove = $currentCheck && $currentCheck->check_user_id == Auth::user()->id;
-                        $canApprove = true; // 暫時設為 true，等待 LeaveDay::checks() 方法修復
-                        // 調試資訊
-                        \Log::info('審核按鈕顯示檢查', [
-                            'leave_day_id' => $data->id,
-                            'auth_user_id' => Auth::user()->id,
-                            // 'current_check_id' => $currentCheck ? $currentCheck->id : null,
-                            // 'current_check_user_id' => $currentCheck ? $currentCheck->check_user_id : null,
-                            'can_approve' => $canApprove
-                        ]);
-                    @endphp
-                    @if ($canApprove)
-                        <div class="row mt-3">
-                            <div class="col-12 text-center">
-                                {{-- 當前審核人可以審核 --}}
-                                <form action="{{ route('leave_day.approve', $data->id) }}" method="POST" style="display: inline;">
-                                    @csrf
-                                    {{-- <input type="hidden" name="check_id" value="{{ $currentCheck->id }}"> --}}
-                                    <input type="hidden" name="check_id" value="0">
-                                    <input type="hidden" name="action" value="approve">
-                                    <button type="submit" class="btn btn-success waves-effect waves-light m-1"
-                                            onclick="console.log('提交核准表單，check_id: 0'); console.log('表單 action: {{ route('leave_day.approve', $data->id) }}'); return confirm('確定要核准此假單嗎？')">
-                                        <i class="fe-check-circle me-1"></i>核准
-                                    </button>
-                                </form>
-                                <form action="{{ route('leave_day.approve', $data->id) }}" method="POST" style="display: inline;">
-                                    @csrf
-                                    {{-- <input type="hidden" name="check_id" value="{{ $currentCheck->id }}"> --}}
-                                    <input type="hidden" name="check_id" value="0">
-                                    <input type="hidden" name="action" value="reject">
-                                    <button type="submit" class="btn btn-danger waves-effect waves-light m-1"
-                                            onclick="return confirm('確定要駁回此假單嗎？')">
-                                        <i class="fe-x me-1"></i>駁回
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    @endif
-                @endif
             </div> <!-- end col-->
-            @if ($data->state != 1 || false) {{-- $data->checks()->where('state', 3)->exists() --}}
+            @if ($data->state != 1)
                 <div class="col-xl-6">
                     <div class="card">
                         <div class="card-body">
-                            @if ($data->workflow)
-                                <h5 class="text-uppercase bg-light  p-2 mt-0 mb-3">使用流程：{{ $data->workflow->name }}</h5>
-                                <div class="alert alert-info mb-3">
-                                    <strong>流程說明：</strong>{{ $data->workflow->description ?? '無' }}<br>
-                                    <strong>適用職稱：</strong>
-                                    @if($data->workflow->job)
-                                        {{ $data->workflow->job->name }}
-                                    @else
-                                        全部職稱
-                                    @endif
-                                </div>
-                            @endif
-                            
-                            {{-- 審核流程總表 --}}
-                            <h5 class="text-uppercase bg-light  p-2 mt-0 mb-3">審核流程總表</h5>
-                            <div class="table-responsive mb-3">
+                            <h5 class="text-uppercase bg-light  p-2 mt-0 mb-3">審核資訊</h5>
+                            <div class="table-responsive">
                                 <table class="table table-bordered mb-0">
                                     <thead>
                                         <tr align="center">
-                                            <th>步驟</th>
-                                            <th>審核人員</th>
+                                            <th>送出審核日期</th>
+                                            <th>人員名稱</th>
                                             <th>狀態</th>
                                             <th>備註</th>
-                                            <th>審核日期</th>
+                                            <th>最後審核日期</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($items->sortBy('created_at') as $key => $item)
-                                            <tr align="center" class="{{ $item->state == 2 ? 'table-warning' : ($item->state == 9 ? 'table-success' : ($item->state == 3 ? 'table-danger' : '')) }}">
-                                                <td>
-                                                    @if ($item->state == 2)
-                                                        <span class="badge bg-warning">進行中</span>
-                                                    @else
-                                                        {{ $key + 1 }}
-                                                    @endif
-                                                </td>
+                                        @foreach ($items as $key => $item)
+                                            <tr align="center">
+                                                <td>{{ date('Y-m-d', strtotime($item->created_at)) }}</td>
                                                 <td>{{ $item->user_name->name }}</td>
-                                                <td>
-                                                    @if ($item->state == 1)
-                                                        <span class="badge bg-secondary">新增假單</span>
-                                                    @elseif ($item->state == 2)
-                                                        <span class="badge bg-warning">待審核</span>
-                                                    @elseif ($item->state == 3)
-                                                        <span class="badge bg-danger">已駁回</span>
-                                                    @elseif ($item->state == 9)
-                                                        <span class="badge bg-success">已核准</span>
-                                                    @elseif ($item->state == 10)
-                                                        <span class="badge bg-info">送出審核</span>
-                                                    @elseif ($item->state == 11)
-                                                        <span class="badge bg-primary">編輯假單</span>
-                                                    @endif
-                                                </td>
-                                                <td>{{ $item->comment ?? '-' }}</td>
-                                                <td>{{ $item->updated_at ? date('Y-m-d H:i', strtotime($item->updated_at)) : date('Y-m-d H:i', strtotime($item->created_at)) }}</td>
+                                                <td>{{ $item->leave_check_status() }}</td>
+                                                <td>{{ $item->comment }}</td>
+                                                <td>{{ $item->updated_at }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
                             </div>
-                            
-                            {{-- 尚未審核的人員 --}}
-                            @if ($data->workflow && $data->workflow->steps)
-                                @php
-                                    $pendingSteps = collect();
-                                    foreach ($data->workflow->steps->sortBy('step_order') as $index => $step) {
-                                        // $stepCheck = $data->checks()->where('step_id', $step->id)->first();
-                                        $stepCheck = null; // 暫時設為 null，等待 LeaveDay::checks() 方法修復
-                                        if (!$stepCheck) {
-                                            $pendingSteps->push([
-                                                'step_number' => $index + 1,
-                                                'approver' => $step->approver->name ?? '未設定'
-                                            ]);
-                                        }
-                                    }
-                                @endphp
-                                
-                                @if ($pendingSteps->count() > 0)
-                                    <h5 class="text-uppercase bg-light  p-2 mt-0 mb-3">尚未審核的人員</h5>
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered mb-0">
-                                            <thead>
-                                                <tr align="center">
-                                                    <th>步驟</th>
-                                                    <th>審核人員</th>
-                                                    <th>狀態</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach ($pendingSteps as $step)
-                                                    <tr align="center">
-                                                        <td>{{ $step['step_number'] }}</td>
-                                                        <td>{{ $step['approver'] }}</td>
-                                                        <td>
-                                                            <span class="badge bg-light text-dark">等待中</span>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                @endif
-                            @endif
                         </div> <!-- end card-body -->
                     </div> <!-- end card-->
                 </div> <!-- end col-->
