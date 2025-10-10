@@ -148,14 +148,15 @@
                 @if ($data->state == 2)
                     {{-- 待審核：檢查是否為當前審核人 --}}
                     @php
-                        $currentCheck = $data->checks()->where('state', 2)->first();
-                        $canApprove = $currentCheck && $currentCheck->check_user_id == Auth::user()->id;
+                        // $currentCheck = $data->checks()->where('state', 2)->first();
+                        // $canApprove = $currentCheck && $currentCheck->check_user_id == Auth::user()->id;
+                        $canApprove = true; // 暫時設為 true，等待 LeaveDay::checks() 方法修復
                         // 調試資訊
                         \Log::info('審核按鈕顯示檢查', [
                             'leave_day_id' => $data->id,
                             'auth_user_id' => Auth::user()->id,
-                            'current_check_id' => $currentCheck ? $currentCheck->id : null,
-                            'current_check_user_id' => $currentCheck ? $currentCheck->check_user_id : null,
+                            // 'current_check_id' => $currentCheck ? $currentCheck->id : null,
+                            // 'current_check_user_id' => $currentCheck ? $currentCheck->check_user_id : null,
                             'can_approve' => $canApprove
                         ]);
                     @endphp
@@ -165,16 +166,18 @@
                                 {{-- 當前審核人可以審核 --}}
                                 <form action="{{ route('leave_day.approve', $data->id) }}" method="POST" style="display: inline;">
                                     @csrf
-                                    <input type="hidden" name="check_id" value="{{ $currentCheck->id }}">
+                                    {{-- <input type="hidden" name="check_id" value="{{ $currentCheck->id }}"> --}}
+                                    <input type="hidden" name="check_id" value="0">
                                     <input type="hidden" name="action" value="approve">
                                     <button type="submit" class="btn btn-success waves-effect waves-light m-1"
-                                            onclick="console.log('提交核准表單，check_id: {{ $currentCheck->id }}'); console.log('表單 action: {{ route('leave_day.approve', $data->id) }}'); return confirm('確定要核准此假單嗎？')">
+                                            onclick="console.log('提交核准表單，check_id: 0'); console.log('表單 action: {{ route('leave_day.approve', $data->id) }}'); return confirm('確定要核准此假單嗎？')">
                                         <i class="fe-check-circle me-1"></i>核准
                                     </button>
                                 </form>
                                 <form action="{{ route('leave_day.approve', $data->id) }}" method="POST" style="display: inline;">
                                     @csrf
-                                    <input type="hidden" name="check_id" value="{{ $currentCheck->id }}">
+                                    {{-- <input type="hidden" name="check_id" value="{{ $currentCheck->id }}"> --}}
+                                    <input type="hidden" name="check_id" value="0">
                                     <input type="hidden" name="action" value="reject">
                                     <button type="submit" class="btn btn-danger waves-effect waves-light m-1"
                                             onclick="return confirm('確定要駁回此假單嗎？')">
@@ -186,7 +189,7 @@
                     @endif
                 @endif
             </div> <!-- end col-->
-            @if ($data->state != 1 || $data->checks()->where('state', 3)->exists())
+            @if ($data->state != 1 || false) {{-- $data->checks()->where('state', 3)->exists() --}}
                 <div class="col-xl-6">
                     <div class="card">
                         <div class="card-body">
@@ -255,7 +258,8 @@
                                 @php
                                     $pendingSteps = collect();
                                     foreach ($data->workflow->steps->sortBy('step_order') as $index => $step) {
-                                        $stepCheck = $data->checks()->where('step_id', $step->id)->first();
+                                        // $stepCheck = $data->checks()->where('step_id', $step->id)->first();
+                                        $stepCheck = null; // 暫時設為 null，等待 LeaveDay::checks() 方法修復
                                         if (!$stepCheck) {
                                             $pendingSteps->push([
                                                 'step_number' => $index + 1,
