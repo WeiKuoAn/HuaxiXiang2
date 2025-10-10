@@ -36,6 +36,11 @@ class SaleCompanyCommission extends Model
         return $this->hasOne('App\Models\User', 'id', 'company_id');
     }
 
+    public function sale()
+    {
+        return $this->belongsTo('App\Models\Sale', 'sale_id', 'id');
+    }
+
     public function proms()
     {
         return $this->hasMany('App\Models\Sale_prom', 'sale_id', 'id');
