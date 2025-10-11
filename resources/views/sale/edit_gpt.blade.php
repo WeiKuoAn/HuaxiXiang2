@@ -794,6 +794,13 @@
 
             // 初始化宗教和往生日期欄位的顯示狀態
             initializeReligionAndDeathDateFields();
+            
+            // 初始化方案價格欄位顯示狀態
+            var currentPlanId = $('#plan_id').val();
+            var currentPayId = $('select[name="pay_id"]').val();
+            if (currentPlanId && currentPayId) {
+                handlePlanPriceField(currentPlanId, currentPayId);
+            }
 
             // 頁面載入時檢查現有後續處理項目的備註欄位和商品欄位顯示狀態
             $('select[name="prom[]"]').each(function() {
@@ -1206,7 +1213,12 @@
         $('select[name="pay_id"]').on('change', function() {
             type_list = $('select[name="type_list"]').val();
             var a = $(this).val();
+            var planId = $('#plan_id').val();
             console.log(a);
+            
+            // 處理方案價格欄位
+            handlePlanPriceField(planId, a);
+            
             if ($(this).val() == 'D' || $(this).val() == 'E') {
                 $(".not_final_show").hide(300);
                 if ($(this).val() == 'D') {
@@ -1412,6 +1424,9 @@
                 $('#suit_id').val('');
             }
             
+            // 處理浪浪方案的 plan_price 欄位
+            handlePlanPriceField(planId, payId);
+            
             // 根據方案選擇控制宗教和往生日期欄位顯示
             if (typeList === 'dispatch' && (payId === 'A' || payId === 'C')) {
                 // 將 planId 轉換為字串進行比較
@@ -1528,6 +1543,23 @@
                 console.log('個人/團體方案 (ID:', planIdStr, ') + 非佛道教：往生日期已設定，但不計算重要日期');
             }
         });
+
+        // 處理方案價格欄位的顯示邏輯
+        function handlePlanPriceField(planId, payId) {
+            console.log('處理方案價格欄位:', { planId, payId });
+            
+            // 浪浪方案 (plan_id == 4) 且支付類別為 A 或 C 時，隱藏 plan_price 欄位
+            // 或者支付類別為 D（尾款）時，隱藏 plan_price 欄位
+            if ((planId === '4' && (payId === 'A' || payId === 'C')) || payId === 'D') {
+                console.log('隱藏方案價格欄位 - 原因:', planId === '4' ? '浪浪方案 + 一次付清/訂金' : '尾款');
+                $('#plan_price').closest('.not_final_show.not_memorial_show').hide(300);
+                $('#plan_price').val('').prop('required', false);
+            } else {
+                console.log('其他方案或支付類別：顯示方案價格欄位');
+                $('#plan_price').closest('.not_final_show.not_memorial_show').show(300);
+                $('#plan_price').prop('required', true);
+            }
+        }
 
         // 初始化宗教和往生日期欄位的顯示狀態
         function initializeReligionAndDeathDateFields() {
