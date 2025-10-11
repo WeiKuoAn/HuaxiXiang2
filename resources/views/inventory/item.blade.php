@@ -77,7 +77,7 @@
                                                     <td>{{ $item->old_num }}</td>
                                                     @if($inventory_data->state == 0)
                                                         <td>
-                                                            <input type="text" class="form-control" name="variant[{{ $item->variant_id }}]" value="{{ $item->new_num }}" required>
+                                                            <input type="text" class="form-control" name="variant[{{ $item->variant_id }}]" value="{{ $item->new_num }}">
                                                         </td>
                                                     @else
                                                         <td>{{ $item->new_num }}</td>
@@ -100,7 +100,7 @@
                                                 <td>{{ $item->old_num }}</td>
                                                 @if($inventory_data->state == 0)
                                                     <td>
-                                                        <input type="text" class="form-control" name="product[{{ $item->product_id }}]" value="{{ $item->new_num }}" required>
+                                                        <input type="text" class="form-control" name="product[{{ $item->product_id }}]" value="{{ $item->new_num }}">
                                                     </td>
                                                 @else
                                                     <td>{{ $item->new_num }}</td>
@@ -124,7 +124,10 @@
                     <div class="col-auto me-auto"></div>
                         @if($hasPending)
                             <div class="col-auto">
-                                <button type="submit" class="btn btn-primary">送出盤點</button>
+                                <button type="submit" name="action" value="save" class="btn btn-warning">暫存</button>
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" name="action" value="submit" class="btn btn-primary">送出盤點</button>
                             </div>
                         @endif
                         <div class="col-auto">
@@ -147,4 +150,35 @@
 <!-- demo app -->
 <script src="{{asset('assets/js/pages/tabledit.init.js')}}"></script>
 <!-- end demo js-->
+
+<script>
+$(document).ready(function() {
+    // 為送出盤點按鈕添加確認訊息和必填驗證
+    $('button[name="action"][value="submit"]').on('click', function(e) {
+        // 檢查必填欄位
+        var hasEmptyFields = false;
+        var emptyFields = [];
+        
+        $('input[name^="product["], input[name^="variant["]').each(function() {
+            var value = $(this).val().trim();
+            if (value === '' || value === '0' || isNaN(value)) {
+                hasEmptyFields = true;
+                var fieldName = $(this).closest('tr').find('td:nth-child(2)').text().trim();
+                emptyFields.push(fieldName);
+            }
+        });
+        
+        if (hasEmptyFields) {
+            e.preventDefault();
+            alert('送出盤點前請填寫所有商品數量！\n\n未填寫的商品：\n' + emptyFields.slice(0, 5).join('\n') + (emptyFields.length > 5 ? '\n...等' + emptyFields.length + '項' : ''));
+            return false;
+        }
+        
+        if (!confirm('確定要送出盤點嗎？送出後將無法再編輯。')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+});
+</script>
 @endsection

@@ -181,6 +181,9 @@ class InventoryController extends Controller
 
   public function inventoryItem_edit(Request $request, $product_inventory_id)
   {
+    // 取得操作類型（暫存或送出）
+    $action = $request->input('action', 'submit');
+    
     $inventory_data = GdpaperInventoryData::orderby('inventory_no', 'desc')->where('inventory_no', $product_inventory_id)->first();
     $datas = GdpaperInventoryItem::where('gdpaper_inventory_id', $product_inventory_id)->get();
 
@@ -190,8 +193,8 @@ class InventoryController extends Controller
         $data->new_num = $request->variant[$data->variant_id] ?? null;
         $data->comment = $request->comment_variant[$data->variant_id] ?? null;
         
-        // 同步更新細項的實際庫存量
-        if ($data->new_num !== null) {
+        // 只有送出盤點時才同步更新細項的實際庫存量
+        if ($action === 'submit' && $data->new_num !== null) {
           $variant = ProductVariant::find($data->variant_id);
           if ($variant) {
             $variant->stock_quantity = intval($data->new_num);
@@ -204,15 +207,25 @@ class InventoryController extends Controller
       }
       $data->save();
     }
-    // dd($inventory_data);
-    //盤點狀況改為1 已盤點
-    $inventory_data->state = 1;
-    $inventory_data->save();
 
-    if (Auth::user()->level != 2) {
-      return redirect()->route('product.inventorys');
+    // 根據操作類型決定是否改變盤點狀態
+    if ($action === 'submit') {
+      // 送出盤點：盤點狀況改為1（已盤點）
+      $inventory_data->state = 1;
+      $inventory_data->save();
+
+      if (Auth::user()->level != 2) {
+        return redirect()->route('product.inventorys');
+      } else {
+        return redirect()->route('person.inventory');
+      }
     } else {
-      return redirect()->route('person.inventory');
+      // 暫存：保持狀態為0（未完成），按照用戶等級跳轉
+      if (Auth::user()->level != 2) {
+        return redirect()->route('product.inventorys');
+      } else {
+        return redirect()->route('person.inventory');
+      }
     }
   }
 
