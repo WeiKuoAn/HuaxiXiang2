@@ -667,6 +667,13 @@
             
             // 初始化後續處理區塊顯示狀態
             showPromSectionsIfNeeded();
+            
+            // 初始化方案價格欄位顯示狀態
+            var currentPlanId = $('#plan_id').val();
+            var currentPayId = $('select[name="pay_id"]').val();
+            if (currentPlanId && currentPayId) {
+                handlePlanPriceField(currentPlanId, currentPayId);
+            }
         }
 
         $(document).on('change', 'select[id^=prom_]', function() {
@@ -1018,10 +1025,14 @@
         $('select[name="pay_id"]').on('change', function() {
             type_list = $('select[name="type_list"]').val();
             var payValue = $(this).val();
+            var planId = $('#plan_id').val();
             console.log('支付類別變更:', payValue);
             
             // 根據支付類別控制欄位顯示
             controlFieldsByPaymentType(payValue, type_list);
+            
+            // 處理方案價格欄位
+            handlePlanPriceField(planId, payValue);
         });
 
         // 支付類別欄位控制函數
@@ -1221,6 +1232,14 @@
                 $("#religion").prop('required', true);
             }
             
+            // 檢查浪浪方案的特殊處理
+            var planId = $('#plan_id').val();
+            var payId = $('select[name="pay_id"]').val();
+            if (planId === '4' && (payId === 'A' || payId === 'C')) {
+                // 浪浪方案 + 一次付清/訂金：plan_price 不為必填
+                $("#plan_price").prop('required', false);
+            }
+            
             // 往生日期改為非必填（因為不一定知道往生日期）
             // 移除原本的必填邏輯
         }
@@ -1364,44 +1383,47 @@
                 validateReligionAndDeathDate();
             });
 
-            // 方案變更時的增強防呆
-            $('#plan_id').on('change', function() {
-                var planId = $(this).val();
-                var typeList = $('#type_list').val();
-                var religion = $('#religion').val();
-                var previousDeathDate = $('#death_date').val();
-                var payId = $('#pay_id').val();
-                
-                console.log('方案變更防呆:', planId, '案件類別:', typeList, '宗教:', religion, '之前的往生日期:', previousDeathDate);
-                
-                // 特殊邏輯：浪浪方案的處理
-                if (planId === '4') { // 浪浪方案
-                    console.log('切換到浪浪方案，特殊處理');
-                    handleStrayPlanSelection(typeList, religion, previousDeathDate);
-                }
-                
-                // 處理宗教和往生日期的顯示邏輯
-                handlePlanReligionInteraction(planId, typeList, religion);
-                
-                // 檢查套裝欄位顯示邏輯
-                if (typeList === 'dispatch' && (payId === 'A' || payId === 'D' || payId === 'E') && planId === '1') {
-                    $('#suit_id').prop('required', true);
-                    $('#suit_field').show(300);
-                } else {
-                    $('#suit_id').prop('required', false);
-                    $('#suit_field').hide(300);
-                    $('#suit_id').val('');
-                }
-                
-                // 重新計算重要日期（如果有往生日期的話）
-                var deathDate = $('#death_date').val();
-                if (deathDate && (religion === 'buddhism' || religion === 'taoism' || religion === 'buddhism_taoism')) {
-                    calculateMemorialDates(deathDate, planId);
-                }
-                
-                // 原有的價格計算邏輯保持不變
-                calculate_price();
-            });
+        // 方案變更時的增強防呆
+        $('#plan_id').on('change', function() {
+            var planId = $(this).val();
+            var typeList = $('#type_list').val();
+            var religion = $('#religion').val();
+            var previousDeathDate = $('#death_date').val();
+            var payId = $('#pay_id').val();
+            
+            console.log('方案變更防呆:', planId, '案件類別:', typeList, '宗教:', religion, '之前的往生日期:', previousDeathDate);
+            
+            // 特殊邏輯：浪浪方案的處理
+            if (planId === '4') { // 浪浪方案
+                console.log('切換到浪浪方案，特殊處理');
+                handleStrayPlanSelection(typeList, religion, previousDeathDate);
+            }
+            
+            // 處理宗教和往生日期的顯示邏輯
+            handlePlanReligionInteraction(planId, typeList, religion);
+            
+            // 檢查套裝欄位顯示邏輯
+            if (typeList === 'dispatch' && (payId === 'A' || payId === 'D' || payId === 'E') && planId === '1') {
+                $('#suit_id').prop('required', true);
+                $('#suit_field').show(300);
+            } else {
+                $('#suit_id').prop('required', false);
+                $('#suit_field').hide(300);
+                $('#suit_id').val('');
+            }
+            
+            // 處理浪浪方案的 plan_price 欄位
+            handlePlanPriceField(planId, payId);
+            
+            // 重新計算重要日期（如果有往生日期的話）
+            var deathDate = $('#death_date').val();
+            if (deathDate && (religion === 'buddhism' || religion === 'taoism' || religion === 'buddhism_taoism')) {
+                calculateMemorialDates(deathDate, planId);
+            }
+            
+            // 原有的價格計算邏輯保持不變
+            calculate_price();
+        });
 
             // 宗教變更時的增強防呆
             $('#religion').on('change', function() {
@@ -1652,6 +1674,23 @@
         // 重設提示區域樣式（在其他地方使用時恢復原樣）
         function resetHintStyle() {
             $("#payment_type_hint").removeClass('alert-warning').addClass('alert-info');
+        }
+
+        // 處理方案價格欄位的顯示邏輯
+        function handlePlanPriceField(planId, payId) {
+            console.log('處理方案價格欄位:', { planId, payId });
+            
+            // 浪浪方案 (plan_id == 4) 且支付類別為 A 或 C 時，隱藏 plan_price 欄位
+            // 或者支付類別為 D（尾款）時，隱藏 plan_price 欄位
+            if ((planId === '4' && (payId === 'A' || payId === 'C')) || payId === 'D') {
+                console.log('隱藏方案價格欄位 - 原因:', planId === '4' ? '浪浪方案 + 一次付清/訂金' : '尾款');
+                $('.plan_price').hide(300);
+                $('#plan_price').val('').prop('required', false);
+            } else {
+                console.log('其他方案或支付類別：顯示方案價格欄位');
+                $('.plan_price').show(300);
+                $('#plan_price').prop('required', true);
+            }
         }
 
         // 隱藏後續處理相關區塊

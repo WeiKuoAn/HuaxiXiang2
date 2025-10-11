@@ -665,6 +665,7 @@
                     <div class="text-center mb-3">
                         {{-- || Auth::user()->job_id == 10 --}}
                         @if (Auth::user()->level != '2' || Auth::user()->job_id == 9)
+
                             @if ($data->status == '1')
                                 <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
                                 <button type="submit" class="btn w-sm btn-success waves-effect waves-light" value="check" name="admin_check" onclick="if(!confirm('是否已確定對帳，若要取消對帳，請進行撤回')){event.returnValue=false;return false;}">確定對帳</button>
@@ -673,12 +674,14 @@
                                 <button type="submit" class="btn w-sm btn-danger waves-effect" value="not_check" name="admin_check">撤回對帳</button>
                                 <button type="submit" class="btn w-sm btn-success waves-effect waves-light" value="check" name="admin_check" onclick="if(!confirm('是否已確定對帳，若要取消對帳，請進行撤回')){event.returnValue=false;return false;}">確定對帳</button>
                             @elseif($data->status == '9')
+
                                 <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
                                 <button type="submit" class="btn w-sm btn-success waves-effect waves-light" value="reset" name="admin_check">還原</button>
                             @else
                                 <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
                             @endif
                         @else
+                        
                             @if ($data->status == '1' && $data->user_id == Auth::user()->id)
                                 <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
                                 <button type="submit" class="btn w-sm btn-success waves-effect waves-light" value="usercheck" name="user_check" onclick="if(!confirm('是否已確定對帳，若要取消對帳，請進行撤回')){event.returnValue=false;return false;}">確定對帳</button>
@@ -687,6 +690,9 @@
                                     <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
                                     <button type="submit" class="btn w-sm btn-danger waves-effect" value="not_check" name="admin_check">撤回對帳</button>
                                     <button type="submit" class="btn w-sm btn-success waves-effect waves-light" value="check" name="admin_check" onclick="if(!confirm('是否已確定對帳，若要取消對帳，請進行撤回')){event.returnValue=false;return false;}">確定對帳</button>
+                                @elseif($data->status == '9')
+                                    <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
+                                    <button type="submit" class="btn w-sm btn-success waves-effect waves-light" value="reset" name="admin_check">還原</button>
                                 @else
                                     <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
                                 @endif
@@ -740,6 +746,13 @@
        $(document).ready(function() {
             // 初始化宗教信仰和往生日期欄位顯示
             initializeReligionAndDeathDateFields();
+            
+            // 初始化方案價格欄位顯示狀態
+            var currentPlanId = '{{ $data->plan_id }}';
+            var currentPayId = '{{ $data->pay_id }}';
+            if (currentPlanId && currentPayId) {
+                handlePlanPriceField(currentPlanId, currentPayId);
+            }
             
             var saleAddress = <?php echo json_encode(isset($sale_address) ? $sale_address : null); ?>;
             // Check if $sale_address exists
@@ -1889,6 +1902,21 @@
         }
 
 
+
+        // 處理方案價格欄位的顯示邏輯
+        function handlePlanPriceField(planId, payId) {
+            console.log('處理方案價格欄位:', { planId, payId });
+            
+            // 浪浪方案 (plan_id == 4) 且支付類別為 A 或 C 時，隱藏 plan_price 欄位
+            // 或者支付類別為 D（尾款）時，隱藏 plan_price 欄位
+            if ((planId === '4' && (payId === 'A' || payId === 'C')) || payId === 'D') {
+                console.log('隱藏方案價格欄位 - 原因:', planId === '4' ? '浪浪方案 + 一次付清/訂金' : '尾款');
+                $('label[for="plan_price"]').closest('.not_final_show.not_memorial_show').hide(300);
+            } else {
+                console.log('其他方案或支付類別：顯示方案價格欄位');
+                $('label[for="plan_price"]').closest('.not_final_show.not_memorial_show').show(300);
+            }
+        }
 
         // 初始化宗教信仰和往生日期欄位顯示
         function initializeReligionAndDeathDateFields() {

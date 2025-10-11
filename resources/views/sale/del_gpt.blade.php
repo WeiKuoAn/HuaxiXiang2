@@ -138,7 +138,7 @@
                                         </div>
                                     @endif
                                     <div id="religion_reminder" class="mt-1" style="display: none;">
-                                        <small class="text-danger">提醒：資材帶為佛道教用品</small>
+                                        <small class="text-danger">提醒：資財袋為佛道教用品</small>
                                     </div>
                                 </div>
                                 <div class="mb-3 col-md-4" id="death_date_field" style="display: none;">
@@ -376,7 +376,7 @@
                                                                             <option value="">請選擇</option>
                                                                         </select>
                                                                     </div>
-                                                                    <!-- 變體選擇 -->
+                                                                    <!-- 細項選擇 -->
                                                                     <div class="col-3" id="variant_select_{{ $key }}">
                                                                         <select id="product_variant_{{ $key }}" class="form-select" name="product_variants[]" data-existing-variant-id="{{ $sale_prom->is_custom_product ? '' : ($sale_prom->variant_id ?? '') }}">
                                                                             <option value="">無</option>
@@ -459,7 +459,7 @@
                                                                         <option value="">請選擇</option>
                                                                     </select>
                                                                 </div>
-                                                                    <!-- 變體選擇 -->
+                                                                    <!-- 細項選擇 -->
                                                                     <div class="col-3" id="variant_select_{{ $i }}">
                                                                     <select id="product_variant_{{ $i }}" class="form-select" name="product_variants[]">
                                                                         <option value="">無</option>
@@ -795,12 +795,12 @@
                             
                                     $('#product_prom_col_' + row_id).html(html);
                             
-                            // 儲存商品資料供變體選擇使用
+                            // 儲存商品資料供細項選擇使用
                             window.productData = window.productData || {};
                                     window.productData[row_id] = data.products;
                                     window.productData[row_id].is_custom_product = data.is_custom_product;
                                     
-                                    // 如果有現有的商品選擇，設定選中狀態並觸發變體檢查
+                                    // 如果有現有的商品選擇，設定選中狀態並觸發細項檢查
                                     // 從 prom_product_container 讀取 data-existing-product-id
                                     var existingProductId = prom_product_container.data('existing-product-id');
                                     console.log('Row ' + row_id + ' - Existing product ID from container:', existingProductId);
@@ -808,7 +808,7 @@
                                     if (existingProductId && existingProductId !== '') {
                                         $('#product_prom_' + row_id).val(existingProductId);
                                         console.log('Row ' + row_id + ' - Set product value to:', existingProductId);
-                                        // 延遲執行變體檢查，確保商品資料已載入
+                                        // 延遲執行細項檢查，確保商品資料已載入
                                         setTimeout(function() {
                                             checkProductVariants(row_id);
                                         }, 100);
@@ -1427,12 +1427,12 @@
                                     
                                     $('#product_prom_col_' + row_id).html(html);
                                     
-                                    // 儲存商品資料供變體選擇使用
+                                    // 儲存商品資料供細項選擇使用
                                     window.productData = window.productData || {};
                                     window.productData[row_id] = data.products;
                                     window.productData[row_id].is_custom_product = data.is_custom_product;
                                     
-                                    // 如果有現有的商品選擇，設定選中狀態並觸發變體檢查
+                                    // 如果有現有的商品選擇，設定選中狀態並觸發細項檢查
                                     // 從 prom_product_container 讀取 data-existing-product-id
                                     var existingProductId = prom_product_container.data('existing-product-id');
                                     console.log('Row ' + row_id + ' - Existing product ID from container:', existingProductId);
@@ -1440,7 +1440,7 @@
                                     if (existingProductId && existingProductId !== '') {
                                         $('#product_prom_' + row_id).val(existingProductId);
                                         console.log('Row ' + row_id + ' - Set product value to:', existingProductId);
-                                        // 延遲執行變體檢查，確保商品資料已載入
+                                        // 延遲執行細項檢查，確保商品資料已載入
                                         setTimeout(function() {
                                             checkProductVariants(row_id);
                                         }, 100);
@@ -1784,7 +1784,7 @@
             cols += '<option value="">請選擇</option>';
             cols += '</select>';
             cols += '</div>';
-            cols += '<!-- 變體選擇 -->';
+            cols += '<!-- 細項選擇 -->';
             cols += '<div class="col-3" id="variant_select_' + $rowCount + '">';
             cols += '<select id="product_variant_' + $rowCount + '" class="form-select" name="product_variants[]">';
             cols += '<option value="">無</option>';
@@ -1923,7 +1923,7 @@
             }
         });
 
-        // 檢查商品變體並更新變體選擇下拉選單
+        // 檢查商品細項並更新細項選擇下拉選單
         function checkProductVariants(idx) {
             var selectedProductId = $('#product_prom_' + idx).val();
             var variantSelectDiv = $('#variant_select_' + idx);
@@ -1933,12 +1933,12 @@
             var isCustomProduct = window.productData && window.productData[idx] && window.productData[idx].is_custom_product == 1;
             
             if (isCustomProduct) {
-                // 自訂商品模式，隱藏變體選擇
+                // 自訂商品模式，隱藏細項選擇
                 variantSelectDiv.hide();
                 return;
             }
             
-            // 重置變體選擇為預設狀態
+            // 重置細項選擇為預設狀態
             var defaultVariantHtml = '<option value="">無</option>';
             variantSelect.html(defaultVariantHtml);
             
@@ -1947,7 +1947,7 @@
                 return;
             }
             
-            // 檢查選擇的商品是否有變體
+            // 檢查選擇的商品是否有細項
             var selectedOption = $('#product_prom_' + idx + ' option:selected');
             var hasVariants = selectedOption.attr('data-has-variants');
             
@@ -1958,8 +1958,8 @@
                 });
                 
                 if (product && product.variants && product.variants.length > 0) {
-                    // 有變體，更新變體選擇下拉選單
-                    var variantHtml = '<option value="">請選擇變體</option>';
+                    // 有細項，更新細項選擇下拉選單
+                    var variantHtml = '<option value="">請選擇細項</option>';
                     product.variants.forEach(function(variant) {
                         var variantDisplayName = variant.variant_name;
                         if (variant.color) {
@@ -1971,7 +1971,7 @@
                     
                     variantSelect.html(variantHtml);
                     
-                    // 如果有現有的變體選擇，設定選中狀態
+                    // 如果有現有的細項選擇，設定選中狀態
                     // 從 prom_product_container 讀取 data-existing-variant-id
                     var promProductContainer = $("#prom_product_" + idx);
                     var existingVariantId = promProductContainer.data('existing-variant-id');
@@ -2058,6 +2058,21 @@
             $('#anniversary_day').text(formatDate(memorialDates.anniversary_day));
         }
 
+        // 處理方案價格欄位的顯示邏輯
+        function handlePlanPriceField(planId, payId) {
+            console.log('處理方案價格欄位:', { planId, payId });
+            
+            // 浪浪方案 (plan_id == 4) 且支付類別為 A 或 C 時，隱藏 plan_price 欄位
+            // 或者支付類別為 D（尾款）時，隱藏 plan_price 欄位
+            if ((planId === '4' && (payId === 'A' || payId === 'C')) || payId === 'D') {
+                console.log('隱藏方案價格欄位 - 原因:', planId === '4' ? '浪浪方案 + 一次付清/訂金' : '尾款');
+                $('label[for="plan_price"]').closest('.not_final_show.not_memorial_show').hide(300);
+            } else {
+                console.log('其他方案或支付類別：顯示方案價格欄位');
+                $('label[for="plan_price"]').closest('.not_final_show.not_memorial_show').show(300);
+            }
+        }
+
         // 頁面載入時初始化宗教和往生日期欄位
         $(document).ready(function() {
             // 檢查現有的宗教和往生日期資料
@@ -2078,6 +2093,13 @@
             }
             
             handleReligionAndDeathDateFields();
+            
+            // 初始化方案價格欄位顯示狀態
+            var currentPlanId = '{{ $data->plan_id }}';
+            var currentPayId = '{{ $data->pay_id }}';
+            if (currentPlanId && currentPayId) {
+                handlePlanPriceField(currentPlanId, currentPayId);
+            }
             
             // 監聽宗教欄位變更
             $('#religion').on('change', function() {
