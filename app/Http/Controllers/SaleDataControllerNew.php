@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\CustGroup;
 use App\Models\Customer;
 use App\Models\Gdpaper;
+use App\Models\MemorialDate;
+use App\Models\PayData;
+use App\Models\PayItem;
 use App\Models\Plan;
 use App\Models\Product;
 use App\Models\ProductVariant;
@@ -28,10 +31,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Models\PayData;
-use App\Models\PayItem;
-use App\Models\MemorialDate;
-
 
 class SaleDataControllerNew extends Controller
 {
@@ -293,7 +292,7 @@ class SaleDataControllerNew extends Controller
     {
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', '1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $customers = Customer::orderby('created_at', 'desc')->get();
         $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
         $suits = Suit::where('status', 'up')->get();
@@ -315,7 +314,7 @@ class SaleDataControllerNew extends Controller
     {
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', '1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $customers = Customer::orderby('created_at', 'desc')->get();
         $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
         $suits = Suit::where('status', 'up')->get();
@@ -323,47 +322,47 @@ class SaleDataControllerNew extends Controller
         $proms = Prom::where('status', 'up')->get();
         $hospitals = Customer::whereIn('group_id', [2])->get();
         $data = Sale::where('id', $id)->first();
-        
+
         if (!$data) {
             return redirect()->route('sales')->with('error', '找不到指定的業務單');
         }
-        
+
         // 載入相關資料
         $sale_proms = Sale_prom::where('sale_id', $id)->get();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
         $sale_souvenirs = SaleSouvenir::where('sale_id', $id)->get();
-        
+
         // 載入每個後續處理項目對應的紀念品資料
         foreach ($sale_proms as $sale_prom) {
             $sale_prom->souvenir_data = SaleSouvenir::where('sale_id', $id)
                 ->where('sale_prom_id', $sale_prom->id)
                 ->first();
-            
+
             // 判斷商品類型
             if ($sale_prom->souvenir_data) {
                 if ($sale_prom->souvenir_data->souvenir_type == null) {
                     // 關聯商品：souvenir_type 為 null
                     $sale_prom->is_custom_product = false;
-                    $sale_prom->product_id = $sale_prom->souvenir_data->product_name; // product_name 存的是商品ID
+                    $sale_prom->product_id = $sale_prom->souvenir_data->product_name;  // product_name 存的是商品ID
                     $sale_prom->variant_id = $sale_prom->souvenir_data->product_variant_id;
                 } else {
                     // 自訂商品：souvenir_type 不為 null
                     $sale_prom->is_custom_product = true;
-                    $sale_prom->product_name = $sale_prom->souvenir_data->product_name; // product_name 存的是商品名稱
+                    $sale_prom->product_name = $sale_prom->souvenir_data->product_name;  // product_name 存的是商品名稱
                     $sale_prom->souvenir_type_id = $sale_prom->souvenir_data->souvenir_type;
                 }
             }
         }
-        
+
         // 載入來源公司資料
         $sale_company = SaleCompanyCommission::where('sale_id', $id)->first();
-        
+
         // 載入接體地址資料
         $sale_address = SaleAddress::where('sale_id', $id)->first();
-        
+
         // 載入紀念品資料
         $souvenirs = Souvenir::where('status', 'up')->get();
-        
+
         return view('sale.edit_gpt')
             ->with('data', $data)
             ->with('products', $products)
@@ -387,7 +386,7 @@ class SaleDataControllerNew extends Controller
     {
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', '1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
 
         return view('sale.create_test')
             ->with('products', $products)
@@ -467,7 +466,7 @@ class SaleDataControllerNew extends Controller
         $sale_id = Sale::orderby('id', 'desc')->first();
 
         // 建立 / 更新重要日期（佛道教且有往生日期時）
-        if (in_array($sale->religion, ['buddhism','taoism','buddhism_taoism']) && !empty($sale->death_date)) {
+        if (in_array($sale->religion, ['buddhism', 'taoism', 'buddhism_taoism']) && !empty($sale->death_date)) {
             $dates = MemorialDate::calculateMemorialDates($sale->death_date, $sale->plan_id);
             MemorialDate::updateOrCreate(
                 ['sale_id' => $sale_id->id],
@@ -574,12 +573,12 @@ class SaleDataControllerNew extends Controller
                         $souvenir->product_name = $request->product_name[$key];
                     }
                     $souvenir->product_num = $request->product_num[$key];
-                    
+
                     // 處理細項 ID
                     if (isset($request->product_variants[$key]) && !empty($request->product_variants[$key])) {
                         $souvenir->product_variant_id = $request->product_variants[$key];
                     }
-                    
+
                     $souvenir->total = $request->prom_total[$key];
                     $souvenir->comment = $request->product_comment[$key];
                     $souvenir->save();
@@ -898,7 +897,7 @@ class SaleDataControllerNew extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', '1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
         $data = Sale::where('id', $id)->first();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
@@ -931,11 +930,11 @@ class SaleDataControllerNew extends Controller
             ->with('users', $users);
     }
 
-    public function check_show_gpt($id)
+    public function check_show_gpt(Request $request , $id)
     {
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', '1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $customers = Customer::orderby('created_at', 'desc')->get();
         $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
         $suits = Suit::where('status', 'up')->get();
@@ -943,47 +942,74 @@ class SaleDataControllerNew extends Controller
         $proms = Prom::where('status', 'up')->get();
         $hospitals = Customer::whereIn('group_id', [2])->get();
         $data = Sale::where('id', $id)->first();
-        
+
         if (!$data) {
             return redirect()->route('sales')->with('error', '找不到指定的業務單');
         }
-        
+
         // 載入相關資料
         $sale_proms = Sale_prom::where('sale_id', $id)->get();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
         $sale_souvenirs = SaleSouvenir::where('sale_id', $id)->get();
-        
+
         // 載入每個後續處理項目對應的紀念品資料
         foreach ($sale_proms as $sale_prom) {
             $sale_prom->souvenir_data = SaleSouvenir::where('sale_id', $id)
                 ->where('sale_prom_id', $sale_prom->id)
                 ->first();
-            
+
             // 判斷商品類型
             if ($sale_prom->souvenir_data) {
                 if ($sale_prom->souvenir_data->souvenir_type == null) {
                     // 關聯商品：souvenir_type 為 null
                     $sale_prom->is_custom_product = false;
-                    $sale_prom->product_id = $sale_prom->souvenir_data->product_name; // product_name 存的是商品ID
+                    $sale_prom->product_id = $sale_prom->souvenir_data->product_name;  // product_name 存的是商品ID
                     $sale_prom->variant_id = $sale_prom->souvenir_data->product_variant_id;
                 } else {
                     // 自訂商品：souvenir_type 不為 null
                     $sale_prom->is_custom_product = true;
-                    $sale_prom->product_name = $sale_prom->souvenir_data->product_name; // product_name 存的是商品名稱
+                    $sale_prom->product_name = $sale_prom->souvenir_data->product_name;  // product_name 存的是商品名稱
                     $sale_prom->souvenir_type_id = $sale_prom->souvenir_data->souvenir_type;
                 }
             }
         }
-        
+
         // 載入來源公司資料
         $sale_company = SaleCompanyCommission::where('sale_id', $id)->first();
-        
+
         // 載入接體地址資料
         $sale_address = SaleAddress::where('sale_id', $id)->first();
-        
+
         // 載入紀念品資料
         $souvenirs = Souvenir::where('status', 'up')->get();
-        
+
+        $previousUrl = $request->session()->get('_previous.url');
+        $parsedUrl = parse_url($previousUrl);
+
+        // 初始化变量
+        $user = null;
+        $afterDate = null;
+        $beforeDate = null;
+        // dd($source_companys);
+
+        if (isset($parsedUrl['query'])) {
+            parse_str($parsedUrl['query'], $queryParameters);
+
+            // 检查并获取user参数的值
+            if (isset($queryParameters['user'])) {
+                $user = $queryParameters['user'];
+            }
+            if (isset($queryParameters['after_date'])) {
+                $afterDate = $queryParameters['after_date'];
+            }
+            if (isset($queryParameters['before_date'])) {
+                $beforeDate = $queryParameters['before_date'];
+            }
+
+            // 存储参数值在会话中
+            session(['user' => $user, 'afterDate' => $afterDate, 'beforeDate' => $beforeDate]);
+        }
+
         return view('sale.check_gpt')
             ->with('data', $data)
             ->with('products', $products)
@@ -1044,9 +1070,19 @@ class SaleDataControllerNew extends Controller
                 $sale_history->state = 'reset';
                 $sale_history->save();
             }
-            return redirect()->route('sales')->with('success', '業務單狀態已更新');
+            $user = session('user');
+            $afterDate = session('afterDate');
+            $beforeDate = session('beforeDate');
+            // dd($user, $afterDate, $beforeDate);
+            // 构建重定向的URL，将筛选条件添加到URL中
+            if (session()->has('user') || session()->has('after_date') || session()->has('before_date')) {
+                $url = route('wait.sales', ['user' => $user, 'after_date' => $afterDate, 'before_date' => $beforeDate]);
+                // 重定向到筛选页面并传递筛选条件
+                return redirect($url);
+            } else {
+                return redirect()->route('wait.sales');
+            }
         } else {
-
             if ($request->user_check == 'usercheck') {
                 $sale->status = '3';
                 $sale->save();
@@ -1068,7 +1104,7 @@ class SaleDataControllerNew extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', '1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
         $data = Sale::where('id', $id)->first();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
@@ -1134,7 +1170,7 @@ class SaleDataControllerNew extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', '1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
         $data = Sale::where('sale_on', $sale_on)->first();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $data->id)->get();
@@ -1162,7 +1198,6 @@ class SaleDataControllerNew extends Controller
             ->with('sale_souvenirs', $sale_souvenirs)
             ->with('souvenir_types', $souvenir_types);
     }
-
 
     public function check_update(Request $request, $id)
     {
@@ -1247,7 +1282,7 @@ class SaleDataControllerNew extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', '1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
         $data = Sale::where('id', $id)->first();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
@@ -1285,7 +1320,7 @@ class SaleDataControllerNew extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', '1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
         $data = Sale::where('id', $id)->first();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
@@ -1386,7 +1421,6 @@ class SaleDataControllerNew extends Controller
      */
     public function update_gpt(Request $request, $id)
     {
-
         $sale = Sale::where('id', $id)->first();
         $sale->sale_on = 'No.' . $request->sale_on;
         $sale->type_list = $request->type_list;
@@ -1450,7 +1484,7 @@ class SaleDataControllerNew extends Controller
         $sale_id = Sale::where('id', $id)->first();
 
         // 更新重要日期（佛道教且有往生日期時），否則刪除
-        if (in_array($sale->religion, ['buddhism','taoism','buddhism_taoism']) && !empty($sale->death_date)) {
+        if (in_array($sale->religion, ['buddhism', 'taoism', 'buddhism_taoism']) && !empty($sale->death_date)) {
             $dates = MemorialDate::calculateMemorialDates($sale->death_date, $sale->plan_id);
             MemorialDate::updateOrCreate(
                 ['sale_id' => $sale_id->id],
@@ -1541,12 +1575,12 @@ class SaleDataControllerNew extends Controller
                             $souvenir->product_name = $request->product_name[$key];
                         }
                         $souvenir->product_num = $request->product_num[$key];
-                        
+
                         // 處理細項 ID
                         if (isset($request->product_variants[$key]) && !empty($request->product_variants[$key])) {
                             $souvenir->product_variant_id = $request->product_variants[$key];
                         }
-                        
+
                         $souvenir->total = $request->prom_total[$key];
                         $souvenir->comment = $request->product_comment[$key];
                         $souvenir->save();
@@ -1639,7 +1673,7 @@ class SaleDataControllerNew extends Controller
     {
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', '1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $customers = Customer::orderby('created_at', 'desc')->get();
         $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
         $suits = Suit::where('status', 'up')->get();
@@ -1647,47 +1681,47 @@ class SaleDataControllerNew extends Controller
         $proms = Prom::where('status', 'up')->get();
         $hospitals = Customer::whereIn('group_id', [2])->get();
         $data = Sale::where('id', $id)->first();
-        
+
         if (!$data) {
             return redirect()->route('sales')->with('error', '找不到指定的業務單');
         }
-        
+
         // 載入相關資料
         $sale_proms = Sale_prom::where('sale_id', $id)->get();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
         $sale_souvenirs = SaleSouvenir::where('sale_id', $id)->get();
-        
+
         // 載入每個後續處理項目對應的紀念品資料
         foreach ($sale_proms as $sale_prom) {
             $sale_prom->souvenir_data = SaleSouvenir::where('sale_id', $id)
                 ->where('sale_prom_id', $sale_prom->id)
                 ->first();
-            
+
             // 判斷商品類型
             if ($sale_prom->souvenir_data) {
                 if ($sale_prom->souvenir_data->souvenir_type == null) {
                     // 關聯商品：souvenir_type 為 null
                     $sale_prom->is_custom_product = false;
-                    $sale_prom->product_id = $sale_prom->souvenir_data->product_name; // product_name 存的是商品ID
+                    $sale_prom->product_id = $sale_prom->souvenir_data->product_name;  // product_name 存的是商品ID
                     $sale_prom->variant_id = $sale_prom->souvenir_data->product_variant_id;
                 } else {
                     // 自訂商品：souvenir_type 不為 null
                     $sale_prom->is_custom_product = true;
-                    $sale_prom->product_name = $sale_prom->souvenir_data->product_name; // product_name 存的是商品名稱
+                    $sale_prom->product_name = $sale_prom->souvenir_data->product_name;  // product_name 存的是商品名稱
                     $sale_prom->souvenir_type_id = $sale_prom->souvenir_data->souvenir_type;
                 }
             }
         }
-        
+
         // 載入來源公司資料
         $sale_company = SaleCompanyCommission::where('sale_id', $id)->first();
-        
+
         // 載入接體地址資料
         $sale_address = SaleAddress::where('sale_id', $id)->first();
-        
+
         // 載入紀念品資料
         $souvenirs = Souvenir::where('status', 'up')->get();
-        
+
         return view('sale.del_gpt')
             ->with('data', $data)
             ->with('products', $products)
@@ -1714,7 +1748,7 @@ class SaleDataControllerNew extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $customers = Customer::get();
         $plans = Plan::where('status', 'up')->get();
-        $products = Product::where('status', 'up')->where('category_id','1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $products = Product::where('status', 'up')->where('category_id', '1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
         $proms = Prom::where('status', 'up')->orderby('seq', 'asc')->get();
         $data = Sale::where('id', $id)->first();
         $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
@@ -1753,7 +1787,7 @@ class SaleDataControllerNew extends Controller
 
         try {
             DB::beginTransaction();
-            
+
             // 刪除相關資料
             Sale_gdpaper::where('sale_id', $id)->delete();
             Sale_prom::where('sale_id', $id)->delete();
@@ -1761,21 +1795,20 @@ class SaleDataControllerNew extends Controller
             SaleAddress::where('sale_id', $id)->delete();
             SaleSouvenir::where('sale_id', $id)->delete();
             MemorialDate::where('sale_id', $id)->delete();
-            
+
             // 最後刪除業務單
             $sale->delete();
-            
+
             DB::commit();
-            
+
             // 業務單軌跡-刪除
             $sale_history = new SaleHistory();
             $sale_history->sale_id = $id;
             $sale_history->user_id = Auth::user()->id;
             $sale_history->state = 'delete';
             $sale_history->save();
-            
+
             return redirect()->route('sales')->with('success', '業務單已成功刪除');
-            
         } catch (\Exception $e) {
             DB::rollback();
             return redirect()->route('sales')->with('error', '刪除失敗：' . $e->getMessage());
@@ -2294,19 +2327,19 @@ class SaleDataControllerNew extends Controller
                 if ($sale_souvenirs->count() > 0) {
                     foreach ($sale_souvenirs as $souvenir) {
                         $itemText = '';
-                        
+
                         if ($souvenir->souvenir_type != null) {
                             // 自訂商品：【type】-「紀念品品名」x「紀念品數量」（備註：「紀念品備註」）
                             // 取得類型名稱
                             $souvenirType = SouvenirType::find($souvenir->souvenir_type);
                             $typeName = $souvenirType ? $souvenirType->name : '無類型';
-                            
+
                             // 取得品名
                             $productName = $souvenir->product_name ?? '無';
-                            
+
                             // 取得數量
                             $quantity = $souvenir->product_num ?? '1';
-                            
+
                             // 組合格式：【type】-「品名」x「數量」
                             $itemText = '【' . $typeName . '】-' . $productName . 'x' . $quantity;
                         } else {
@@ -2314,27 +2347,27 @@ class SaleDataControllerNew extends Controller
                             // 取得品名
                             $product = Product::find($souvenir->product_name);
                             $productName = $product ? $product->name : '無';
-                            
+
                             // 取得細項
                             $variantName = '';
                             if ($souvenir->product_variant_id) {
                                 $variant = ProductVariant::find($souvenir->product_variant_id);
                                 $variantName = $variant ? '-' . $variant->variant_name : '';
                             }
-                            
+
                             // 取得數量
                             $quantity = $souvenir->product_num ?? '1';
-                            
+
                             // 組合格式：「品名」-「細項」x「數量」
                             $itemText = $productName . $variantName . 'x' . $quantity;
                         }
-                        
+
                         // 取得備註（兩種類型都要顯示）
                         $comment = $souvenir->comment ?? '';
                         if (!empty($comment)) {
                             $itemText .= '（備註：' . $comment . '）';
                         }
-                        
+
                         $text .= ($text == '' ? '' : "\r\n") . $itemText;
                     }
                 } else {
