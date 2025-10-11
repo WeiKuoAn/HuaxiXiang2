@@ -161,7 +161,7 @@ $(document).ready(function() {
         
         $('input[name^="product["], input[name^="variant["]').each(function() {
             var value = $(this).val().trim();
-            if (value === '' || value === '0' || isNaN(value)) {
+            if (value === '' || isNaN(value)) {
                 hasEmptyFields = true;
                 var fieldName = $(this).closest('tr').find('td:nth-child(2)').text().trim();
                 emptyFields.push(fieldName);
