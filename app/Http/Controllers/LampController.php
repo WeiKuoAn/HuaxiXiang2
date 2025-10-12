@@ -14,6 +14,7 @@ class LampController extends Controller
 {
     public function index(Request $request)
     {
+        
         $today = Carbon::now()->format("Y-m-d");
         $check_renew = $request->check_renew;
         if (!isset($check_renew)) {
@@ -95,14 +96,30 @@ class LampController extends Controller
         foreach ($datas as $data) {
             $data->Roc_start_date = 1;
         }
+        
 
-        // dd($datas);
 
         $Lamp_types = LampType::where('status', 'up')->get();
+        
+        $sums = [];
+        $sums[1]['totals'] = 50;
+        $sums[2]['totals'] = 170;
+        $sums[3]['totals'] = 50;
+        $sums[4]['totals'] = 170;
+
+        // 計算統計數據
+        $stats = [
+            'dizang_red' => $sums[1]['totals'] - Lamp::where('type', 1)->whereNull('close_date')->count(),
+            'dizang_yellow' => $sums[2]['totals'] - Lamp::where('type', 2)->whereNull('close_date')->count(),
+            'yaoshi_red' => $sums[3]['totals'] - Lamp::where('type', 3)->whereNull('close_date')->count(),
+            'yaoshi_yellow' => $sums[4]['totals'] - Lamp::where('type', 4)->whereNull('close_date')->count(),
+        ];
+        
         return view('lamp.index')->with('datas', $datas)
             ->with('lamp_types', $Lamp_types)
             ->with('request', $request)
             ->with('condition', $condition)
+            ->with('stats', $stats)
         ;
     }
 
