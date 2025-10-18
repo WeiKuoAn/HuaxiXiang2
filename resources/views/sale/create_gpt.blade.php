@@ -1235,8 +1235,8 @@
             // 檢查浪浪方案的特殊處理
             var planId = $('#plan_id').val();
             var payId = $('select[name="pay_id"]').val();
-            if (planId === '4' && (payId === 'A' || payId === 'C')) {
-                // 浪浪方案 + 一次付清/訂金：plan_price 不為必填
+            if (planId === '4' && (payId === 'A' || payId === 'C' || payId === 'E')) {
+                // 浪浪方案 + 一次付清/訂金/往生紀念：plan_price 不為必填
                 $("#plan_price").prop('required', false);
             }
             
@@ -1680,10 +1680,10 @@
         function handlePlanPriceField(planId, payId) {
             console.log('處理方案價格欄位:', { planId, payId });
             
-            // 浪浪方案 (plan_id == 4) 且支付類別為 A 或 C 時，隱藏 plan_price 欄位
+            // 浪浪方案 (plan_id == 4) 且支付類別為 A、C 或 E 時，隱藏 plan_price 欄位
             // 或者支付類別為 D（尾款）時，隱藏 plan_price 欄位
-            if ((planId === '4' && (payId === 'A' || payId === 'C')) || payId === 'D') {
-                console.log('隱藏方案價格欄位 - 原因:', planId === '4' ? '浪浪方案 + 一次付清/訂金' : '尾款');
+            if ((planId === '4' && (payId === 'A' || payId === 'C' || payId === 'E')) || payId === 'D') {
+                console.log('隱藏方案價格欄位 - 原因:', planId === '4' ? '浪浪方案 + 一次付清/訂金/往生紀念' : '尾款');
                 $('.plan_price').hide(300);
                 $('#plan_price').val('').prop('required', false);
             } else {
