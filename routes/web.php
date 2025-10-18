@@ -6,9 +6,11 @@ use App\Http\Controllers\CashController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CertificateTypeController;
+use App\Http\Controllers\CertificateSettingController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ContractTypeController;
 use App\Http\Controllers\CrematoriumController;
+use App\Http\Controllers\CrematoriumEquipmentController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomrtGruopController;
 use App\Http\Controllers\DashboardController;
@@ -224,9 +226,11 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/', [WorkflowController::class, 'index'])->name('index');
         Route::get('/create', [WorkflowController::class, 'create'])->name('create');
         Route::post('/store', [WorkflowController::class, 'store'])->name('store');
-        Route::get('/{category}/edit', [WorkflowController::class, 'edit'])->name('edit');
-        Route::put('/{category}/update', [WorkflowController::class, 'update'])->name('update');
-        Route::post('/{category}/toggle-status', [WorkflowController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/{id}/edit', [WorkflowController::class, 'edit'])->name('edit');
+        Route::put('/{id}/update', [WorkflowController::class, 'update'])->name('update');
+        Route::get('/{id}/delete', [WorkflowController::class, 'delete'])->name('delete');
+        Route::delete('/{id}', [WorkflowController::class, 'destroy'])->name('destroy');
+        Route::post('/{workflowId}/toggle-status', [WorkflowController::class, 'toggleStatus'])->name('toggle-status');
         
         // 流程狀態總覽
         Route::get('/status/overview', [WorkflowController::class, 'status'])->name('status');
@@ -663,12 +667,14 @@ Route::group(['prefix' => '/'], function () {
         // 火化爐管理路由
         Route::prefix('crematorium')->name('crematorium.')->group(function () {
             // 設備管理
-            Route::get('/', [CrematoriumController::class, 'index'])->name('index');
-            Route::get('/create', [CrematoriumController::class, 'create'])->name('create');
-            Route::post('/store', [CrematoriumController::class, 'store'])->name('store');
-            Route::get('/{id}/edit', [CrematoriumController::class, 'edit'])->name('edit');
-            Route::put('/{id}/update', [CrematoriumController::class, 'update'])->name('update');
-            Route::delete('/{id}', [CrematoriumController::class, 'destroy'])->name('destroy');
+            Route::prefix('equipment')->name('equipment.')->group(function () {
+                Route::get('/', [CrematoriumEquipmentController::class, 'index'])->name('index');
+                Route::get('/create', [CrematoriumEquipmentController::class, 'create'])->name('create');
+                Route::post('/store', [CrematoriumEquipmentController::class, 'store'])->name('store');
+                Route::get('/{id}/edit', [CrematoriumEquipmentController::class, 'edit'])->name('edit');
+                Route::put('/{id}/update', [CrematoriumEquipmentController::class, 'update'])->name('update');
+                Route::delete('/{id}', [CrematoriumEquipmentController::class, 'destroy'])->name('destroy');
+            });
 
             // 預約管理
             Route::get('/bookings', [CrematoriumController::class, 'bookings'])->name('bookings');
@@ -678,8 +684,15 @@ Route::group(['prefix' => '/'], function () {
             // 維護記錄管理
             Route::get('/maintenance', [CrematoriumController::class, 'maintenance'])->name('maintenance');
             Route::get('/maintenance/create', [CrematoriumController::class, 'createMaintenance'])->name('createMaintenance');
+            Route::post('/maintenance/assign', [CrematoriumController::class, 'assignMaintenance'])->name('assignMaintenance');
             Route::post('/maintenance/store', [CrematoriumController::class, 'storeMaintenance'])->name('storeMaintenance');
             Route::get('/maintenance/{id}', [CrematoriumController::class, 'showMaintenance'])->name('showMaintenance');
+            Route::get('/maintenance/{id}/edit', [CrematoriumController::class, 'editMaintenance'])->name('editMaintenance');
+            Route::put('/maintenance/{id}/update', [CrematoriumController::class, 'updateMaintenance'])->name('updateMaintenance');
+            Route::post('/maintenance/{id}/submit-review', [CrematoriumController::class, 'submitForReview'])->name('submitForReview');
+            
+            // 測試路由
+            Route::get('/maintenance-test', [CrematoriumController::class, 'testEditMaintenance'])->name('testEditMaintenance');
         });
     });
 
@@ -817,6 +830,12 @@ Route::group(['prefix' => '/'], function () {
     Route::delete('/overtime/del/{id}', [OvertimeController::class, 'destroy'])->name('overtime.del.data');
 
     Route::get('/overtime/export', [OvertimeController::class, 'export'])->name('overtime.export');
+    
+    // API 路由：直接更新加班記錄（用於加成頁面）
+    Route::put('/overtime-records/{id}', [OvertimeController::class, 'updateRecord'])->name('overtime-records.update');
+    
+    // API 路由：手動新增加班記錄（用於加成頁面）
+    Route::post('/overtime/create-record', [OvertimeController::class, 'createRecord'])->name('overtime.create-record');
 
     Route::get('image', function () {
         $img = Image::make('https://images.pexels.com/photos/4273439/pexels-photo-4273439.jpeg')->resize(300, 200);  // 這邊可以隨便用網路上的image取代
@@ -829,7 +848,9 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/create', [CertificateController::class, 'create'])->name('certificate.create');
         Route::post('/store', [CertificateController::class, 'store'])->name('certificate.store');
         Route::get('/{id}/edit', [CertificateController::class, 'edit'])->name('certificate.edit');
+        Route::get('/{id}/check', [CertificateController::class, 'check'])->name('certificate.check');
         Route::put('/{id}', [CertificateController::class, 'update'])->name('certificate.update');
+        Route::put('/{id}/check', [CertificateController::class, 'checkUpdate'])->name('certificate.check.update');
         Route::delete('/{id}', [CertificateController::class, 'destroy'])->name('certificate.destroy');
     });
 
@@ -841,5 +862,15 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/{id}/edit', [CertificateTypeController::class, 'edit'])->name('certificate-type.edit');
         Route::put('/{id}', [CertificateTypeController::class, 'update'])->name('certificate-type.update');
         Route::delete('/{id}', [CertificateTypeController::class, 'destroy'])->name('certificate-type.destroy');
+    });
+
+    // 證照設定管理路由
+    Route::prefix('certificate-setting')->group(function () {
+        Route::get('/', [CertificateSettingController::class, 'index'])->name('certificate-setting.index');
+        Route::get('/create', [CertificateSettingController::class, 'create'])->name('certificate-setting.create');
+        Route::post('/store', [CertificateSettingController::class, 'store'])->name('certificate-setting.store');
+        Route::get('/{id}/edit', [CertificateSettingController::class, 'edit'])->name('certificate-setting.edit');
+        Route::put('/{id}', [CertificateSettingController::class, 'update'])->name('certificate-setting.update');
+        Route::delete('/{id}', [CertificateSettingController::class, 'destroy'])->name('certificate-setting.destroy');
     });
 });

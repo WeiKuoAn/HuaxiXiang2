@@ -767,8 +767,8 @@ class SaleDataControllerNew extends Controller
         $users = User::whereIn('job_id', [1, 3, 5])->where('status', '0')->orderby('seq')->get();
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
-
-        if (Auth::user()->level != 2 || Auth::user()->job_id == '9' || Auth::user()->job_id == '10') {
+        
+        if (Auth::user()->level != 2 || Auth::user()->job_id == '9' || Auth::user()->job_id == '10' || Auth::user()->job_id == '3') {
             return view('sale.index')
                 ->with('sales', $sales)
                 ->with('users', $users)
@@ -1031,6 +1031,7 @@ class SaleDataControllerNew extends Controller
 
     public function check_update_gpt(Request $request, $id)
     {
+        dd($request->all());
         $sale = Sale::where('id', $id)->first();
 
         if (isset($request->admin_check)) {

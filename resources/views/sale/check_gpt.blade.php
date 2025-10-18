@@ -674,6 +674,7 @@
                                 <button type="submit" class="btn w-sm btn-danger waves-effect" value="not_check" name="admin_check">撤回對帳</button>
                                 <button type="submit" class="btn w-sm btn-success waves-effect waves-light" value="check" name="admin_check" onclick="if(!confirm('是否已確定對帳，若要取消對帳，請進行撤回')){event.returnValue=false;return false;}">確定對帳</button>
                             @elseif($data->status == '9')
+
                                 <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
                                 <button type="submit" class="btn w-sm btn-success waves-effect waves-light" value="reset" name="admin_check">還原</button>
                             @else
@@ -690,9 +691,10 @@
                                     <button type="submit" class="btn w-sm btn-success waves-effect waves-light" value="check" name="admin_check" onclick="if(!confirm('是否已確定對帳，若要取消對帳，請進行撤回')){event.returnValue=false;return false;}">確定對帳</button>
                                 @elseif($data->status == '9')
                                     <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
-                                    {{-- @if(Auth::user()->job_id == 10 || Auth::user()->job_id == 3) --}}
-                                    @if(Auth::user()->job_id == 3)
-                                        <button type="submit" class="btn w-sm btn-success waves-effect waves-light" value="reset" name="admin_check">還原</button>
+                                    @if(Auth::user()->job_id == 10 || Auth::user()->job_id == 3)
+                                        @if($data->user_id != Auth::user()->id)
+                                            <button type="submit" class="btn w-sm btn-success waves-effect waves-light" value="reset" name="admin_check">還原</button>
+                                        @endif
                                     @endif
                                 @else
                                     <button type="button" class="btn w-sm btn-light waves-effect" onclick="history.go(-1)">回上一頁</button>
@@ -1909,9 +1911,13 @@
             console.log('處理方案價格欄位:', { planId, payId });
             
             // 浪浪方案 (plan_id == 4) 且支付類別為 A 或 C 時，隱藏 plan_price 欄位
-            // 或者支付類別為 D（尾款）時，隱藏 plan_price 欄位
-            if ((planId === '4' && (payId === 'A' || payId === 'C')) || payId === 'D') {
-                console.log('隱藏方案價格欄位 - 原因:', planId === '4' ? '浪浪方案 + 一次付清/訂金' : '尾款');
+            // 或者支付類別為 D（尾款）或 E（追加）時，隱藏 plan_price 欄位
+            if ((planId === '4' && (payId === 'A' || payId === 'C')) || payId === 'D' || payId === 'E') {
+                var reason = '';
+                if (planId === '4') reason = '浪浪方案 + 一次付清/訂金';
+                else if (payId === 'D') reason = '尾款';
+                else if (payId === 'E') reason = '追加';
+                console.log('隱藏方案價格欄位 - 原因:', reason);
                 $('label[for="plan_price"]').closest('.not_final_show.not_memorial_show').hide(300);
             } else {
                 console.log('其他方案或支付類別：顯示方案價格欄位');

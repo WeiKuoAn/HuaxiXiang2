@@ -2063,9 +2063,13 @@
             console.log('處理方案價格欄位:', { planId, payId });
             
             // 浪浪方案 (plan_id == 4) 且支付類別為 A 或 C 時，隱藏 plan_price 欄位
-            // 或者支付類別為 D（尾款）時，隱藏 plan_price 欄位
-            if ((planId === '4' && (payId === 'A' || payId === 'C')) || payId === 'D') {
-                console.log('隱藏方案價格欄位 - 原因:', planId === '4' ? '浪浪方案 + 一次付清/訂金' : '尾款');
+            // 或者支付類別為 D（尾款）或 E（追加）時，隱藏 plan_price 欄位
+            if ((planId === '4' && (payId === 'A' || payId === 'C')) || payId === 'D' || payId === 'E') {
+                var reason = '';
+                if (planId === '4') reason = '浪浪方案 + 一次付清/訂金';
+                else if (payId === 'D') reason = '尾款';
+                else if (payId === 'E') reason = '追加';
+                console.log('隱藏方案價格欄位 - 原因:', reason);
                 $('label[for="plan_price"]').closest('.not_final_show.not_memorial_show').hide(300);
             } else {
                 console.log('其他方案或支付類別：顯示方案價格欄位');
