@@ -787,7 +787,7 @@ class SaleDataController extends Controller
                 $query = $query->where('sale_date', '<=', $before_date);
             }
             $datas[$sale->user_id]['name'] = $sale->user_name->name;
-            $datas[$sale->user_id]['items'] = $query->orderby('sale_date', 'desc')->orderby('user_id', 'desc')->orderby('sale_on', 'desc')->get();
+            $datas[$sale->user_id]['items'] = $query->orderby('sale_date', 'desc')->orderby('user_id', 'desc')->orderby('sale_on', 'asc')->get();
             $datas[$sale->user_id]['count'] = $datas[$sale->user_id]['items']->count();
             $datas[$sale->user_id]['cash_total'] = $datas[$sale->user_id]['items']->where('pay_method', 'A')->sum('pay_price');
             $datas[$sale->user_id]['transfer_total'] = $datas[$sale->user_id]['items']->where('pay_method', 'B')->sum('pay_price');
