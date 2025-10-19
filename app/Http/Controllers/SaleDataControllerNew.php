@@ -1031,7 +1031,7 @@ class SaleDataControllerNew extends Controller
 
     public function check_update_gpt(Request $request, $id)
     {
-        dd($request->all());
+        // dd($request->all());
         $sale = Sale::where('id', $id)->first();
 
         if (isset($request->admin_check)) {
