@@ -99,8 +99,14 @@ class Rpg26Controller extends Controller
             $datas[$key]['cur_sale_price'] = Sale::where('status', '9')->where('sale_date', '>=', $month['start_date'])->where('sale_date', '<=', $month['end_date'])->sum('pay_price');
             $datas[$key]['cur_income_price'] = IncomeData::where('income_date','>=',$month['start_date'])->where('income_date','<=',$month['end_date'])->sum('price');
             
-            $puja = Puja::where('date','>=',$month['start_date'])->where('date','<=',$month['end_date'])->first();
-            $datas[$key]['cur_puja_price'] = PujaData::where('puja_id',$puja->id)->whereIn('type',['0','2'])->sum('pay_price');
+            // 取得該月份的所有法會
+            $pujas = Puja::where('date','>=',$month['start_date'])->where('date','<=',$month['end_date'])->get();
+            
+            // 計算該月份所有法會的總金額
+            $datas[$key]['cur_puja_price'] = 0;
+            foreach($pujas as $puja) {
+                $datas[$key]['cur_puja_price'] += PujaData::where('puja_id',$puja->id)->whereIn('type',['0','2'])->sum('pay_price');
+            }
             $datas[$key]['cur_price_amount'] = $datas[$key]['cur_income_price'] + $datas[$key]['cur_sale_price'] + $datas[$key]['cur_puja_price'];
             // 計算方案價格 = cur_sale_price - gdpaper_price - sale_promC - sale_promB - sale_promA
             $datas[$key]['plan_price'] = $datas[$key]['cur_sale_price']
