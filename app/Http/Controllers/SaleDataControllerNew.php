@@ -805,7 +805,7 @@ class SaleDataControllerNew extends Controller
                 }
             }
         } else {
-            $sales = $sales->orderby('sale_date', 'desc')->orderby('user_id', 'desc')->orderby('sale_on', 'desc');
+            $sales = $sales->orderby('sale_date', 'desc')->orderby('user_id', 'desc')->orderby('sale_on', 'asc');
         }
         $sales = $sales->get();
         $users = User::where('status', '0')->whereIn('job_id', [3, 5, 10])->get();
