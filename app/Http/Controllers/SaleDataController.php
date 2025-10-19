@@ -432,6 +432,10 @@ class SaleDataController extends Controller
         $sale->pay_method = $request->pay_method;
         $sale->total = $request->total;
         $sale->comm = $request->comm;
+        // 儲存宗教與往生日期（若前端未顯示則可能為空）
+        $sale->religion = $request->religion;
+        $sale->religion_other = $request->religion_other;
+        $sale->death_date = $request->death_date;
         if (Auth::user()->job_id == '8') {
             $sale->status = '100';
         }
@@ -723,7 +727,7 @@ class SaleDataController extends Controller
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
 
-        if (Auth::user()->level != 2 || Auth::user()->job_id == '9' || Auth::user()->job_id == '10') {
+        if (Auth::user()->level != 2 || Auth::user()->job_id == '9' || Auth::user()->job_id == '10' || Auth::user()->job_id == '3') {
             return view('sale.index')
                 ->with('sales', $sales)
                 ->with('users', $users)
@@ -760,9 +764,10 @@ class SaleDataController extends Controller
                 }
             }
         } else {
-            $sales = $sales->orderby('sale_date', 'desc')->orderby('user_id', 'desc')->orderby('sale_on', 'desc');
+            $sales = $sales->orderby('sale_date', 'desc')->orderby('user_id', 'desc')->orderby('sale_on', 'asc');
         }
         $sales = $sales->get();
+        // dd($sales);
         $users = User::whereIn('job_id', [3, 5, 10])->get();
 
         $total = 0;
