@@ -48,7 +48,8 @@ class Rpg09Controller extends Controller
 
         foreach($months as $key => $month)
         {   
-            $puja = Puja::where('date','>=',$month['start_date'])->where('date','<=',$month['end_date'])->first();
+            // 取得該月份的所有法會
+            $pujas = Puja::where('date','>=',$month['start_date'])->where('date','<=',$month['end_date'])->get();
             $datas[$key]['month'] = $month['month'];
             $datas[$key]['start_date'] = $this->date_text($month['start_date']);
             $datas[$key]['end_date'] = $this->date_text($month['end_date']);
@@ -56,7 +57,11 @@ class Rpg09Controller extends Controller
             $datas[$key]['cur_count'] = Sale::where('status', '9')->where('sale_date','>=',$month['start_date'])->where('sale_date','<=',$month['end_date'])->whereIn('plan_id',[1,2,3])->whereIn('pay_id', ['A', 'C'])->count();
             $datas[$key]['cur_income_price'] = IncomeData::where('income_date','>=',$month['start_date'])->where('income_date','<=',$month['end_date'])->sum('price');
             
-            $datas[$key]['cur_puja_price'] = PujaData::where('puja_id',$puja->id)->whereIn('type',['0','2'])->sum('pay_price');
+            // 計算該月份所有法會的總金額
+            $datas[$key]['cur_puja_price'] = 0;
+            foreach($pujas as $puja) {
+                $datas[$key]['cur_puja_price'] += PujaData::where('puja_id',$puja->id)->whereIn('type',['0','2'])->sum('pay_price');
+            }
             //抓取每月起始至末的日期並取出每張單的收入金額
             $datas[$key]['cur_sale_price'] = Sale::where('status', '9')->where('sale_date','>=',$month['start_date'])->where('sale_date','<=',$month['end_date'])->sum('pay_price');
             $datas[$key]['cur_price_amount'] = $datas[$key]['cur_income_price'] + $datas[$key]['cur_sale_price'];
