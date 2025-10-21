@@ -27,9 +27,12 @@
                 <div class="col mb-3">
                     <div class="text-lg-end my-1 my-lg-0 mt-5">
                         {{-- <button type="button" class="btn btn-success waves-effect waves-light me-1"><i class="mdi mdi-cog"></i></button> --}}
-                        <button type="button" class="btn btn-success waves-effect waves-light me-1" data-bs-toggle="modal" data-bs-target="#exportModal">
-                            <i class="mdi mdi-download me-1"></i>匯出 Excel
-                        </button>
+                        @if (Auth::user()->level != 2)
+                            <button type="button" class="btn btn-success waves-effect waves-light me-1"
+                                data-bs-toggle="modal" data-bs-target="#exportModal">
+                                <i class="mdi mdi-download me-1"></i>匯出 Excel
+                            </button>
+                        @endif
                         <a href="{{ route('pay.create') }}" class="btn btn-danger waves-effect waves-light"><i
                                 class="mdi mdi-plus-circle me-1"></i>新增支出</a>
                     </div>
@@ -187,10 +190,12 @@
                                                         data-bs-toggle="dropdown" aria-expanded="false">動作 <i
                                                             class="mdi mdi-arrow-down-drop-circle"></i></a>
                                                     <div class="dropdown-menu dropdown-menu-end">
-                                                        @if ($data->status != 1 || Auth::user()->job_id == 1 || Auth::user()->job_id == 2)
-                                                            <a class="dropdown-item"
-                                                                href="{{ route('pay.edit', $data->id) }}"><i
-                                                                    class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
+                                                        @if ($data->status != 1)
+                                                            @if (Auth::user()->job_id == 1 || Auth::user()->job_id == 2)
+                                                                <a class="dropdown-item"
+                                                                    href="{{ route('pay.edit', $data->id) }}"><i
+                                                                        class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
+                                                            @endif
                                                         @endif
                                                         <a class="dropdown-item"
                                                             href="{{ route('pay.history', $data->id) }}"><i
@@ -232,7 +237,7 @@
                 <form id="exportForm" action="{{ route('pay.export') }}" method="POST">
                     @csrf
                     <!-- 傳遞當前搜尋條件 -->
-                    @if($request)
+                    @if ($request)
                         <input type="hidden" name="after_date" value="{{ $request->after_date }}">
                         <input type="hidden" name="before_date" value="{{ $request->before_date }}">
                         <input type="hidden" name="pay_after_date" value="{{ $request->pay_after_date }}">
@@ -242,77 +247,90 @@
                         <input type="hidden" name="user" value="{{ $request->user }}">
                         <input type="hidden" name="status" value="{{ $request->status }}">
                     @endif
-                    
+
                     <div class="modal-body">
                         <div class="mb-3">
                             <h6 class="text-muted">選擇要匯出的欄位：</h6>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="columns[]" value="pay_date" id="col_pay_date" checked>
+                                        <input class="form-check-input" type="checkbox" name="columns[]"
+                                            value="pay_date" id="col_pay_date" checked>
                                         <label class="form-check-label" for="col_pay_date">Key單日期</label>
                                     </div>
                                     <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="columns[]" value="pay_on" id="col_pay_on" checked>
+                                        <input class="form-check-input" type="checkbox" name="columns[]" value="pay_on"
+                                            id="col_pay_on" checked>
                                         <label class="form-check-label" for="col_pay_on">Key單單號</label>
                                     </div>
                                     <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="columns[]" value="item_pay_date" id="col_item_pay_date">
+                                        <input class="form-check-input" type="checkbox" name="columns[]"
+                                            value="item_pay_date" id="col_item_pay_date">
                                         <label class="form-check-label" for="col_item_pay_date">支出日期</label>
                                     </div>
                                     <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="columns[]" value="pay_name" id="col_pay_name">
+                                        <input class="form-check-input" type="checkbox" name="columns[]"
+                                            value="pay_name" id="col_pay_name">
                                         <label class="form-check-label" for="col_pay_name">支出科目</label>
                                     </div>
                                     <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="columns[]" value="invoice_type" id="col_invoice_type">
+                                        <input class="form-check-input" type="checkbox" name="columns[]"
+                                            value="invoice_type" id="col_invoice_type">
                                         <label class="form-check-label" for="col_invoice_type">發票類型</label>
                                     </div>
                                     <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="columns[]" value="invoice_number" id="col_invoice_number">
+                                        <input class="form-check-input" type="checkbox" name="columns[]"
+                                            value="invoice_number" id="col_invoice_number">
                                         <label class="form-check-label" for="col_invoice_number">發票號碼</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="columns[]" value="item_price" id="col_item_price">
+                                        <input class="form-check-input" type="checkbox" name="columns[]"
+                                            value="item_price" id="col_item_price">
                                         <label class="form-check-label" for="col_item_price">單項支出金額</label>
                                     </div>
                                     <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="columns[]" value="item_comment" id="col_item_comment">
+                                        <input class="form-check-input" type="checkbox" name="columns[]"
+                                            value="item_comment" id="col_item_comment">
                                         <label class="form-check-label" for="col_item_comment">單項支出備註</label>
                                     </div>
                                     <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="columns[]" value="total_price" id="col_total_price" checked>
+                                        <input class="form-check-input" type="checkbox" name="columns[]"
+                                            value="total_price" id="col_total_price" checked>
                                         <label class="form-check-label" for="col_total_price">支出總價格</label>
                                     </div>
                                     <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="columns[]" value="comment" id="col_comment">
+                                        <input class="form-check-input" type="checkbox" name="columns[]" value="comment"
+                                            id="col_comment">
                                         <label class="form-check-label" for="col_comment">備註</label>
                                     </div>
                                     <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="columns[]" value="user_name" id="col_user_name" checked>
+                                        <input class="form-check-input" type="checkbox" name="columns[]"
+                                            value="user_name" id="col_user_name" checked>
                                         <label class="form-check-label" for="col_user_name">Key單人員</label>
                                     </div>
                                     <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="columns[]" value="status" id="col_status">
+                                        <input class="form-check-input" type="checkbox" name="columns[]" value="status"
+                                            id="col_status">
                                         <label class="form-check-label" for="col_status">審核狀態</label>
                                     </div>
                                     <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="columns[]" value="check_user" id="col_check_user">
+                                        <input class="form-check-input" type="checkbox" name="columns[]"
+                                            value="check_user" id="col_check_user">
                                         <label class="form-check-label" for="col_check_user">審核人</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="selectAll">
                                 <label class="form-check-label fw-bold" for="selectAll">全選 / 全不選</label>
                             </div>
                         </div>
-                        
+
                         <div class="alert alert-info">
                             <h6><i class="mdi mdi-lightbulb-outline me-1"></i>Excel 匯出功能：</h6>
                             <ul class="mb-0">
@@ -322,7 +340,7 @@
                             </ul>
                         </div>
                     </div>
-                    
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                         <button type="submit" class="btn btn-success">
@@ -349,7 +367,7 @@
                 const checkboxes = document.querySelectorAll('input[name="columns[]"]');
                 const checkedCount = document.querySelectorAll('input[name="columns[]"]:checked').length;
                 const selectAllCheckbox = document.getElementById('selectAll');
-                
+
                 if (checkedCount === checkboxes.length) {
                     selectAllCheckbox.checked = true;
                     selectAllCheckbox.indeterminate = false;
