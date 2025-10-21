@@ -51,11 +51,12 @@ class DashboardController extends Controller
             $contract_datas = Contract::whereIn('renew', [0, 1])->where('end_date', '>=', $now_day)->where('end_date', '<=', $two_month_day)->whereNull('close_date')->orderby('end_date', 'asc')->get();
             $lamp_datas = Lamp::whereIn('renew', [0, 1])->where('end_date', '>=', $now_day)->where('end_date', '<=', $one_month_day)->whereNull('close_date')->orderby('end_date', 'asc')->get();
             // 使用工作流程系統取得需要當前使用者審核的假單
-            $leaves_datas = LeaveDay::where('state', 2)
-                ->whereHas('checks', function($query) {
-                    $query->where('check_user_id', Auth::user()->id)
-                          ->where('state', 2); // 待審核狀態
-                })->get();
+            $leaves_datas = [];
+            // $leaves_datas = LeaveDay::where('state', 2)
+            //     ->whereHas('checks', function($query) {
+            //         $query->where('check_user_id', Auth::user()->id)
+            //               ->where('state', 2); // 待審核狀態
+            //     })->get();
             // dd($contract_datas);
             // $low_stock_products = [];
 
