@@ -20,7 +20,7 @@ class PayDataController extends Controller
     {
         $pays = Pay::orderby('seq', 'asc')->get();
         if (Auth::user()->level == 2) {
-            $users = User::where('status', '0')->whereNotIn('id', ['1', '10'])->get();
+            $users = User::where('status', '0')->whereNotIn('id', ['1', '2', '10'])->get();
         } else {
             $users = User::where('status', '0')->get();
         }
@@ -60,7 +60,7 @@ class PayDataController extends Controller
             }
 
             if (Auth::user()->level == 2) {
-                $datas = $datas->whereNotIn('user_id', ['1', '10']);
+                $datas = $datas->whereNotIn('user_id', ['1', '2', '10']);
             }
 
             $comment = $request->comment;
