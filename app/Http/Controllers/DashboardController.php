@@ -50,7 +50,12 @@ class DashboardController extends Controller
             $work = Works::where('user_id', Auth::user()->id)->orderBy('id', 'desc')->first();
             $contract_datas = Contract::whereIn('renew', [0, 1])->where('end_date', '>=', $now_day)->where('end_date', '<=', $two_month_day)->whereNull('close_date')->orderby('end_date', 'asc')->get();
             $lamp_datas = Lamp::whereIn('renew', [0, 1])->where('end_date', '>=', $now_day)->where('end_date', '<=', $one_month_day)->whereNull('close_date')->orderby('end_date', 'asc')->get();
-            $leaves_datas = LeaveDay::where('state', 2)->where('director_id', Auth::user()->job_id)->get();
+            // 使用工作流程系統取得需要當前使用者審核的假單
+            $leaves_datas = LeaveDay::where('state', 2)
+                ->whereHas('checks', function($query) {
+                    $query->where('check_user_id', Auth::user()->id)
+                          ->where('state', 2); // 待審核狀態
+                })->get();
             // dd($contract_datas);
             // $low_stock_products = [];
 
@@ -354,7 +359,7 @@ class DashboardController extends Controller
             ->where('sale_data.sale_date', '>=', $firstDay->format("Y-m-d"))
             ->where('sale_data.sale_date', '<=', $lastDay->format("Y-m-d"))
             ->where('sale_data.status', '9')
-            ->whereIn('sale_prom.prom_id', [28, 20, 24, 32])
+            ->whereIn('sale_prom.prom_id', [28, 31, 46, 47, 20, 24, 32])
             ->whereNotNull('sale_prom.prom_id')
             ->where('sale_prom.prom_id', '<>', '')
             ->sum('sale_prom.prom_total');
