@@ -156,6 +156,9 @@ Route::group(['prefix' => '/'], function () {
 
     // 用戶出勤
     Route::get('user/work/{id}', [WorkController::class, 'user_work'])->name('user.work.index');
+    Route::get('user/work/{id}/batch/create', [WorkController::class, 'batchCreate'])->name('user.work.batch.create');
+    Route::post('user/work/{id}/batch/store', [WorkController::class, 'batchStore'])->name('user.work.batch.store');
+    Route::get('work/check-date', [WorkController::class, 'checkDateExists'])->name('work.check.date');
     Route::get('user/work/edit/{id}', [WorkController::class, 'showuserwork'])->name('user.work.edit');
     Route::post('user/work/edit/{id}', [WorkController::class, 'edituserwork'])->name('user.work.edit.data');
     Route::get('user/work/del/{id}', [WorkController::class, 'showdeluserwork'])->name('user.work.del');
@@ -635,6 +638,7 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg04', [Rpg04Controller::class, 'rpg04'])->name('rpg04');
         Route::get('/rpg/rpg06', [Rpg06Controller::class, 'rpg06'])->name('rpg06');  // 舊法會查詢
         Route::get('/rpg/rpg13', [Rpg13Controller::class, 'rpg13'])->name('rpg13');
+        Route::get('/rpg/rpg13/detail/{year}/{month}/{product_id}/{type}', [Rpg13Controller::class, 'detail'])->name('rpg13.detail');
         Route::get('/rpg/rpg09', [Rpg09Controller::class, 'rpg09'])->name('rpg09');
         Route::get('/rpg/rpg10', [Rpg10Controller::class, 'rpg10'])->name('rpg10');
         Route::get('/rpg/rpg15', [Rpg15Controller::class, 'rpg15'])->name('rpg15');
@@ -809,6 +813,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/increase/del/{id}', [IncreaseController::class, 'delete'])->name('increase.del');
     Route::delete('/increase/del/{id}', [IncreaseController::class, 'destroy'])->name('increase.del.data');
     Route::get('/increase/export', [IncreaseController::class, 'export'])->name('increase.export');
+    Route::get('/increase/statistics', [IncreaseController::class, 'statistics'])->name('increase.statistics');
     Route::get('/increase/overtime-records/{date}', [IncreaseController::class, 'getOvertimeRecords'])->name('increase.overtime-records');
     
     // 夜間開爐時段管理路由

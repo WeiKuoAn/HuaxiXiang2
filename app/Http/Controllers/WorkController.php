@@ -89,6 +89,112 @@ class WorkController extends Controller
     }
 
     /**
+     * 顯示批次新增出勤記錄的表單
+     *
+     * @param  int  $userId
+     * @return \Illuminate\Http\Response
+     */
+    public function batchCreate($userId)
+    {
+        $user = User::find($userId);
+        return view('work.create')->with(['user' => $user]);
+    }
+
+    /**
+     * 批次儲存出勤記錄
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $userId
+     * @return \Illuminate\Http\Response
+     */
+    public function batchStore(Request $request, $userId)
+    {
+        $records = $request->records;
+        $successCount = 0;
+        $errorDates = [];
+        
+        foreach ($records as $record) {
+            // 檢查必填欄位
+            if (empty($record['date']) || empty($record['worktime']) || empty($record['dutytime'])) {
+                continue;
+            }
+            
+            // 組合完整的日期時間
+            $workDateTime = $record['date'] . ' ' . $record['worktime'];
+            $dutyDateTime = $record['date'] . ' ' . $record['dutytime'];
+            
+            // 檢查該用戶該日期是否已存在記錄
+            $existingWork = Works::where('user_id', $userId)
+                ->whereDate('worktime', $record['date'])
+                ->first();
+            
+            if ($existingWork) {
+                $errorDates[] = $record['date'];
+                continue;
+            }
+            
+            // 計算工作時數
+            $worktime = Carbon::parse($workDateTime);
+            $dutytime = Carbon::parse($dutyDateTime);
+            
+            // 如果下班時間早於上班時間，表示跨日，下班時間加一天
+            if ($dutytime->lt($worktime)) {
+                $dutytime->addDay();
+            }
+            
+            $work_hours = $worktime->floatDiffInHours($dutytime);
+            
+            // 滿8小時要休息1小時，所以如果工作滿9小時就要減1小時
+            if ($work_hours >= 9) {
+                $work_hours = $work_hours - 1;
+            }
+            
+            // 創建出勤記錄
+            $work = new Works();
+            $work->user_id = $userId;
+            $work->worktime = $workDateTime;
+            $work->dutytime = $dutyDateTime;
+            $work->total = floor($work_hours);
+            $work->status = $record['status'] ?? '0';
+            $work->remark = $record['remark'] ?? '';
+            $work->save();
+            
+            $successCount++;
+        }
+        
+        // 回傳結果訊息
+        if ($successCount > 0 && count($errorDates) == 0) {
+            return redirect()->route('user.work.index', $userId)
+                ->with('success', "成功新增 {$successCount} 筆出勤記錄");
+        } elseif ($successCount > 0 && count($errorDates) > 0) {
+            $errorDateStr = implode(', ', $errorDates);
+            return redirect()->route('user.work.index', $userId)
+                ->with('warning', "成功新增 {$successCount} 筆記錄，但以下日期已存在：{$errorDateStr}");
+        } else {
+            return redirect()->route('user.work.batch.create', $userId)
+                ->with('error', '新增失敗，所有日期都已存在或資料不完整');
+        }
+    }
+    
+    /**
+     * 檢查指定日期是否已存在出勤記錄（API）
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function checkDateExists(Request $request)
+    {
+        $userId = $request->user_id;
+        $date = $request->date;
+        
+        $exists = Works::where('user_id', $userId)
+            ->whereDate('worktime', $date)
+            ->exists();
+        
+        return response()->json(['exists' => $exists]);
+    }
+
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
