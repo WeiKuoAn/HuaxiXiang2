@@ -41,8 +41,11 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="sale_on" class="form-label">單號<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="sale_on" name="sale_on" required>
-                                    <div id="sale_on_feedback"></div>
+                                    <div class="input-group">
+                                        <span class="input-group-text">No.</span>
+                                        <input type="text" class="form-control" id="sale_on" name="sale_on" required placeholder="請輸入數字" maxlength="10" inputmode="numeric">
+                                    </div>
+                                    <div id="sale_on_feedback" class="mt-1"></div>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">報廢原因</label>

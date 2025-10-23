@@ -42,7 +42,10 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="sale_on" class="form-label">單號</label>
-                                    <input type="text" class="form-control" id="sale_on" value="{{ $scrapped->sale_on }}" readonly>
+                                    <div class="input-group">
+                                        <span class="input-group-text">No.</span>
+                                        <input type="text" class="form-control" id="sale_on" value="{{ str_replace('No.', '', $scrapped->sale_on) }}" readonly>
+                                    </div>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">報廢原因</label>

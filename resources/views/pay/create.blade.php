@@ -58,7 +58,7 @@
                                 </div>
                                 <div class="mb-3 col-md-3">
                                     <label for="sale_date" class="form-label">總金額<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="price" name="price" required>
+                                    <input type="text" class="form-control" id="price" name="price" required readonly>
                                 </div>
                                 <div class="mb-3 col-md-3">
                                     <label for="sale_date" class="form-label">用途說明</label>
@@ -298,17 +298,26 @@
             // Initial total calculation on page load
             calculateTotal();
 
-            $("#btn_submit").click(function() {
-                let total_price = $("#price").val();
+            // 表單送出前驗證總金額
+            $("#your-form").on('submit', function(e) {
+                let total_price = parseFloat($("#price").val()) || 0;
                 let pay_total = 0;
-                rowCount = $('#cart tr').length - 1;
+                let rowCount = $('#cart tbody tr').length;
 
+                // 計算所有支出金額的總和
                 for (var i = 0; i < rowCount; i++) {
-                    pay_total += parseFloat($('#pay_price-' + i).val()) || 0;
+                    let priceVal = $('#pay_price-' + i).val();
+                    if (priceVal && $('#row-' + i).length > 0) {
+                        pay_total += parseFloat(priceVal) || 0;
+                    }
                 }
 
-                if (total_price != pay_total) {
-                    alert('金額錯誤！');
+                console.log('總金額:', total_price, '支出總和:', pay_total);
+
+                // 驗證總金額是否相等
+                if (Math.abs(total_price - pay_total) > 0.01) { // 使用 0.01 容差避免浮點數誤差
+                    e.preventDefault(); // 阻止表單送出
+                    alert('金額錯誤！總金額 (' + total_price + ') 必須等於所有支出金額的總和 (' + pay_total + ')');
                     return false;
                 }
             });
