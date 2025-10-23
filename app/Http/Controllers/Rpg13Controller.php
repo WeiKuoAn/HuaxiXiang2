@@ -38,6 +38,7 @@ class Rpg13Controller extends Controller
                                     ->where('sale_data.sale_date','<=',$lastDay)
                                     ->where('product.type','normal')
                                     ->where('sale_data.status','9')
+                                    ->select('sale_gdpaper.*', 'sale_data.type_list')
                                     ->get();
 
         $combo_sale_products = DB::table('sale_data')
@@ -58,6 +59,7 @@ class Rpg13Controller extends Controller
                                     ->where('sale_data.sale_date','<=',$lastDay)
                                     ->where('product.type','set')
                                     ->where('sale_data.status','9')
+                                    ->select('sale_gdpaper.*', 'sale_data.type_list')
                                     ->get();
         
         $puja_data_products = DB::table('puja_data')
@@ -92,16 +94,27 @@ class Rpg13Controller extends Controller
         //計算業務單，商品類型是的產品
         foreach($normal_sale_products as $normal_sale_product)
         {
+            // 總計
             if(isset($datas['products'][$normal_sale_product->gdpaper_id]['num'])){
                 $datas['products'][$normal_sale_product->gdpaper_id]['num'] += $normal_sale_product->gdpaper_num;
             }
 
+            // 一般商品總計
             if(isset($datas['normals'][$normal_sale_product->gdpaper_id]['num'])){
                 $datas['normals'][$normal_sale_product->gdpaper_id]['num'] += $normal_sale_product->gdpaper_num;
             }else{
                 $datas['normals'][$normal_sale_product->gdpaper_id]['num'] = $normal_sale_product->gdpaper_num;
             }
+            
+            // 按追思/派件分類
+            $type_key = $normal_sale_product->type_list == 'memorial' ? 'memorial' : 'dispatch';
+            if(isset($datas['normals'][$normal_sale_product->gdpaper_id][$type_key])){
+                $datas['normals'][$normal_sale_product->gdpaper_id][$type_key] += $normal_sale_product->gdpaper_num;
+            }else{
+                $datas['normals'][$normal_sale_product->gdpaper_id][$type_key] = $normal_sale_product->gdpaper_num;
+            }
         }
+        
 
         //計算業務單，商品類型是的套組
         foreach($set_sale_products as $set_sale_product)
@@ -109,24 +122,43 @@ class Rpg13Controller extends Controller
             $combos_products = ComboProduct::where('product_id',$set_sale_product->gdpaper_id)->get();
             $product_data =  Product::where('id',$set_sale_product->gdpaper_id)->first();
             $datas['sets'][$set_sale_product->gdpaper_id]['name'] = $product_data->name;
-                if(isset($datas['sets'][$set_sale_product->gdpaper_id]['count'] )){
-                    $datas['sets'][$set_sale_product->gdpaper_id]['count'] ++;
-                }else{
-                    $datas['sets'][$set_sale_product->gdpaper_id]['count'] = 1;
-                }
+            
+            // 套組總計
+            if(isset($datas['sets'][$set_sale_product->gdpaper_id]['count'] )){
+                $datas['sets'][$set_sale_product->gdpaper_id]['count'] += $set_sale_product->gdpaper_num;
+            }else{
+                $datas['sets'][$set_sale_product->gdpaper_id]['count'] = $set_sale_product->gdpaper_num;
+            }
+            
+            // 按追思/派件分類套組數量
+            $type_key = $set_sale_product->type_list == 'memorial' ? 'memorial' : 'dispatch';
+            if(isset($datas['sets'][$set_sale_product->gdpaper_id][$type_key])){
+                $datas['sets'][$set_sale_product->gdpaper_id][$type_key] += $set_sale_product->gdpaper_num;
+            }else{
+                $datas['sets'][$set_sale_product->gdpaper_id][$type_key] = $set_sale_product->gdpaper_num;
+            }
+            
             foreach($combos_products as $combos_product)
             {
                 $combo_product_data =  Product::where('id',$combos_product->include_product_id)->first();
                 $datas['sets'][$set_sale_product->gdpaper_id]['details'][$combos_product->include_product_id]['name'] = $combo_product_data->name;
                 $datas['products'][$combos_product->include_product_id]['num'] += $combos_product->num;
+                
+                // 套組內商品總計
                 if(isset($datas['sets'][$set_sale_product->gdpaper_id]['details'][$combos_product->include_product_id]['num'])){
                     $datas['sets'][$set_sale_product->gdpaper_id]['details'][$combos_product->include_product_id]['num'] += $combos_product->num;
                 }else{
                     $datas['sets'][$set_sale_product->gdpaper_id]['details'][$combos_product->include_product_id]['num'] = $combos_product->num;
                 }
+                
+                // 套組內商品按追思/派件分類
+                if(isset($datas['sets'][$set_sale_product->gdpaper_id]['details'][$combos_product->include_product_id][$type_key])){
+                    $datas['sets'][$set_sale_product->gdpaper_id]['details'][$combos_product->include_product_id][$type_key] += $combos_product->num;
+                }else{
+                    $datas['sets'][$set_sale_product->gdpaper_id]['details'][$combos_product->include_product_id][$type_key] = $combos_product->num;
+                }
             }
         }
-
         //計算業務單，商品類型是的組合
         // foreach($combo_sale_products as $combo_sale_product)
         // {
@@ -208,6 +240,47 @@ class Rpg13Controller extends Controller
 
 
         return view('rpg13.index')->with('years', $years)->with('request',$request)->with('datas',$datas)->with('products',$products);
+    }
+
+    public function detail(Request $request, $year, $month, $product_id, $type)
+    {
+        $search_year = $year;
+        $search_month = $month;
+        $product_id = $product_id;
+        $type = $type;
+        $firstDay = Carbon::createFromDate($search_year , $search_month,1)->firstOfMonth();
+        $lastDay = Carbon::createFromDate($search_year , $search_month,1)->lastOfMonth();
+        $product = Product::where('id', $product_id)->first();
+        $product_name = [$product_id => $product ? $product->name : '未知產品'];
+        $sale_data_products = DB::table('sale_data')
+                                    ->join('sale_gdpaper','sale_gdpaper.sale_id', '=' , 'sale_data.id')
+                                    ->leftjoin('product','product.id', '=' , 'sale_gdpaper.gdpaper_id')
+                                    ->leftjoin('category','category.id', '=', 'product.category_id')
+                                    ->leftjoin('customer','customer.id', '=', 'sale_data.customer_id')
+                                    ->where('sale_data.sale_date','>=',$firstDay)
+                                    ->where('sale_data.sale_date','<=',$lastDay)
+                                    ->where('product.type',$type)
+                                    ->where('product.id',$product_id)
+                                    ->where('sale_data.status','9')
+                                    ->select('sale_gdpaper.*', 'sale_data.sale_date','sale_data.customer_id','sale_data.pet_name','sale_data.type_list','customer.name as cust_name')
+                                    ->get();
+        
+        // 除錯：記錄查詢結果
+        \Log::info('庫錢詳細報表查詢結果', [
+            'product_id' => $product_id,
+            'type' => $type,
+            'year' => $search_year,
+            'month' => $search_month,
+            'count' => $sale_data_products->count(),
+            'data' => $sale_data_products->toArray()
+        ]);
+
+        return view('rpg13.detail')->with('search_year',$search_year)
+        ->with('search_month',$search_month)
+        ->with('type',$type)
+        ->with('sale_data_products',$sale_data_products)
+        ->with('product_name',$product_name)
+        ->with('product_id',$product_id);
     }
 
 }

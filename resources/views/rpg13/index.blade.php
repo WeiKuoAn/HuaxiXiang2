@@ -148,7 +148,37 @@
                                         <td>{{ $product['name'] }}</td>
                                         <td>
                                             @if (isset($datas['normals'][$product->id]))
-                                                {{ $datas['normals'][$product->id]['num'] }}
+                                                @php
+                                                    $memorial_count = $datas['normals'][$product->id]['memorial'] ?? 0;
+                                                    $dispatch_count = $datas['normals'][$product->id]['dispatch'] ?? 0;
+                                                    $total_count = $datas['normals'][$product->id]['num'];
+                                                    $tooltip_text = '';
+                                                    if ($memorial_count > 0 && $dispatch_count > 0) {
+                                                        $tooltip_text = "追思: {$memorial_count} 個，派件: {$dispatch_count} 個";
+                                                    } elseif ($memorial_count > 0) {
+                                                        $tooltip_text = "追思: {$memorial_count} 個";
+                                                    } elseif ($dispatch_count > 0) {
+                                                        $tooltip_text = "派件: {$dispatch_count} 個";
+                                                    }
+                                                @endphp
+                                                
+                                                @if ($dispatch_count > 0)
+                                                    <a href="{{ route('rpg13.detail', ['year' => $request->year, 'month' => $request->month, 'product_id' => $product->id, 'type' => 'normal']) }}" class="text-decoration-none" 
+                                                       data-bs-toggle="tooltip" 
+                                                       data-bs-placement="top" 
+                                                       data-bs-title="{{ $tooltip_text }}">
+                                                        <span class="badge bg-success">{{ $total_count }}</span>
+                                                    </a>
+                                                @elseif ($memorial_count > 0)
+                                                    <a href="{{ route('rpg13.detail', ['year' => $request->year, 'month' => $request->month, 'product_id' => $product->id, 'type' => 'normal']) }}" class="text-decoration-none" 
+                                                        data-bs-toggle="tooltip" 
+                                                        data-bs-placement="top" 
+                                                        data-bs-title="{{ $tooltip_text }}">
+                                                        <span class="badge bg-info">{{ $total_count }}</span>
+                                                    </a>
+                                                @else
+                                                    {{ $total_count }}
+                                                @endif
                                             @else
                                                 0
                                             @endif
@@ -171,8 +201,38 @@
                             <table class="table table-centered table-nowrap table-hover mb-0 mt-2">
                                 <thead>
                                     @foreach ($datas['sets'] as $key => $combo)
+                                        @php
+                                            $combo_memorial = $combo['memorial'] ?? 0;
+                                            $combo_dispatch = $combo['dispatch'] ?? 0;
+                                            $combo_total = $combo['count'];
+                                            $combo_tooltip = '';
+                                            if ($combo_memorial > 0 && $combo_dispatch > 0) {
+                                                $combo_tooltip = "追思: {$combo_memorial} 個套組，派件: {$combo_dispatch} 個套組";
+                                            } elseif ($combo_memorial > 0) {
+                                                $combo_tooltip = "追思: {$combo_memorial} 個套組";
+                                            } elseif ($combo_dispatch > 0) {
+                                                $combo_tooltip = "派件: {$combo_dispatch} 個套組";
+                                            }
+                                        @endphp
                                         <tr class="table-light">
-                                            <td colspan="13">{{ $combo['name'] }}（共{{ $combo['count'] }}個）</td>
+                                            <td colspan="13">
+                                                @if ($combo_dispatch > 0)
+                                                    <a href="{{ route('rpg13.detail', ['year' => $request->year, 'month' => $request->month, 'product_id' => $key, 'type' => 'set']) }}" class="text-decoration-none" 
+                                                       data-bs-toggle="tooltip" 
+                                                       data-bs-placement="top" 
+                                                       data-bs-title="{{ $combo_tooltip }}">
+                                                        {{ $combo['name'] }}（共{{ $combo_total }}個）
+                                                    </a>
+                                                @elseif ($combo_memorial > 0)
+                                                    <span data-bs-toggle="tooltip" 
+                                                          data-bs-placement="top" 
+                                                          data-bs-title="{{ $combo_tooltip }}">
+                                                        {{ $combo['name'] }}（共{{ $combo_total }}個）
+                                                    </span>
+                                                @else
+                                                    {{ $combo['name'] }}（共{{ $combo_total }}個）
+                                                @endif
+                                            </td>
                                         </tr>
                                         <td></td>
                                         @foreach ($combo['details'] as $detail_key => $detail)
@@ -271,4 +331,14 @@
         </div>
 
     </div> <!-- container -->
+
+    <script>
+        // 初始化 Bootstrap tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
 @endsection
