@@ -2059,14 +2059,18 @@
         }
 
         // 處理方案價格欄位的顯示邏輯
-        function handlePlanPriceField(planId, payId) {
-            console.log('處理方案價格欄位:', { planId, payId });
+        function handlePlanPriceField(planId, payId, typeList) {
+            console.log('處理方案價格欄位:', { planId, payId, typeList });
             
+            // 追思單 (type_list == 'memorial') 且支付類別為 A 或 C 時，隱藏 plan_price 欄位
             // 浪浪方案 (plan_id == 4) 且支付類別為 A 或 C 時，隱藏 plan_price 欄位
             // 或者支付類別為 D（尾款）或 E（追加）時，隱藏 plan_price 欄位
-            if ((planId === '4' && (payId === 'A' || payId === 'C')) || payId === 'D' || payId === 'E') {
+            if ((typeList === 'memorial' && (payId === 'A' || payId === 'C')) || 
+                (planId === '4' && (payId === 'A' || payId === 'C')) || 
+                payId === 'D' || payId === 'E') {
                 var reason = '';
-                if (planId === '4') reason = '浪浪方案 + 一次付清/訂金';
+                if (typeList === 'memorial' && (payId === 'A' || payId === 'C')) reason = '追思單 + 一次付清/訂金';
+                else if (planId === '4') reason = '浪浪方案 + 一次付清/訂金';
                 else if (payId === 'D') reason = '尾款';
                 else if (payId === 'E') reason = '追加';
                 console.log('隱藏方案價格欄位 - 原因:', reason);
@@ -2101,8 +2105,9 @@
             // 初始化方案價格欄位顯示狀態
             var currentPlanId = '{{ $data->plan_id }}';
             var currentPayId = '{{ $data->pay_id }}';
+            var currentTypeList = '{{ $data->type_list }}';
             if (currentPlanId && currentPayId) {
-                handlePlanPriceField(currentPlanId, currentPayId);
+                handlePlanPriceField(currentPlanId, currentPayId, currentTypeList);
             }
             
             // 監聽宗教欄位變更

@@ -415,8 +415,8 @@ class SaleDataControllerNew extends Controller
         $sale->variety = $request->variety;
         $sale->type = $request->type;
         if ($request->type_list == 'memorial') {
-            // 如果是追思單就客戶為空
-            $sale->plan_id = '4';
+            // 追思單時 plan_id 留空
+            $sale->plan_id = null;
         } else {
             $sale->plan_id = $request->plan_id;
         }
@@ -1433,7 +1433,8 @@ class SaleDataControllerNew extends Controller
         $sale->variety = $request->variety;
         $sale->type = $request->type;
         if ($request->type_list == 'memorial') {
-            $sale->plan_id = '4';
+            // 追思單時 plan_id 留空
+            $sale->plan_id = null;
         } else {
             $sale->plan_id = $request->plan_id;
         }

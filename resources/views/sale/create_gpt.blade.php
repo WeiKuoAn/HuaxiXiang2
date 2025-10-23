@@ -672,7 +672,7 @@
             var currentPlanId = $('#plan_id').val();
             var currentPayId = $('select[name="pay_id"]').val();
             if (currentPlanId && currentPayId) {
-                handlePlanPriceField(currentPlanId, currentPayId);
+                handlePlanPriceField(currentPlanId, currentPayId, currentTypeList);
             }
         }
 
@@ -1032,7 +1032,7 @@
             controlFieldsByPaymentType(payValue, type_list);
             
             // 處理方案價格欄位
-            handlePlanPriceField(planId, payValue);
+            handlePlanPriceField(planId, payValue, type_list);
         });
 
         // 支付類別欄位控制函數
@@ -1413,7 +1413,7 @@
             }
             
             // 處理浪浪方案的 plan_price 欄位
-            handlePlanPriceField(planId, payId);
+            handlePlanPriceField(planId, payId, typeList);
             
             // 重新計算重要日期（如果有往生日期的話）
             var deathDate = $('#death_date').val();
@@ -1677,16 +1677,20 @@
         }
 
         // 處理方案價格欄位的顯示邏輯
-        function handlePlanPriceField(planId, payId) {
-            console.log('處理方案價格欄位:', { planId, payId });
+        function handlePlanPriceField(planId, payId, typeList) {
+            console.log('處理方案價格欄位:', { planId, payId, typeList });
             
+            // 追思單 (type_list == 'memorial') 且支付類別為 A 或 C 時，隱藏 plan_price 欄位
             // 浪浪方案 (plan_id == 4) 且支付類別為 A 或 C 時，隱藏 plan_price 欄位
-            // 或者支付類別為 D（尾款）或 E（往生紀念）時，隱藏 plan_price 欄位
-            if ((planId === '4' && (payId === 'A' || payId === 'C')) || payId === 'D' || payId === 'E') {
+            // 或者支付類別為 D（尾款）或 E（追加）時，隱藏 plan_price 欄位
+            if ((typeList === 'memorial' && (payId === 'A' || payId === 'C')) || 
+                (planId === '4' && (payId === 'A' || payId === 'C')) || 
+                payId === 'D' || payId === 'E') {
                 var reason = '';
-                if (planId === '4') reason = '浪浪方案 + 一次付清/訂金';
+                if (typeList === 'memorial' && (payId === 'A' || payId === 'C')) reason = '追思單 + 一次付清/訂金';
+                else if (planId === '4') reason = '浪浪方案 + 一次付清/訂金';
                 else if (payId === 'D') reason = '尾款';
-                else if (payId === 'E') reason = '往生紀念';
+                else if (payId === 'E') reason = '追加';
                 console.log('隱藏方案價格欄位 - 原因:', reason);
                 $('.plan_price').hide(300);
                 $('#plan_price').val('').prop('required', false);

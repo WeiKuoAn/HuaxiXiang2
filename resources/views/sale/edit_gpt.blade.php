@@ -798,8 +798,9 @@
             // 初始化方案價格欄位顯示狀態
             var currentPlanId = $('#plan_id').val();
             var currentPayId = $('select[name="pay_id"]').val();
+            var currentTypeList = $('select[name="type_list"]').val();
             if (currentPlanId && currentPayId) {
-                handlePlanPriceField(currentPlanId, currentPayId);
+                handlePlanPriceField(currentPlanId, currentPayId, currentTypeList);
             }
 
             // 頁面載入時檢查現有後續處理項目的備註欄位和商品欄位顯示狀態
@@ -1217,7 +1218,7 @@
             console.log(a);
             
             // 處理方案價格欄位
-            handlePlanPriceField(planId, a);
+            handlePlanPriceField(planId, a, type_list);
             
             if ($(this).val() == 'D' || $(this).val() == 'E') {
                 $(".not_final_show").hide(300);
@@ -1425,7 +1426,7 @@
             }
             
             // 處理浪浪方案的 plan_price 欄位
-            handlePlanPriceField(planId, payId);
+            handlePlanPriceField(planId, payId, typeList);
             
             // 根據方案選擇控制宗教和往生日期欄位顯示
             if (typeList === 'dispatch' && (payId === 'A' || payId === 'C')) {
@@ -1545,14 +1546,18 @@
         });
 
         // 處理方案價格欄位的顯示邏輯
-        function handlePlanPriceField(planId, payId) {
-            console.log('處理方案價格欄位:', { planId, payId });
+        function handlePlanPriceField(planId, payId, typeList) {
+            console.log('處理方案價格欄位:', { planId, payId, typeList });
             
+            // 追思單 (type_list == 'memorial') 且支付類別為 A 或 C 時，隱藏 plan_price 欄位
             // 浪浪方案 (plan_id == 4) 且支付類別為 A 或 C 時，隱藏 plan_price 欄位
             // 或者支付類別為 D（尾款）或 E（追加）時，隱藏 plan_price 欄位
-            if ((planId === '4' && (payId === 'A' || payId === 'C')) || payId === 'D' || payId === 'E') {
+            if ((typeList === 'memorial' && (payId === 'A' || payId === 'C')) || 
+                (planId === '4' && (payId === 'A' || payId === 'C')) || 
+                payId === 'D' || payId === 'E') {
                 var reason = '';
-                if (planId === '4') reason = '浪浪方案 + 一次付清/訂金';
+                if (typeList === 'memorial' && (payId === 'A' || payId === 'C')) reason = '追思單 + 一次付清/訂金';
+                else if (planId === '4') reason = '浪浪方案 + 一次付清/訂金';
                 else if (payId === 'D') reason = '尾款';
                 else if (payId === 'E') reason = '追加';
                 console.log('隱藏方案價格欄位 - 原因:', reason);
