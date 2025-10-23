@@ -163,14 +163,14 @@
                                                 @endphp
                                                 
                                                 @if ($dispatch_count > 0)
-                                                    <a href="{{ route('rpg13.detail', ['year' => $request->year, 'month' => $request->month, 'product_id' => $product->id, 'type' => 'normal']) }}" class="text-decoration-none" 
+                                                    <a href="{{ route('rpg13.detail', ['year' => $request->year ?? date('Y'), 'month' => $request->month ?? date('m'), 'product_id' => $product->id, 'type' => 'normal']) }}" class="text-decoration-none" 
                                                        data-bs-toggle="tooltip" 
                                                        data-bs-placement="top" 
                                                        data-bs-title="{{ $tooltip_text }}">
                                                         <span class="badge bg-success">{{ $total_count }}</span>
                                                     </a>
                                                 @elseif ($memorial_count > 0)
-                                                    <a href="{{ route('rpg13.detail', ['year' => $request->year, 'month' => $request->month, 'product_id' => $product->id, 'type' => 'normal']) }}" class="text-decoration-none" 
+                                                    <a href="{{ route('rpg13.detail', ['year' => $request->year ?? date('Y'), 'month' => $request->month ?? date('m'), 'product_id' => $product->id, 'type' => 'normal']) }}" class="text-decoration-none" 
                                                         data-bs-toggle="tooltip" 
                                                         data-bs-placement="top" 
                                                         data-bs-title="{{ $tooltip_text }}">
@@ -217,7 +217,7 @@
                                         <tr class="table-light">
                                             <td colspan="13">
                                                 @if ($combo_dispatch > 0)
-                                                    <a href="{{ route('rpg13.detail', ['year' => $request->year, 'month' => $request->month, 'product_id' => $key, 'type' => 'set']) }}" class="text-decoration-none" 
+                                                    <a href="{{ route('rpg13.detail', ['year' => $request->year ?? date('Y'), 'month' => $request->month ?? date('m'), 'product_id' => $key, 'type' => 'set']) }}" class="text-decoration-none" 
                                                        data-bs-toggle="tooltip" 
                                                        data-bs-placement="top" 
                                                        data-bs-title="{{ $combo_tooltip }}">
