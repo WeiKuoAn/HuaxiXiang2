@@ -18,6 +18,7 @@ use App\Models\Product;
 use App\Models\CustGroup;
 use App\Models\LeaveDayCheck;
 use App\Models\SaleCompanyCommission;
+use App\Services\LeaveWorkflowService;
 use App\Models\GdpaperInventoryData;
 use App\Models\Leaves;
 use App\Models\GdpaperInventoryItem;
@@ -393,33 +394,31 @@ class PersonController extends Controller
 
     public function leave_check_show($id)
     {
-        $data = LeaveDay::with(['workflow', 'workflow.steps', 'checks.user', 'checks.step'])->where('id', $id)->first();
+        $data = LeaveDay::where('id', $id)->first();
         $items = LeaveDayCheck::where('leave_day_id', $data->id)->get();
         $leaves = Leaves::where('status', 0)->orderby('seq')->get();
-        
         return view('person.leave_check')->with('data', $data)->with('items', $items)->with('leaves', $leaves);
     }
 
     public function leave_check_update($id, Request $request)
     {
+
         $data = LeaveDay::where('id', $id)->first();
-        
-        try {
-            // 自動使用請假管理審核流程
-            $workflow = \App\Models\Workflow::where('category', 'leave')->first();
-            if (!$workflow) {
-                return redirect()->back()->with('error', '找不到請假管理審核流程');
-            }
-            
-            // 使用工作流程服務啟動流程
-            $workflowService = new \App\Services\LeaveWorkflowService();
-            $workflowService->startWorkflow($data, $workflow->id);
-            
-            return redirect()->route('person.leave_days')->with('success', '假單已送出，等待審核');
-            
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', '送出失敗：' . $e->getMessage());
-        }
+        $data->state = 2;
+        $data->save();
+
+
+        $leave_data = LeaveDay::orderby('id', 'desc')->first();
+        $item = new LeaveDayCheck;
+        $item->leave_day_id = $leave_data->id;
+        $item->check_day = Carbon::now()->locale('zh-tw')->format('Y-m-d');
+        $item->state = 2;
+        $item->check_user_id = Auth::user()->id;
+        $item->created_at = Carbon::now()->locale('zh-tw');
+        $item->updated_at = Carbon::now()->locale('zh-tw');
+        $item->save();
+
+        return redirect()->route('person.leave_days');
     }
 
     public function last_leave_days()
