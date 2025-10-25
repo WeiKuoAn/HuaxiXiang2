@@ -46,8 +46,6 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="text-uppercase bg-light  p-2 mt-0 mb-3">基本資訊</h5>
-                            <div class="alert alert-danger alert-dismissible fade show p-2" id="final_price_display"
-                                role="alert"></div>
                             <div class="row">
                                 <div class="mb-3 col-md-4">
                                     <label for="type_list" class="form-label">案件類別選擇<span
