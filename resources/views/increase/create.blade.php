@@ -427,8 +427,7 @@
                                                 <div class="col-md-3">
                                                     <label class="form-label">事由<span class="text-danger">*</span></label>
                                                     <input type="text" class="form-control" id="manual_overtime_reason" name="manual_overtime_reason"
-                                                           placeholder="請輸入加班事由"
-                                                           required>
+                                                           placeholder="請輸入加班事由">
                                                 </div>
                                                 <div class="col-md-2">
                                                     <label class="form-label">加班倍數統計</label>
@@ -676,14 +675,13 @@
                                             min="1" step="1" 
                                             onchange="calculateOvertimePayFromMinutes(${newIndex})">
                                  </div>
-                                 <div class="col-md-4">
-                                     <label class="form-label small">事由<span class="text-danger">*</span></label>
-                                     <input type="text" class="form-control form-control-sm" 
-                                            name="overtime[${newIndex}][reason]" 
-                                            id="overtime_reason_field_${newIndex}" 
-                                            placeholder="請輸入加班事由"
-                                            required>
-                                 </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">事由<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control form-control-sm" 
+                                           name="overtime[${newIndex}][reason]" 
+                                           id="overtime_reason_field_${newIndex}" 
+                                           placeholder="請輸入加班事由">
+                                </div>
                                  <div class="col-md-4">
                                      <label class="form-label small">加班倍數統計</label>
                                      <div class="card bg-light">
@@ -1505,19 +1503,36 @@
             const existingContainers = document.querySelectorAll('[id^="overtime-records-container-"]');
             console.log('現有區段數量:', existingContainers.length);
             
-            // 總是創建新的區段，避免影響現有的區段
-            console.log('創建新區段用於手動新增的加班記錄');
-            addOvertime();
+            let targetIndex = -1;
             
-            // 等待新區段建立完成
-            setTimeout(() => {
-                const newContainers = document.querySelectorAll('[id^="overtime-records-container-"]');
-                const targetIndex = newContainers.length - 1;
-                console.log('新區段數量:', newContainers.length, '目標索引:', targetIndex);
+            // 檢查第一個區段是否為空（未選擇任何加班記錄）
+            if (existingContainers.length > 0) {
+                const firstSelect = document.getElementById('overtime_record_select_0');
+                if (firstSelect && (!firstSelect.value || firstSelect.value === '')) {
+                    console.log('第一個區段為空，使用第一個區段');
+                    targetIndex = 0;
+                }
+            }
+            
+            // 如果第一個區段不為空，或沒有任何區段，則創建新的區段
+            if (targetIndex === -1) {
+                console.log('創建新區段用於手動新增的加班記錄');
+                addOvertime();
                 
-                // 直接添加新記錄，不載入現有記錄
+                // 等待新區段建立完成
+                setTimeout(() => {
+                    const newContainers = document.querySelectorAll('[id^="overtime-records-container-"]');
+                    targetIndex = newContainers.length - 1;
+                    console.log('新區段數量:', newContainers.length, '目標索引:', targetIndex);
+                    
+                    // 直接添加新記錄，不載入現有記錄
+                    addRecordToOvertimeSection(recordData, targetIndex);
+                }, 100);
+            } else {
+                // 直接使用第一個區段
+                console.log('使用第一個區段，索引:', targetIndex);
                 addRecordToOvertimeSection(recordData, targetIndex);
-            }, 100);
+            }
         }
         
         // 將記錄添加到指定的加班費區段（帶有回調函數版本）
@@ -1644,8 +1659,24 @@
 
         // 表單驗證
         document.getElementById('increaseForm').addEventListener('submit', function(e) {
-            // 這裡可以添加表單驗證邏輯
             console.log('表單提交');
+            
+            // 驗證所有顯示的加班費區段的事由欄位
+            const overtimeEditSections = document.querySelectorAll('[id^="overtime_edit_section_"]');
+            for (let section of overtimeEditSections) {
+                // 只驗證顯示的區段
+                if (section.style.display !== 'none') {
+                    const index = section.id.replace('overtime_edit_section_', '');
+                    const reasonField = document.getElementById(`overtime_reason_field_${index}`);
+                    
+                    if (reasonField && (!reasonField.value || reasonField.value.trim() === '')) {
+                        e.preventDefault();
+                        alert('請填寫加班費區段的事由');
+                        reasonField.focus();
+                        return false;
+                    }
+                }
+            }
         });
     </script>
 @endsection
