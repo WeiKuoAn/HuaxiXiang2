@@ -53,7 +53,7 @@ class OvertimeController extends Controller
             'overtime' => 'required|array',
             'overtime.*.user_id' => 'required|exists:users,id',
             'overtime.*.minutes' => 'required|integer|min:1',
-            'overtime.*.reason' => 'nullable|string',
+            'overtime.*.reason' => 'required|string|max:500',
         ]);
 
         try {
@@ -65,7 +65,7 @@ class OvertimeController extends Controller
                     'overtime_date' => $request->overtime_date,
                     'user_id' => $overtimeData['user_id'],
                     'minutes' => $overtimeData['minutes'],
-                    'reason' => $overtimeData['reason'] ?? null,
+                    'reason' => $overtimeData['reason'],
                     'created_by' => Auth::id(),
                     'status' => 'approved', // 自動設為已核准
                 ]);
@@ -106,7 +106,7 @@ class OvertimeController extends Controller
             'overtime_date' => 'required|date',
             'user_id' => 'required|exists:users,id',
             'minutes' => 'required|integer|min:1',
-            'reason' => 'nullable|string',
+            'reason' => 'required|string|max:500',
         ]);
 
         try {
@@ -166,9 +166,123 @@ class OvertimeController extends Controller
         }
     }
 
+    /**
+     * API 方法：直接更新加班記錄（用於加成頁面）
+     */
+    public function updateRecord(Request $request, $id)
+    {
+        try {
+            // 驗證輸入
+            $request->validate([
+                'minutes' => 'required|integer|min:1',
+                'reason' => 'required|string|max:500',
+            ]);
+
+            $overtime = OvertimeRecord::findOrFail($id);
+            
+            // 檢查是否可以編輯
+            if (!$overtime->canEdit()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '此記錄無法編輯'
+                ], 403);
+            }
+
+            // 更新資料
+            $overtime->minutes = $request->minutes;
+            $overtime->reason = $request->reason;
+            
+            // 重新計算加班費相關欄位
+            $overtime->calculateOvertimePay();
+            $overtime->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => '加班記錄更新成功',
+                'data' => [
+                    'id' => $overtime->id,
+                    'minutes' => $overtime->minutes,
+                    'reason' => $overtime->reason,
+                    'formatted_hours' => $overtime->formatted_hours,
+                    'first_two_hours' => $overtime->first_two_hours,
+                    'remaining_hours' => $overtime->remaining_hours,
+                ]
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => '驗證失敗',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => '更新失敗：' . $e->getMessage()
+            ], 500);
+        }
+    }
 
 
 
+
+
+    /**
+     * API 方法：手動新增加班記錄（用於加成頁面）
+     */
+    public function createRecord(Request $request)
+    {
+        try {
+            // 驗證輸入
+            $request->validate([
+                'user_id' => 'required|exists:users,id',
+                'overtime_date' => 'required|date',
+                'minutes' => 'required|integer|min:1',
+                'reason' => 'required|string|max:500',
+            ]);
+
+            // 建立新的加班記錄
+            $overtimeRecord = new OvertimeRecord([
+                'overtime_date' => $request->overtime_date,
+                'user_id' => $request->user_id,
+                'minutes' => $request->minutes,
+                'reason' => $request->reason,
+                'created_by' => Auth::id(),
+                'status' => 'approved', // 自動設為已核准
+            ]);
+
+            // 計算加班費相關欄位
+            $overtimeRecord->calculateOvertimePay();
+            $overtimeRecord->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => '加班記錄建立成功',
+                'data' => [
+                    'id' => $overtimeRecord->id,
+                    'user_id' => $overtimeRecord->user_id,
+                    'user_name' => $overtimeRecord->user->name ?? '未知人員',
+                    'minutes' => $overtimeRecord->minutes,
+                    'formatted_hours' => $overtimeRecord->formatted_hours,
+                    'first_two_hours' => $overtimeRecord->first_two_hours,
+                    'remaining_hours' => $overtimeRecord->remaining_hours,
+                    'reason' => $overtimeRecord->reason,
+                ]
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => '驗證失敗',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => '建立失敗：' . $e->getMessage()
+            ], 500);
+        }
+    }
 
     public function export(Request $request)
     {
