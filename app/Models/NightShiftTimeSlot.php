@@ -36,8 +36,8 @@ class NightShiftTimeSlot extends Model
     public static function getActiveTimeSlots()
     {
         return self::where('is_active', true)
-                   ->orderBy('sort_order')
                    ->orderBy('start_time')
+                   ->orderBy('min_weight')
                    ->get();
     }
 
@@ -113,7 +113,14 @@ class NightShiftTimeSlot extends Model
         } elseif ($this->max_weight === null) {
             return "{$this->min_weight} 公斤以上";
         } else {
-            return "{$this->min_weight} - {$this->max_weight} 公斤";
+            // 特殊處理：若 min_weight=0 顯示 10公斤以下，若 min_weight=10 顯示 30公斤以下
+            if ($this->min_weight == 0 && $this->max_weight == 10) {
+                return "10公斤以下";
+            } elseif ($this->min_weight == 10 && $this->max_weight == 30) {
+                return "10公斤以上";
+            } else {
+                return "{$this->min_weight} - {$this->max_weight} 公斤";
+            }
         }
     }
 
@@ -130,6 +137,6 @@ class NightShiftTimeSlot extends Model
      */
     public function getFullDescriptionAttribute()
     {
-        return $this->name . " (" . $this->start_time->format('H:i') . "-" . $this->end_time->format('H:i') . ") - " . $this->weight_range_display . " - " . $this->price_display;
+        return $this->name . " (" . $this->start_time->format('H:i') . "場次".")"." - " . $this->weight_range_display . " - " . $this->price_display;
     }
 }

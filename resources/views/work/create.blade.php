@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ['page_title' => '批次新增出勤記錄'])
+@extends('layouts.vertical', ['page_title' => '批次新增/編輯出勤記錄'])
 
 @section('css')
 <!-- third party css -->
@@ -6,24 +6,92 @@
 <link href="{{asset('assets/libs/flatpickr/flatpickr.min.css')}}" rel="stylesheet" type="text/css" />
 <!-- third party css end -->
 <style>
-    .work-record-row {
-        border-bottom: 1px solid #dee2e6;
-        padding-bottom: 15px;
-        margin-bottom: 15px;
+    .month-calendar {
+        width: 100%;
+        border-collapse: collapse;
     }
-    .work-record-row:last-child {
-        border-bottom: none;
+    .month-calendar th {
+        background-color: #f8f9fa;
+        padding: 12px;
+        text-align: center;
+        font-weight: 600;
+        border: 1px solid #dee2e6;
     }
-    .remove-row-btn {
+    .month-calendar td {
+        border: 1px solid #dee2e6;
+        padding: 8px;
+        vertical-align: top;
+        height: 120px;
+    }
+    .day-header {
+        font-weight: bold;
+        margin-bottom: 5px;
+        padding: 5px;
+        border-radius: 4px;
+    }
+    .weekend {
+        background-color: #fff3cd;
+    }
+    .has-record {
+        background-color: #d1ecf1;
+    }
+    .day-number {
+        display: inline-block;
+        min-width: 25px;
+        text-align: center;
+    }
+    .time-input-group {
+        margin-top: 5px;
+    }
+    .time-input-group label {
+        font-size: 11px;
+        margin-bottom: 2px;
+        display: block;
+    }
+    .time-input-group input {
+        font-size: 12px;
+        padding: 4px 6px;
+        height: 30px;
+    }
+    .remark-input {
+        margin-top: 5px;
+    }
+    .remark-input input {
+        font-size: 11px;
+        padding: 3px 5px;
+        height: 26px;
+    }
+    .month-selector {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    .month-selector select {
+        width: 120px;
+    }
+    .btn-month-nav {
         min-width: 100px;
     }
-    .duplicate-warning {
-        border: 2px solid #dc3545 !important;
-        background-color: #fff5f5 !important;
+    .record-status {
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 3px;
+        display: inline-block;
+        margin-top: 3px;
     }
-    .db-exists-warning {
-        border: 2px solid #ff9800 !important;
-        background-color: #fff8e1 !important;
+    .status-new {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    .status-exists {
+        background-color: #cce5ff;
+        color: #004085;
+    }
+    .total-hours {
+        font-size: 10px;
+        color: #6c757d;
+        margin-top: 3px;
     }
 </style>
 @endsection
@@ -41,10 +109,10 @@
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="javascript: void(0);">用戶管理</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('user.work.index', $user->id) }}">出勤列表</a></li>
-                        <li class="breadcrumb-item active">批次新增出勤記錄</li>
+                        <li class="breadcrumb-item active">批次新增/編輯出勤記錄</li>
                     </ol>
                 </div>
-                <h4 class="page-title">{{ $user->name }} - 批次新增出勤記錄</h4>
+                <h4 class="page-title">{{ $user->name }} - 批次新增/編輯出勤記錄</h4>
             </div>
         </div>
     </div>
@@ -56,77 +124,149 @@
                 <div class="card-body">
                     <div class="alert alert-info">
                         <i class="mdi mdi-information-outline me-2"></i>
-                        <strong>提示：</strong>您可以一次新增多筆出勤記錄，系統會自動檢測重複的日期。
+                        <strong>提示：</strong>選擇年月後，系統會顯示該月所有天數。已有資料的會自動填入，可以直接修改；沒有資料的可以直接填寫。清空時間欄位可刪除該日記錄。
+                    </div>
+
+                    <!-- 月份選擇器 -->
+                    <div class="month-selector">
+                        <button type="button" class="btn btn-secondary btn-sm btn-month-nav" onclick="changeMonth(-1)">
+                            <i class="mdi mdi-chevron-left"></i> 上個月
+                        </button>
+                        
+                        <select class="form-select" id="yearSelect" onchange="loadMonth()">
+                            @for ($y = now()->year - 2; $y <= now()->year + 1; $y++)
+                                <option value="{{ $y }}" {{ $y == $year ? 'selected' : '' }}>{{ $y }}年</option>
+                            @endfor
+                        </select>
+                        
+                        <select class="form-select" id="monthSelect" onchange="loadMonth()">
+                            @for ($m = 1; $m <= 12; $m++)
+                                <option value="{{ $m }}" {{ $m == $month ? 'selected' : '' }}>{{ $m }}月</option>
+                            @endfor
+                        </select>
+                        
+                        <button type="button" class="btn btn-secondary btn-sm btn-month-nav" onclick="changeMonth(1)">
+                            下個月 <i class="mdi mdi-chevron-right"></i>
+                        </button>
+                        
+                        <button type="button" class="btn btn-info btn-sm" onclick="goToCurrentMonth()">
+                            <i class="mdi mdi-calendar-today"></i> 本月
+                        </button>
                     </div>
 
                     <form action="{{ route('user.work.batch.store', $user->id) }}" method="POST" id="batchWorkForm">
                         @csrf
                         <input type="hidden" name="user_id" value="{{ $user->id }}">
+                        <input type="hidden" name="year" value="{{ $year }}">
+                        <input type="hidden" name="month" value="{{ $month }}">
 
-                        <div id="workRecordsContainer">
-                            <!-- 初始記錄行 -->
-                            <div class="work-record-row" data-row-index="0">
-                                <div class="row align-items-end">
-                                    <div class="col-md-3">
-                                        <div class="mb-3">
-                                            <label class="form-label">日期<span class="text-danger">*</span></label>
-                                            <input type="date" class="form-control work-date" name="records[0][date]" required data-user-id="{{ $user->id }}">
-                                            <small class="text-danger date-error" style="display: none;"></small>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <div class="mb-3">
-                                            <label class="form-label">上班時間<span class="text-danger">*</span></label>
-                                            <input type="time" class="form-control work-start-time" name="records[0][worktime]" required>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <div class="mb-3">
-                                            <label class="form-label">下班時間<span class="text-danger">*</span></label>
-                                            <input type="time" class="form-control work-end-time" name="records[0][dutytime]" required>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="mb-3">
-                                            <label class="form-label">備註</label>
-                                            <input type="text" class="form-control" name="records[0][remark]" placeholder="選填">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <div class="mb-3">
-                                            <button type="button" class="btn btn-danger btn-sm remove-row-btn" onclick="removeRow(this)" style="display: none;">
-                                                <i class="mdi mdi-trash-can-outline"></i> 刪除
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <input type="hidden" name="records[0][status]" value="0">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mt-2 mb-3">
-                            <div class="col-12">
-                                <button type="button" class="btn btn-success waves-effect waves-light" onclick="addNewRow()">
-                                    <i class="mdi mdi-plus-circle me-1"></i>新增一筆記錄
-                                </button>
-                            </div>
+                        <!-- 月曆表格 -->
+                        <div class="table-responsive">
+                            <table class="month-calendar">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 14.28%;">週日</th>
+                                        <th style="width: 14.28%;">週一</th>
+                                        <th style="width: 14.28%;">週二</th>
+                                        <th style="width: 14.28%;">週三</th>
+                                        <th style="width: 14.28%;">週四</th>
+                                        <th style="width: 14.28%;">週五</th>
+                                        <th style="width: 14.28%;">週六</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php
+                                        $weekDays = [];
+                                        $currentWeek = [];
+                                        $firstDayOfWeek = $days[0]['dayOfWeek'];
+                                        
+                                        // 填充第一週之前的空格
+                                        for ($i = 0; $i < $firstDayOfWeek; $i++) {
+                                            $currentWeek[] = null;
+                                        }
+                                        
+                                        // 填充所有日期
+                                        foreach ($days as $day) {
+                                            $currentWeek[] = $day;
+                                            
+                                            // 如果這週滿了（7天），就存入並開始新的一週
+                                            if (count($currentWeek) == 7) {
+                                                $weekDays[] = $currentWeek;
+                                                $currentWeek = [];
+                                            }
+                                        }
+                                        
+                                        // 填充最後一週剩餘的空格
+                                        if (count($currentWeek) > 0) {
+                                            while (count($currentWeek) < 7) {
+                                                $currentWeek[] = null;
+                                            }
+                                            $weekDays[] = $currentWeek;
+                                        }
+                                    @endphp
+                                    
+                                    @foreach ($weekDays as $week)
+                                        <tr>
+                                            @foreach ($week as $day)
+                                                <td class="{{ $day && $day['isWeekend'] ? 'weekend' : '' }} {{ $day && $day['record'] ? 'has-record' : '' }}">
+                                                    @if ($day)
+                                                        <div class="day-header">
+                                                            <span class="day-number">{{ $day['day'] }}</span>
+                                                            @if ($day['record'])
+                                                                <span class="record-status status-exists">已有記錄</span>
+                                                            @endif
+                                                        </div>
+                                                        
+                                                        <input type="hidden" name="records[{{ $loop->parent->index * 7 + $loop->index }}][date]" value="{{ $day['date'] }}">
+                                                        
+                                                        <div class="time-input-group">
+                                                            <label>上班</label>
+                                                            <input type="time" 
+                                                                   class="form-control work-time" 
+                                                                   name="records[{{ $loop->parent->index * 7 + $loop->index }}][worktime]"
+                                                                   value="{{ $day['record'] ? \Carbon\Carbon::parse($day['record']->worktime)->format('H:i') : '' }}"
+                                                                   onchange="calculateHours(this)">
+                                                        </div>
+                                                        
+                                                        <div class="time-input-group">
+                                                            <label>下班</label>
+                                                            <input type="time" 
+                                                                   class="form-control work-time" 
+                                                                   name="records[{{ $loop->parent->index * 7 + $loop->index }}][dutytime]"
+                                                                   value="{{ $day['record'] ? \Carbon\Carbon::parse($day['record']->dutytime)->format('H:i') : '' }}"
+                                                                   onchange="calculateHours(this)">
+                                                        </div>
+                                                        
+                                                        <div class="remark-input">
+                                                            <input type="text" 
+                                                                   class="form-control" 
+                                                                   name="records[{{ $loop->parent->index * 7 + $loop->index }}][remark]"
+                                                                   value="{{ $day['record'] ? $day['record']->remark : '' }}"
+                                                                   placeholder="備註">
+                                                        </div>
+                                                        
+                                                        <div class="total-hours" data-index="{{ $loop->parent->index * 7 + $loop->index }}">
+                                                            @if ($day['record'])
+                                                                工時: {{ $day['record']->total }}小時
+                                                            @endif
+                                                        </div>
+                                                        
+                                                        <input type="hidden" name="records[{{ $loop->parent->index * 7 + $loop->index }}][status]" value="0">
+                                                    @endif
+                                                </td>
+                                            @endforeach
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
 
                         <div class="row mt-4">
-                            <div class="col-12">
-                                <div class="alert alert-warning" id="duplicateAlert" style="display: none;">
-                                    <i class="mdi mdi-alert me-2"></i>
-                                    <strong>警告：</strong><span id="duplicateMessage"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mt-3">
                             <div class="col-12 text-center">
-                                <button type="submit" class="btn btn-primary waves-effect waves-light m-1" id="submitBtn">
-                                    <i class="fe-check-circle me-1"></i>批次新增
+                                <button type="submit" class="btn btn-primary btn-lg waves-effect waves-light m-1">
+                                    <i class="fe-check-circle me-1"></i>儲存所有變更
                                 </button>
-                                <a href="{{ route('user.work.index', $user->id) }}" class="btn btn-secondary waves-effect waves-light m-1">
+                                <a href="{{ route('user.work.index', $user->id) }}" class="btn btn-secondary btn-lg waves-effect waves-light m-1">
                                     <i class="fe-x me-1"></i>取消返回
                                 </a>
                             </div>
@@ -148,226 +288,121 @@
 <!-- third party js ends -->
 
 <script>
-let rowIndex = 1;
 const userId = {{ $user->id }};
 
-// 新增記錄行
-function addNewRow() {
-    const container = document.getElementById('workRecordsContainer');
-    const newRow = document.createElement('div');
-    newRow.className = 'work-record-row';
-    newRow.setAttribute('data-row-index', rowIndex);
-    
-    newRow.innerHTML = `
-        <div class="row align-items-end">
-            <div class="col-md-3">
-                <div class="mb-3">
-                    <label class="form-label">日期<span class="text-danger">*</span></label>
-                    <input type="date" class="form-control work-date" name="records[${rowIndex}][date]" required data-user-id="${userId}">
-                    <small class="text-danger date-error" style="display: none;"></small>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="mb-3">
-                    <label class="form-label">上班時間<span class="text-danger">*</span></label>
-                    <input type="time" class="form-control work-start-time" name="records[${rowIndex}][worktime]" required>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="mb-3">
-                    <label class="form-label">下班時間<span class="text-danger">*</span></label>
-                    <input type="time" class="form-control work-end-time" name="records[${rowIndex}][dutytime]" required>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="mb-3">
-                    <label class="form-label">備註</label>
-                    <input type="text" class="form-control" name="records[${rowIndex}][remark]" placeholder="選填">
-                </div>
-            </div>
-            <div class="col-md-1">
-                <div class="mb-3">
-                    <button type="button" class="btn btn-danger btn-sm remove-row-btn" onclick="removeRow(this)">
-                        <i class="mdi mdi-trash-can-outline"></i> 刪除
-                    </button>
-                </div>
-            </div>
-            <input type="hidden" name="records[${rowIndex}][status]" value="0">
-        </div>
-    `;
-    
-    container.appendChild(newRow);
-    rowIndex++;
-    
-    // 更新刪除按鈕顯示
-    updateRemoveButtons();
-    
-    // 為新增的日期輸入框添加事件監聽
-    const dateInputs = newRow.querySelectorAll('.work-date');
-    dateInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            checkDateExists(this);
-        });
-    });
+// 載入指定月份
+function loadMonth() {
+    const year = document.getElementById('yearSelect').value;
+    const month = document.getElementById('monthSelect').value;
+    window.location.href = `{{ route('user.work.batch.create', $user->id) }}?year=${year}&month=${month}`;
 }
 
-// 刪除記錄行
-function removeRow(button) {
-    const row = button.closest('.work-record-row');
-    row.remove();
-    updateRemoveButtons();
-    checkAllDates();
-}
-
-// 更新刪除按鈕的顯示狀態
-function updateRemoveButtons() {
-    const rows = document.querySelectorAll('.work-record-row');
-    const removeButtons = document.querySelectorAll('.remove-row-btn');
+// 切換月份
+function changeMonth(offset) {
+    let year = parseInt(document.getElementById('yearSelect').value);
+    let month = parseInt(document.getElementById('monthSelect').value);
     
-    if (rows.length === 1) {
-        removeButtons[0].style.display = 'none';
-    } else {
-        removeButtons.forEach(btn => {
-            btn.style.display = 'block';
-        });
+    month += offset;
+    
+    if (month > 12) {
+        month = 1;
+        year++;
+    } else if (month < 1) {
+        month = 12;
+        year--;
     }
+    
+    window.location.href = `{{ route('user.work.batch.create', $user->id) }}?year=${year}&month=${month}`;
 }
 
-// 檢查單一日期是否存在（AJAX檢查資料庫 + 前端重複檢查）
-async function checkDateExists(inputElement) {
-    const date = inputElement.value;
-    const userId = inputElement.getAttribute('data-user-id');
-    const errorMsg = inputElement.parentElement.querySelector('.date-error');
+// 跳轉到本月
+function goToCurrentMonth() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    window.location.href = `{{ route('user.work.batch.create', $user->id) }}?year=${year}&month=${month}`;
+}
+
+// 計算工時
+function calculateHours(element) {
+    const td = element.closest('td');
+    const worktimeInput = td.querySelector('input[name*="[worktime]"]');
+    const dutytimeInput = td.querySelector('input[name*="[dutytime]"]');
+    const totalHoursDiv = td.querySelector('.total-hours');
     
-    // 清除之前的錯誤標記
-    inputElement.classList.remove('duplicate-warning', 'db-exists-warning');
-    errorMsg.style.display = 'none';
-    errorMsg.textContent = '';
-    
-    if (!date) {
-        checkAllDates();
+    if (!worktimeInput.value || !dutytimeInput.value) {
+        totalHoursDiv.textContent = '';
         return;
     }
     
-    // 1. 先檢查前端是否有重複
-    const allDateInputs = document.querySelectorAll('.work-date');
-    let duplicateCount = 0;
-    allDateInputs.forEach(input => {
-        if (input.value === date) {
-            duplicateCount++;
-        }
-    });
+    const dateInput = td.querySelector('input[name*="[date]"]');
+    const date = dateInput.value;
     
-    if (duplicateCount > 1) {
-        inputElement.classList.add('duplicate-warning');
-        errorMsg.textContent = '此日期在表單中重複';
-        errorMsg.style.display = 'block';
-        checkAllDates();
-        return;
+    const startTime = new Date(`${date} ${worktimeInput.value}`);
+    let endTime = new Date(`${date} ${dutytimeInput.value}`);
+    
+    // 如果下班時間早於上班時間，表示跨日
+    if (endTime < startTime) {
+        endTime.setDate(endTime.getDate() + 1);
     }
     
-    // 2. 再檢查資料庫是否已存在
-    try {
-        const response = await fetch(`/work/check-date?user_id=${userId}&date=${date}`);
-        const data = await response.json();
-        
-        if (data.exists) {
-            inputElement.classList.add('db-exists-warning');
-            errorMsg.textContent = '此日期已存在於資料庫中';
-            errorMsg.style.display = 'block';
-        }
-    } catch (error) {
-        console.error('檢查日期時發生錯誤:', error);
+    let hours = (endTime - startTime) / (1000 * 60 * 60);
+    
+    // 滿9小時要減1小時休息時間
+    if (hours >= 9) {
+        hours = hours - 1;
     }
     
-    checkAllDates();
+    totalHoursDiv.textContent = `工時: ${Math.floor(hours)}小時`;
 }
 
-// 檢查所有日期並更新提交按鈕狀態
-function checkAllDates() {
-    const dateInputs = document.querySelectorAll('.work-date');
-    let hasDuplicate = false;
-    let hasDbExists = false;
-    const duplicateMessage = document.getElementById('duplicateMessage');
-    const duplicateAlert = document.getElementById('duplicateAlert');
-    const submitBtn = document.getElementById('submitBtn');
-    
-    dateInputs.forEach(input => {
-        if (input.classList.contains('duplicate-warning')) {
-            hasDuplicate = true;
-        }
-        if (input.classList.contains('db-exists-warning')) {
-            hasDbExists = true;
-        }
-    });
-    
-    if (hasDuplicate || hasDbExists) {
-        let messages = [];
-        if (hasDuplicate) messages.push('偵測到重複的日期');
-        if (hasDbExists) messages.push('偵測到已存在於資料庫的日期');
-        
-        duplicateMessage.textContent = messages.join('，') + '，請修改後再提交。';
-        duplicateAlert.style.display = 'block';
-        submitBtn.disabled = true;
-    } else {
-        duplicateAlert.style.display = 'none';
-        submitBtn.disabled = false;
-    }
-}
-
-// 表單提交驗證
+// 表單提交前驗證
 document.getElementById('batchWorkForm').addEventListener('submit', function(e) {
-    // 檢查是否有重複或已存在的日期
-    const dateInputs = document.querySelectorAll('.work-date');
-    let hasError = false;
+    const workTimes = document.querySelectorAll('input[name*="[worktime]"]');
+    const dutyTimes = document.querySelectorAll('input[name*="[dutytime]"]');
     
-    dateInputs.forEach(input => {
-        if (input.classList.contains('duplicate-warning') || input.classList.contains('db-exists-warning')) {
-            hasError = true;
+    let hasData = false;
+    
+    // 檢查是否至少有一筆資料
+    for (let i = 0; i < workTimes.length; i++) {
+        if (workTimes[i].value || dutyTimes[i].value) {
+            hasData = true;
+            break;
         }
-    });
+    }
     
-    if (hasError) {
+    if (!hasData) {
         e.preventDefault();
-        alert('請修正重複或已存在的日期後再提交！');
+        alert('請至少填寫一筆出勤記錄！');
         return false;
     }
     
-    // 驗證上下班時間
-    const rows = document.querySelectorAll('.work-record-row');
-    
-    rows.forEach(row => {
-        const startTime = row.querySelector('.work-start-time').value;
-        const endTime = row.querySelector('.work-end-time').value;
-        const date = row.querySelector('.work-date').value;
+    // 檢查有填寫時間的記錄是否完整
+    for (let i = 0; i < workTimes.length; i++) {
+        const hasWorktime = workTimes[i].value;
+        const hasDutytime = dutyTimes[i].value;
         
-        if (date && startTime && endTime) {
-            const start = new Date(`${date} ${startTime}`);
-            const end = new Date(`${date} ${endTime}`);
-            
-            // 如果下班時間早於上班時間，可能是跨日
-            if (end < start) {
-                const confirmMsg = `日期 ${date} 的下班時間早於上班時間，這可能是跨日班次。確定要繼續嗎？`;
-                if (!confirm(confirmMsg)) {
-                    hasError = true;
-                }
-            }
+        if (hasWorktime && !hasDutytime) {
+            e.preventDefault();
+            alert('有上班時間但沒有下班時間，請檢查資料完整性！');
+            return false;
         }
-    });
-    
-    if (hasError) {
-        e.preventDefault();
-        return false;
+        
+        if (!hasWorktime && hasDutytime) {
+            e.preventDefault();
+            alert('有下班時間但沒有上班時間，請檢查資料完整性！');
+            return false;
+        }
     }
 });
 
-// 為所有日期輸入框添加事件監聽
+// 頁面載入時計算所有已填寫的工時
 document.addEventListener('DOMContentLoaded', function() {
-    const dateInputs = document.querySelectorAll('.work-date');
-    dateInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            checkDateExists(this);
-        });
+    const workTimes = document.querySelectorAll('input[name*="[worktime]"]');
+    workTimes.forEach(input => {
+        if (input.value) {
+            calculateHours(input);
+        }
     });
 });
 </script>

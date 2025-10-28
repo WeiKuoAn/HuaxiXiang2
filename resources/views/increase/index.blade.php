@@ -46,6 +46,7 @@
                         <div class="col mt-3">
                             <div class="text-lg-end my-1 my-lg-0 mt-5">
                                 <a href="{{ route('increase.create') }}" class="btn btn-danger waves-effect waves-light me-1"><i class="mdi mdi-plus-circle me-1"></i>新增加成</a>
+                                <a href="{{ route('increase.statistics') }}" class="btn btn-warning waves-effect waves-light me-1"><i class="mdi mdi-chart-bar me-1"></i>統計報表</a>
                                 <a href="{{ route('increase.export') }}?start_date={{ $request->start_date ?? '' }}&end_date={{ $request->end_date ?? '' }}" class="btn btn-info waves-effect waves-light"><i class="mdi mdi-download me-1"></i>匯出Excel</a>
                             </div>
                         </div><!-- end col-->
@@ -143,7 +144,9 @@
                                                 // 處理加班費人員
                                                 if ($item->overtime_record_id) {
                                                     $displayItem['person_name'] = $item->overtimeRecord->user->name ?? '未指定';
-                                                    $displayItem['overtime_amount'] = $item->custom_amount ?? $item->total_amount;
+                                                    $displayItem['overtime_amount'] = 0; // 不再顯示金額
+                                                    $displayItem['overtime_134_hours'] = $item->overtimeRecord->first_two_hours ?? 0;
+                                                    $displayItem['overtime_167_hours'] = $item->overtimeRecord->remaining_hours ?? 0;
                                                     $displayItem['categories'][] = '加班費';
                                                     
                                                     // 加班費項目不應該有接電話、接件、夜間開爐獎金
@@ -236,11 +239,24 @@
                                                 @endif
                                                 </td>
                                                 <td>
-                                                                    @if($item['overtime_amount'] > 0)
+                                                                    @if(isset($item['overtime_134_hours']) && isset($item['overtime_167_hours']))
+                                                                        @if($item['overtime_134_hours'] > 0 || $item['overtime_167_hours'] > 0)
+                                                                            <div class="small">
+                                                                                @if($item['overtime_134_hours'] > 0)
+                                                                                    <div class="text-primary">1.34×{{ number_format($item['overtime_134_hours'], 1) }}h</div>
+                                                                                @endif
+                                                                                @if($item['overtime_167_hours'] > 0)
+                                                                                    <div class="text-success">1.67×{{ number_format($item['overtime_167_hours'], 1) }}h</div>
+                                                                                @endif
+                                                                            </div>
+                                                                        @else
+                                                                            <span class="text-muted">$0</span>
+                                                                        @endif
+                                                                    @elseif($item['overtime_amount'] > 0)
                                                                         <span class="text-info fw-bold">${{ number_format($item['overtime_amount'], 0) }}</span>
                                                                     @else
                                                                         <span class="text-muted">$0</span>
-                                                    @endif
+                                                                    @endif
                                                 </td>
                                                                 <td>
                                                                     <span class="text-dark fw-bold fs-6">${{ number_format($item['total_amount'], 0) }}</span>

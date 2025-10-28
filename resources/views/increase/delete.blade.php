@@ -173,6 +173,9 @@
                                                                 - {{ $item->overtimeRecord->reason }}
                                                             @endif
                                                         </small>
+                                                        @if($item->overtimeRecord->creator)
+                                                            <br><small class="text-info">由 {{ $item->overtimeRecord->creator->name }} 新增</small>
+                                                        @endif
                                                     @endif
                                                 </td>
                                                 <td><span class="badge bg-info">加班費</span></td>
@@ -181,8 +184,17 @@
                                                 <td>$0</td>
                                                 <td>$0</td>
                                                 <td>$0</td>
-                                                <td>${{ number_format(round($item->custom_amount ?? $item->total_amount), 0) }}</td>
-                                                <td>${{ number_format(round($item->custom_amount ?? $item->total_amount), 0) }}</td>
+                                                <td>
+                                                    @if($item->overtimeRecord)
+                                                        <div class="small">
+                                                            <div class="text-primary">1.34倍：{{ number_format($item->overtimeRecord->first_two_hours, 1) }}小時</div>
+                                                            <div class="text-success">1.67倍：{{ number_format($item->overtimeRecord->remaining_hours, 1) }}小時</div>
+                                                        </div>
+                                                    @else
+                                                        $0
+                                                    @endif
+                                                </td>
+                                                <td>$0</td>
                                             </tr>
                                             @endif
                                         @endforeach

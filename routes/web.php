@@ -11,6 +11,7 @@ use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ContractTypeController;
 use App\Http\Controllers\CrematoriumController;
 use App\Http\Controllers\CrematoriumEquipmentController;
+use App\Http\Controllers\CrematoriumRepairController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomrtGruopController;
 use App\Http\Controllers\DashboardController;
@@ -371,6 +372,8 @@ Route::group(['prefix' => '/'], function () {
     // 業務對帳明細
     Route::get('/sale/check/history', [SaleDataController::class, 'checkHistory'])->name('sales.checkHistory');
     Route::get('/sale/history/{id}', [SaleDataController::class, 'history'])->name('sale.history');
+    // 單號缺號查詢
+    Route::get('/sale/missing-numbers', [SaleDataControllerNew::class, 'checkMissingNumbers'])->name('sale.missing_numbers');
     /* 業務管理-new */
     Route::get('/sale/create', [SaleDataControllerNew::class, 'create_gpt'])->name('sale.create');
     Route::post('/sale/create', [SaleDataControllerNew::class, 'store_gpt'])->name('sale.data.create');
@@ -380,6 +383,9 @@ Route::group(['prefix' => '/'], function () {
     Route::delete('/sale/del/{id}', [SaleDataControllerNew::class, 'destroy_gpt'])->name('sale.data.del');
     Route::get('/sale/check/{id}', [SaleDataControllerNew::class, 'check_show_gpt'])->name('sale.check');
     Route::post('/sale/check/{id}', [SaleDataControllerNew::class, 'check_update_gpt'])->name('sale.data.check');
+    // Ajax 版本的對帳
+    Route::get('/sale/check/ajax/{id}', [SaleDataControllerNew::class, 'check_show_gpt_ajax'])->name('sale.check.ajax');
+    Route::get('/sale/scrapped/ajax/{id}', [ScrappedController::class, 'check_show_ajax'])->name('sale.scrapped.check.ajax');
 
     // 報廢單
     Route::get('/sale/scrapped/create', [ScrappedController::class, 'create'])->name('sale.scrapped.create');
@@ -668,36 +674,7 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg33', [Rpg33Controller::class, 'index'])->name('rpg33');
         Route::get('/rpg/rpg33/export', [Rpg33Controller::class, 'export'])->name('rpg33.export');
 
-        // 火化爐管理路由
-        Route::prefix('crematorium')->name('crematorium.')->group(function () {
-            // 設備管理
-            Route::prefix('equipment')->name('equipment.')->group(function () {
-                Route::get('/', [CrematoriumEquipmentController::class, 'index'])->name('index');
-                Route::get('/create', [CrematoriumEquipmentController::class, 'create'])->name('create');
-                Route::post('/store', [CrematoriumEquipmentController::class, 'store'])->name('store');
-                Route::get('/{id}/edit', [CrematoriumEquipmentController::class, 'edit'])->name('edit');
-                Route::put('/{id}/update', [CrematoriumEquipmentController::class, 'update'])->name('update');
-                Route::delete('/{id}', [CrematoriumEquipmentController::class, 'destroy'])->name('destroy');
-            });
-
-            // 預約管理
-            Route::get('/bookings', [CrematoriumController::class, 'bookings'])->name('bookings');
-            Route::get('/bookings/create', [CrematoriumController::class, 'createBooking'])->name('createBooking');
-            Route::post('/bookings/store', [CrematoriumController::class, 'storeBooking'])->name('storeBooking');
-
-            // 維護記錄管理
-            Route::get('/maintenance', [CrematoriumController::class, 'maintenance'])->name('maintenance');
-            Route::get('/maintenance/create', [CrematoriumController::class, 'createMaintenance'])->name('createMaintenance');
-            Route::post('/maintenance/assign', [CrematoriumController::class, 'assignMaintenance'])->name('assignMaintenance');
-            Route::post('/maintenance/store', [CrematoriumController::class, 'storeMaintenance'])->name('storeMaintenance');
-            Route::get('/maintenance/{id}', [CrematoriumController::class, 'showMaintenance'])->name('showMaintenance');
-            Route::get('/maintenance/{id}/edit', [CrematoriumController::class, 'editMaintenance'])->name('editMaintenance');
-            Route::put('/maintenance/{id}/update', [CrematoriumController::class, 'updateMaintenance'])->name('updateMaintenance');
-            Route::post('/maintenance/{id}/submit-review', [CrematoriumController::class, 'submitForReview'])->name('submitForReview');
-            
-            // 測試路由
-            Route::get('/maintenance-test', [CrematoriumController::class, 'testEditMaintenance'])->name('testEditMaintenance');
-        });
+       
     });
 
     // 1. 高權限報表 - 只有主管以上可以訪問
@@ -722,6 +699,48 @@ Route::group(['prefix' => '/'], function () {
     // 2. 公開報表 - 所有員工都可以訪問（示例：rpg10）
     Route::middleware(['auth', 'rpg.flexible:public'])->group(function () {
         Route::get('/rpg/rpg10', [Rpg10Controller::class, 'rpg10'])->name('rpg10');
+    });
+
+     // 火化爐管理路由
+     Route::prefix('crematorium')->name('crematorium.')->group(function () {
+        // 設備管理
+        Route::prefix('equipment')->name('equipment.')->group(function () {
+            Route::get('/', [CrematoriumEquipmentController::class, 'index'])->name('index');
+            Route::get('/create', [CrematoriumEquipmentController::class, 'create'])->name('create');
+            Route::post('/store', [CrematoriumEquipmentController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [CrematoriumEquipmentController::class, 'edit'])->name('edit');
+            Route::put('/{id}/update', [CrematoriumEquipmentController::class, 'update'])->name('update');
+            Route::delete('/{id}', [CrematoriumEquipmentController::class, 'destroy'])->name('destroy');
+        });
+
+        // 預約管理
+        Route::get('/bookings', [CrematoriumController::class, 'bookings'])->name('bookings');
+        Route::get('/bookings/create', [CrematoriumController::class, 'createBooking'])->name('createBooking');
+        Route::post('/bookings/store', [CrematoriumController::class, 'storeBooking'])->name('storeBooking');
+
+        // 維護記錄管理
+        Route::get('/maintenance', [CrematoriumController::class, 'maintenance'])->name('maintenance');
+        Route::get('/maintenance/create', [CrematoriumController::class, 'createMaintenance'])->name('createMaintenance');
+        Route::post('/maintenance/assign', [CrematoriumController::class, 'assignMaintenance'])->name('assignMaintenance');
+        Route::post('/maintenance/store', [CrematoriumController::class, 'storeMaintenance'])->name('storeMaintenance');
+        Route::get('/maintenance/{id}', [CrematoriumController::class, 'showMaintenance'])->name('showMaintenance');
+        Route::get('/maintenance/{id}/edit', [CrematoriumController::class, 'editMaintenance'])->name('editMaintenance');
+        Route::put('/maintenance/{id}/update', [CrematoriumController::class, 'updateMaintenance'])->name('updateMaintenance');
+        Route::post('/maintenance/{id}/submit-review', [CrematoriumController::class, 'submitForReview'])->name('submitForReview');
+        
+        // 測試路由
+        Route::get('/maintenance-test', [CrematoriumController::class, 'testEditMaintenance'])->name('testEditMaintenance');
+
+        // 報修單管理
+        Route::prefix('repairs')->name('repairs.')->group(function () {
+            Route::get('/', [CrematoriumRepairController::class, 'index'])->name('index');
+            Route::get('/create', [CrematoriumRepairController::class, 'create'])->name('create');
+            Route::post('/store', [CrematoriumRepairController::class, 'store'])->name('store');
+            Route::get('/{id}', [CrematoriumRepairController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [CrematoriumRepairController::class, 'edit'])->name('edit');
+            Route::put('/{id}/update', [CrematoriumRepairController::class, 'update'])->name('update');
+            Route::post('/{id}/cancel', [CrematoriumRepairController::class, 'cancel'])->name('cancel');
+        });
     });
 
     // 達標類別
@@ -813,6 +832,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/increase/del/{id}', [IncreaseController::class, 'delete'])->name('increase.del');
     Route::delete('/increase/del/{id}', [IncreaseController::class, 'destroy'])->name('increase.del.data');
     Route::get('/increase/export', [IncreaseController::class, 'export'])->name('increase.export');
+    Route::get('/increase/export-combined', [IncreaseController::class, 'exportCombined'])->name('increase.export-combined');
     Route::get('/increase/statistics', [IncreaseController::class, 'statistics'])->name('increase.statistics');
     Route::get('/increase/overtime-records/{date}', [IncreaseController::class, 'getOvertimeRecords'])->name('increase.overtime-records');
     

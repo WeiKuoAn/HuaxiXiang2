@@ -167,10 +167,10 @@ class IncreaseItem extends Model
      */
     public function calculateOvertimeAmount()
     {
-        // 加班費記錄，使用自定義金額
+        // 加班費記錄，不再使用金額計算，改為記錄小時數統計
         $this->total_phone_amount = 0; // 加班費不計電話獎金
-        $this->total_receive_amount = $this->custom_amount ?? 0;
-        $this->total_amount = $this->total_receive_amount;
+        $this->total_receive_amount = 0; // 不再使用金額
+        $this->total_amount = 0; // 總金額設為0，因為我們只記錄小時數統計
     }
 
     /**

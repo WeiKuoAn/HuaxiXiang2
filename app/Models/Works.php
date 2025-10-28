@@ -27,15 +27,24 @@ class Works extends Model
     public static  function work_sum($workId)
     {
         $work = self::where('id',$workId)->first();
-        $num = '';
         $work_num = Carbon::parse($work->worktime)->floatDiffInHours($work->dutytime);
+        
+        // 滿8小時要休息1小時，所以如果工作滿9小時就要減1小時
+        if ($work_num >= 9) {
+            $work_num = $work_num - 1;
+        }
+        
         return $work_num;
     }
 
     public function work_total($userId)
     {
-        $num = '';
         $work_num = Carbon::parse($this->worktime)->floatDiffInHours($this->dutytime);
+        
+        // 滿8小時要休息1小時，所以如果工作滿9小時就要減1小時
+        if ($work_num >= 9) {
+            $work_num = $work_num - 1;
+        }
         
         return $work_num;
     }

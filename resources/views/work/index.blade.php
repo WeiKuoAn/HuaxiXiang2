@@ -48,7 +48,7 @@
                                     </div>
                                     <div class="me-3">
                                         <a href="{{ route('user.work.batch.create', $user->id) }}"
-                                            class="btn btn-primary waves-effect waves-light"><i class="mdi mdi-plus-circle me-1"></i>批次新增</a>
+                                            class="btn btn-primary waves-effect waves-light"><i class="mdi mdi-plus-circle me-1"></i>批次新增/編輯出勤記錄</a>
                                     </div>
                                 </form>
                             </div>

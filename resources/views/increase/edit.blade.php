@@ -315,16 +315,21 @@
                                                                            placeholder="請輸入加班事由">
                                                                 </div>
                                                                 <div class="col-md-4">
-                                                                    <label class="form-label small">加班費金額</label>
-                                                                    <div class="input-group input-group-sm">
-                                                        <span class="input-group-text">$</span>
-                                                                        <input type="number" class="form-control" 
-                                                                               name="overtime[{{ $index }}][overtime_amount]" 
-                                                                               id="overtime_amount_field_{{ $index }}" 
-                                                                               min="0" step="1" 
-                                                               value="{{ $item->custom_amount ?? $item->overtimeRecord->overtime_pay ?? '' }}"
-                                                               onchange="updateOvertimeAmountDisplay({{ $index }}, this.value)">
-                                                    </div>
+                                                                    <label class="form-label small">加班倍數統計</label>
+                                                                    <div class="card bg-light">
+                                                                        <div class="card-body p-2">
+                                                                            <div class="row">
+                                                                                <div class="col-6">
+                                                                                    <small class="text-primary">1.34倍：</small>
+                                                                                    <span id="overtime_134_hours_{{ $index }}" class="fw-bold">{{ $item->overtimeRecord->first_two_hours ?? 0 }}小時</span>
+                                                                                </div>
+                                                                                <div class="col-6">
+                                                                                    <small class="text-success">1.67倍：</small>
+                                                                                    <span id="overtime_167_hours_{{ $index }}" class="fw-bold">{{ $item->overtimeRecord->remaining_hours ?? 0 }}小時</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                             <div class="d-flex justify-content-between align-items-center">
@@ -334,6 +339,11 @@
                                                                     <i class="fe-save me-1"></i>儲存變更
                                                                 </button>
                                                             </div>
+                                                            @if($item->overtimeRecord && $item->overtimeRecord->creator)
+                                                            <div class="mt-2">
+                                                                <small class="text-muted">由 <span class="fw-bold text-info">{{ $item->overtimeRecord->creator->name }}</span> 新增</small>
+                                                            </div>
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 </div>
@@ -389,13 +399,21 @@
                                                            placeholder="請輸入加班事由">
                                                 </div>
                                                 <div class="col-md-2">
-                                                    <label class="form-label">加班費金額</label>
-                                                    <div class="input-group">
-                                                        <span class="input-group-text">$</span>
-                                                        <input type="number" class="form-control" id="manual_overtime_amount" name="manual_overtime_amount"
-                                                               min="0" step="1" readonly>
+                                                    <label class="form-label">加班倍數統計</label>
+                                                    <div class="card bg-light">
+                                                        <div class="card-body p-2">
+                                                            <div class="row">
+                                                                <div class="col-12 mb-1">
+                                                                    <small class="text-primary">1.34倍：</small>
+                                                                    <span id="manual_overtime_134_hours" class="fw-bold">0小時</span>
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <small class="text-success">1.67倍：</small>
+                                                                    <span id="manual_overtime_167_hours" class="fw-bold">0小時</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <small class="text-muted">自動計算</small>
                                                 </div>
                                                 <div class="col-md-2 d-flex align-items-end">
                                                     <button type="button" class="btn btn-success me-2" onclick="saveManualOvertimeRecord()">
@@ -632,15 +650,21 @@
                                             placeholder="請輸入加班事由">
                                  </div>
                                  <div class="col-md-4">
-                                     <label class="form-label small">加班費金額</label>
-                                     <div class="input-group input-group-sm">
-                         <span class="input-group-text">$</span>
-                                         <input type="number" class="form-control" 
-                                                name="overtime[${newIndex}][overtime_amount]" 
-                                                id="overtime_amount_field_${newIndex}" 
-                                                min="0" step="1" 
-                                onchange="updateOvertimeAmountDisplay(${newIndex}, this.value)">
-                     </div>
+                                     <label class="form-label small">加班倍數統計</label>
+                                     <div class="card bg-light">
+                                         <div class="card-body p-2">
+                                             <div class="row">
+                                                 <div class="col-6">
+                                                     <small class="text-primary">1.34倍：</small>
+                                                     <span id="overtime_134_hours_${newIndex}" class="fw-bold">0小時</span>
+                                                 </div>
+                                                 <div class="col-6">
+                                                     <small class="text-success">1.67倍：</small>
+                                                     <span id="overtime_167_hours_${newIndex}" class="fw-bold">0小時</span>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </div>
                                  </div>
                              </div>
                              <div class="d-flex justify-content-between align-items-center">
@@ -649,6 +673,9 @@
                                          onclick="saveOvertimeRecord(${newIndex})">
                                      <i class="fe-save me-1"></i>儲存變更
                                  </button>
+                             </div>
+                             <div class="mt-2" id="overtime_created_by_${newIndex}" style="display: none;">
+                                 <small class="text-muted">由 <span class="fw-bold text-info" id="overtime_created_by_name_${newIndex}"></span> 新增</small>
                              </div>
                          </div>
                      </div>
@@ -886,16 +913,14 @@
                     <option value="">選擇加班人員</option>`;
             
             records.forEach((record, recordIndex) => {
-                // 確保加班費金額四捨五入到整數
-                const roundedOvertimePay = Math.round(parseFloat(record.overtime_pay) || 0);
                 html += `
                     <option value="${record.id}" 
                             data-formatted-hours="${record.formatted_hours}"
-                            data-overtime-pay="${roundedOvertimePay}"
                             data-user-name="${record.user_name}"
                             data-minutes="${record.minutes}"
-                            data-reason="${record.reason || ''}">
-                        ${record.user_name} - ${record.formatted_hours} ($${roundedOvertimePay})
+                            data-reason="${record.reason || ''}"
+                            data-created-by-name="${record.created_by_name || '未知人員'}">
+                        ${record.user_name} - ${record.formatted_hours}
                     </option>`;
             });
             
@@ -918,27 +943,30 @@
                 // 取得選中的選項資料並填入表單
                 const selectedOption = selectElement.options[selectElement.selectedIndex];
                 const minutes = selectedOption.getAttribute('data-minutes');
-                const overtimePay = selectedOption.getAttribute('data-overtime-pay');
                 const reason = selectedOption.getAttribute('data-reason');
+                const createdByName = selectedOption.getAttribute('data-created-by-name');
                 
                 // 填入表單資料
                 const minutesField = document.getElementById(`overtime_minutes_field_${index}`);
-                const amountField = document.getElementById(`overtime_amount_field_${index}`);
                 const reasonField = document.getElementById(`overtime_reason_field_${index}`);
                 
                 if (minutesField) {
                     minutesField.value = minutes;
                     minutesField.setAttribute('data-original-minutes', minutes);
-                }
-                if (amountField) {
-                    // 確保加班費金額四捨五入到整數
-                    const roundedOvertimePay = Math.round(parseFloat(overtimePay) || 0);
-                    amountField.value = roundedOvertimePay;
-                    amountField.setAttribute('data-original-amount', roundedOvertimePay);
+                    // 觸發小時數計算
+                    calculateOvertimePayFromMinutes(index);
                 }
                 if (reasonField) {
                     reasonField.value = reason;
                     reasonField.setAttribute('data-original-reason', reason);
+                }
+                
+                // 顯示「由誰新增」資訊
+                const createdByDiv = document.getElementById(`overtime_created_by_${index}`);
+                const createdByNameSpan = document.getElementById(`overtime_created_by_name_${index}`);
+                if (createdByDiv && createdByNameSpan && createdByName) {
+                    createdByNameSpan.textContent = createdByName;
+                    createdByDiv.style.display = 'block';
                 }
             } else {
                 // 沒有選擇記錄時，隱藏編輯區段
@@ -948,35 +976,39 @@
                 
                 // 清空表單資料
                 const minutesField = document.getElementById(`overtime_minutes_field_${index}`);
-                const amountField = document.getElementById(`overtime_amount_field_${index}`);
                 const reasonField = document.getElementById(`overtime_reason_field_${index}`);
                 
                 if (minutesField) {
                     minutesField.value = '';
                 }
-                if (amountField) {
-                    amountField.value = '';
-                }
                 if (reasonField) {
                     reasonField.value = '';
                 }
+                
+                // 隱藏「由誰新增」資訊
+                const createdByDiv = document.getElementById(`overtime_created_by_${index}`);
+                if (createdByDiv) {
+                    createdByDiv.style.display = 'none';
+                }
+                
+                // 重置小時數顯示
+                updateOvertimeHoursDisplay(index, 0, 0);
             }
         }
 
-        // 從分鐘計算加班費
+        // 從分鐘計算加班小時數統計
         function calculateOvertimePayFromMinutes(index) {
             const minutesField = document.getElementById(`overtime_minutes_field_${index}`);
-            const amountField = document.getElementById(`overtime_amount_field_${index}`);
             
-            if (!minutesField || !amountField) return;
+            if (!minutesField) return;
             
             const minutes = parseInt(minutesField.value) || 0;
             if (minutes <= 0) {
-                amountField.value = '';
+                updateOvertimeHoursDisplay(index, 0, 0);
                 return;
             }
             
-            // 計算加班費（使用與 OvertimeRecord 模型相同的邏輯）
+            // 計算加班小時數（使用與 OvertimeRecord 模型相同的邏輯）
             const totalHours = minutes / 60;
             let firstTwoHours = 0;
             let remainingHours = 0;
@@ -988,15 +1020,7 @@
                 remainingHours = totalHours - 2;
             }
             
-            // 基本時薪 200 元
-            const baseHourlyRate = 200;
-            
-            // 前兩小時：1.34 倍，剩餘時間：1.67 倍
-            const firstTwoHoursPay = firstTwoHours * baseHourlyRate * 1.34;
-            const remainingHoursPay = remainingHours * baseHourlyRate * 1.67;
-            const totalOvertimePay = firstTwoHoursPay + remainingHoursPay;
-            
-            amountField.value = Math.round(totalOvertimePay);
+            updateOvertimeHoursDisplay(index, firstTwoHours, remainingHours);
         }
 
         // 儲存加班記錄變更
@@ -1095,10 +1119,31 @@
             });
         }
 
-        // 更新加班費金額顯示
-        function updateOvertimeAmountDisplay(index, newAmount) {
-            // 可以在這裡添加即時更新顯示的邏輯
-            console.log(`更新加班費金額: 索引${index}, 金額$${newAmount}`);
+        // 更新加班小時數顯示
+        function updateOvertimeHoursDisplay(index, firstTwoHours, remainingHours) {
+            const hours134Element = document.getElementById(`overtime_134_hours_${index}`);
+            const hours167Element = document.getElementById(`overtime_167_hours_${index}`);
+            
+            if (hours134Element) {
+                hours134Element.textContent = formatHours(firstTwoHours);
+            }
+            if (hours167Element) {
+                hours167Element.textContent = formatHours(remainingHours);
+            }
+        }
+
+        // 格式化小時顯示
+        function formatHours(hours) {
+            if (hours === 0) return '0小時';
+            
+            const wholeHours = Math.floor(hours);
+            const minutes = Math.round((hours - wholeHours) * 60);
+            
+            if (minutes === 0) {
+                return `${wholeHours}小時`;
+            } else {
+                return `${wholeHours}小時${minutes}分鐘`;
+            }
         }
 
         // 切換手動新增加班記錄表單
@@ -1110,7 +1155,7 @@
                 document.getElementById('manual_overtime_user').value = '';
                 document.getElementById('manual_overtime_minutes').value = '';
                 document.getElementById('manual_overtime_reason').value = '';
-                document.getElementById('manual_overtime_amount').value = '';
+                updateManualOvertimeHoursDisplay(0, 0);
             } else {
                 form.style.display = 'none';
             }
@@ -1124,23 +1169,22 @@
             document.getElementById('manual_overtime_user').value = '';
             document.getElementById('manual_overtime_minutes').value = '';
             document.getElementById('manual_overtime_reason').value = '';
-            document.getElementById('manual_overtime_amount').value = '';
+            updateManualOvertimeHoursDisplay(0, 0);
         }
 
-        // 計算手動加班記錄的加班費
+        // 計算手動加班記錄的小時數統計
         function calculateManualOvertimeAmount() {
             const minutesInput = document.getElementById('manual_overtime_minutes');
-            const amountInput = document.getElementById('manual_overtime_amount');
             
-            if (!minutesInput || !amountInput) return;
+            if (!minutesInput) return;
             
             const minutes = parseInt(minutesInput.value) || 0;
             if (minutes <= 0) {
-                amountInput.value = '';
+                updateManualOvertimeHoursDisplay(0, 0);
                 return;
             }
             
-            // 計算加班費（使用與 OvertimeRecord 模型相同的邏輯）
+            // 計算加班小時數（使用與 OvertimeRecord 模型相同的邏輯）
             const totalHours = minutes / 60;
             let firstTwoHours = 0;
             let remainingHours = 0;
@@ -1152,15 +1196,20 @@
                 remainingHours = totalHours - 2;
             }
             
-            // 基本時薪 200 元
-            const baseHourlyRate = 200;
+            updateManualOvertimeHoursDisplay(firstTwoHours, remainingHours);
+        }
+
+        // 更新手動加班小時數顯示
+        function updateManualOvertimeHoursDisplay(firstTwoHours, remainingHours) {
+            const hours134Element = document.getElementById('manual_overtime_134_hours');
+            const hours167Element = document.getElementById('manual_overtime_167_hours');
             
-            // 前兩小時：1.34 倍，剩餘時間：1.67 倍
-            const firstTwoHoursPay = firstTwoHours * baseHourlyRate * 1.34;
-            const remainingHoursPay = remainingHours * baseHourlyRate * 1.67;
-            const totalOvertimePay = firstTwoHoursPay + remainingHoursPay;
-            
-            amountInput.value = Math.round(totalOvertimePay);
+            if (hours134Element) {
+                hours134Element.textContent = formatHours(firstTwoHours);
+            }
+            if (hours167Element) {
+                hours167Element.textContent = formatHours(remainingHours);
+            }
         }
 
         // 儲存手動新增加班記錄
@@ -1168,7 +1217,6 @@
             const userId = document.getElementById('manual_overtime_user').value;
             const minutes = document.getElementById('manual_overtime_minutes').value;
             const reason = document.getElementById('manual_overtime_reason').value;
-            const overtimePay = document.getElementById('manual_overtime_amount').value;
             const increaseDate = document.querySelector('input[name="increase_date"]').value;
             
             // 驗證必填欄位
@@ -1204,8 +1252,7 @@
                     user_id: userId,
                     overtime_date: increaseDate,
                     minutes: parseInt(minutes),
-                    reason: reason,
-                    overtime_pay: Math.round(parseFloat(overtimePay))
+                    reason: reason
                 })
             })
             .then(response => response.json())
@@ -1255,13 +1302,11 @@
                 const newOption = document.createElement('option');
                 newOption.value = recordData.id;
                 newOption.setAttribute('data-formatted-hours', recordData.formatted_hours);
-                // 確保加班費金額四捨五入到整數
-                const roundedOvertimePay = Math.round(parseFloat(recordData.overtime_pay) || 0);
-                newOption.setAttribute('data-overtime-pay', roundedOvertimePay);
                 newOption.setAttribute('data-user-name', recordData.user_name);
                 newOption.setAttribute('data-minutes', recordData.minutes);
                 newOption.setAttribute('data-reason', recordData.reason || '');
-                newOption.textContent = `${recordData.user_name} - ${recordData.formatted_hours} ($${roundedOvertimePay})`;
+                newOption.setAttribute('data-created-by-name', recordData.created_by_name || '未知人員');
+                newOption.textContent = `${recordData.user_name} - ${recordData.formatted_hours}`;
                 
                 // 添加到下拉選單
                 selectElement.appendChild(newOption);
