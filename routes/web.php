@@ -855,6 +855,7 @@ Route::group(['prefix' => '/'], function () {
     Route::delete('/overtime/del/{id}', [OvertimeController::class, 'destroy'])->name('overtime.del.data');
 
     Route::get('/overtime/export', [OvertimeController::class, 'export'])->name('overtime.export');
+    Route::get('/overtime/{id}/logs', [OvertimeController::class, 'getLogs'])->name('overtime.logs');
     
     // API 路由：直接更新加班記錄（用於加成頁面）
     Route::put('/overtime-records/{id}', [OvertimeController::class, 'updateRecord'])->name('overtime-records.update');
