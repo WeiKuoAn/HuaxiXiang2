@@ -1065,7 +1065,7 @@ class IncreaseController extends Controller
         $users = User::where('status', '0')
                     ->orderby('level')
                     ->orderby('seq')
-                    ->whereNotIn('job_id', [4,8,9,6,11])
+                    ->whereNotIn('job_id', [6,8,9])
                     ->get();
         
         // 查詢該月份的所有出勤記錄
