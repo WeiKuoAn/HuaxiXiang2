@@ -132,22 +132,6 @@
                             </div>
                         </div>
 
-                        <!-- 審核資訊 -->
-                        @if($overtime->status != 'pending')
-                            <div class="row mb-4">
-                                <div class="col-md-12">
-                                    <div class="alert alert-info">
-                                        <h6>審核資訊</h6>
-                                        <p><strong>核准者：</strong>{{ $overtime->approver->name ?? '未知' }}</p>
-                                        <p><strong>核准時間：</strong>{{ $overtime->approved_at ? $overtime->approved_at->format('Y-m-d H:i:s') : '未知' }}</p>
-                                        @if($overtime->status == 'rejected' && $overtime->reject_reason)
-                                            <p><strong>拒絕原因：</strong>{{ $overtime->reject_reason }}</p>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-
                         <!-- 建立資訊 -->
                         <div class="row mb-4">
                             <div class="col-md-12">

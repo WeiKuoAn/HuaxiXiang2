@@ -115,8 +115,8 @@
                                             </div>
                                             <div class="col-md-5">
                                                 <div class="mb-3">
-                                                    <label class="form-label">事由</label>
-                                                    <input type="text" class="form-control" name="overtime[0][reason]" placeholder="請輸入加班事由...">
+                                                    <label class="form-label">事由<span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" name="overtime[0][reason]" placeholder="請輸入加班事由..." required>
                                                 </div>
                                             </div>
                                         </div>
@@ -200,8 +200,8 @@
                         </div>
                         <div class="col-md-5">
                             <div class="mb-3">
-                                <label class="form-label">事由</label>
-                                <input type="text" class="form-control" name="overtime[${overtimeIndex}][reason]" placeholder="請輸入加班事由...">
+                                <label class="form-label">事由<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="overtime[${overtimeIndex}][reason]" placeholder="請輸入加班事由..." required>
                             </div>
                         </div>
                     </div>
@@ -230,7 +230,40 @@
 
         // 移除加班人員
         function removeOvertime(button) {
-            $(button).closest('.overtime-row').remove();
+            const container = $('#overtime-container');
+            const rows = container.find('.overtime-row');
+            
+            if (rows.length > 1) {
+                $(button).closest('.overtime-row').remove();
+                
+                // 重新編號所有剩餘的加班人員行
+                container.find('.overtime-row').each(function(index) {
+                    $(this).attr('data-index', index);
+                    
+                    // 更新所有 input 和 select 的 name 屬性
+                    $(this).find('select, input').each(function() {
+                        const name = $(this).attr('name');
+                        if (name) {
+                            const newName = name.replace(/overtime\[\d+\]/, `overtime[${index}]`);
+                            $(this).attr('name', newName);
+                        }
+                    });
+                    
+                    // 更新計算框的 id
+                    const calculationBox = $(this).find('.calculation-box');
+                    if (calculationBox.length) {
+                        const oldId = calculationBox.attr('id');
+                        const newId = `calculation-${index}`;
+                        calculationBox.attr('id', newId);
+                    }
+                    
+                    // 更新事件處理
+                    $(this).find('input[name*="[minutes]"]').attr('onchange', `calculateOvertimePay(${index})`);
+                    $(this).find('input[name*="[minutes]"]').attr('onkeydown', `handleMinutesKeydown(event, ${index})`);
+                });
+            } else {
+                alert('至少需要保留一筆加班人員記錄');
+            }
         }
 
         // 處理加班分鐘鍵盤輸入
@@ -308,15 +341,41 @@
         $('#overtimeForm').on('submit', function(e) {
             const overtimeRows = $('.overtime-row');
             let hasValidData = false;
+            let hasError = false;
 
             overtimeRows.each(function() {
                 const userId = $(this).find('select[name*="[user_id]"]').val();
                 const minutes = $(this).find('input[name*="[minutes]"]').val();
+                const reason = $(this).find('input[name*="[reason]"]').val();
                 
-                if (userId && minutes && minutes > 0) {
+                // 檢查是否有填寫任何欄位
+                if (userId || minutes || reason) {
+                    // 如果有填寫任何欄位，則檢查是否全部必填欄位都已填寫
+                    if (!userId) {
+                        e.preventDefault();
+                        alert('請選擇加班人員！');
+                        hasError = true;
+                        return false;
+                    }
+                    if (!minutes || minutes <= 0) {
+                        e.preventDefault();
+                        alert('請填寫加班分鐘數！');
+                        hasError = true;
+                        return false;
+                    }
+                    if (!reason || reason.trim() === '') {
+                        e.preventDefault();
+                        alert('請填寫加班事由！');
+                        hasError = true;
+                        return false;
+                    }
                     hasValidData = true;
                 }
             });
+
+            if (hasError) {
+                return false;
+            }
 
             if (!hasValidData) {
                 e.preventDefault();

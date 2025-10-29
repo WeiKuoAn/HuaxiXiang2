@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\OvertimeRecord;
+use App\Models\OvertimeRecordLog;
 use App\Models\User;
 
 class OvertimeController extends Controller
@@ -59,7 +61,18 @@ class OvertimeController extends Controller
         try {
             DB::beginTransaction();
 
-            foreach ($request->overtime as $overtimeData) {
+            $createdCount = 0;
+            $logCreatedCount = 0;
+            
+            Log::info("開始新增加班記錄", [
+                'total_records' => count($request->overtime),
+                'overtime_date' => $request->overtime_date,
+                'created_by' => Auth::id()
+            ]);
+            
+            foreach ($request->overtime as $index => $overtimeData) {
+                Log::info("處理第 {$index} 筆加班記錄", $overtimeData);
+                
                 // 建立加班記錄
                 $overtimeRecord = new OvertimeRecord([
                     'overtime_date' => $request->overtime_date,
@@ -73,14 +86,49 @@ class OvertimeController extends Controller
                 // 計算加班費
                 $overtimeRecord->calculateOvertimePay();
                 $overtimeRecord->save();
+                
+                Log::info("加班記錄已儲存", [
+                    'record_id' => $overtimeRecord->id,
+                    'user_id' => $overtimeRecord->user_id
+                ]);
+                
+                // 記錄新增軌跡
+                try {
+                    $log = $overtimeRecord->logCreation('overtime_create', Auth::id());
+                    $logCreatedCount++;
+                    Log::info("加班記錄軌跡已建立", [
+                        'log_id' => $log->id,
+                        'overtime_record_id' => $overtimeRecord->id,
+                        'user_id' => $overtimeRecord->user_id,
+                        'source' => 'overtime_create'
+                    ]);
+                } catch (\Exception $logError) {
+                    Log::error("建立加班記錄軌跡失敗", [
+                        'overtime_record_id' => $overtimeRecord->id,
+                        'error' => $logError->getMessage(),
+                        'trace' => $logError->getTraceAsString()
+                    ]);
+                    // 即使軌跡記錄失敗，也繼續處理
+                }
+                
+                $createdCount++;
             }
 
             DB::commit();
+            
+            Log::info("加班記錄新增完成", [
+                'created_records' => $createdCount,
+                'created_logs' => $logCreatedCount
+            ]);
 
-            return redirect()->route('overtime.index')->with('success', '加班記錄建立成功！');
+            return redirect()->route('overtime.index')->with('success', "成功建立 {$createdCount} 筆加班記錄！");
 
         } catch (\Exception $e) {
             DB::rollback();
+            Log::error("新增加班記錄失敗", [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return back()->with('error', '建立失敗：' . $e->getMessage())->withInput();
         }
     }
@@ -110,12 +158,28 @@ class OvertimeController extends Controller
         ]);
 
         try {
+            Log::info("開始更新加班記錄", [
+                'overtime_id' => $id,
+                'request_data' => $request->all()
+            ]);
+            
             $overtime = OvertimeRecord::findOrFail($id);
             
             // 檢查是否可以編輯
             if (!$overtime->canEdit()) {
+                Log::warning("加班記錄無法編輯", ['overtime_id' => $id]);
                 return redirect()->route('overtime.index')->with('error', '此記錄無法編輯！');
             }
+
+            // 儲存舊值
+            $oldValues = [
+                'overtime_date' => $overtime->overtime_date->format('Y-m-d'),
+                'user_id' => $overtime->user_id,
+                'minutes' => $overtime->minutes,
+                'reason' => $overtime->reason,
+            ];
+            
+            Log::info("舊值", $oldValues);
 
             // 更新資料
             $overtime->update([
@@ -128,10 +192,40 @@ class OvertimeController extends Controller
             // 重新計算加班費
             $overtime->calculateOvertimePay();
             $overtime->save();
+            
+            Log::info("加班記錄已更新", ['overtime_id' => $overtime->id]);
 
+            // 記錄編輯軌跡
+            $newValues = [
+                'overtime_date' => $request->overtime_date,
+                'user_id' => $request->user_id,
+                'minutes' => $request->minutes,
+                'reason' => $request->reason,
+            ];
+            
+            try {
+                $log = $overtime->logUpdate('overtime_edit', Auth::id(), $oldValues, $newValues);
+                Log::info("編輯軌跡已建立", [
+                    'log_id' => $log->id,
+                    'overtime_record_id' => $overtime->id
+                ]);
+            } catch (\Exception $logError) {
+                Log::error("建立編輯軌跡失敗", [
+                    'overtime_record_id' => $overtime->id,
+                    'error' => $logError->getMessage(),
+                    'trace' => $logError->getTraceAsString()
+                ]);
+            }
+
+            Log::info("準備重定向到 overtime.index");
             return redirect()->route('overtime.index')->with('success', '加班記錄更新成功！');
 
         } catch (\Exception $e) {
+            Log::error("更新加班記錄失敗", [
+                'overtime_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return back()->with('error', '更新失敗：' . $e->getMessage())->withInput();
         }
     }
@@ -188,6 +282,12 @@ class OvertimeController extends Controller
                 ], 403);
             }
 
+            // 儲存舊值
+            $oldValues = [
+                'minutes' => $overtime->minutes,
+                'reason' => $overtime->reason,
+            ];
+
             // 更新資料
             $overtime->minutes = $request->minutes;
             $overtime->reason = $request->reason;
@@ -195,6 +295,13 @@ class OvertimeController extends Controller
             // 重新計算加班費相關欄位
             $overtime->calculateOvertimePay();
             $overtime->save();
+            
+            // 記錄編輯軌跡（來自加成管理編輯）
+            $newValues = [
+                'minutes' => $overtime->minutes,
+                'reason' => $overtime->reason,
+            ];
+            $overtime->logUpdate('increase_edit', Auth::id(), $oldValues, $newValues);
 
             return response()->json([
                 'success' => true,
@@ -254,6 +361,9 @@ class OvertimeController extends Controller
             // 計算加班費相關欄位
             $overtimeRecord->calculateOvertimePay();
             $overtimeRecord->save();
+            
+            // 記錄新增軌跡（來自加成管理手動新增）
+            $overtimeRecord->logCreation('increase_manual', Auth::id());
 
             return response()->json([
                 'success' => true,
@@ -267,6 +377,7 @@ class OvertimeController extends Controller
                     'first_two_hours' => $overtimeRecord->first_two_hours,
                     'remaining_hours' => $overtimeRecord->remaining_hours,
                     'reason' => $overtimeRecord->reason,
+                    'created_by_name' => Auth::user()->name ?? '未知人員',
                 ]
             ]);
 
@@ -280,6 +391,48 @@ class OvertimeController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => '建立失敗：' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * 取得加班記錄的軌跡
+     */
+    public function getLogs($id)
+    {
+        try {
+            $overtime = OvertimeRecord::findOrFail($id);
+            
+            $logs = $overtime->logs()
+                ->with('actionBy')
+                ->orderBy('action_at', 'desc')
+                ->get()
+                ->map(function($log) {
+                    return [
+                        'id' => $log->id,
+                        'action' => $log->action,
+                        'action_text' => $log->action_text,
+                        'action_by' => $log->action_by,
+                        'action_by_name' => $log->actionBy->name ?? '未知',
+                        'action_at' => $log->action_at->format('Y-m-d H:i'),
+                        'source' => $log->source,
+                        'source_text' => $log->source_text,
+                        'old_values' => $log->old_values,
+                        'new_values' => $log->new_values,
+                        'changes_summary' => $log->changes_summary,
+                        'note' => $log->note,
+                    ];
+                });
+            
+            return response()->json([
+                'success' => true,
+                'logs' => $logs
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => '載入失敗：' . $e->getMessage()
             ], 500);
         }
     }

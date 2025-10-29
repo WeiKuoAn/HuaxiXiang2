@@ -75,6 +75,33 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
+                        <!-- 錯誤訊息 -->
+                        @if ($errors->any())
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                <strong>發生錯誤：</strong>
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                {{ session('error') }}
+                            </div>
+                        @endif
+
+                        @if (session('success'))
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
                         <form action="{{ route('overtime.edit.data', $overtime->id) }}" method="POST" id="overtimeForm">
                             @csrf
                             @method('PUT')
@@ -98,84 +125,54 @@
                             <!-- 加班人員區塊 -->
                             <div class="overtime-section">
                                 <h5 class="overtime-title">
-                                    <i class="fe-users me-2"></i>加班人員
+                                    <i class="fe-users me-2"></i>加班資料
                                 </h5>
-                                <div id="overtime-container">
-                                    <div class="overtime-row" data-index="0">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <div class="mb-3">
-                                                    <label class="form-label">人員<span class="text-danger">*</span></label>
-                                                    <select class="form-control" name="overtime[0][user_id]" data-toggle="select" required>
-                                                        <option value="">請選擇人員</option>
-                                                        @foreach ($users as $user)
-                                                            <option value="{{ $user->id }}" {{ $overtime->user_id == $user->id ? 'selected' : '' }}>
-                                                                {{ $user->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="mb-3">
-                                                    <label class="form-label">加班分鐘<span class="text-danger">*</span></label>
-                                                    <input type="number" class="form-control" name="overtime[0][minutes]" min="1" value="{{ $overtime->minutes }}" required onchange="calculateOvertimePay(0)">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-5">
-                                                <div class="mb-3">
-                                                    <label class="form-label">事由</label>
-                                                    <input type="text" class="form-control" name="overtime[0][reason]" value="{{ $overtime->reason }}" placeholder="請輸入加班事由...">
-                                                </div>
-                                            </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">人員<span class="text-danger">*</span></label>
+                                            <select class="form-control" name="user_id" data-toggle="select" required>
+                                                <option value="">請選擇人員</option>
+                                                @foreach ($users as $user)
+                                                    <option value="{{ $user->id }}" {{ $overtime->user_id == $user->id ? 'selected' : '' }}>
+                                                        {{ $user->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
                                         </div>
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <div class="calculation-box" id="calculation-0">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <small><strong>加班時數：</strong>{{ $overtime->formatted_hours }}</small><br>
-                                                            <small><strong>前兩小時：</strong>{{ $overtime->formatted_first_two_hours }} (1.34倍)</small><br>
-                                                            <small><strong>剩餘時間：</strong>{{ $overtime->formatted_remaining_hours }} (1.67倍)</small>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <small><strong>計算方式：</strong></small><br>
-                                                            <small>前兩小時：1.34倍</small><br>
-                                                            <small>剩餘時間：1.67倍</small>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">加班分鐘<span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control" name="minutes" min="1" value="{{ $overtime->minutes }}" required onchange="calculateOvertimePay()">
                                         </div>
-                                        <div class="row mt-2">
-                                            <div class="col-md-12">
-                                                <button type="button" class="btn btn-sm btn-outline-danger remove-overtime" onclick="removeOvertime(this)">
-                                                    <i class="fe-trash-2 me-1"></i>移除
-                                                </button>
-                                            </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="mb-3">
+                                            <label class="form-label">事由<span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" name="reason" value="{{ $overtime->reason }}" placeholder="請輸入加班事由..." required>
                                         </div>
                                     </div>
                                 </div>
-                                <button type="button" class="btn btn-sm btn-outline-success" onclick="addOvertime()">
-                                    <i class="fe-plus me-1"></i>新增加班人員
-                                </button>
-                            </div>
-
-                            <!-- 審核資訊 -->
-                            @if($overtime->status != 'pending')
-                                <div class="row mb-4">
+                                <div class="row">
                                     <div class="col-md-12">
-                                        <div class="alert alert-info">
-                                            <h6>審核資訊</h6>
-                                            <p><strong>核准者：</strong>{{ $overtime->approver->name ?? '未知' }}</p>
-                                            <p><strong>核准時間：</strong>{{ $overtime->approved_at ? $overtime->approved_at->format('Y-m-d H:i:s') : '未知' }}</p>
-                                            @if($overtime->status == 'rejected' && $overtime->reject_reason)
-                                                <p><strong>拒絕原因：</strong>{{ $overtime->reject_reason }}</p>
-                                            @endif
+                                        <div class="calculation-box" id="calculation-box">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <small><strong>加班時數：</strong>{{ $overtime->formatted_hours }}</small><br>
+                                                    <small><strong>前兩小時：</strong>{{ $overtime->formatted_first_two_hours }} (1.34倍)</small><br>
+                                                    <small><strong>剩餘時間：</strong>{{ $overtime->formatted_remaining_hours }} (1.67倍)</small>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <small><strong>計算方式：</strong></small><br>
+                                                    <small>前兩小時：1.34倍</small><br>
+                                                    <small>剩餘時間：1.67倍</small>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            @endif
+                            </div>
 
                             <!-- 提交按鈕 -->
                             <div class="row mt-4">
@@ -213,13 +210,13 @@
             $('[data-toggle="select"]').select2();
             
             // 初始化時計算一次加班費
-            calculateOvertimePay(0);
+            calculateOvertimePay();
         });
 
         // 計算加班費
-        function calculateOvertimePay(index) {
-            const minutes = parseInt($(`input[name="overtime[${index}][minutes]"]`).val()) || 0;
-            const calculationBox = $(`#calculation-${index}`);
+        function calculateOvertimePay() {
+            const minutes = parseInt($('input[name="minutes"]').val()) || 0;
+            const calculationBox = $('#calculation-box');
             
             if (minutes <= 0) {
                 calculationBox.html('<small class="text-muted">請輸入加班分鐘數以計算加班費</small>');
@@ -258,83 +255,42 @@
             `);
         }
 
-        // 新增加班人員
-        function addOvertime() {
-            overtimeIndex++;
-            const template = `
-                <div class="overtime-row" data-index="${overtimeIndex}">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label">人員<span class="text-danger">*</span></label>
-                                <select class="form-control" name="overtime[${overtimeIndex}][user_id]" data-toggle="select" required>
-                                    <option value="">請選擇人員</option>
-                                    @foreach ($users as $user)
-                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="mb-3">
-                                <label class="form-label">加班分鐘<span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" name="overtime[${overtimeIndex}][minutes]" min="1" required onchange="calculateOvertimePay(${overtimeIndex})">
-                            </div>
-                        </div>
-                        <div class="col-md-5">
-                            <div class="mb-3">
-                                <label class="form-label">事由</label>
-                                <input type="text" class="form-control" name="overtime[${overtimeIndex}][reason]" placeholder="請輸入加班事由...">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="calculation-box" id="calculation-${overtimeIndex}">
-                                <small class="text-muted">請輸入加班分鐘數以計算加班費</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col-md-12">
-                            <button type="button" class="btn btn-sm btn-outline-danger remove-overtime" onclick="removeOvertime(this)">
-                                <i class="fe-trash-2 me-1"></i>移除
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            $('#overtime-container').append(template);
-            
-            // 重新初始化 Select2
-            $('[data-toggle="select"]').select2();
-        }
-
-        // 移除加班人員
-        function removeOvertime(button) {
-            $(button).closest('.overtime-row').remove();
-        }
-
         // 表單驗證
         $('#overtimeForm').on('submit', function(e) {
-            const overtimeRows = $('.overtime-row');
-            let hasValidData = false;
+            console.log('表單提交事件被觸發');
+            
+            const userId = $('select[name="user_id"]').val();
+            const minutes = $('input[name="minutes"]').val();
+            const reason = $('input[name="reason"]').val();
+            
+            console.log('表單資料:', { userId, minutes, reason });
 
-            overtimeRows.each(function() {
-                const userId = $(this).find('select[name*="[user_id]"]').val();
-                const minutes = $(this).find('input[name*="[minutes]"]').val();
-                
-                if (userId && minutes && minutes > 0) {
-                    hasValidData = true;
-                }
-            });
-
-            if (!hasValidData) {
+            if (!userId) {
                 e.preventDefault();
-                alert('請至少填寫一筆有效的加班記錄！');
+                alert('請選擇加班人員！');
+                console.log('驗證失敗：缺少人員');
                 return false;
             }
+
+            if (!minutes || minutes <= 0) {
+                e.preventDefault();
+                alert('請填寫加班分鐘數！');
+                console.log('驗證失敗：加班分鐘無效');
+                return false;
+            }
+
+            if (!reason || reason.trim() === '') {
+                e.preventDefault();
+                alert('請填寫加班事由！');
+                console.log('驗證失敗：缺少事由');
+                return false;
+            }
+            
+            // 驗證通過，允許表單提交
+            console.log('表單驗證通過，開始提交');
+            console.log('表單 action:', this.action);
+            console.log('表單 method:', this.method);
+            return true;
         });
     </script>
 @endsection

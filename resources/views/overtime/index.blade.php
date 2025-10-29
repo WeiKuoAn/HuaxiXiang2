@@ -47,15 +47,6 @@
                                     <input type="date" class="form-control" name="end_date" value="{{ request('end_date') }}">
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="form-label">狀態</label>
-                                    <select class="form-control" name="status">
-                                        <option value="">全部狀態</option>
-                                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>待審核</option>
-                                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>已核准</option>
-                                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>已拒絕</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-2">
                                     <label class="form-label">人員</label>
                                     <select class="form-control" name="user_id">
                                         <option value="">全部人員</option>
@@ -66,28 +57,19 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-4 d-flex align-items-end">
+                                <div class="col-md-6 d-flex align-items-end">
                                     <button type="submit" class="btn btn-primary me-2">
                                         <i class="fe-search me-1"></i>查詢
                                     </button>
                                     <a href="{{ route('overtime.index') }}" class="btn btn-secondary me-2">
                                         <i class="fe-refresh-cw me-1"></i>重置
                                     </a>
-                                    <a href="{{ route('overtime.export') }}?{{ http_build_query(request()->all()) }}" class="btn btn-success">
-                                        <i class="fe-download me-1"></i>匯出Excel
+                                    <a href="{{ route('overtime.create') }}" class="btn btn-primary">
+                                        <i class="fe-plus me-1"></i>新增加班
                                     </a>
                                 </div>
                             </div>
                         </form>
-
-                        <!-- 操作按鈕 -->
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <a href="{{ route('overtime.create') }}" class="btn btn-primary">
-                                    <i class="fe-plus me-1"></i>新增加班
-                                </a>
-                            </div>
-                        </div>
 
                         <!-- 資料表格 -->
                         <div class="table-responsive">
@@ -98,10 +80,7 @@
                                         <th>人員</th>
                                         <th>加班時數</th>
                                         <th>事由</th>
-                                        <th>加班費</th>
-                                        <th>狀態</th>
                                         <th>建立者</th>
-
                                         <th>建立時間</th>
                                         <th>動作</th>
                                     </tr>
@@ -111,16 +90,19 @@
                                         <tr>
                                             <td>{{ $overtime->overtime_date->format('Y-m-d') }}</td>
                                             <td>{{ $overtime->user->name ?? '未指定' }}</td>
-                                            <td>{{ $overtime->formatted_hours }}</td>
-                                            <td>{{ Str::limit($overtime->reason, 30) }}</td>
-                                            <td>${{ number_format($overtime->overtime_pay, 0) }}</td>
                                             <td>
-                                                <span class="badge bg-{{ $overtime->status_badge }}">
-                                                    {{ $overtime->status_name }}
-                                                </span>
+                                                @if($overtime->first_two_hours > 0)
+                                                    <span class="badge bg-primary me-1">1.34×{{ number_format($overtime->first_two_hours, 1) }}h</span>
+                                                @endif
+                                                @if($overtime->remaining_hours > 0)
+                                                    <span class="badge bg-success">1.67×{{ number_format($overtime->remaining_hours, 1) }}h</span>
+                                                @endif
+                                                @if($overtime->first_two_hours == 0 && $overtime->remaining_hours == 0)
+                                                    <span class="text-muted">無加班時數</span>
+                                                @endif
                                             </td>
+                                            <td>{{ Str::limit($overtime->reason, 30) }}</td>
                                             <td>{{ $overtime->creator->name ?? '未知' }}</td>
-
                                             <td>{{ $overtime->created_at->format('Y-m-d H:i') }}</td>
                                             <td>
                                                 <div class="btn-group dropdown">
@@ -128,28 +110,27 @@
                                                         動作 <i class="mdi mdi-arrow-down-drop-circle"></i>
                                                     </a>
                                                     <div class="dropdown-menu dropdown-menu-end">
+                                                        <a class="dropdown-item" href="javascript:void(0)" onclick="showLogs({{ $overtime->id }})">
+                                                            <i class="mdi mdi-history me-2 text-muted font-18 vertical-middle"></i>查看軌跡
+                                                        </a>
                                                         @if($overtime->canEdit())
                                                             <a class="dropdown-item" href="{{ route('overtime.edit', $overtime->id) }}">
                                                                 <i class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯
                                                             </a>
                                                         @endif
                                                         
-
-                                                        
                                                         @if($overtime->canDelete())
                                                             <a class="dropdown-item" href="{{ route('overtime.del', $overtime->id) }}">
                                                                 <i class="mdi mdi-delete me-2 text-muted font-18 vertical-middle"></i>刪除
                                                             </a>
                                                         @endif
-                                                        
-
                                                     </div>
                                                 </div>
                                             </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="9" class="text-center">暫無加班記錄</td>
+                                            <td colspan="7" class="text-center">暫無加班記錄</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -169,6 +150,24 @@
     </div>
     <!-- container -->
 
+    <!-- 軌跡記錄 Modal -->
+    <div class="modal fade" id="logsModal" tabindex="-1" aria-labelledby="logsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="logsModalLabel"><i class="mdi mdi-history me-2"></i>加班記錄軌跡</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="logsContent">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">載入中...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 @endsection
 
@@ -194,10 +193,6 @@
                 allowClear: true
             });
 
-            $('select[name="status"]').select2({
-                placeholder: '請選擇狀態',
-                allowClear: true
-            });
         });
 
         // 顯示拒絕 Modal
@@ -210,6 +205,74 @@
         function showRejectReason(reason) {
             $('#rejectReasonText').text(reason);
             $('#rejectReasonModal').modal('show');
+        }
+
+        // 顯示加班記錄軌跡
+        function showLogs(overtimeId) {
+            const modal = new bootstrap.Modal(document.getElementById('logsModal'));
+            modal.show();
+            
+            // 載入軌跡記錄
+            fetch(`/overtime/${overtimeId}/logs`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayLogs(data.logs);
+                    } else {
+                        $('#logsContent').html('<div class="alert alert-danger">載入失敗：' + data.message + '</div>');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    $('#logsContent').html('<div class="alert alert-danger">載入失敗，請稍後再試</div>');
+                });
+        }
+
+        // 顯示軌跡記錄內容
+        function displayLogs(logs) {
+            if (logs.length === 0) {
+                $('#logsContent').html('<div class="alert alert-info">暫無軌跡記錄</div>');
+                return;
+            }
+
+            let html = `
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th width="10%">操作類型</th>
+                                <th width="15%">操作人員</th>
+                                <th width="20%">操作時間</th>
+                                <th width="40%">變更內容</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+            
+            logs.forEach((log, index) => {
+                const actionBadge = log.action === 'created' ? 'success' : 'info';
+                let changeContent = '';
+                
+                if (log.action === 'created') {
+                    changeContent = `加班分鐘：${log.new_values.minutes}<br>事由：${log.new_values.reason}`;
+                } else if (log.action === 'updated') {
+                    changeContent = log.changes_summary || '無變更';
+                }
+                
+                html += `
+                    <tr>
+                        <td><span class="badge bg-${actionBadge}">${log.action_text}</span></td>
+                        <td>${log.action_by_name}</td>
+                        <td>${log.action_at}</td>
+                        <td>${changeContent}</td>
+                    </tr>`;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>`;
+            
+            $('#logsContent').html(html);
         }
     </script>
 @endsection
