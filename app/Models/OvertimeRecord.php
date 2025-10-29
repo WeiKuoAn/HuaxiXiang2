@@ -49,7 +49,61 @@ class OvertimeRecord extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * 取得軌跡記錄
+     */
+    public function logs()
+    {
+        return $this->hasMany(OvertimeRecordLog::class);
+    }
 
+    /**
+     * 記錄新增軌跡
+     */
+    public function logCreation($source, $actionBy)
+    {
+        // 確保 overtime_date 正確格式化
+        $overtimeDate = $this->overtime_date;
+        if (is_string($overtimeDate)) {
+            $overtimeDateStr = $overtimeDate;
+        } else if ($overtimeDate instanceof \Carbon\Carbon) {
+            $overtimeDateStr = $overtimeDate->format('Y-m-d');
+        } else {
+            $overtimeDateStr = date('Y-m-d', strtotime($overtimeDate));
+        }
+        
+        return OvertimeRecordLog::create([
+            'overtime_record_id' => $this->id,
+            'action' => 'created',
+            'action_by' => $actionBy,
+            'action_at' => now(),
+            'source' => $source,
+            'new_values' => [
+                'user_id' => $this->user_id,
+                'minutes' => $this->minutes,
+                'reason' => $this->reason,
+                'overtime_date' => $overtimeDateStr,
+            ],
+            'note' => null
+        ]);
+    }
+
+    /**
+     * 記錄編輯軌跡
+     */
+    public function logUpdate($source, $actionBy, $oldValues, $newValues)
+    {
+        return OvertimeRecordLog::create([
+            'overtime_record_id' => $this->id,
+            'action' => 'updated',
+            'action_by' => $actionBy,
+            'action_at' => now(),
+            'source' => $source,
+            'old_values' => $oldValues,
+            'new_values' => $newValues,
+            'note' => null
+        ]);
+    }
 
     /**
      * 計算加班費
