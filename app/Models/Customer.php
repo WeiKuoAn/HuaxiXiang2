@@ -26,7 +26,8 @@ class Customer extends Model
         'commission',
         'visit_status',
         'contract_status',
-        'comment'
+        'comment',
+        'assigned_to'
     ];
     public function group()
     {
@@ -91,5 +92,9 @@ class Customer extends Model
     public function mobiles()
     {
         return $this->hasMany('App\Models\CustomerMobile', 'customer_id', 'id');
+    }
+
+    public function assigned_to_name(){
+        return $this->hasOne('App\Models\User','id','assigned_to');
     }
 }
