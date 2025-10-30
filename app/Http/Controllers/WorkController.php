@@ -15,6 +15,7 @@ use App\Models\PayData;
 use App\Models\PayItem;
 use App\Models\Sale_gdpaper;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\Product;
 
 
@@ -89,19 +90,62 @@ class WorkController extends Controller
     }
 
     /**
-     * 顯示批次新增出勤記錄的表單
+     * 顯示批次新增出勤記錄的表單（月曆視圖）
      *
      * @param  int  $userId
      * @return \Illuminate\Http\Response
      */
-    public function batchCreate($userId)
+    public function batchCreate(Request $request, $userId)
     {
-        $user = User::find($userId);
-        return view('work.create')->with(['user' => $user]);
+        $user = User::findOrFail($userId);
+        
+        // 獲取年月參數，預設為當前月份
+        $year = $request->get('year', now()->year);
+        $month = $request->get('month', now()->month);
+        
+        // 建立該月的第一天和最後一天
+        $startDate = Carbon::create($year, $month, 1);
+        $endDate = $startDate->copy()->endOfMonth();
+        
+        // 獲取該用戶在該月的所有出勤記錄
+        $existingRecords = Works::where('user_id', $userId)
+            ->whereYear('worktime', $year)
+            ->whereMonth('worktime', $month)
+            ->get()
+            ->keyBy(function($item) {
+                return Carbon::parse($item->worktime)->format('Y-m-d');
+            });
+        
+        // 生成該月所有日期的陣列
+        $days = [];
+        $currentDate = $startDate->copy();
+        while ($currentDate <= $endDate) {
+            $dateKey = $currentDate->format('Y-m-d');
+            $dayOfWeek = $currentDate->dayOfWeek; // 0=週日, 6=週六
+            
+            $days[] = [
+                'date' => $dateKey,
+                'day' => $currentDate->day,
+                'dayOfWeek' => $dayOfWeek,
+                'isWeekend' => ($dayOfWeek == 0 || $dayOfWeek == 6),
+                'record' => $existingRecords->get($dateKey),
+            ];
+            
+            $currentDate->addDay();
+        }
+        
+        return view('work.create', [
+            'user' => $user,
+            'year' => $year,
+            'month' => $month,
+            'days' => $days,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+        ]);
     }
 
     /**
-     * 批次儲存出勤記錄
+     * 批次儲存出勤記錄（支援新增和更新）
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $userId
@@ -110,69 +154,99 @@ class WorkController extends Controller
     public function batchStore(Request $request, $userId)
     {
         $records = $request->records;
-        $successCount = 0;
-        $errorDates = [];
+        $createCount = 0;
+        $updateCount = 0;
+        $deleteCount = 0;
         
-        foreach ($records as $record) {
-            // 檢查必填欄位
-            if (empty($record['date']) || empty($record['worktime']) || empty($record['dutytime'])) {
-                continue;
+        try {
+            DB::beginTransaction();
+            
+            foreach ($records as $record) {
+                // 跳過沒有日期的記錄
+                if (empty($record['date'])) {
+                    continue;
+                }
+                
+                // 檢查該日期的現有記錄
+                $existingWork = Works::where('user_id', $userId)
+                    ->whereDate('worktime', $record['date'])
+                    ->first();
+                
+                // 如果該日期需要刪除（沒有填寫時間）
+                if (empty($record['worktime']) && empty($record['dutytime'])) {
+                    if ($existingWork) {
+                        $existingWork->delete();
+                        $deleteCount++;
+                    }
+                    continue;
+                }
+                
+                // 檢查必填欄位
+                if (empty($record['worktime']) || empty($record['dutytime'])) {
+                    continue;
+                }
+                
+                // 組合完整的日期時間
+                $workDateTime = $record['date'] . ' ' . $record['worktime'];
+                $dutyDateTime = $record['date'] . ' ' . $record['dutytime'];
+                
+                // 計算工作時數
+                $worktime = Carbon::parse($workDateTime);
+                $dutytime = Carbon::parse($dutyDateTime);
+                
+                // 如果下班時間早於上班時間，表示跨日，下班時間加一天
+                if ($dutytime->lt($worktime)) {
+                    $dutytime->addDay();
+                }
+                
+                $work_hours = $worktime->floatDiffInHours($dutytime);
+                
+                // 滿8小時要休息1小時，所以如果工作滿9小時就要減1小時
+                if ($work_hours >= 9) {
+                    $work_hours = $work_hours - 1;
+                }
+                
+                // 更新或創建出勤記錄
+                if ($existingWork) {
+                    // 更新現有記錄
+                    $existingWork->worktime = $workDateTime;
+                    $existingWork->dutytime = $dutyDateTime;
+                    $existingWork->total = floor($work_hours);
+                    $existingWork->status = $record['status'] ?? '0';
+                    $existingWork->remark = $record['remark'] ?? '';
+                    $existingWork->save();
+                    $updateCount++;
+                } else {
+                    // 創建新記錄
+                    $work = new Works();
+                    $work->user_id = $userId;
+                    $work->worktime = $workDateTime;
+                    $work->dutytime = $dutyDateTime;
+                    $work->total = floor($work_hours);
+                    $work->status = $record['status'] ?? '0';
+                    $work->remark = $record['remark'] ?? '';
+                    $work->save();
+                    $createCount++;
+                }
             }
             
-            // 組合完整的日期時間
-            $workDateTime = $record['date'] . ' ' . $record['worktime'];
-            $dutyDateTime = $record['date'] . ' ' . $record['dutytime'];
+            DB::commit();
             
-            // 檢查該用戶該日期是否已存在記錄
-            $existingWork = Works::where('user_id', $userId)
-                ->whereDate('worktime', $record['date'])
-                ->first();
+            // 組合成功訊息
+            $messages = [];
+            if ($createCount > 0) $messages[] = "新增 {$createCount} 筆";
+            if ($updateCount > 0) $messages[] = "更新 {$updateCount} 筆";
+            if ($deleteCount > 0) $messages[] = "刪除 {$deleteCount} 筆";
             
-            if ($existingWork) {
-                $errorDates[] = $record['date'];
-                continue;
-            }
+            $successMessage = '成功' . implode('、', $messages) . '出勤記錄';
             
-            // 計算工作時數
-            $worktime = Carbon::parse($workDateTime);
-            $dutytime = Carbon::parse($dutyDateTime);
-            
-            // 如果下班時間早於上班時間，表示跨日，下班時間加一天
-            if ($dutytime->lt($worktime)) {
-                $dutytime->addDay();
-            }
-            
-            $work_hours = $worktime->floatDiffInHours($dutytime);
-            
-            // 滿8小時要休息1小時，所以如果工作滿9小時就要減1小時
-            if ($work_hours >= 9) {
-                $work_hours = $work_hours - 1;
-            }
-            
-            // 創建出勤記錄
-            $work = new Works();
-            $work->user_id = $userId;
-            $work->worktime = $workDateTime;
-            $work->dutytime = $dutyDateTime;
-            $work->total = floor($work_hours);
-            $work->status = $record['status'] ?? '0';
-            $work->remark = $record['remark'] ?? '';
-            $work->save();
-            
-            $successCount++;
-        }
-        
-        // 回傳結果訊息
-        if ($successCount > 0 && count($errorDates) == 0) {
             return redirect()->route('user.work.index', $userId)
-                ->with('success', "成功新增 {$successCount} 筆出勤記錄");
-        } elseif ($successCount > 0 && count($errorDates) > 0) {
-            $errorDateStr = implode(', ', $errorDates);
-            return redirect()->route('user.work.index', $userId)
-                ->with('warning', "成功新增 {$successCount} 筆記錄，但以下日期已存在：{$errorDateStr}");
-        } else {
+                ->with('success', $successMessage);
+                
+        } catch (\Exception $e) {
+            DB::rollback();
             return redirect()->route('user.work.batch.create', $userId)
-                ->with('error', '新增失敗，所有日期都已存在或資料不完整');
+                ->with('error', '儲存失敗：' . $e->getMessage());
         }
     }
     
