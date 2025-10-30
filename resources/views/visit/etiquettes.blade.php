@@ -127,6 +127,7 @@
                                     <th>佣金</th>
                                     <th>拜訪</th>
                                     <th>簽約</th>
+                                    <th>指派人員</th>
                                     <th>拜訪次數</th>
                                     <th>叫件次數</th>
                                     <th>最近叫件日期</th>
@@ -169,6 +170,13 @@
                                                 有
                                             @else
                                                 無
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if (isset($data->assigned_to_name))
+                                                {{ $data->assigned_to_name->name }}
+                                            @else
+                                                -
                                             @endif
                                         </td>
                                         <td>{{ $data->visit_count }}次</td>

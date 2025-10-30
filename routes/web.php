@@ -272,6 +272,8 @@ Route::group(['prefix' => '/'], function () {
     /* 拜訪管理 */
     Route::get('search_district', [VisitController::class, 'search_district'])->name('search.district');  // ajax搜尋區域
 
+    Route::get('assigned', [VisitController::class, 'assigned_index'])->name('assigned');  // 指派列表
+
     Route::get('hospitals', [VisitController::class, 'hospitals'])->name('hospitals');  // 醫院
     Route::get('hospitals/export', [VisitController::class, 'hospitalsExport'])->name('hospitals.export');  // 醫院匯出
     Route::get('etiquettes', [VisitController::class, 'etiquettes'])->name('etiquettes');  // 禮儀社

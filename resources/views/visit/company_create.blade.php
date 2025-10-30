@@ -181,6 +181,17 @@
                                     </select>
                                 </div>
 
+                                <div class="mb-3">
+                                    <label for="project-priority" class="form-label">指派人員<span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-control" data-toggle="select" data-width="100%"
+                                        name="assigned_to">
+                                        <option value="null">無須指派</option>
+                                        @foreach ($users as $user)
+                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
                             <!-- end row -->
                         </div> <!-- end card-body -->

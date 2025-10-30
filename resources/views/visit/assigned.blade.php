@@ -12,10 +12,10 @@
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                             <li class="breadcrumb-item"><a href="javascript: void(0);">拜訪管理</a></li>
-                            <li class="breadcrumb-item active">醫院列表</li>
+                            <li class="breadcrumb-item active">指派列表</li>
                         </ol>
                     </div>
-                    <h4 class="page-title">醫院列表</h4>
+                    <h4 class="page-title">指派列表</h4>
                 </div>
             </div>
         </div>
@@ -28,9 +28,6 @@
                     <button type="button" class="btn btn-info waves-effect waves-light me-2" onclick="exportToExcel()">
                         <i class="mdi mdi-download me-1"></i>匯出 Excel
                     </button>
-                    <a href="{{ route('visit.company.create') }}" class="btn btn-danger waves-effect waves-light">
-                        <i class="mdi mdi-plus-circle me-1"></i>新增醫院
-                    </a>
                 </div>
             </div>
         </div>
@@ -135,7 +132,6 @@
                                         <th>佣金</th>
                                         <th>拜訪</th>
                                         <th>簽約</th>
-                                        <th>指派人員</th>
                                         <th>拜訪次數</th>
                                         <th>叫件次數</th>
                                         <th>最近叫件日期</th>
@@ -180,13 +176,6 @@
                                                     無
                                                 @endif
                                             </td>
-                                            <td>
-                                                @if (isset($data->assigned_to_name))
-                                                    {{ $data->assigned_to_name->name }}
-                                                @else
-                                                    -
-                                                @endif
-                                            </td>
                                             <td>{{ $data->visit_count }}次</td>
                                             <td>{{ $data->sale_count }}次</td>
                                             <td>
@@ -203,9 +192,6 @@
                                                         data-bs-toggle="dropdown" aria-expanded="false">動作 <i
                                                             class="mdi mdi-arrow-down-drop-circle"></i></a>
                                                     <div class="dropdown-menu dropdown-menu-end">
-                                                        <a class="dropdown-item"
-                                                            href="{{ route('visit.company.edit', $data->id) }}" target="_blank"><i
-                                                                class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
                                                         <a class="dropdown-item"
                                                             href="{{ route('visit.source.sale', $data->id) }}" target="_blank"><i
                                                                 class="mdi mdi-clipboard-text-search me-2 font-18 text-muted vertical-middle"></i>叫件紀錄</a>
