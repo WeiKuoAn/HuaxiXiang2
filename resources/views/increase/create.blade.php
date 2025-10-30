@@ -345,8 +345,7 @@
                                                                     <input type="text" class="form-control form-control-sm" 
                                                                            name="overtime[0][reason]" 
                                                                            id="overtime_reason_field_0" 
-                                                                           placeholder="請輸入加班事由"
-                                                                           required>
+                                                                           placeholder="請輸入加班事由">
                                                                 </div>
                                                                 <div class="col-md-4">
                                                                     <label class="form-label small">加班倍數統計</label>
