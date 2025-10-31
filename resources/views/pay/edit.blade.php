@@ -181,13 +181,9 @@
 
 
     <script>
-        function del_row(obj) {
-            let number = $(obj).attr("alt");
-            $('#row-' + number).remove();
-            calculateTotal();
-        }
-
-        // Calculate total price
+        // 將所有函數定義為全域函數，確保可以在各處調用
+        
+        // 計算總金額
         function calculateTotal() {
             let total = 0;
             $('input[name="pay_price[]"]').each(function() {
@@ -196,12 +192,37 @@
             $('#price').val(total);
         }
 
-        // 當輸入框值改變時，重新計算總金額
-        $(document).on('keyup change', '[id^=pay_price-]', function() {
-            calculateTotal();
-        });
+        // 刪除行並重新計算總金額
+        function del_row(obj) {
+            let number = $(obj).attr("alt");
+            $('#row-' + number).remove();
+            calculateTotal(); // 刪除後重新計算總金額
+        }
+
+        // 改變發票類型時的處理
+        function chgInvoice(obj) {
+            const id = obj.id; // e.g., "pay_invoice_type-3"
+            const number = id.split('-').pop(); // 取得數字部分
+            const invoice_type = $("#pay_invoice_type-" + number).val();
+
+            if (invoice_type == 'FreeUniform') {
+                $("#vendor-" + number).show(300).prop('required', true);
+                $("#pay_invoice-" + number).hide(300).prop('required', false);
+            } else if (invoice_type == 'Uniform') {
+                $("#pay_invoice-" + number).show(300).prop('required', true);
+                $("#vendor-" + number).show(300).prop('required', true);
+            } else {
+                $("#pay_invoice-" + number).hide(300).prop('required', false);
+                $("#vendor-" + number).hide(300).prop('required', false);
+            }
+            console.log(invoice_type);
+        }
 
         $(document).ready(function() {
+            // 當輸入框值改變時，重新計算總金額
+            $(document).on('keyup change', '[id^=pay_price-]', function() {
+                calculateTotal();
+            });
             rowCount = $('#cart tr').length - 1;
 
             // Ensure the correct invoice visibility on page load
@@ -283,33 +304,6 @@
                 }
             });
         });
-
-        function del_row(obj) {
-            let number = $(obj).attr("alt");
-            $('#row-' + number).remove();
-            calculateTotal(); // Recalculate total after deleting a row
-        }
-
-        function chgInvoice(obj) {
-            const id = obj.id; // e.g., "pay_invoice_type-3"
-            const number = id.split('-').pop(); // 取得 "3"
-            console.log(number + 'aa');
-
-            const invoice_type = $("#pay_invoice_type-" + number).val();
-
-            if (invoice_type == 'FreeUniform') {
-                $("#vendor-" + number).show(300).prop('required', true);
-                $("#pay_invoice-" + number).hide(300).prop('required', false);
-            } else if (invoice_type == 'Uniform') {
-                $("#pay_invoice-" + number).show(300).prop('required', true);
-                $("#vendor-" + number).show(300).prop('required', true);
-            } else {
-                $("#pay_invoice-" + number).hide(300).prop('required', false);
-                $("#vendor-" + number).hide(300).prop('required', false);
-            }
-
-            console.log(invoice_type);
-        }
     </script>
 
     <script type="text/javascript">

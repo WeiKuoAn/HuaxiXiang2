@@ -213,9 +213,23 @@
         $(".vendor").hide();
         $(".invoice").hide();
 
+        // 將 calculateTotal 定義為全域函數，以便在 del_row 中使用
+        function calculateTotal() {
+            let rowCount = $('#cart tr').length - 1;
+            let pay_total = 0;
+            for (let i = 0; i < rowCount; i++) {
+                let payPriceVal = $('#pay_price-' + i).val();
+                if (payPriceVal) {
+                    pay_total += parseFloat(payPriceVal) || 0; // Convert to number or 0 if NaN
+                }
+            }
+            $('#price').val(pay_total); // Update total price
+        }
+
         function del_row(obj) {
             $number = $(obj).attr("alt");
             $('#row-' + $number).remove();
+            calculateTotal(); // 刪除後重新計算總金額
         }
 
         function chgInvoice(obj) {
@@ -236,17 +250,6 @@
         }
 
         $(document).ready(function() {
-            function calculateTotal() {
-                let rowCount = $('#cart tr').length - 1;
-                let pay_total = 0;
-                for (let i = 0; i < rowCount; i++) {
-                    let payPriceVal = $('#pay_price-' + i).val();
-                    if (payPriceVal) {
-                        pay_total += parseFloat(payPriceVal) || 0; // Convert to number or 0 if NaN
-                    }
-                }
-                $('#price').val(pay_total); // Update total price
-            }
 
             // When keyup or change occurs in any pay_price input, recalculate total
             $(document).on('keyup change', '[id^=pay_price-]', function() {
