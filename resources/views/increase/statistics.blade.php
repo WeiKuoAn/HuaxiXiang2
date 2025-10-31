@@ -174,17 +174,20 @@
                                                     <div class="fw-bold text-primary">$0</div>
                                                 @endif
                                                 <div class="small">
-                                                    @if($monthlyData['phone_amount'] > 0)
-                                                        <div class="text-info">電話加成 ${{ number_format($monthlyData['phone_amount'], 0) }}</div>
+                                                    @if($monthlyData['evening_phone_count'] > 0)
+                                                        <div class="text-info">晚電×{{ $monthlyData['evening_phone_count'] }} ${{ number_format($monthlyData['evening_phone_amount'], 0) }}</div>
                                                     @endif
-                                                    @if($monthlyData['receive_amount'] > 0)
-                                                        <div class="text-success">接件加成 ${{ number_format($monthlyData['receive_amount'], 0) }}</div>
+                                                    @if($monthlyData['evening_receive_count'] > 0)
+                                                        <div class="text-success">晚間×{{ $monthlyData['evening_receive_count'] }} ${{ number_format($monthlyData['evening_receive_amount'], 0) }}</div>
+                                                    @endif
+                                                    @if($monthlyData['night_phone_count'] > 0)
+                                                        <div class="text-info">夜電×{{ $monthlyData['night_phone_count'] }} ${{ number_format($monthlyData['night_phone_amount'], 0) }}</div>
+                                                    @endif
+                                                    @if($monthlyData['night_receive_count'] > 0)
+                                                        <div class="text-success">夜間×{{ $monthlyData['night_receive_count'] }} ${{ number_format($monthlyData['night_receive_amount'], 0) }}</div>
                                                     @endif
                                                     @if($monthlyData['furnace_amount'] > 0)
                                                         <div class="text-secondary">夜間開爐 ${{ number_format($monthlyData['furnace_amount'], 0) }}</div>
-                                                    @endif
-                                                    @if($monthlyData['overtime_amount'] > 0)
-                                                        <div class="text-warning">加班費 ${{ number_format($monthlyData['overtime_amount'], 0) }}</div>
                                                     @endif
                                                 </div>
                                                 @if($monthlyData['overtime_134_hours'] > 0 || $monthlyData['overtime_167_hours'] > 0)
@@ -244,49 +247,27 @@
                                                     <div class="fw-bold text-primary">${{ number_format($userData['total_amount'], 0) }}</div>
                                                     <div class="small">
                                                         @php
-                                                            // 根據人員類型顯示不同的統計
-                                                            $isPhonePerson = false;
-                                                            $isReceivePerson = false;
-                                                            $isFurnacePerson = false;
-                                                            $isOvertimePerson = false;
-                                                            
-                                                            // 判斷人員類型
-                                                            if($userData['phone_amount'] > 0) $isPhonePerson = true;
-                                                            if($userData['receive_amount'] > 0) $isReceivePerson = true;
-                                                            if($userData['furnace_amount'] > 0) $isFurnacePerson = true;
-                                                            if($userData['overtime_amount'] > 0) $isOvertimePerson = true;
-                                                            
-                                                            $categoryCounts = array_count_values($userData['categories']);
+                                                            $tags = $userData['increase_tags'] ?? [];
+                                                            $tagText = '';
+                                                            if (in_array('颱風', $tags)) $tagText .= '(颱風)';
+                                                            if (in_array('過年', $tags)) $tagText .= '(過年)';
                                                         @endphp
                                                         
-                                                        @if($isPhonePerson)
-                                                            @if($userData['night_phone_amount'] > 0)
-                                                                <div class="text-info">夜電×{{ $categoryCounts['夜間'] ?? 1 }} ${{ number_format($userData['night_phone_amount'], 0) }}</div>
-                                                            @endif
-                                                            @if($userData['evening_phone_amount'] > 0)
-                                                                <div class="text-info">晚電×{{ $categoryCounts['晚間'] ?? 1 }} ${{ number_format($userData['evening_phone_amount'], 0) }}</div>
-                                                            @endif
-                                                            @if($userData['typhoon_phone_amount'] > 0)
-                                                                <div class="text-info">颱電×{{ $categoryCounts['颱風'] ?? 1 }} ${{ number_format($userData['typhoon_phone_amount'], 0) }}</div>
-                                                            @endif
+                                                        @if($userData['evening_phone_count'] > 0)
+                                                            <div class="text-info">晚電×{{ $userData['evening_phone_count'] }} ${{ number_format($userData['evening_phone_amount'], 0) }}{!! $tagText !!}</div>
                                                         @endif
-                                                        
-                                                        @if($isReceivePerson)
-                                                            @if($userData['night_receive_amount'] > 0)
-                                                                <div class="text-success">夜間×{{ $categoryCounts['夜間'] ?? 1 }} ${{ number_format($userData['night_receive_amount'], 0) }}</div>
-                                                            @endif
-                                                            @if($userData['evening_receive_amount'] > 0)
-                                                                <div class="text-success">晚間×{{ $categoryCounts['晚間'] ?? 1 }} ${{ number_format($userData['evening_receive_amount'], 0) }}</div>
-                                                            @endif
-                                                            @if($userData['typhoon_receive_amount'] > 0)
-                                                                <div class="text-success">颱風×{{ $categoryCounts['颱風'] ?? 1 }} ${{ number_format($userData['typhoon_receive_amount'], 0) }}</div>
-                                                            @endif
+                                                        @if($userData['evening_receive_count'] > 0)
+                                                            <div class="text-success">晚間×{{ $userData['evening_receive_count'] }} ${{ number_format($userData['evening_receive_amount'], 0) }}{!! $tagText !!}</div>
                                                         @endif
-                                                        
-                                                        @if($isFurnacePerson)
+                                                        @if($userData['night_phone_count'] > 0)
+                                                            <div class="text-info">夜電×{{ $userData['night_phone_count'] }} ${{ number_format($userData['night_phone_amount'], 0) }}{!! $tagText !!}</div>
+                                                        @endif
+                                                        @if($userData['night_receive_count'] > 0)
+                                                            <div class="text-success">夜間×{{ $userData['night_receive_count'] }} ${{ number_format($userData['night_receive_amount'], 0) }}{!! $tagText !!}</div>
+                                                        @endif
+                                                        @if($userData['furnace_amount'] > 0)
                                                             <div class="text-secondary">夜間開爐 ${{ number_format($userData['furnace_amount'], 0) }}</div>
                                                         @endif
-                                                        
                                                         @if($userData['overtime_134_hours'] > 0 || $userData['overtime_167_hours'] > 0)
                                                             @if($userData['overtime_134_hours'] > 0)
                                                                 <div class="text-warning">加班費-1.34×{{ number_format($userData['overtime_134_hours'], 1) }}h</div>

@@ -166,92 +166,200 @@
                                 </div>
                             </div>
 
-                            <!-- 1. 加成類別區段（夜間、晚間、颱風） -->
+                            <!-- 1. 晚間加成區段 -->
                             <div class="category-section">
-                                <h5 class="category-title">
-                                    <i class="fe-award me-2"></i>加成類別（夜間、晚間、颱風）
-                                </h5>
-                                <div id="increase-container">
-                                    <div class="person-row" data-index="0">
-                                        <div class="row">
-                                            <div class="col-md-8">
-                                                <!-- 類別選擇 -->
-                                                <div class="row mb-3">
-                                                    <div class="col-md-12">
-                                                        <label class="form-label">適用類別</label>
-                                                        <div class="category-checkboxes">
-                                                            <div class="form-check form-check-inline">
-                                                                <input class="form-check-input" type="checkbox"
-                                                                    name="increase[0][categories][]" value="night"
-                                                                    id="night_0" onchange="calculateBonus(0)">
-                                                                <label class="form-check-label" for="night_0">夜間加成</label>
-                                                            </div>
-                                                            <div class="form-check form-check-inline">
-                                                                <input class="form-check-input" type="checkbox"
-                                                                    name="increase[0][categories][]" value="evening"
-                                                                    id="evening_0" onchange="calculateBonus(0)">
-                                                                <label class="form-check-label" for="evening_0">晚間加成</label>
-                                                            </div>
-                                                            <div class="form-check form-check-inline">
-                                                                <input class="form-check-input" type="checkbox"
-                                                                    name="increase[0][categories][]" value="typhoon"
-                                                                    id="typhoon_0" onchange="calculateBonus(0)">
-                                                                <label class="form-check-label" for="typhoon_0">颱風加成</label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                
-                                                <!-- 人員選擇 -->
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <label class="form-label">接電話人員</label>
-                                                        <select class="form-control" name="increase[0][phone_person]" data-toggle="select" onchange="calculateBonus(0)">
-                                                            <option value="">請選擇人員</option>
-                                                            @foreach ($users as $user)
-                                                                <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                        <div class="mt-2">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="checkbox" name="increase[0][phone_exclude_bonus]" value="1" id="phone_exclude_bonus_0" onchange="calculateBonus(0)">
-                                                                <label class="form-check-label" for="phone_exclude_bonus_0">
-                                                                    <small class="text-muted">不計入獎金</small>
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-label">接件人員</label>
-                                                        <select class="form-control" name="increase[0][receive_person]" data-toggle="select">
-                                                            <option value="">請選擇人員</option>
-                                                            @foreach ($users as $user)
-                                                                <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label class="form-label">獎金計算</label>
-                                                <div class="bonus-calculation" id="bonus-calculation-0">
-                                                    <small class="text-muted">請選擇類別</small>
-                                                </div>
-                                            </div>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="category-title mb-0">
+                                        <i class="fe-moon me-2"></i>晚間加成
+                                    </h5>
+                                    <div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="evening_is_typhoon" 
+                                                   value="1" id="evening_is_typhoon">
+                                            <label class="form-check-label fw-bold" for="evening_is_typhoon">
+                                                <span class="badge bg-warning text-dark">颱風</span>
+                                            </label>
                                         </div>
-                                        <div class="row mt-2">
-                                            <div class="col-md-12">
-                                                <button type="button" class="btn btn-sm btn-outline-danger remove-person"
-                                                    onclick="removePerson(this)">
-                                                    <i class="fe-trash-2 me-1"></i>移除
-                                                </button>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="evening_is_newyear" 
+                                                   value="1" id="evening_is_newyear">
+                                            <label class="form-check-label fw-bold" for="evening_is_newyear">
+                                                <span class="badge bg-danger text-white">過年</span>
+                                            </label>
+                                        </div>
+                                        <small class="text-muted d-block mt-1">（勾選後：電話$100、接件$500）</small>
+                                    </div>
+                                </div>
+                                
+                                <!-- 電話人員區塊 -->
+                                <div class="mb-3">
+                                    <h6 class="text-muted mb-2">
+                                        <i class="fe-phone me-1"></i>電話人員 <small class="text-muted">(一般$50/次)</small>
+                                    </h6>
+                                    <div id="evening-phone-container">
+                                        <div class="person-row mb-2" data-evening-phone-index="0">
+                                            <div class="row align-items-end">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">人員</label>
+                                                    <select class="form-control" name="evening_phone[0][person]" data-toggle="select">
+                                                        <option value="">請選擇人員</option>
+                                                        @foreach ($users as $user)
+                                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">次數</label>
+                                                    <input type="number" class="form-control" name="evening_phone[0][count]" 
+                                                           min="0" value="1">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        onclick="removeEveningPhone(this)">
+                                                        <i class="fe-trash-2 me-1"></i>移除
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addEveningPhone()">
+                                        <i class="fe-plus me-1"></i>新增電話人員
+                                    </button>
                                 </div>
-                                <button type="button" class="btn btn-sm btn-outline-success" onclick="addPerson()">
-                                    <i class="fe-plus me-1"></i>新增加成人員
-                                </button>
+
+                                <!-- 接件人員區塊 -->
+                                <div class="mb-3">
+                                    <h6 class="text-muted mb-2">
+                                        <i class="fe-user-check me-1"></i>接件人員 <small class="text-muted">(一般$250/次)</small>
+                                    </h6>
+                                    <div id="evening-receive-container">
+                                        <div class="person-row mb-2" data-evening-receive-index="0">
+                                            <div class="row align-items-end">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">人員</label>
+                                                    <select class="form-control" name="evening_receive[0][person]" data-toggle="select">
+                                                        <option value="">請選擇人員</option>
+                                                        @foreach ($users as $user)
+                                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">次數</label>
+                                                    <input type="number" class="form-control" name="evening_receive[0][count]" 
+                                                           min="0" value="1">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        onclick="removeEveningReceive(this)">
+                                                        <i class="fe-trash-2 me-1"></i>移除
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addEveningReceive()">
+                                        <i class="fe-plus me-1"></i>新增接件人員
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 2. 夜間加成區段 -->
+                            <div class="category-section">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="category-title mb-0">
+                                        <i class="fe-star me-2"></i>夜間加成
+                                    </h5>
+                                    <div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="night_is_typhoon" 
+                                                   value="1" id="night_is_typhoon">
+                                            <label class="form-check-label fw-bold" for="night_is_typhoon">
+                                                <span class="badge bg-warning text-dark">颱風</span>
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="night_is_newyear" 
+                                                   value="1" id="night_is_newyear">
+                                            <label class="form-check-label fw-bold" for="night_is_newyear">
+                                                <span class="badge bg-danger text-white">過年</span>
+                                            </label>
+                                        </div>
+                                        <small class="text-muted d-block mt-1">（固定價格：電話$100、接件$500）</small>
+                                    </div>
+                                </div>
+                                
+                                <!-- 電話人員區塊 -->
+                                <div class="mb-3">
+                                    <h6 class="text-muted mb-2">
+                                        <i class="fe-phone me-1"></i>電話人員 <small class="text-muted">(固定$100/次)</small>
+                                    </h6>
+                                    <div id="night-phone-container">
+                                        <div class="person-row mb-2" data-night-phone-index="0">
+                                            <div class="row align-items-end">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">人員</label>
+                                                    <select class="form-control" name="night_phone[0][person]" data-toggle="select">
+                                                        <option value="">請選擇人員</option>
+                                                        @foreach ($users as $user)
+                                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">次數</label>
+                                                    <input type="number" class="form-control" name="night_phone[0][count]" 
+                                                           min="0" value="1">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        onclick="removeNightPhone(this)">
+                                                        <i class="fe-trash-2 me-1"></i>移除
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addNightPhone()">
+                                        <i class="fe-plus me-1"></i>新增電話人員
+                                    </button>
+                                </div>
+
+                                <!-- 接件人員區塊 -->
+                                <div class="mb-3">
+                                    <h6 class="text-muted mb-2">
+                                        <i class="fe-user-check me-1"></i>接件人員 <small class="text-muted">(固定$500/次)</small>
+                                    </h6>
+                                    <div id="night-receive-container">
+                                        <div class="person-row mb-2" data-night-receive-index="0">
+                                            <div class="row align-items-end">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">人員</label>
+                                                    <select class="form-control" name="night_receive[0][person]" data-toggle="select">
+                                                        <option value="">請選擇人員</option>
+                                                        @foreach ($users as $user)
+                                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">次數</label>
+                                                    <input type="number" class="form-control" name="night_receive[0][count]" 
+                                                           min="0" value="1">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        onclick="removeNightReceive(this)">
+                                                        <i class="fe-trash-2 me-1"></i>移除
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addNightReceive()">
+                                        <i class="fe-plus me-1"></i>新增接件人員
+                                    </button>
+                                </div>
                             </div>
 
                             <!-- 2. 夜間開爐區段 -->
@@ -496,89 +604,196 @@
     <!-- end demo js-->
 
     <script>
-        // 新增加成人員
-        function addPerson() {
-            const container = document.getElementById('increase-container');
+        // ========== 晚間加成 - 電話人員 ==========
+        
+        function addEveningPhone() {
+            const container = document.getElementById('evening-phone-container');
             const existingRows = container.querySelectorAll('.person-row');
             const newIndex = existingRows.length;
 
             const newRow = document.createElement('div');
-            newRow.className = 'person-row';
-            newRow.setAttribute('data-index', newIndex);
+            newRow.className = 'person-row mb-2';
+            newRow.setAttribute('data-evening-phone-index', newIndex);
 
             newRow.innerHTML = `
-         <div class="row">
-             <div class="col-md-8">
-                 <!-- 類別選擇 -->
-                 <div class="row mb-3">
-                     <div class="col-md-12">
-                         <label class="form-label">適用類別</label>
-                         <div class="category-checkboxes">
-                             <div class="form-check form-check-inline">
-                                 <input class="form-check-input" type="checkbox" name="increase[${newIndex}][categories][]" value="night" id="night_${newIndex}" onchange="calculateBonus(${newIndex})">
-                                 <label class="form-check-label" for="night_${newIndex}">夜間加成</label>
-                             </div>
-                             <div class="form-check form-check-inline">
-                                 <input class="form-check-input" type="checkbox" name="increase[${newIndex}][categories][]" value="evening" id="evening_${newIndex}" onchange="calculateBonus(${newIndex})">
-                                 <label class="form-check-label" for="evening_${newIndex}">晚間加成</label>
-                             </div>
-                             <div class="form-check form-check-inline">
-                                 <input class="form-check-input" type="checkbox" name="increase[${newIndex}][categories][]" value="typhoon" id="typhoon_${newIndex}" onchange="calculateBonus(${newIndex})">
-                                 <label class="form-check-label" for="typhoon_${newIndex}">颱風加成</label>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-                 <!-- 人員選擇 -->
-                 <div class="row">
-                     <div class="col-md-6">
-                         <label class="form-label">接電話人員</label>
-                         <select class="form-control" name="increase[${newIndex}][phone_person]" data-toggle="select" onchange="calculateBonus(${newIndex})">
-                             <option value="">請選擇人員</option>
-                             @foreach ($users as $user)
-                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
-                             @endforeach
-                         </select>
-                         <div class="mt-2">
-                             <div class="form-check">
-                                 <input class="form-check-input" type="checkbox" name="increase[${newIndex}][phone_exclude_bonus]" value="1" id="phone_exclude_bonus_${newIndex}" onchange="calculateBonus(${newIndex})">
-                                 <label class="form-check-label" for="phone_exclude_bonus_${newIndex}">
-                                     <small class="text-muted">不計入獎金</small>
-                                 </label>
-                             </div>
-                         </div>
-                     </div>
-                     <div class="col-md-6">
-                         <label class="form-label">接件人員</label>
-                         <select class="form-control" name="increase[${newIndex}][receive_person]" data-toggle="select">
-                             <option value="">請選擇人員</option>
-                             @foreach ($users as $user)
-                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
-                             @endforeach
-                         </select>
-                     </div>
-                 </div>
-             </div>
-             <div class="col-md-4">
-                 <label class="form-label">獎金計算</label>
-                 <div class="bonus-calculation" id="bonus-calculation-${newIndex}">
-                     <small class="text-muted">請選擇類別</small>
-                 </div>
-             </div>
-         </div>
-         <div class="row mt-2">
-             <div class="col-md-12">
-                 <button type="button" class="btn btn-sm btn-outline-danger remove-person" onclick="removePerson(this)">
-                     <i class="fe-trash-2 me-1"></i>移除
-                 </button>
-             </div>
-         </div>
-    `;
+                <div class="row align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label">人員</label>
+                        <select class="form-control" name="evening_phone[${newIndex}][person]" data-toggle="select">
+                            <option value="">請選擇人員</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">次數</label>
+                        <input type="number" class="form-control" name="evening_phone[${newIndex}][count]" min="0" value="1">
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeEveningPhone(this)">
+                            <i class="fe-trash-2 me-1"></i>移除
+                        </button>
+                    </div>
+                </div>
+            `;
 
             container.appendChild(newRow);
-
-            // 重新初始化 select2
             $(newRow).find('select[data-toggle="select"]').select2();
+        }
+
+        function removeEveningPhone(button) {
+            const container = document.getElementById('evening-phone-container');
+            const rows = container.querySelectorAll('.person-row');
+            if (rows.length > 1) {
+                button.closest('.person-row').remove();
+            } else {
+                alert('至少需保留一筆電話人員');
+            }
+        }
+
+        // ========== 晚間加成 - 接件人員 ==========
+        
+        function addEveningReceive() {
+            const container = document.getElementById('evening-receive-container');
+            const existingRows = container.querySelectorAll('.person-row');
+            const newIndex = existingRows.length;
+
+            const newRow = document.createElement('div');
+            newRow.className = 'person-row mb-2';
+            newRow.setAttribute('data-evening-receive-index', newIndex);
+
+            newRow.innerHTML = `
+                <div class="row align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label">人員</label>
+                        <select class="form-control" name="evening_receive[${newIndex}][person]" data-toggle="select">
+                            <option value="">請選擇人員</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">次數</label>
+                        <input type="number" class="form-control" name="evening_receive[${newIndex}][count]" min="0" value="1">
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeEveningReceive(this)">
+                            <i class="fe-trash-2 me-1"></i>移除
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(newRow);
+            $(newRow).find('select[data-toggle="select"]').select2();
+        }
+
+        function removeEveningReceive(button) {
+            const container = document.getElementById('evening-receive-container');
+            const rows = container.querySelectorAll('.person-row');
+            if (rows.length > 1) {
+                button.closest('.person-row').remove();
+            } else {
+                alert('至少需保留一筆接件人員');
+            }
+        }
+
+        // ========== 夜間加成 - 電話人員 ==========
+        
+        function addNightPhone() {
+            const container = document.getElementById('night-phone-container');
+            const existingRows = container.querySelectorAll('.person-row');
+            const newIndex = existingRows.length;
+
+            const newRow = document.createElement('div');
+            newRow.className = 'person-row mb-2';
+            newRow.setAttribute('data-night-phone-index', newIndex);
+
+            newRow.innerHTML = `
+                <div class="row align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label">人員</label>
+                        <select class="form-control" name="night_phone[${newIndex}][person]" data-toggle="select">
+                            <option value="">請選擇人員</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">次數</label>
+                        <input type="number" class="form-control" name="night_phone[${newIndex}][count]" min="0" value="1">
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeNightPhone(this)">
+                            <i class="fe-trash-2 me-1"></i>移除
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(newRow);
+            $(newRow).find('select[data-toggle="select"]').select2();
+        }
+
+        function removeNightPhone(button) {
+            const container = document.getElementById('night-phone-container');
+            const rows = container.querySelectorAll('.person-row');
+            if (rows.length > 1) {
+                button.closest('.person-row').remove();
+            } else {
+                alert('至少需保留一筆電話人員');
+            }
+        }
+
+        // ========== 夜間加成 - 接件人員 ==========
+        
+        function addNightReceive() {
+            const container = document.getElementById('night-receive-container');
+            const existingRows = container.querySelectorAll('.person-row');
+            const newIndex = existingRows.length;
+
+            const newRow = document.createElement('div');
+            newRow.className = 'person-row mb-2';
+            newRow.setAttribute('data-night-receive-index', newIndex);
+
+            newRow.innerHTML = `
+                <div class="row align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label">人員</label>
+                        <select class="form-control" name="night_receive[${newIndex}][person]" data-toggle="select">
+                            <option value="">請選擇人員</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">次數</label>
+                        <input type="number" class="form-control" name="night_receive[${newIndex}][count]" min="0" value="1">
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeNightReceive(this)">
+                            <i class="fe-trash-2 me-1"></i>移除
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(newRow);
+            $(newRow).find('select[data-toggle="select"]').select2();
+        }
+
+        function removeNightReceive(button) {
+            const container = document.getElementById('night-receive-container');
+            const rows = container.querySelectorAll('.person-row');
+            if (rows.length > 1) {
+                button.closest('.person-row').remove();
+            } else {
+                alert('至少需保留一筆接件人員');
+            }
         }
 
         // 新增夜間開爐
@@ -731,52 +946,6 @@
             }, 100);
         }
 
-        // 移除加成人員
-        function removePerson(button) {
-            const container = document.getElementById('increase-container');
-            const rows = container.querySelectorAll('.person-row');
-
-            if (rows.length > 1) {
-                button.closest('.person-row').remove();
-                // 重新編號
-                container.querySelectorAll('.person-row').forEach((row, index) => {
-                    row.setAttribute('data-index', index);
-                    row.querySelectorAll('select, input').forEach(input => {
-                        const name = input.getAttribute('name');
-                        if (name) {
-                            input.setAttribute('name', name.replace(/increase\[\d+\]/,
-                                `increase[${index}]`));
-                        }
-                    });
-                                    // 重新設定 checkbox 的 id 和 for
-                row.querySelectorAll('input[type="checkbox"]').forEach(input => {
-                    const oldId = input.id;
-                    const newId = oldId.replace(/\d+$/, index);
-                    input.id = newId;
-                    const label = row.querySelector(`label[for="${oldId}"]`);
-                    if (label) {
-                        label.setAttribute('for', newId);
-                    }
-                });
-                
-                // 重新設定 onchange 事件
-                row.querySelectorAll('input[type="checkbox"]').forEach(input => {
-                    if (input.id.includes('night_furnace_')) {
-                        input.setAttribute('onchange', `toggleTimeSlotSelection(${index}); calculateBonus(${index})`);
-                    } else if (input.id.includes('overtime_')) {
-                        input.setAttribute('onchange', `toggleOvertimeSection(${index}); calculateBonus(${index})`);
-                    } else {
-                        input.setAttribute('onchange', `calculateBonus(${index})`);
-                    }
-                });
-                row.querySelectorAll('select').forEach(select => {
-                    if (select.name.includes('phone_person')) {
-                        select.setAttribute('onchange', `calculateBonus(${index})`);
-                    }
-                });
-                });
-            }
-        }
 
 
         // 移除夜間開爐
@@ -879,66 +1048,6 @@
             calculationDiv.innerHTML = displayText;
         }
 
-        // 計算獎金（只處理傳統加成：夜間、晚間、颱風）
-        function calculateBonus(index) {
-            const row = document.querySelector(`.person-row[data-index="${index}"]`);
-            const calculationDiv = document.getElementById(`bonus-calculation-${index}`);
-
-            // 獲取選中的類別
-            const nightChecked = document.getElementById(`night_${index}`).checked;
-            const eveningChecked = document.getElementById(`evening_${index}`).checked;
-            const typhoonChecked = document.getElementById(`typhoon_${index}`).checked;
-
-            if (!nightChecked && !eveningChecked && !typhoonChecked) {
-                calculationDiv.innerHTML = '<small class="text-muted">請選擇類別</small>';
-                return;
-            }
-
-            // 檢查接電話人員是否不計入獎金
-            const phoneExcludeBonus = document.getElementById(`phone_exclude_bonus_${index}`).checked;
-
-            let displayText = '';
-            let totalPhoneBonus = 0;
-            let totalReceiveBonus = 0;
-
-            // 計算各類別獎金
-            if (nightChecked) {
-                if (!phoneExcludeBonus) {
-                    totalPhoneBonus += 100;
-                }
-                totalReceiveBonus += 500;
-                displayText += `<div><span class="badge bg-primary">夜間：電話$100、接件$500</span></div>`;
-            }
-
-            if (eveningChecked) {
-                if (!phoneExcludeBonus) {
-                    totalPhoneBonus += 50;
-                }
-                totalReceiveBonus += 250;
-                displayText += `<div><span class="badge bg-success">晚間：電話$50、接件$250</span></div>`;
-            }
-
-            if (typhoonChecked) {
-                if (!phoneExcludeBonus) {
-                    totalPhoneBonus += 100;
-                }
-                totalReceiveBonus += 500;
-                displayText += `<div><span class="badge bg-warning">颱風：電話$100、接件$500</span></div>`;
-            }
-
-            // 顯示總計
-            let totalDisplay = `<div class="mt-2"><strong>總計：接件$${totalReceiveBonus}`;
-            if (!phoneExcludeBonus) {
-                totalDisplay += `、電話$${totalPhoneBonus}`;
-            } else {
-                totalDisplay += `、電話不計入獎金`;
-            }
-            totalDisplay += `</strong></div>`;
-            
-            displayText += totalDisplay;
-
-            calculationDiv.innerHTML = displayText;
-        }
 
 
 

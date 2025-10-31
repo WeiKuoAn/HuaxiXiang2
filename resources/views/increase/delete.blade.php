@@ -44,6 +44,33 @@
                                             <td>{{ $increase->increase_date->format('Y-m-d') }}</td>
                                         </tr>
                                         <tr>
+                                            <th>類別標記</th>
+                                            <td>
+                                                @if($increase->evening_is_typhoon || $increase->evening_is_newyear)
+                                                    <strong>晚間加成：</strong>
+                                                    @if($increase->evening_is_typhoon)
+                                                        <span class="badge bg-warning text-dark">颱風</span>
+                                                    @endif
+                                                    @if($increase->evening_is_newyear)
+                                                        <span class="badge bg-danger text-white">過年</span>
+                                                    @endif
+                                                    <br>
+                                                @endif
+                                                @if($increase->night_is_typhoon || $increase->night_is_newyear)
+                                                    <strong>夜間加成：</strong>
+                                                    @if($increase->night_is_typhoon)
+                                                        <span class="badge bg-warning text-dark">颱風</span>
+                                                    @endif
+                                                    @if($increase->night_is_newyear)
+                                                        <span class="badge bg-danger text-white">過年</span>
+                                                    @endif
+                                                @endif
+                                                @if(!$increase->evening_is_typhoon && !$increase->evening_is_newyear && !$increase->night_is_typhoon && !$increase->night_is_newyear)
+                                                    <span class="text-muted">無特殊標記</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <th>備註</th>
                                             <td>{{ $increase->comment ?: '無' }}</td>
                                         </tr>
@@ -70,96 +97,90 @@
                                     <thead class="table-light">
                                         <tr>
                                             <th>人員</th>
-                                            <th>類型</th>
-                                            <th>加成類別</th>
-                                            <th>夜間加成</th>
-                                            <th>晚間加成</th>
-                                            <th>颱風加成</th>
-                                            <th>夜間開爐</th>
-                                            <th>加班費</th>
-                                            <th>總金額</th>
+                                            <th>類別</th>
+                                            <th>角色</th>
+                                            <th>次數</th>
+                                            <th>單價</th>
+                                            <th>金額</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach($increase->items as $item)
-                                            @if($item->item_type === 'traditional')
-                                                @if($item->phone_person_id)
-                                                <tr>
-                                                    <td>
-                                                        {{ $item->phonePerson->name ?? '未指定' }}
-                                                        @if($item->phone_exclude_bonus)
-                                                            <br><small class="text-muted">(不計入獎金)</small>
-                                                        @endif
-                                                    </td>
-                                                    <td><span class="badge bg-primary">傳統加成</span></td>
-                                                    <td>
-                                                        @php
-                                                            $categories = [];
-                                                            if ($item->night_phone_amount > 0 || $item->night_receive_amount > 0) $categories[] = '夜間';
-                                                            if ($item->evening_phone_amount > 0 || $item->evening_receive_amount > 0) $categories[] = '晚間';
-                                                            if ($item->typhoon_phone_amount > 0 || $item->typhoon_receive_amount > 0) $categories[] = '颱風';
-                                                        @endphp
-                                                        @foreach($categories as $category)
-                                                            @php
-                                                                $badgeClass = match($category) {
-                                                                    '夜間' => 'bg-primary',
-                                                                    '晚間' => 'bg-success',
-                                                                    '颱風' => 'bg-warning',
-                                                                    default => 'bg-light text-dark'
-                                                                };
-                                                            @endphp
-                                                            <span class="badge {{ $badgeClass }} me-1">{{ $category }}</span>
-                                                        @endforeach
-                                                    </td>
-                                                    <td>${{ number_format($item->night_phone_amount, 0) }}</td>
-                                                    <td>${{ number_format($item->evening_phone_amount, 0) }}</td>
-                                                    <td>${{ number_format($item->typhoon_phone_amount, 0) }}</td>
-                                                    <td>$0</td>
-                                                    <td>$0</td>
-                                                    <td>${{ number_format($item->total_phone_amount, 0) }}</td>
-                                                </tr>
-                                                @endif
-                                                @if($item->receive_person_id)
-                                                <tr>
-                                                    <td>{{ $item->receivePerson->name ?? '未指定' }}</td>
-                                                    <td><span class="badge bg-primary">傳統加成</span></td>
-                                                    <td>
-                                                        @php
-                                                            $categories = [];
-                                                            if ($item->night_receive_amount > 0) $categories[] = '夜間';
-                                                            if ($item->evening_receive_amount > 0) $categories[] = '晚間';
-                                                            if ($item->typhoon_receive_amount > 0) $categories[] = '颱風';
-                                                        @endphp
-                                                        @foreach($categories as $category)
-                                                            @php
-                                                                $badgeClass = match($category) {
-                                                                    '夜間' => 'bg-primary',
-                                                                    '晚間' => 'bg-success',
-                                                                    '颱風' => 'bg-warning',
-                                                                    default => 'bg-light text-dark'
-                                                                };
-                                                            @endphp
-                                                            <span class="badge {{ $badgeClass }} me-1">{{ $category }}</span>
-                                                        @endforeach
-                                                    </td>
-                                                    <td>${{ number_format($item->night_receive_amount, 0) }}</td>
-                                                    <td>${{ number_format($item->evening_receive_amount, 0) }}</td>
-                                                    <td>${{ number_format($item->typhoon_receive_amount, 0) }}</td>
-                                                    <td>$0</td>
-                                                    <td>$0</td>
-                                                    <td>${{ number_format($item->total_receive_amount, 0) }}</td>
-                                                </tr>
-                                                @endif
+                                            @if($item->category === 'evening' && $item->role === 'phone')
+                                            <tr>
+                                                <td>{{ $item->phonePerson->name ?? '未指定' }}</td>
+                                                <td>
+                                                    <span class="badge bg-info">晚間加成</span>
+                                                    @if($increase->evening_is_typhoon)
+                                                        <span class="badge bg-warning text-dark">颱風</span>
+                                                    @endif
+                                                    @if($increase->evening_is_newyear)
+                                                        <span class="badge bg-danger text-white">過年</span>
+                                                    @endif
+                                                </td>
+                                                <td><span class="badge bg-primary">電話人員</span></td>
+                                                <td>{{ $item->count ?? 1 }}</td>
+                                                <td>${{ number_format($item->unit_price ?? 0, 0) }}</td>
+                                                <td>${{ number_format($item->total_amount, 0) }}</td>
+                                            </tr>
+                                            @elseif($item->category === 'evening' && $item->role === 'receive')
+                                            <tr>
+                                                <td>{{ $item->receivePerson->name ?? '未指定' }}</td>
+                                                <td>
+                                                    <span class="badge bg-info">晚間加成</span>
+                                                    @if($increase->evening_is_typhoon)
+                                                        <span class="badge bg-warning text-dark">颱風</span>
+                                                    @endif
+                                                    @if($increase->evening_is_newyear)
+                                                        <span class="badge bg-danger text-white">過年</span>
+                                                    @endif
+                                                </td>
+                                                <td><span class="badge bg-success">接件人員</span></td>
+                                                <td>{{ $item->count ?? 1 }}</td>
+                                                <td>${{ number_format($item->unit_price ?? 0, 0) }}</td>
+                                                <td>${{ number_format($item->total_amount, 0) }}</td>
+                                            </tr>
+                                            @elseif($item->category === 'night' && $item->role === 'phone')
+                                            <tr>
+                                                <td>{{ $item->phonePerson->name ?? '未指定' }}</td>
+                                                <td>
+                                                    <span class="badge bg-dark">夜間加成</span>
+                                                    @if($increase->night_is_typhoon)
+                                                        <span class="badge bg-warning text-dark">颱風</span>
+                                                    @endif
+                                                    @if($increase->night_is_newyear)
+                                                        <span class="badge bg-danger text-white">過年</span>
+                                                    @endif
+                                                </td>
+                                                <td><span class="badge bg-primary">電話人員</span></td>
+                                                <td>{{ $item->count ?? 1 }}</td>
+                                                <td>${{ number_format($item->unit_price ?? 0, 0) }}</td>
+                                                <td>${{ number_format($item->total_amount, 0) }}</td>
+                                            </tr>
+                                            @elseif($item->category === 'night' && $item->role === 'receive')
+                                            <tr>
+                                                <td>{{ $item->receivePerson->name ?? '未指定' }}</td>
+                                                <td>
+                                                    <span class="badge bg-dark">夜間加成</span>
+                                                    @if($increase->night_is_typhoon)
+                                                        <span class="badge bg-warning text-dark">颱風</span>
+                                                    @endif
+                                                    @if($increase->night_is_newyear)
+                                                        <span class="badge bg-danger text-white">過年</span>
+                                                    @endif
+                                                </td>
+                                                <td><span class="badge bg-success">接件人員</span></td>
+                                                <td>{{ $item->count ?? 1 }}</td>
+                                                <td>${{ number_format($item->unit_price ?? 0, 0) }}</td>
+                                                <td>${{ number_format($item->total_amount, 0) }}</td>
+                                            </tr>
                                             @elseif($item->item_type === 'furnace')
                                             <tr>
                                                 <td>{{ $item->furnacePerson->name ?? '未指定' }}</td>
                                                 <td><span class="badge bg-secondary">夜間開爐</span></td>
-                                                <td><span class="badge bg-secondary">夜間開爐</span></td>
-                                                <td>$0</td>
-                                                <td>$0</td>
-                                                <td>$0</td>
+                                                <td><span class="badge bg-secondary">開爐人員</span></td>
+                                                <td>1</td>
                                                 <td>${{ number_format($item->total_amount, 0) }}</td>
-                                                <td>$0</td>
                                                 <td>${{ number_format($item->total_amount, 0) }}</td>
                                             </tr>
                                             @elseif($item->item_type === 'overtime')
@@ -178,30 +199,25 @@
                                                         @endif
                                                     @endif
                                                 </td>
-                                                <td><span class="badge bg-info">加班費</span></td>
-                                                <td><span class="badge bg-info">加班費</span></td>
-                                                <td>$0</td>
-                                                <td>$0</td>
-                                                <td>$0</td>
-                                                <td>$0</td>
-                                                <td>
+                                                <td><span class="badge bg-warning text-dark">加班費</span></td>
+                                                <td colspan="3">
                                                     @if($item->overtimeRecord)
                                                         <div class="small">
                                                             <div class="text-primary">1.34倍：{{ number_format($item->overtimeRecord->first_two_hours, 1) }}小時</div>
                                                             <div class="text-success">1.67倍：{{ number_format($item->overtimeRecord->remaining_hours, 1) }}小時</div>
                                                         </div>
                                                     @else
-                                                        $0
+                                                        -
                                                     @endif
                                                 </td>
-                                                <td>$0</td>
+                                                <td>-</td>
                                             </tr>
                                             @endif
                                         @endforeach
                                     </tbody>
                                     <tfoot class="table-light">
                                         <tr>
-                                            <th colspan="8" class="text-end">總計：</th>
+                                            <th colspan="5" class="text-end">總計：</th>
                                             <th>${{ number_format($increase->items->sum('total_amount'), 0) }}</th>
                                         </tr>
                                     </tfoot>
