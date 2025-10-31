@@ -14,6 +14,11 @@ use App\Models\OvertimeRecord;
 
 class IncreaseController extends Controller
 {
+    public function personnel_index()
+    {
+        $users = User::where('status', '0')->orderby('level')->orderby('seq')->get();
+        return view('increase.personnel_index', compact('users'));
+    }
     public function index(Request $request)
     {
         $query = Increase::with([

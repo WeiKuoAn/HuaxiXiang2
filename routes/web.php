@@ -827,6 +827,7 @@ Route::group(['prefix' => '/'], function () {
 
     // 加成管理
     Route::get('/increase', [IncreaseController::class, 'index'])->name('increase.index');
+    Route::get('/increase/personnel', [IncreaseController::class, 'personnel_index'])->name('increase.personnel.index');
     Route::get('/increase/create', [IncreaseController::class, 'create'])->name('increase.create');
     Route::post('/increase/create', [IncreaseController::class, 'store'])->name('increase.create.data');
     Route::get('/increase/edit/{id}', [IncreaseController::class, 'edit'])->name('increase.edit');
