@@ -16,6 +16,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomrtGruopController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeregistrationController;
+use App\Http\Controllers\DisciplineController;
 use App\Http\Controllers\GiveController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\IncomeDataController;
@@ -901,5 +902,18 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/{id}/edit', [CertificateSettingController::class, 'edit'])->name('certificate-setting.edit');
         Route::put('/{id}', [CertificateSettingController::class, 'update'])->name('certificate-setting.update');
         Route::delete('/{id}', [CertificateSettingController::class, 'destroy'])->name('certificate-setting.destroy');
+    });
+
+    // 懲戒管理路由
+    Route::prefix('disciplines')->group(function () {
+        Route::get('/', [DisciplineController::class, 'index'])->name('disciplines.index');
+        Route::get('/create', [DisciplineController::class, 'create'])->name('disciplines.create');
+        Route::post('/', [DisciplineController::class, 'store'])->name('disciplines.store');
+        Route::get('/my-approvals', [DisciplineController::class, 'myApprovals'])->name('disciplines.my-approvals');
+        Route::get('/{id}', [DisciplineController::class, 'show'])->name('disciplines.show');
+        Route::get('/{id}/edit', [DisciplineController::class, 'edit'])->name('disciplines.edit');
+        Route::put('/{id}', [DisciplineController::class, 'update'])->name('disciplines.update');
+        Route::delete('/{id}', [DisciplineController::class, 'destroy'])->name('disciplines.destroy');
+        Route::post('/{id}/approve', [DisciplineController::class, 'approve'])->name('disciplines.approve');
     });
 });
