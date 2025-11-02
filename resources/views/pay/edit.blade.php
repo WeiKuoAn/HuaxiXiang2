@@ -39,12 +39,12 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">支出總資訊</h5>
-                    @if($data->status == 2)
-                        <div class="alert alert-warning" role="alert">
-                            <i class="mdi mdi-alert-circle me-1"></i>
-                            此單據已被退回，修改後將重新送審。
-                        </div>
-                    @endif
+                            @if ($data->status == 2)
+                                <div class="alert alert-warning" role="alert">
+                                    <i class="mdi mdi-alert-circle me-1"></i>
+                                    此單據已被退回，修改後將重新送審。
+                                </div>
+                            @endif
                             <div class="row">
                                 <div class="mb-3 col-md-3">
                                     <label for="pay_on" class="form-label">支出單號<span class="text-danger">*</span></label>
@@ -156,7 +156,12 @@
 
             <div class="text-center mb-3">
                 <button type="button" class="btn btn-light" onclick="history.go(-1)">回上一頁</button>
-                <button type="submit" class="btn btn-success">編輯</button>
+                <button type="submit" class="btn btn-success">儲存編輯</button>
+                @if ($data->status == 1 && Auth::user()->level != 2)
+                <button type="submit" name="submit1" value="return" id="btn_return"
+                        class="btn w-sm btn-warning waves-effect waves-light"
+                        onclick="if(!confirm('是否確定退回?')){event.returnValue=false;return false;}">退回</button>
+                @endif
             </div>
 
         </form>
@@ -182,7 +187,7 @@
 
     <script>
         // 將所有函數定義為全域函數，確保可以在各處調用
-        
+
         // 計算總金額
         function calculateTotal() {
             let total = 0;

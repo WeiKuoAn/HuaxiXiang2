@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\PayData;
-use App\Models\PayItem;
-use App\Models\Pay;
 use App\Models\Job;
+use App\Models\Pay;
+use App\Models\PayData;
+use App\Models\PayHistory;
+use App\Models\PayItem;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
-use App\Models\PayHistory;
 use Illuminate\Support\Facades\DB;
 
 class PayDataController extends Controller
@@ -25,13 +24,11 @@ class PayDataController extends Controller
             $users = User::where('status', '0')->get();
         }
 
-
         if ($request) {
-
             $status = $request->status;
 
             if ($status !== null && $status !== '') {
-                $datas = PayData::where('status',  $status);
+                $datas = PayData::where('status', $status);
             } else {
                 $datas = PayData::where('status', 0);
             }
@@ -39,23 +36,23 @@ class PayDataController extends Controller
             // key單日期
             $after_date = $request->after_date;
             if ($after_date) {
-                $datas =  $datas->where('pay_date', '>=', $after_date);
+                $datas = $datas->where('pay_date', '>=', $after_date);
             }
             $before_date = $request->before_date;
             if ($before_date) {
-                $datas =  $datas->where('pay_date', '<=', $before_date);
+                $datas = $datas->where('pay_date', '<=', $before_date);
             }
             if ($after_date && $before_date) {
-                $datas =  $datas->where('pay_date', '>=', $after_date)->where('pay_date', '<=', $before_date);
+                $datas = $datas->where('pay_date', '>=', $after_date)->where('pay_date', '<=', $before_date);
             }
 
             // User篩選
             $user = $request->user;
-            if ($user != "null") {
+            if ($user != 'null') {
                 if (isset($user)) {
-                    $datas =  $datas->where('user_id', $user);
+                    $datas = $datas->where('user_id', $user);
                 } else {
-                    $datas =  $datas;
+                    $datas = $datas;
                 }
             }
 
@@ -66,7 +63,7 @@ class PayDataController extends Controller
             $comment = $request->comment;
             if ($comment) {
                 $comment = '%' . $request->comment . '%';
-                $datas =  $datas->where('comment', 'like', $comment);
+                $datas = $datas->where('comment', 'like', $comment);
             }
 
             // 先找出符合條件的 pay_item 的 pay_data_id
@@ -75,23 +72,23 @@ class PayDataController extends Controller
             // 支出日期條件
             $pay_after_date = $request->pay_after_date;
             if ($pay_after_date) {
-                $pay_items =  $pay_items->where('pay_date', '>=', $pay_after_date);
+                $pay_items = $pay_items->where('pay_date', '>=', $pay_after_date);
             }
             $pay_before_date = $request->pay_before_date;
             if ($pay_before_date) {
-                $pay_items =  $pay_items->where('pay_date', '<=', $pay_before_date);
+                $pay_items = $pay_items->where('pay_date', '<=', $pay_before_date);
             }
             if ($pay_after_date && $pay_before_date) {
-                $pay_items =  $pay_items->where('pay_date', '>=', $pay_after_date)->where('pay_date', '<=', $pay_before_date);
+                $pay_items = $pay_items->where('pay_date', '>=', $pay_after_date)->where('pay_date', '<=', $pay_before_date);
             }
 
             // pay篩選
             $pay = $request->pay;
-            if ($pay != "null") {
+            if ($pay != 'null') {
                 if (isset($pay)) {
                     $pay_items = $pay_items->where('pay_id', $pay);
                 } else {
-                    $datas =  $datas;
+                    $datas = $datas;
                 }
             }
 
@@ -115,18 +112,18 @@ class PayDataController extends Controller
             // 支出日期條件
             $pay_after_date = $request->pay_after_date;
             if ($pay_after_date) {
-                $items =  $items->where('pay_date', '>=', $pay_after_date);
+                $items = $items->where('pay_date', '>=', $pay_after_date);
             }
             $pay_before_date = $request->pay_before_date;
             if ($pay_before_date) {
-                $items =  $items->where('pay_date', '<=', $pay_before_date);
+                $items = $items->where('pay_date', '<=', $pay_before_date);
             }
             if ($pay_after_date && $pay_before_date) {
-                $items =  $items->where('pay_date', '>=', $pay_after_date)->where('pay_date', '<=', $pay_before_date);
+                $items = $items->where('pay_date', '>=', $pay_after_date)->where('pay_date', '<=', $pay_before_date);
             }
 
             $pay = $request->pay;
-            if ($pay != "null") {
+            if ($pay != 'null') {
                 if (isset($pay)) {
                     $items = $items->where('pay_id', $pay);
                 }
@@ -136,27 +133,31 @@ class PayDataController extends Controller
         }
         // dd($pay_items);
         // dd($pay_datas);
-        return view('pay.index')->with('datas', $datas)->with('request', $request)
-            ->with('pays', $pays)->with('users', $users)
-            ->with('condition', $condition)->with('pay_items', $pay_items);
+        return view('pay.index')
+            ->with('datas', $datas)
+            ->with('request', $request)
+            ->with('pays', $pays)
+            ->with('users', $users)
+            ->with('condition', $condition)
+            ->with('pay_items', $pay_items);
     }
 
     public function create()
     {
-        //只取日期當數字
+        // 只取日期當數字
         $create_today = date('Y-m-d', strtotime(Carbon::now()->locale('zh-tw')));
         $today = date('Y-m-d', strtotime(Carbon::now()->locale('zh-tw')));
-        $today = explode("-", $today);
+        $today = explode('-', $today);
         $today = $today[0] . $today[1] . $today[2];
-        //查詢是否當日有無單號
+        // 查詢是否當日有無單號
         $data = PayData::orderby('pay_on', 'desc')->where('pay_on', 'like', $today . '%')->first();
         // dd(substr($data->pay_on,8,2));
 
-        //單號自動計算
+        // 單號自動計算
         if (!isset($data->pay_on)) {
             $i = 0;
         } else {
-            //2023022201
+            // 2023022201
             if (substr($data->pay_on, 8, 1) != 0) {
                 $i = intval(substr($data->pay_on, 8, 2));
             } else {
@@ -184,19 +185,19 @@ class PayDataController extends Controller
 
     public function store(Request $request)
     {
-        //只取日期當數字
+        // 只取日期當數字
         $today = date('Y-m-d', strtotime(Carbon::now()->locale('zh-tw')));
-        $today = explode("-", $today);
+        $today = explode('-', $today);
         $today = $today[0] . $today[1] . $today[2];
-        //查詢是否當日有無單號
+        // 查詢是否當日有無單號
         $data = PayData::orderby('pay_on', 'desc')->where('pay_on', 'like', $today . '%')->first();
         // dd(substr($data->pay_on,8,2));
 
-        //單號自動計算
+        // 單號自動計算
         if (!isset($data->pay_on)) {
             $i = 0;
         } else {
-            //2023022201
+            // 2023022201
             if (substr($data->pay_on, 8, 1) != 0) {
                 $i = intval(substr($data->pay_on, 8, 2));
             } else {
@@ -217,7 +218,7 @@ class PayDataController extends Controller
         $PayData->pay_date = date('Y-m-d', strtotime(Carbon::now()->locale('zh-tw')));
         $PayData->price = $request->price;
         $PayData->comment = $request->comment;
-        //是行政主管或行政就直接通過
+        // 是行政主管或行政就直接通過
         if ($user->job_id == '1' || $user->job_id == '2') {
             $PayData->status = 1;
         } else {
@@ -257,7 +258,7 @@ class PayDataController extends Controller
             }
         }
 
-        //業務單軌跡-新增
+        // 業務單軌跡-新增
         $sale_history = new PayHistory();
         $sale_history->pay_id = $Pay_data_id->id;
         $sale_history->user_id = Auth::user()->id;
@@ -274,86 +275,78 @@ class PayDataController extends Controller
         $pays = Pay::where('status', 'up')->orderby('seq', 'asc')->get();
         // $pay_items = PayItem::where('pay_data_id',$id)->get();
         // dd(count($pay_items));
-        return view('pay.edit')->with('pays', $pays)
+        return view('pay.edit')
+            ->with('pays', $pays)
             ->with('data', $data)
             ->with('pays_name', $pays_name);
     }
 
-
     public function update(Request $request, $id)
     {
+        $data = PayData::where('id', $id)->first();
+        $currentUserId = Auth::user()->id;
+        $user = User::where('id', $currentUserId)->first();
 
-        // dd($request->pay_data_date);
+        // 更新基本資料
+        $data->pay_on = $request->pay_on;
+        $data->price = $request->price;
+        $data->comment = $request->comment;
 
-        $pay = PayData::where('id', $id)->first();
-        $pay->pay_on = $request->pay_on;
-        // $pay->pay_date = $request->pay_date;
-        $pay->price = $request->price;
-        $pay->comment = $request->comment;
-        // 如果原本是退回狀態，編輯後重置為待審核
-        if ($pay->status == 2) {
-            $pay->status = 0;
-        }
-        // $pay->user_id = Auth::user()->id;
-        $pay->save();
-        // dd($request->pay_invoice_number);
-        PayItem::where('pay_data_id', $id)->delete();
-        $user = User::where('id', Auth::user()->id)->first();
-        if (isset($request->pay_data_date)) {
-            foreach ($request->pay_data_date as $key => $data) {
-                $Pay_Item = new PayItem();
-                $Pay_Item->pay_data_id = $id;
-                $Pay_Item->pay_id = $request->pay_id[$key];
-                $Pay_Item->pay_date = $request->pay_data_date[$key];
-                if (isset($request->pay_invoice_number[$key])) {
-                    $Pay_Item->invoice_number = $request->pay_invoice_number[$key];
-                } else {
-                    $Pay_Item->invoice_number = null;
+        // 處理退回操作
+        if (isset($request->submit1) && $request->submit1 == 'return') {
+            $data->status = 0;
+            $data->save();
+            
+            // 批次更新所有現有項目狀態為退回
+            PayItem::where('pay_data_id', $id)->update(['status' => 0]);
+            
+            // 記錄業務單軌跡-退回
+            PayHistory::create([
+                'pay_id' => $id,
+                'user_id' => $currentUserId,
+                'state' => 'return'
+            ]);
+        } else {
+            // 一般編輯操作 - 處理細項的新增/編輯/刪除
+            $data->save();
+            
+            // 刪除舊的細項，準備重新建立
+            PayItem::where('pay_data_id', $id)->delete();
+            
+            // 新增或更新細項
+            if (isset($request->pay_data_date)) {
+                $approvedJobIds = ['1', '2', '7', '9'];
+                
+                foreach ($request->pay_data_date as $key => $date) {
+                    PayItem::create([
+                        'pay_data_id' => $id,
+                        'pay_id' => $request->pay_id[$key],
+                        'pay_date' => $request->pay_data_date[$key],
+                        'invoice_number' => $request->pay_invoice_number[$key] ?? null,
+                        'price' => $request->pay_price[$key],
+                        'invoice_type' => $request->pay_invoice_type[$key],
+                        'vender_id' => $request->vender_id[$key] ?? null,
+                        'status' => ($data->status == 0 || $data->user_id != $currentUserId) 
+                            ? 0 
+                            : (in_array($user->job_id, $approvedJobIds) ? 1 : 0),
+                        'comment' => $request->pay_text[$key]
+                    ]);
                 }
-                $Pay_Item->price = $request->pay_price[$key];
-                $Pay_Item->invoice_type = $request->pay_invoice_type[$key];
-                if (isset($request->vender_id[$key])) {
-                    $Pay_Item->vender_id = $request->vender_id[$key];
-                } else {
-                    $Pay_Item->vender_id = null;
-                }
-                //權限修改問題 - 如果原本是退回狀態，編輯後重置為待審核
-                if ($pay->status == 0) {
-                    $Pay_Item->status = 0;
-                } else {
-                    if ($user->job_id == '1' || $user->job_id == '2' || $user->job_id == '7' || $user->job_id == '9') {
-                        $Pay_Item->status = 1;
-                    } else {
-                        $Pay_Item->status = 0;
-                    }
-                }
-                $Pay_Item->comment = $request->pay_text[$key];
-                $Pay_Item->save();
             }
+            
+            // 記錄業務單軌跡-編輯
+            $historyState = ($data->user_id == $currentUserId) ? 'update' : 'other_user_update';
+            PayHistory::create([
+                'pay_id' => $id,
+                'user_id' => $currentUserId,
+                'state' => $historyState
+            ]);
         }
 
-        //業務單軌跡-編輯
-        if ($pay->user_id == Auth::user()->id) {
-            $sale_history = new PayHistory();
-            $sale_history->pay_id = $id;
-            $sale_history->user_id = Auth::user()->id;
-            $sale_history->state = 'update';
-            $sale_history->save();
-        } else {
-            $sale_history = new PayHistory();
-            $sale_history->pay_id = $id;
-            $sale_history->user_id = Auth::user()->id;
-            $sale_history->state = 'other_user_update';
-            $sale_history->save();
-        }
-
-        if (Auth::user()->level != 2 || Auth::user()->job_id == '9') {
-            return redirect()->route('pays');
-        } else {
-            return redirect()->route('person.pays');
-        }
+        // 根據用戶權限決定跳轉路由
+        $route = (Auth::user()->level != 2 || Auth::user()->job_id == '9') ? 'pays' : 'person.pays';
+        return redirect()->route($route);
     }
-
 
     public function check($id)
     {
@@ -367,7 +360,6 @@ class PayDataController extends Controller
         $data = PayData::where('id', $id)->first();
         $items = PayItem::where('pay_data_id', $id)->get();
         if (isset($request)) {
-            // dd($request);
             if ($request->submit1 == 'true') {
                 $data->status = 1;
                 $data->save();
@@ -375,20 +367,20 @@ class PayDataController extends Controller
                     $item->status = 1;
                     $item->save();
                 }
-                //業務單軌跡-確定審核
+                // 業務單軌跡-確定審核
                 $sale_history = new PayHistory();
                 $sale_history->pay_id = $id;
                 $sale_history->user_id = Auth::user()->id;
                 $sale_history->state = 'check';
                 $sale_history->save();
             } elseif ($request->submit1 == 'return') {
-                $data->status = 2;
+                $data->status = 0;
                 $data->save();
                 foreach ($items as $item) {
-                    $item->status = 2;
+                    $item->status = 0;
                     $item->save();
                 }
-                //業務單軌跡-退回
+                // 業務單軌跡-退回
                 $sale_history = new PayHistory();
                 $sale_history->pay_id = $id;
                 $sale_history->user_id = Auth::user()->id;
@@ -401,7 +393,7 @@ class PayDataController extends Controller
                     $item->status = 0;
                     $item->save();
                 }
-                //業務單軌跡-未審核
+                // 業務單軌跡-未審核
                 $sale_history = new PayHistory();
                 $sale_history->pay_id = $id;
                 $sale_history->user_id = Auth::user()->id;
@@ -412,13 +404,13 @@ class PayDataController extends Controller
         return redirect()->route('pays');
     }
 
-
     public function delshow($id)
     {
         $pays_name = Pay::where('status', 'up')->get();
         $data = PayData::where('id', $id)->first();
         $pays = Pay::where('status', 'up')->orderby('seq', 'asc')->get();
-        return view('pay.del')->with('pays', $pays)
+        return view('pay.del')
+            ->with('pays', $pays)
             ->with('pays_name', $pays_name)
             ->with('data', $data);
     }
@@ -441,7 +433,7 @@ class PayDataController extends Controller
         if ($request) {
             $status = $request->status;
             if ($status) {
-                $datas = PayData::where('status',  $status);
+                $datas = PayData::where('status', $status);
                 $sum_pay = PayData::where('status', $status);
             } else {
                 $datas = PayData::where('status', 0);
@@ -449,37 +441,41 @@ class PayDataController extends Controller
             }
             $after_date = $request->after_date;
             if ($after_date) {
-                $datas =  $datas->where('pay_date', '>=', $after_date);
-                $sum_pay  = $sum_pay->where('pay_date', '>=', $after_date);
+                $datas = $datas->where('pay_date', '>=', $after_date);
+                $sum_pay = $sum_pay->where('pay_date', '>=', $after_date);
             }
             $before_date = $request->before_date;
             if ($before_date) {
-                $datas =  $datas->where('pay_date', '<=', $before_date);
-                $sum_pay  = $sum_pay->where('pay_date', '<=', $before_date);
+                $datas = $datas->where('pay_date', '<=', $before_date);
+                $sum_pay = $sum_pay->where('pay_date', '<=', $before_date);
             }
             if ($after_date && $before_date) {
-                $datas =  $datas->where('pay_date', '>=', $after_date)->where('pay_date', '<=', $before_date);
-                $sum_pay  = $sum_pay->where('pay_date', '>=', $after_date)->where('pay_date', '<=', $before_date);
+                $datas = $datas->where('pay_date', '>=', $after_date)->where('pay_date', '<=', $before_date);
+                $sum_pay = $sum_pay->where('pay_date', '>=', $after_date)->where('pay_date', '<=', $before_date);
             }
             $pay = $request->pay;
-            if ($pay != "null") {
+            if ($pay != 'null') {
                 if (isset($pay)) {
-                    $datas =  $datas->where('pay_id', $pay);
-                    $sum_pay  = $sum_pay->where('pay_id', $pay);
+                    $datas = $datas->where('pay_id', $pay);
+                    $sum_pay = $sum_pay->where('pay_id', $pay);
                 } else {
                     $datas = $datas;
-                    $sum_pay  = $sum_pay;
+                    $sum_pay = $sum_pay;
                 }
             }
-            $sum_pay  = $sum_pay->sum('price');
+            $sum_pay = $sum_pay->sum('price');
             $datas = $datas->orderby('pay_date', 'desc')->where('user_id', $id)->paginate(50);
             $condition = $request->all();
         } else {
             $datas = PayData::orderby('pay_date', 'desc')->where('user_id', $id)->paginate(50);
-            $sum_pay  = PayData::sum('price');
+            $sum_pay = PayData::sum('price');
             $condition = '';
         }
-        return view('pay.user_index')->with('datas', $datas)->with('request', $request)->with('user', $user)->with('condition', $condition)
+        return view('pay.user_index')
+            ->with('datas', $datas)
+            ->with('request', $request)
+            ->with('user', $user)
+            ->with('condition', $condition)
             ->with('sum_pay', $sum_pay);
     }
 
@@ -508,7 +504,7 @@ class PayDataController extends Controller
         try {
             // 準備篩選條件
             $filters = $request->only([
-                'after_date', 'before_date', 
+                'after_date', 'before_date',
                 'pay_after_date', 'pay_before_date',
                 'comment', 'pay', 'user', 'status'
             ]);
@@ -542,13 +538,13 @@ class PayDataController extends Controller
             $fileName = '支出資料_' . date('Y-m-d_H-i-s') . '.xlsx';
 
             // 建立 XLSX 內容
-            return response()->streamDownload(function() use ($payDatas, $selectedColumns, $columnMappings) {
+            return response()->streamDownload(function () use ($payDatas, $selectedColumns, $columnMappings) {
                 $this->generateXlsx($payDatas, $selectedColumns, $columnMappings);
             }, $fileName, ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']);
-
         } catch (\Exception $e) {
             // 錯誤處理
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->with('error', '匯出失敗：' . $e->getMessage());
         }
     }
@@ -565,7 +561,7 @@ class PayDataController extends Controller
 
         // 準備工作表資料
         $worksheetData = $this->prepareWorksheetData($payDatas, $selectedColumns, $columnMappings);
-        
+
         // 建立必要的檔案
         $this->createContentTypes($zip);
         $this->createRels($zip);
@@ -573,7 +569,7 @@ class PayDataController extends Controller
         $this->createWorkbook($zip);
         $this->createWorksheet($zip, $worksheetData);
         $this->createStyles($zip);
-        $this->createTheme($zip); // 新增主題檔案
+        $this->createTheme($zip);  // 新增主題檔案
 
         $zip->close();
 
@@ -589,7 +585,7 @@ class PayDataController extends Controller
     {
         $data = [];
         $mergeCells = [];
-        $currentRow = 2; // 從第2行開始（第1行是標題）
+        $currentRow = 2;  // 從第2行開始（第1行是標題）
 
         // 標題列
         $headers = [];
@@ -601,7 +597,7 @@ class PayDataController extends Controller
         foreach ($payDatas as $payData) {
             $payItems = $payData->pay_items;
             $startRow = $currentRow;
-            
+
             if ($payItems->count() > 0) {
                 // 如果有支出項目，每個項目一行
                 $isFirstItem = true;
@@ -611,7 +607,7 @@ class PayDataController extends Controller
                     $currentRow++;
                     $isFirstItem = false;
                 }
-                
+
                 // 記錄需要合併的儲存格
                 if ($currentRow - $startRow > 1) {
                     $this->addMergeCells($mergeCells, $startRow, $currentRow - 1, $selectedColumns);
@@ -642,9 +638,9 @@ class PayDataController extends Controller
             'pay_name' => $payItem && $payItem->pay_name ? $payItem->pay_name->name : '',
             'invoice_type' => $payItem ? $this->getInvoiceTypeName($payItem->invoice_type) : '',
             'invoice_number' => $payItem ? $payItem->invoice_number : '',
-            'item_price' => $payItem ? (float)$payItem->price : '',
+            'item_price' => $payItem ? (float) $payItem->price : '',
             'item_comment' => $payItem ? $payItem->comment : '',
-            'total_price' => $isFirstItem ? (float)$payData->price : '',
+            'total_price' => $isFirstItem ? (float) $payData->price : '',
             'comment' => $isFirstItem ? $payData->comment : '',
             'user_name' => $isFirstItem ? ($payData->user_name ? $payData->user_name->name : '') : '',
             'status' => $isFirstItem ? ($payData->status == 1 ? '已審核' : '未審核') : '',
@@ -655,7 +651,7 @@ class PayDataController extends Controller
         foreach ($selectedColumns as $column) {
             $row[] = isset($fullData[$column]) ? $fullData[$column] : '';
         }
-        
+
         return $row;
     }
 
@@ -666,7 +662,7 @@ class PayDataController extends Controller
     {
         // 需要合併的欄位索引（從0開始）
         $mergeColumnIndexes = [];
-        
+
         foreach ($selectedColumns as $index => $column) {
             if (in_array($column, ['pay_date', 'pay_on', 'total_price', 'comment', 'user_name', 'status', 'check_user'])) {
                 $mergeColumnIndexes[] = $index;
@@ -706,7 +702,7 @@ class PayDataController extends Controller
             case 'Other':
                 return '其他';
             default:
-                return $invoiceType; // 預設顯示原始值
+                return $invoiceType;  // 預設顯示原始值
         }
     }
 
@@ -783,7 +779,7 @@ class PayDataController extends Controller
             foreach ($row as $colIndex => $cell) {
                 $colLetter = $this->numberToLetter($colIndex + 1);
                 $cellRef = $colLetter . ($rowIndex + 1);
-                
+
                 // 檢查是否為數字（包括浮點數）
                 if (is_numeric($cell) && $cell !== '') {
                     $sheetData .= '<c r="' . $cellRef . '" t="n"><v>' . $cell . '</v></c>';
@@ -1119,14 +1115,14 @@ class PayDataController extends Controller
         }
 
         // 支付類別篩選
-        if (isset($filters['pay']) && $filters['pay'] != "null" && $filters['pay']) {
-            $query->whereHas('pay_items', function($q) use ($filters) {
+        if (isset($filters['pay']) && $filters['pay'] != 'null' && $filters['pay']) {
+            $query->whereHas('pay_items', function ($q) use ($filters) {
                 $q->where('pay_id', $filters['pay']);
             });
         }
 
         // 使用者篩選
-        if (isset($filters['user']) && $filters['user'] != "null" && $filters['user']) {
+        if (isset($filters['user']) && $filters['user'] != 'null' && $filters['user']) {
             $query->where('user_id', $filters['user']);
         }
 
@@ -1136,10 +1132,9 @@ class PayDataController extends Controller
         }
 
         // 支出日期範圍篩選（需要透過 pay_items 關聯）
-        if ((isset($filters['pay_after_date']) && $filters['pay_after_date']) || 
-            (isset($filters['pay_before_date']) && $filters['pay_before_date'])) {
-            
-            $query->whereHas('pay_items', function($q) use ($filters) {
+        if ((isset($filters['pay_after_date']) && $filters['pay_after_date']) ||
+                (isset($filters['pay_before_date']) && $filters['pay_before_date'])) {
+            $query->whereHas('pay_items', function ($q) use ($filters) {
                 if (isset($filters['pay_after_date']) && $filters['pay_after_date']) {
                     $q->where('pay_date', '>=', $filters['pay_after_date']);
                 }
