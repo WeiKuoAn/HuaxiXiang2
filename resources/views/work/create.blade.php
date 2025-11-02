@@ -93,6 +93,15 @@
         color: #6c757d;
         margin-top: 3px;
     }
+    .work-time.is-invalid {
+        border-color: #dc3545;
+        background-color: #fff5f5;
+    }
+    .work-time:focus {
+        border-color: #80bdff;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
 </style>
 @endsection
 
@@ -124,7 +133,8 @@
                 <div class="card-body">
                     <div class="alert alert-info">
                         <i class="mdi mdi-information-outline me-2"></i>
-                        <strong>提示：</strong>選擇年月後，系統會顯示該月所有天數。已有資料的會自動填入，可以直接修改；沒有資料的可以直接填寫。清空時間欄位可刪除該日記錄。
+                        <strong>提示：</strong>選擇年月後，系統會顯示該月所有天數。已有資料的會自動填入，可以直接修改；沒有資料的可以直接填寫。清空時間欄位可刪除該日記錄。<br>
+                        <strong>時間輸入：</strong>支援兩種格式 - 可直接輸入4位數字（如：0900、1830）或使用冒號格式（如：09:00、18:30），系統會自動轉換為標準格式。
                     </div>
 
                     <!-- 月份選擇器 -->
@@ -221,20 +231,24 @@
                                                         
                                                         <div class="time-input-group">
                                                             <label>上班</label>
-                                                            <input type="time" 
+                                                            <input type="text" 
                                                                    class="form-control work-time" 
                                                                    name="records[{{ $loop->parent->index * 7 + $loop->index }}][worktime]"
                                                                    value="{{ $day['record'] ? \Carbon\Carbon::parse($day['record']->worktime)->format('H:i') : '' }}"
-                                                                   onchange="calculateHours(this)">
+                                                                   pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
+                                                                   onchange="calculateHours(this)"
+                                                                   onblur="validateTimeFormat(this)">
                                                         </div>
                                                         
                                                         <div class="time-input-group">
                                                             <label>下班</label>
-                                                            <input type="time" 
+                                                            <input type="text" 
                                                                    class="form-control work-time" 
                                                                    name="records[{{ $loop->parent->index * 7 + $loop->index }}][dutytime]"
                                                                    value="{{ $day['record'] ? \Carbon\Carbon::parse($day['record']->dutytime)->format('H:i') : '' }}"
-                                                                   onchange="calculateHours(this)">
+                                                                   pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
+                                                                   onchange="calculateHours(this)"
+                                                                   onblur="validateTimeFormat(this)">
                                                         </div>
                                                         
                                                         <div class="remark-input">
@@ -323,6 +337,89 @@ function goToCurrentMonth() {
     window.location.href = `{{ route('user.work.batch.create', $user->id) }}?year=${year}&month=${month}`;
 }
 
+// 驗證時間格式
+function validateTimeFormat(element) {
+    let value = element.value.trim();
+    
+    // 如果欄位為空，不驗證
+    if (!value) {
+        element.classList.remove('is-invalid');
+        return true;
+    }
+    
+    // 如果輸入純數字格式（如 0900, 1830），自動轉換為 HH:MM
+    const numberPattern = /^([0-2]?[0-9])([0-5][0-9])$/;
+    const numberMatch = value.match(numberPattern);
+    
+    if (numberMatch) {
+        const hours = parseInt(numberMatch[1]);
+        const minutes = parseInt(numberMatch[2]);
+        
+        // 驗證小時範圍
+        if (hours > 23) {
+            element.classList.add('is-invalid');
+            alert('小時數必須在 00-23 之間！');
+            element.focus();
+            return false;
+        }
+        
+        // 轉換為 HH:MM 格式
+        value = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        element.value = value;
+    }
+    
+    // 驗證格式 HH:MM
+    const timePattern = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    
+    if (!timePattern.test(value)) {
+        element.classList.add('is-invalid');
+        alert('時間格式錯誤！請使用24小時制格式 HHMM 或 HH:MM (例: 0900 或 09:00)');
+        element.focus();
+        return false;
+    }
+    
+    // 格式化時間，確保補零 (例如 9:00 變成 09:00)
+    const parts = value.split(':');
+    const hours = parts[0].padStart(2, '0');
+    const minutes = parts[1].padStart(2, '0');
+    element.value = `${hours}:${minutes}`;
+    
+    element.classList.remove('is-invalid');
+    return true;
+}
+
+// 轉換時間格式為 HH:MM
+function normalizeTimeFormat(timeStr) {
+    if (!timeStr) return '';
+    
+    timeStr = timeStr.trim();
+    
+    // 如果是純數字格式（如 0900, 1830），轉換為 HH:MM
+    const numberPattern = /^([0-2]?[0-9])([0-5][0-9])$/;
+    const numberMatch = timeStr.match(numberPattern);
+    
+    if (numberMatch) {
+        const hours = parseInt(numberMatch[1]);
+        const minutes = parseInt(numberMatch[2]);
+        
+        if (hours > 23) return '';
+        
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    }
+    
+    // 如果已經是 HH:MM 格式，確保補零
+    const timePattern = /^([01]?[0-9]|2[0-3]):([0-5][0-9])$/;
+    const timeMatch = timeStr.match(timePattern);
+    
+    if (timeMatch) {
+        const hours = timeMatch[1].padStart(2, '0');
+        const minutes = timeMatch[2].padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+    
+    return '';
+}
+
 // 計算工時
 function calculateHours(element) {
     const td = element.closest('td');
@@ -335,11 +432,26 @@ function calculateHours(element) {
         return;
     }
     
+    // 先轉換時間格式
+    const worktime = normalizeTimeFormat(worktimeInput.value);
+    const dutytime = normalizeTimeFormat(dutytimeInput.value);
+    
+    if (!worktime || !dutytime) {
+        totalHoursDiv.textContent = '';
+        return;
+    }
+    
     const dateInput = td.querySelector('input[name*="[date]"]');
     const date = dateInput.value;
     
-    const startTime = new Date(`${date} ${worktimeInput.value}`);
-    let endTime = new Date(`${date} ${dutytimeInput.value}`);
+    const startTime = new Date(`${date} ${worktime}`);
+    let endTime = new Date(`${date} ${dutytime}`);
+    
+    // 檢查日期是否有效
+    if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
+        totalHoursDiv.textContent = '';
+        return;
+    }
     
     // 如果下班時間早於上班時間，表示跨日
     if (endTime < startTime) {
@@ -360,6 +472,7 @@ function calculateHours(element) {
 document.getElementById('batchWorkForm').addEventListener('submit', function(e) {
     const workTimes = document.querySelectorAll('input[name*="[worktime]"]');
     const dutyTimes = document.querySelectorAll('input[name*="[dutytime]"]');
+    const timePattern = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
     
     let hasData = false;
     
@@ -377,7 +490,7 @@ document.getElementById('batchWorkForm').addEventListener('submit', function(e) 
         return false;
     }
     
-    // 檢查有填寫時間的記錄是否完整
+    // 檢查有填寫時間的記錄是否完整並驗證格式
     for (let i = 0; i < workTimes.length; i++) {
         const hasWorktime = workTimes[i].value;
         const hasDutytime = dutyTimes[i].value;
@@ -391,6 +504,21 @@ document.getElementById('batchWorkForm').addEventListener('submit', function(e) 
         if (!hasWorktime && hasDutytime) {
             e.preventDefault();
             alert('有下班時間但沒有上班時間，請檢查資料完整性！');
+            return false;
+        }
+        
+        // 驗證時間格式
+        if (hasWorktime && !timePattern.test(hasWorktime.trim())) {
+            e.preventDefault();
+            alert('上班時間格式錯誤！請使用24小時制格式 HH:MM (例: 09:00)');
+            workTimes[i].focus();
+            return false;
+        }
+        
+        if (hasDutytime && !timePattern.test(hasDutytime.trim())) {
+            e.preventDefault();
+            alert('下班時間格式錯誤！請使用24小時制格式 HH:MM (例: 18:00)');
+            dutyTimes[i].focus();
             return false;
         }
     }
