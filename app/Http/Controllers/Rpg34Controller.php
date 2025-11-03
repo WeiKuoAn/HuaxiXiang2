@@ -58,17 +58,30 @@ class Rpg34Controller extends Controller
 
         foreach($specify_products as $specify_product)
         {
-            if(!isset($datas['products']['specify']['products'][$specify_product->id])){
-                $datas['products']['specify']['products'][$specify_product->id]['name'] = $specify_product->souvenir_type_name . '-' . $specify_product->product_name;
-                $datas['products']['specify']['products'][$specify_product->id]['num'] = 0;
-                $datas['products']['specify']['products'][$specify_product->id]['has_variants'] = false;
-                $datas['products']['specify']['products'][$specify_product->id]['comments'] = [];
+            $type_key = $specify_product->souvenir_type; // 使用 souvenir_type ID 作為 key
+            
+            if(!isset($datas['products']['specify']['products'][$type_key])){
+                $datas['products']['specify']['products'][$type_key]['name'] = $specify_product->souvenir_type_name;
+                $datas['products']['specify']['products'][$type_key]['num'] = 0;
+                $datas['products']['specify']['products'][$type_key]['has_variants'] = true; // 改為 true，因為要顯示規格明細
+                $datas['products']['specify']['products'][$type_key]['variants'] = [];
+                $datas['products']['specify']['products'][$type_key]['comments'] = [];
             }
-            $datas['products']['specify']['products'][$specify_product->id]['num'] += $specify_product->product_num;
+            
+            // 累加商品總數
+            $datas['products']['specify']['products'][$type_key]['num'] += $specify_product->product_num;
+            
+            // 將 product_name 作為變體
+            $variant_key = $specify_product->id;
+            if(!isset($datas['products']['specify']['products'][$type_key]['variants'][$variant_key])){
+                $datas['products']['specify']['products'][$type_key]['variants'][$variant_key]['name'] = $specify_product->product_name;
+                $datas['products']['specify']['products'][$type_key]['variants'][$variant_key]['num'] = 0;
+            }
+            $datas['products']['specify']['products'][$type_key]['variants'][$variant_key]['num'] += $specify_product->product_num;
             
             // 收集備註（如果有的話）
             if (!empty($specify_product->comment)) {
-                $datas['products']['specify']['products'][$specify_product->id]['comments'][] = $specify_product->comment;
+                $datas['products']['specify']['products'][$type_key]['comments'][] = $specify_product->comment;
             }
         }
 

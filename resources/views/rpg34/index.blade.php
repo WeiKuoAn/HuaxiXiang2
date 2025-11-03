@@ -227,17 +227,6 @@
                                                             </div>
                                                         @endif
                                                     @endif
-                                                    
-                                                    @if(isset($product['comments']) && count($product['comments']) > 0)
-                                                        <div class="variant-section">
-                                                            <div class="variant-title">備註</div>
-                                                            @foreach($product['comments'] as $comment)
-                                                                <div class="text-muted small mb-1">
-                                                                    <i class="mdi mdi-comment-text-outline me-1"></i>{{ $comment }}
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                    @endif
                                                 </div>
                                             </div>
                                         @endif
