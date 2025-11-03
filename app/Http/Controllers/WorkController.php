@@ -172,7 +172,7 @@ class WorkController extends Controller
                     ->whereDate('worktime', $record['date'])
                     ->first();
                 
-                // 如果該日期需要刪除（沒有填寫時間）
+                // 如果該日期需要刪除（沒有填寫任何時間）
                 if (empty($record['worktime']) && empty($record['dutytime'])) {
                     if ($existingWork) {
                         $existingWork->delete();
@@ -181,47 +181,61 @@ class WorkController extends Controller
                     continue;
                 }
                 
-                // 檢查必填欄位
-                if (empty($record['worktime']) || empty($record['dutytime'])) {
-                    continue;
+                // 準備日期時間和工時計算
+                $workDateTime = null;
+                $dutyDateTime = null;
+                $work_hours = 0;
+                
+                // 如果有填上班時間
+                if (!empty($record['worktime'])) {
+                    $workDateTime = $record['date'] . ' ' . $record['worktime'];
                 }
                 
-                // 組合完整的日期時間
-                $workDateTime = $record['date'] . ' ' . $record['worktime'];
-                $dutyDateTime = $record['date'] . ' ' . $record['dutytime'];
-                
-                // 計算工作時數
-                $worktime = Carbon::parse($workDateTime);
-                $dutytime = Carbon::parse($dutyDateTime);
-                
-                // 如果下班時間早於上班時間，表示跨日，下班時間加一天
-                if ($dutytime->lt($worktime)) {
-                    $dutytime->addDay();
+                // 如果有填下班時間
+                if (!empty($record['dutytime'])) {
+                    $dutyDateTime = $record['date'] . ' ' . $record['dutytime'];
                 }
                 
-                $work_hours = $worktime->floatDiffInHours($dutytime);
-                
-                // 滿8小時要休息1小時，所以如果工作滿9小時就要減1小時
-                if ($work_hours >= 9) {
-                    $work_hours = $work_hours - 1;
+                // 只有兩個時間都有才計算工時
+                if ($workDateTime && $dutyDateTime) {
+                    $worktime = Carbon::parse($workDateTime);
+                    $dutytime = Carbon::parse($dutyDateTime);
+                    
+                    // 如果下班時間早於上班時間，表示跨日，下班時間加一天
+                    if ($dutytime->lt($worktime)) {
+                        $dutytime->addDay();
+                    }
+                    
+                    $work_hours = $worktime->floatDiffInHours($dutytime);
+                    
+                    // 滿8小時要休息1小時，所以如果工作滿9小時就要減1小時
+                    if ($work_hours >= 9) {
+                        $work_hours = $work_hours - 1;
+                    }
                 }
                 
                 // 更新或創建出勤記錄
                 if ($existingWork) {
                     // 更新現有記錄
-                    $existingWork->worktime = $workDateTime;
-                    $existingWork->dutytime = $dutyDateTime;
+                    if ($workDateTime) {
+                        $existingWork->worktime = $workDateTime;
+                    }
+                    if ($dutyDateTime) {
+                        $existingWork->dutytime = $dutyDateTime;
+                    }
                     $existingWork->total = floor($work_hours);
                     $existingWork->status = $record['status'] ?? '0';
                     $existingWork->remark = $record['remark'] ?? '';
                     $existingWork->save();
                     $updateCount++;
                 } else {
-                    // 創建新記錄
+                    // 創建新記錄（需要至少有一個時間）
                     $work = new Works();
                     $work->user_id = $userId;
-                    $work->worktime = $workDateTime;
-                    $work->dutytime = $dutyDateTime;
+                    // 如果只有下班時間，上班時間用當天00:00代替
+                    $work->worktime = $workDateTime ?: $record['date'] . ' 00:00:00';
+                    // 如果只有上班時間，下班時間用當天00:00代替
+                    $work->dutytime = $dutyDateTime ?: $record['date'] . ' 00:00:00';
                     $work->total = floor($work_hours);
                     $work->status = $record['status'] ?? '0';
                     $work->remark = $record['remark'] ?? '';

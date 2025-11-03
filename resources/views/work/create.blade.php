@@ -134,7 +134,8 @@
                     <div class="alert alert-info">
                         <i class="mdi mdi-information-outline me-2"></i>
                         <strong>提示：</strong>選擇年月後，系統會顯示該月所有天數。已有資料的會自動填入，可以直接修改；沒有資料的可以直接填寫。清空時間欄位可刪除該日記錄。<br>
-                        <strong>時間輸入：</strong>支援兩種格式 - 可直接輸入4位數字（如：0900、1830）或使用冒號格式（如：09:00、18:30），系統會自動轉換為標準格式。
+                        <strong>時間輸入：</strong>支援兩種格式 - 可直接輸入4位數字（如：0900、1830）或使用冒號格式（如：09:00、18:30），系統會自動轉換為標準格式。<br>
+                        <strong>彈性打卡：</strong>允許只填寫上班或下班時間（例如忘記打卡時），系統會跳過工時計算。
                     </div>
 
                     <!-- 月份選擇器 -->
@@ -490,24 +491,12 @@ document.getElementById('batchWorkForm').addEventListener('submit', function(e) 
         return false;
     }
     
-    // 檢查有填寫時間的記錄是否完整並驗證格式
+    // 檢查有填寫時間的記錄格式是否正確（允許只填其中一個時間）
     for (let i = 0; i < workTimes.length; i++) {
         const hasWorktime = workTimes[i].value;
         const hasDutytime = dutyTimes[i].value;
         
-        if (hasWorktime && !hasDutytime) {
-            e.preventDefault();
-            alert('有上班時間但沒有下班時間，請檢查資料完整性！');
-            return false;
-        }
-        
-        if (!hasWorktime && hasDutytime) {
-            e.preventDefault();
-            alert('有下班時間但沒有上班時間，請檢查資料完整性！');
-            return false;
-        }
-        
-        // 驗證時間格式
+        // 驗證時間格式（只要有填就要驗證）
         if (hasWorktime && !timePattern.test(hasWorktime.trim())) {
             e.preventDefault();
             alert('上班時間格式錯誤！請使用24小時制格式 HH:MM (例: 09:00)');
