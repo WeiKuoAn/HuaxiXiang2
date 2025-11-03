@@ -219,9 +219,13 @@ class WorkController extends Controller
                     // 更新現有記錄
                     if ($workDateTime) {
                         $existingWork->worktime = $workDateTime;
+                    } else {
+                        $existingWork->worktime = null;
                     }
                     if ($dutyDateTime) {
                         $existingWork->dutytime = $dutyDateTime;
+                    } else {
+                        $existingWork->dutytime = null;
                     }
                     $existingWork->total = floor($work_hours);
                     $existingWork->status = $record['status'] ?? '0';
@@ -232,10 +236,9 @@ class WorkController extends Controller
                     // 創建新記錄（需要至少有一個時間）
                     $work = new Works();
                     $work->user_id = $userId;
-                    // 如果只有下班時間，上班時間用當天00:00代替
-                    $work->worktime = $workDateTime ?: $record['date'] . ' 00:00:00';
-                    // 如果只有上班時間，下班時間用當天00:00代替
-                    $work->dutytime = $dutyDateTime ?: $record['date'] . ' 00:00:00';
+                    // 沒填的時間欄位直接為 null
+                    $work->worktime = $workDateTime;
+                    $work->dutytime = $dutyDateTime;
                     $work->total = floor($work_hours);
                     $work->status = $record['status'] ?? '0';
                     $work->remark = $record['remark'] ?? '';
