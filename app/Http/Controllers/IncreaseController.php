@@ -1290,8 +1290,18 @@ class IncreaseController extends Controller
                         $userWorks = $works[$date]->where('user_id', $user->id);
                         if ($userWorks->count() > 0) {
                             $work = $userWorks->first();
-                            $checkIn = date('H:i', strtotime($work->worktime));
-                            $checkOut = $work->dutytime ? date('H:i', strtotime($work->dutytime)) : '';
+                            // 檢查是否為未打卡的標記時間
+                            $checkIn = (date('H:i:s', strtotime($work->worktime)) == '00:00:01') 
+                                ? '未打卡' 
+                                : date('H:i', strtotime($work->worktime));
+                            
+                            if ($work->dutytime) {
+                                $checkOut = (date('H:i:s', strtotime($work->dutytime)) == '23:59:59')
+                                    ? '未打卡'
+                                    : date('H:i', strtotime($work->dutytime));
+                            } else {
+                                $checkOut = '';
+                            }
                         }
                     }
                     
