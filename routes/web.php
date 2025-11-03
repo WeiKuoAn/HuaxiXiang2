@@ -80,6 +80,7 @@ use App\Http\Controllers\Rpg30Controller;
 use App\Http\Controllers\Rpg31Controller;
 use App\Http\Controllers\Rpg32Controller;
 use App\Http\Controllers\Rpg33Controller;
+use App\Http\Controllers\Rpg34Controller;
 use App\Http\Controllers\SaleDataController;
 use App\Http\Controllers\SaleDataControllerNew;
 use App\Http\Controllers\SaleSourceController;
@@ -648,6 +649,8 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg06', [Rpg06Controller::class, 'rpg06'])->name('rpg06');  // 舊法會查詢
         Route::get('/rpg/rpg13', [Rpg13Controller::class, 'rpg13'])->name('rpg13');
         Route::get('/rpg/rpg13/detail/{year}/{month}/{product_id}/{type}', [Rpg13Controller::class, 'detail'])->name('rpg13.detail');
+        Route::get('/rpg/rpg34', [Rpg34Controller::class, 'rpg34'])->name('rpg34');
+        Route::get('/rpg/rpg34/detail/{year}/{month}/{product_id}/{type}', [Rpg34Controller::class, 'detail'])->name('rpg34.detail');
         Route::get('/rpg/rpg09', [Rpg09Controller::class, 'rpg09'])->name('rpg09');
         Route::get('/rpg/rpg10', [Rpg10Controller::class, 'rpg10'])->name('rpg10');
         Route::get('/rpg/rpg15', [Rpg15Controller::class, 'rpg15'])->name('rpg15');
