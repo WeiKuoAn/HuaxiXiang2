@@ -86,10 +86,20 @@
                                     @foreach ($works as $work)
                                         <tr>
                                             <td>{{ date('Y-m-d', strtotime($work->worktime)) }}</td>
-                                            <td>{{ date('H:i', strtotime($work->worktime)) }}</td>
+                                            <td>
+                                                @if (date('H:i:s', strtotime($work->worktime)) == '00:00:01')
+                                                    <b><span style="color: red;">未打卡</span></b>
+                                                @else
+                                                    {{ date('H:i', strtotime($work->worktime)) }}
+                                                @endif
+                                            </td>
                                             <td>
                                                 @if ($work->dutytime != null)
-                                                    {{ date('H:i', strtotime($work->dutytime)) }}
+                                                    @if (date('H:i:s', strtotime($work->dutytime)) == '23:59:59')
+                                                        <b><span style="color: red;">未打卡</span></b>
+                                                    @else
+                                                        {{ date('H:i', strtotime($work->dutytime)) }}
+                                                    @endif
                                                 @else
                                                     <b><span style="color: red;">尚未下班</span></b>
                                                 @endif

@@ -39,16 +39,22 @@
                         <div class="col-xl-12">
                             <div class="mb-3">
                                 <div class="mb-3">
-                                   <label class="form-label">上班時間<span class="text-danger">*</span></label>
-                                   <input type="datetime" class="form-control" name="worktime" value="{{ $work->worktime }}" required>
+                                   <label class="form-label">上班時間</label>
+                                   <input type="datetime" class="form-control" name="worktime" value="{{ date('H:i:s', strtotime($work->worktime)) == '00:00:01' ? '' : $work->worktime }}">
+                                   @if(date('H:i:s', strtotime($work->worktime)) == '00:00:01')
+                                       <small class="text-muted">此時間未打卡</small>
+                                   @endif
                                 </div>
                             </div>
                         </div>
                         <div class="col-xl-12">
                             <div class="mb-3">
                                 <div class="mb-3">
-                                   <label class="form-label">下班時間<span class="text-danger">*</span></label>
-                                   <input type="datetime" class="form-control" name="dutytime" value="{{ $work->dutytime }}" required>
+                                   <label class="form-label">下班時間</label>
+                                   <input type="datetime" class="form-control" name="dutytime" value="{{ date('H:i:s', strtotime($work->dutytime)) == '23:59:59' ? '' : $work->dutytime }}">
+                                   @if(date('H:i:s', strtotime($work->dutytime)) == '23:59:59')
+                                       <small class="text-muted">此時間未打卡</small>
+                                   @endif
                                </div>
                            </div>
                         </div> <!-- end col-->

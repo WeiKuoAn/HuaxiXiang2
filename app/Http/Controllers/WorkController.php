@@ -167,9 +167,12 @@ class WorkController extends Controller
                     continue;
                 }
                 
-                // 檢查該日期的現有記錄
+                // 檢查該日期的現有記錄（檢查 worktime 或 dutytime 的日期部分）
                 $existingWork = Works::where('user_id', $userId)
-                    ->whereDate('worktime', $record['date'])
+                    ->where(function($query) use ($record) {
+                        $query->whereDate('worktime', $record['date'])
+                              ->orWhereDate('dutytime', $record['date']);
+                    })
                     ->first();
                 
                 // 如果該日期需要刪除（沒有填寫任何時間）
@@ -215,30 +218,26 @@ class WorkController extends Controller
                 }
                 
                 // 更新或創建出勤記錄
+                // 如果沒填上班時間，用該日期的 00:00:01（用來標記未打卡）
+                $finalWorktime = $workDateTime ?: $record['date'] . ' 00:00:01';
+                // 如果沒填下班時間，用該日期的 23:59:59（用來標記未打卡）
+                $finalDutytime = $dutyDateTime ?: $record['date'] . ' 23:59:59';
+                
                 if ($existingWork) {
                     // 更新現有記錄
-                    if ($workDateTime) {
-                        $existingWork->worktime = $workDateTime;
-                    } else {
-                        $existingWork->worktime = null;
-                    }
-                    if ($dutyDateTime) {
-                        $existingWork->dutytime = $dutyDateTime;
-                    } else {
-                        $existingWork->dutytime = null;
-                    }
+                    $existingWork->worktime = $finalWorktime;
+                    $existingWork->dutytime = $finalDutytime;
                     $existingWork->total = floor($work_hours);
                     $existingWork->status = $record['status'] ?? '0';
                     $existingWork->remark = $record['remark'] ?? '';
                     $existingWork->save();
                     $updateCount++;
                 } else {
-                    // 創建新記錄（需要至少有一個時間）
+                    // 創建新記錄
                     $work = new Works();
                     $work->user_id = $userId;
-                    // 沒填的時間欄位直接為 null
-                    $work->worktime = $workDateTime;
-                    $work->dutytime = $dutyDateTime;
+                    $work->worktime = $finalWorktime;
+                    $work->dutytime = $finalDutytime;
                     $work->total = floor($work_hours);
                     $work->status = $record['status'] ?? '0';
                     $work->remark = $record['remark'] ?? '';
@@ -363,8 +362,24 @@ class WorkController extends Controller
     {
         $work = Works::where('id', $workId)->first();
         $userId = $work->user_id;
-        $work->worktime = $request->worktime;
-        $work->dutytime = $request->dutytime;
+        
+        // 取得日期部分（從原有的 worktime 或 dutytime）
+        $workDate = Carbon::parse($work->worktime)->format('Y-m-d');
+        
+        // 如果沒填上班時間，用標記時間 00:00:01
+        if (empty($request->worktime)) {
+            $work->worktime = $workDate . ' 00:00:01';
+        } else {
+            $work->worktime = $request->worktime;
+        }
+        
+        // 如果沒填下班時間，用標記時間 23:59:59
+        if (empty($request->dutytime)) {
+            $work->dutytime = $workDate . ' 23:59:59';
+        } else {
+            $work->dutytime = $request->dutytime;
+        }
+        
         $work->total = $request->total;
         $work->status = $request->status;
         // $work->total = floor(Carbon::parse($request->worktime)->floatDiffInHours($request->dutytime));

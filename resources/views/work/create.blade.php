@@ -235,7 +235,7 @@
                                                             <input type="text" 
                                                                    class="form-control work-time" 
                                                                    name="records[{{ $loop->parent->index * 7 + $loop->index }}][worktime]"
-                                                                   value="{{ $day['record'] ? \Carbon\Carbon::parse($day['record']->worktime)->format('H:i') : '' }}"
+                                                                   value="{{ $day['record'] && \Carbon\Carbon::parse($day['record']->worktime)->format('H:i:s') != '00:00:01' ? \Carbon\Carbon::parse($day['record']->worktime)->format('H:i') : '' }}"
                                                                    pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
                                                                    onchange="calculateHours(this)"
                                                                    onblur="validateTimeFormat(this)">
@@ -246,7 +246,7 @@
                                                             <input type="text" 
                                                                    class="form-control work-time" 
                                                                    name="records[{{ $loop->parent->index * 7 + $loop->index }}][dutytime]"
-                                                                   value="{{ $day['record'] ? \Carbon\Carbon::parse($day['record']->dutytime)->format('H:i') : '' }}"
+                                                                   value="{{ $day['record'] && \Carbon\Carbon::parse($day['record']->dutytime)->format('H:i:s') != '23:59:59' ? \Carbon\Carbon::parse($day['record']->dutytime)->format('H:i') : '' }}"
                                                                    pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
                                                                    onchange="calculateHours(this)"
                                                                    onblur="validateTimeFormat(this)">
