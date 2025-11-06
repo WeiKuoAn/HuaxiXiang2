@@ -422,7 +422,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/customers/by-type', [SaleDataController::class, 'get_customers_by_type'])->name('customers.by-type');
     Route::get('/sale/check_sale_on', [SaleDataController::class, 'check_sale_on'])->name('sale.check_sale_on');
     Route::get('/sale/statistics', [SaleDataController::class, 'getOrderStatistics'])->name('sale.statistics');
-    Route::get('wait/sales', [SaleDataController::class, 'wait_index'])->name('wait.sales');
+    Route::get('wait/sales', [SaleDataControllerNew::class, 'wait_index'])->name('wait.sales');
 
     Route::get('user/{id}/sale', [SaleDataController::class, 'user_sale'])->name('user.sale');
 
@@ -523,6 +523,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/pay/del/{id}', [PayDataController::class, 'delshow'])->name('pay.del');
     Route::post('/pay/del/{id}', [PayDataController::class, 'delete'])->name('pay.del.data');
     Route::get('/pay/check/{id}', [PayDataController::class, 'check'])->name('pay.check');
+    Route::get('/pay/check/ajax/{id}', [PayDataController::class, 'check_ajax'])->name('pay.check.ajax');
     Route::post('/pay/check/{id}', [PayDataController::class, 'check_data'])->name('pay.check.data');
     Route::get('/pay/history/{id}', [PayDataController::class, 'history'])->name('pay.history');
     Route::post('/pay/export', [PayDataController::class, 'export'])->name('pay.export');
@@ -656,6 +657,7 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg15', [Rpg15Controller::class, 'rpg15'])->name('rpg15');
         Route::get('/rpg/rpg16', [Rpg16Controller::class, 'rpg16'])->name('rpg16');
         Route::get('/rpg/rpg16/{month}/{prom_id}/detail', [Rpg16Controller::class, 'detail'])->name('rpg16.detail');
+        Route::get('/rpg/rpg16/service/{prom_id}/analysis', [Rpg16Controller::class, 'serviceAnalysis'])->name('rpg16.service.analysis');
         Route::get('/rpg/rpg17', [Rpg17Controller::class, 'rpg17'])->name('rpg17');
         Route::get('/rpg/rpg17/{month}/{prom_id}/detail', [Rpg17Controller::class, 'detail'])->name('rpg17.detail');
         Route::get('/rpg/rpg25', [Rpg25Controller::class, 'rpg25'])->name('rpg25');
@@ -709,7 +711,7 @@ Route::group(['prefix' => '/'], function () {
 
      // 火化爐管理路由
      Route::prefix('crematorium')->name('crematorium.')->group(function () {
-        // 設備管理
+        // 設備管理（舊版 - 保留用於遷移）
         Route::prefix('equipment')->name('equipment.')->group(function () {
             Route::get('/', [CrematoriumEquipmentController::class, 'index'])->name('index');
             Route::get('/create', [CrematoriumEquipmentController::class, 'create'])->name('create');
@@ -717,6 +719,30 @@ Route::group(['prefix' => '/'], function () {
             Route::get('/{id}/edit', [CrematoriumEquipmentController::class, 'edit'])->name('edit');
             Route::put('/{id}/update', [CrematoriumEquipmentController::class, 'update'])->name('update');
             Route::delete('/{id}', [CrematoriumEquipmentController::class, 'destroy'])->name('destroy');
+        });
+
+        // 設備類型管理（庫存管理）
+        Route::prefix('types')->name('types.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\CrematoriumEquipmentTypeController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\CrematoriumEquipmentTypeController::class, 'create'])->name('create');
+            Route::post('/store', [\App\Http\Controllers\CrematoriumEquipmentTypeController::class, 'store'])->name('store');
+            Route::get('/{id}', [\App\Http\Controllers\CrematoriumEquipmentTypeController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [\App\Http\Controllers\CrematoriumEquipmentTypeController::class, 'edit'])->name('edit');
+            Route::put('/{id}/update', [\App\Http\Controllers\CrematoriumEquipmentTypeController::class, 'update'])->name('update');
+            Route::delete('/{id}', [\App\Http\Controllers\CrematoriumEquipmentTypeController::class, 'destroy'])->name('destroy');
+        });
+
+        // 設備實例管理（位置和狀態管理）
+        Route::prefix('instances')->name('instances.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\CrematoriumEquipmentInstanceController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\CrematoriumEquipmentInstanceController::class, 'create'])->name('create');
+            Route::post('/store', [\App\Http\Controllers\CrematoriumEquipmentInstanceController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [\App\Http\Controllers\CrematoriumEquipmentInstanceController::class, 'edit'])->name('edit');
+            Route::put('/{id}/update', [\App\Http\Controllers\CrematoriumEquipmentInstanceController::class, 'update'])->name('update');
+            Route::delete('/{id}', [\App\Http\Controllers\CrematoriumEquipmentInstanceController::class, 'destroy'])->name('destroy');
+            Route::post('/{id}/status', [\App\Http\Controllers\CrematoriumEquipmentInstanceController::class, 'updateStatus'])->name('updateStatus');
+            Route::post('/{id}/broken', [\App\Http\Controllers\CrematoriumEquipmentInstanceController::class, 'markAsBroken'])->name('markAsBroken');
+            Route::post('/{id}/active', [\App\Http\Controllers\CrematoriumEquipmentInstanceController::class, 'markAsActive'])->name('markAsActive');
         });
 
         // 預約管理
@@ -746,6 +772,16 @@ Route::group(['prefix' => '/'], function () {
             Route::get('/{id}/edit', [CrematoriumRepairController::class, 'edit'])->name('edit');
             Route::put('/{id}/update', [CrematoriumRepairController::class, 'update'])->name('update');
             Route::post('/{id}/cancel', [CrematoriumRepairController::class, 'cancel'])->name('cancel');
+        });
+
+        // 進貨管理
+        Route::prefix('purchases')->name('purchases.')->group(function () {
+            Route::get('/', [CrematoriumController::class, 'purchasesIndex'])->name('index');
+            Route::get('/create', [CrematoriumController::class, 'purchasesCreate'])->name('create');
+            Route::post('/store', [CrematoriumController::class, 'purchasesStore'])->name('store');
+            Route::get('/{id}/edit', [CrematoriumController::class, 'purchasesEdit'])->name('edit');
+            Route::put('/{id}/update', [CrematoriumController::class, 'purchasesUpdate'])->name('update');
+            Route::delete('/{id}', [CrematoriumController::class, 'purchasesDestroy'])->name('destroy');
         });
     });
 
