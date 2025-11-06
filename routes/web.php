@@ -422,7 +422,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/customers/by-type', [SaleDataController::class, 'get_customers_by_type'])->name('customers.by-type');
     Route::get('/sale/check_sale_on', [SaleDataController::class, 'check_sale_on'])->name('sale.check_sale_on');
     Route::get('/sale/statistics', [SaleDataController::class, 'getOrderStatistics'])->name('sale.statistics');
-    Route::get('wait/sales', [SaleDataControllerNew::class, 'wait_index'])->name('wait.sales');
+    Route::get('wait/sales', [SaleDataController::class, 'wait_index'])->name('wait.sales');
 
     Route::get('user/{id}/sale', [SaleDataController::class, 'user_sale'])->name('user.sale');
 
