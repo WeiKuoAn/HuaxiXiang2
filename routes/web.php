@@ -665,6 +665,7 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg22', [Rpg22Controller::class, 'rpg22'])->name('rpg22');
         Route::get('/rpg/rpg22/{month}/{prom_id}/detail', [Rpg22Controller::class, 'detail'])->name('rpg22.detail');
         Route::get('/rpg/rpg21', [Rpg21Controller::class, 'rpg21'])->name('rpg21');
+        Route::get('/rpg/rpg21/user/{user_id}/analysis', [Rpg21Controller::class, 'userAnalysis'])->name('rpg21.user.analysis');
         Route::get('/rpg/rpg27', [Rpg27Controller::class, 'rpg27'])->name('rpg27');
         Route::get('/rpg/rpg14', [Rpg14Controller::class, 'rpg14'])->name('rpg14');
         Route::get('/rpg/rpg23', [Rpg23Controller::class, 'rpg23'])->name('rpg23');

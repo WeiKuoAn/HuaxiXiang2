@@ -71,9 +71,16 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($datas as $data)
+                                @foreach($datas as $user_id => $data)
                                 <tr align="left">
-                                    <td>{{ $data['name'] }}</td>
+                                    <td>
+                                        <a href="{{ route('rpg21.user.analysis', ['user_id' => $user_id, 'year' => $request->year]) }}" 
+                                           class="text-dark text-decoration-none">
+                                            <i class="mdi mdi-account-chart me-1"></i>
+                                            <strong>{{ $data['name'] }}</strong>
+                                            <i class="mdi mdi-chevron-right text-muted"></i>
+                                        </a>
+                                    </td>
                                     @foreach ($months as $key=>$month)
                                         <td>
                                             <span class="bg-soft-light p-1" style="line-height: 35px;">{{ number_format($data['months'][$key]['price']) }}</span><br>
