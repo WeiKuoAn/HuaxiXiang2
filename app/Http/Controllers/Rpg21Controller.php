@@ -84,4 +84,70 @@ class Rpg21Controller extends Controller
 
         return view('rpg21.index')->with('years', $years)->with('datas',$datas)->with('months', $months)->with('request', $request);
     }
+
+    /**
+     * 單一專員的年度詳細業績分析
+     */
+    public function userAnalysis(Request $request, $user_id)
+    {
+        $user = User::where('id', $user_id)->first();
+        
+        if (!$user) {
+            return redirect()->route('rpg21')->with('error', '找不到該專員');
+        }
+
+        $years = range(Carbon::now()->year, 2022);
+        $currentYear = $request->year ?? Carbon::now()->year;
+
+        // 定義月份
+        $monthNames = [
+            '一月', '二月', '三月', '四月', '五月', '六月',
+            '七月', '八月', '九月', '十月', '十一月', '十二月'
+        ];
+
+        $monthly_data = [];
+        $total_count = 0;
+        $total_amount = 0;
+
+        // 循環每個月
+        for ($month = 1; $month <= 12; $month++) {
+            $startOfMonth = Carbon::create($currentYear, $month, 1)->startOfMonth();
+            $endOfMonth = $startOfMonth->copy()->endOfMonth();
+
+            // 獲取該月的業務數量
+            $count = Sale::where('user_id', $user->id)
+                ->where('sale_date', '>=', $startOfMonth->toDateString())
+                ->where('sale_date', '<=', $endOfMonth->toDateString())
+                ->where('status', '9')
+                ->whereIn('plan_id', [1, 2, 3])
+                ->whereIn('pay_id', ['A', 'C'])
+                ->count();
+
+            // 獲取該月的業務金額
+            $amount = Sale::where('user_id', $user->id)
+                ->where('sale_date', '>=', $startOfMonth->toDateString())
+                ->where('sale_date', '<=', $endOfMonth->toDateString())
+                ->where('status', '9')
+                ->sum('pay_price');
+
+            $monthly_data[str_pad($month, 2, '0', STR_PAD_LEFT)] = [
+                'month' => $monthNames[$month - 1],
+                'month_num' => $month,
+                'count' => $count,
+                'amount' => $amount,
+            ];
+
+            $total_count += $count;
+            $total_amount += $amount;
+        }
+
+        return view('rpg21.user_analysis')
+            ->with('user', $user)
+            ->with('monthly_data', $monthly_data)
+            ->with('total_count', $total_count)
+            ->with('total_amount', $total_amount)
+            ->with('currentYear', $currentYear)
+            ->with('years', $years)
+            ->with('request', $request);
+    }
 }
