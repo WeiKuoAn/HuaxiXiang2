@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -94,7 +95,17 @@ class Customer extends Model
         return $this->hasMany('App\Models\CustomerMobile', 'customer_id', 'id');
     }
 
+    public function histories()
+    {
+        return $this->hasMany(CustomerHistory::class)->orderByDesc('created_at');
+    }
+
     public function assigned_to_name(){
         return $this->hasOne('App\Models\User','id','assigned_to');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_up');
     }
 }

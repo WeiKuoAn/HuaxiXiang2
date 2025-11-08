@@ -202,6 +202,155 @@
                 </div> <!-- end card-body -->
             </div> <!-- end card-->
         </div> <!-- end col-->
+
+        <div class="col-12 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">修改歷程</h5>
+                    @php
+                        $fieldLabels = [
+                            'name' => '姓名',
+                            'comment' => '備註',
+                            'group_id' => '群組',
+                            'mobile' => '主要電話',
+                            'county' => '縣市',
+                            'district' => '地區',
+                            'address' => '地址',
+                            'bank_id' => '銀行',
+                            'bank_number' => '銀行帳號',
+                            'commission' => '佣金',
+                            'visit_status' => '拜訪狀態',
+                            'contract_status' => '合約狀態',
+                            'assigned_to' => '負責人員',
+                        ];
+
+                        $actionLabels = [
+                            'created' => '新增',
+                            'updated' => '更新',
+                            'deleted' => '刪除',
+                        ];
+                        $groupMap = isset($groups) ? $groups->pluck('name', 'id')->toArray() : [];
+                        $formatFieldValue = function ($field, $value) use ($groupMap) {
+                            if ($value === null || $value === '') {
+                                return '（無）';
+                            }
+                            if ($field === 'group_id') {
+                                return $groupMap[$value] ?? $value;
+                            }
+                            return $value;
+                        };
+                        $histories = $customer->histories ?? collect();
+                        $hasCreatedAction = $histories->contains(function ($history) {
+                            return $history->action === 'created';
+                        });
+                        $hasCreatorInfo = isset($customer->created_at) && (isset($customer->createdBy) || !empty($customer->created_up));
+                        $shouldShowCreationRow = $hasCreatorInfo && !$hasCreatedAction;
+                    @endphp
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 150px;">時間</th>
+                                    <th style="width: 80px;">動作</th>
+                                    <th style="width: 120px;">操作人</th>
+                                    <th>變更內容</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if($shouldShowCreationRow)
+                                    <tr>
+                                        <td class="text-muted">
+                                            {{ optional($customer->created_at)->format('Y-m-d H:i') ?? '-' }}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ $actionLabels['created'] }}</span>
+                                        </td>
+                                        <td>
+                                            @if(isset($customer->createdBy))
+                                                {{ $customer->createdBy->name }}
+                                            @elseif(!empty($customer->created_up))
+                                                使用者 #{{ $customer->created_up }}
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="text-muted">新增客戶資料</td>
+                                    </tr>
+                                @endif
+                                @forelse($histories as $history)
+                                    <tr>
+                                        <td class="text-muted">
+                                            {{ $history->created_at ? $history->created_at->format('Y-m-d H:i') : '-' }}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ $actionLabels[$history->action] ?? $history->action }}</span>
+                                        </td>
+                                        <td>{{ optional($history->user)->name ?? '系統' }}</td>
+                                        <td>
+                                            <ul class="list-unstyled mb-0 small text-muted">
+                                                @if(!empty($history->changes['fields']))
+                                                    @foreach($history->changes['fields'] as $field => $change)
+                                                        <li>
+                                                            <strong>{{ $fieldLabels[$field] ?? $field }}</strong>：
+                                                            {{ $formatFieldValue($field, $change['old'] ?? '') }}
+                                                            <span class="mx-1 text-dark">→</span>
+                                                            {{ $formatFieldValue($field, $change['new'] ?? '') }}
+                                                        </li>
+                                                    @endforeach
+                                                @endif
+
+                                                @if(isset($history->changes['mobiles']))
+                                                    <li>
+                                                        <strong>電話</strong>：
+                                                        舊值 {{ empty($history->changes['mobiles']['old']) ? '（無）' : implode('、', $history->changes['mobiles']['old']) }}
+                                                        <span class="mx-1 text-dark">→</span>
+                                                        新值 {{ empty($history->changes['mobiles']['new']) ? '（無）' : implode('、', $history->changes['mobiles']['new']) }}
+                                                    </li>
+                                                @endif
+
+                                                @if(isset($history->changes['addresses']))
+                                                    <li>
+                                                        <strong>地址</strong>：
+                                                        舊值 {{ empty($history->changes['addresses']['old']) ? '（無）' : implode('、', $history->changes['addresses']['old']) }}
+                                                        <span class="mx-1 text-dark">→</span>
+                                                        新值 {{ empty($history->changes['addresses']['new']) ? '（無）' : implode('、', $history->changes['addresses']['new']) }}
+                                                    </li>
+                                                @endif
+
+                                                @if(empty($history->changes))
+                                                    <li>（無變更資料）</li>
+                                                @endif
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    @if(!$shouldShowCreationRow)
+                                        <tr>
+                                            <td class="text-muted">
+                                                {{ optional($customer->created_at)->format('Y-m-d H:i') ?? '-' }}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">{{ $actionLabels['created'] }}</span>
+                                            </td>
+                                            <td>
+                                                @if(isset($customer->createdBy))
+                                                    {{ $customer->createdBy->name }}
+                                                @elseif(!empty($customer->created_up))
+                                                    使用者 #{{ $customer->created_up }}
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td class="text-muted">尚無修改紀錄</td>
+                                        </tr>
+                                    @endif
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div><!-- end col -->
     </div>
     <!-- end row-->
 

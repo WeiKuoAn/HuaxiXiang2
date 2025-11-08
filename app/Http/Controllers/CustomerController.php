@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Contract;
 use App\Models\CustGroup;
 use App\Models\Customer;
+use App\Models\CustomerHistory;
 use App\Models\CustomerAddress;
 use App\Models\CustomerMobile;
 use App\Models\Gdpaper;
@@ -310,6 +311,20 @@ class CustomerController extends Controller
             $address->is_primary = 1;
             $address->save();
         }
+
+        $customer->load(['mobiles', 'addresses']);
+
+        $historyChanges = $this->buildCustomerHistoryPayload(
+            [],
+            $customer,
+            [],
+            $this->extractMobilesForHistory($customer->mobiles),
+            [],
+            $this->extractAddressesForHistory($customer->addresses)
+        );
+
+        $this->persistCustomerHistory($customer, 'created', $historyChanges);
+
         return redirect()->route('customer');
     }
 
@@ -329,7 +344,12 @@ class CustomerController extends Controller
     public function detail($id)
     {
         $groups = CustGroup::where('status', 'up')->get();
-        $customer = Customer::with(['mobiles', 'addresses'])->where('id', $id)->first();
+        $customer = Customer::with([
+            'mobiles',
+            'addresses',
+            'histories.user',
+            'createdBy',
+        ])->findOrFail($id);
         return view('customer.detail')->with('customer', $customer)->with('groups', $groups);
     }
 
@@ -342,7 +362,7 @@ class CustomerController extends Controller
     public function edit($id)
     {
         $groups = CustGroup::where('status', 'up')->get();
-        $customer = Customer::with(['mobiles', 'addresses'])->where('id', $id)->first();
+        $customer = Customer::with(['mobiles', 'addresses'])->findOrFail($id);
         return view('customer.edit')->with('customer', $customer)->with('groups', $groups);
     }
 
@@ -355,7 +375,10 @@ class CustomerController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $customer = Customer::where('id', $id)->first();
+        $customer = Customer::with(['mobiles', 'addresses'])->findOrFail($id);
+        $originalAttributes = $customer->attributesToArray();
+        $originalMobiles = $this->extractMobilesForHistory($customer->mobiles);
+        $originalAddresses = $this->extractAddressesForHistory($customer->addresses);
         $customer->name = $request->name;
         $customer->comment = $request->comment;
         if (isset($customer->group_id)) {
@@ -422,6 +445,19 @@ class CustomerController extends Controller
                 $address->save();
             }
         }
+
+        $customer->refresh()->load(['mobiles', 'addresses']);
+
+        $historyChanges = $this->buildCustomerHistoryPayload(
+            $originalAttributes,
+            $customer,
+            $originalMobiles,
+            $this->extractMobilesForHistory($customer->mobiles),
+            $originalAddresses,
+            $this->extractAddressesForHistory($customer->addresses)
+        );
+
+        $this->persistCustomerHistory($customer, 'updated', $historyChanges);
 
         return redirect()->route('customer');
     }
@@ -565,5 +601,135 @@ class CustomerController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+    private function buildCustomerHistoryPayload(
+        array $originalAttributes,
+        Customer $customer,
+        array $originalMobiles,
+        array $newMobiles,
+        array $originalAddresses,
+        array $newAddresses
+    ): array {
+        $fieldsToTrack = [
+            'name',
+            'comment',
+            'group_id',
+            'mobile',
+            'county',
+            'district',
+            'address',
+            'bank_id',
+            'bank_number',
+            'commission',
+            'visit_status',
+            'contract_status',
+            'assigned_to',
+        ];
+
+        $fieldChanges = [];
+
+        foreach ($fieldsToTrack as $field) {
+            $old = $originalAttributes[$field] ?? null;
+            $new = $customer->{$field};
+            if ($old != $new) {
+                $fieldChanges[$field] = [
+                    'old' => $old,
+                    'new' => $new,
+                ];
+            }
+        }
+
+        $changes = [];
+
+        if (!empty($fieldChanges)) {
+            $changes['fields'] = $fieldChanges;
+        }
+
+        if ($originalMobiles !== $newMobiles) {
+            $changes['mobiles'] = [
+                'old' => $this->formatMobilesForHistory($originalMobiles),
+                'new' => $this->formatMobilesForHistory($newMobiles),
+            ];
+        }
+
+        if ($originalAddresses !== $newAddresses) {
+            $changes['addresses'] = [
+                'old' => $this->formatAddressesForHistory($originalAddresses),
+                'new' => $this->formatAddressesForHistory($newAddresses),
+            ];
+        }
+
+        return $changes;
+    }
+
+    private function extractMobilesForHistory($mobiles): array
+    {
+        if (empty($mobiles)) {
+            return [];
+        }
+
+        return collect($mobiles)->map(function ($mobile) {
+            return [
+                'mobile' => $mobile->mobile ?? ($mobile['mobile'] ?? ''),
+                'is_primary' => (bool)($mobile->is_primary ?? ($mobile['is_primary'] ?? false)),
+            ];
+        })->values()->toArray();
+    }
+
+    private function extractAddressesForHistory($addresses): array
+    {
+        if (empty($addresses)) {
+            return [];
+        }
+
+        return collect($addresses)->map(function ($address) {
+            return [
+                'county' => $address->county ?? ($address['county'] ?? ''),
+                'district' => $address->district ?? ($address['district'] ?? ''),
+                'address' => $address->address ?? ($address['address'] ?? ''),
+                'is_primary' => (bool)($address->is_primary ?? ($address['is_primary'] ?? false)),
+            ];
+        })->values()->toArray();
+    }
+
+    private function formatMobilesForHistory(array $mobiles): array
+    {
+        return array_map(function ($mobile) {
+            $label = $mobile['mobile'] ?? '';
+            if (isset($mobile['is_primary']) && $mobile['is_primary']) {
+                $label = '[主要] ' . $label;
+            }
+            return $label !== '' ? $label : '未提供電話';
+        }, $mobiles);
+    }
+
+    private function formatAddressesForHistory(array $addresses): array
+    {
+        return array_map(function ($address) {
+            $parts = array_filter([
+                $address['county'] ?? '',
+                $address['district'] ?? '',
+                $address['address'] ?? '',
+            ]);
+            $label = implode('', $parts);
+            if (isset($address['is_primary']) && $address['is_primary']) {
+                $label = '[主要] ' . $label;
+            }
+            return $label !== '' ? $label : '未提供地址';
+        }, $addresses);
+    }
+
+    private function persistCustomerHistory(Customer $customer, string $action, array $changes): void
+    {
+        if (empty($changes)) {
+            return;
+        }
+
+        CustomerHistory::create([
+            'customer_id' => $customer->id,
+            'changed_by' => Auth::id(),
+            'action' => $action,
+            'changes' => $changes,
+        ]);
     }
 }
