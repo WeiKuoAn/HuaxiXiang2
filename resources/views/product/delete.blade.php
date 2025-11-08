@@ -267,7 +267,6 @@
                                                 <tr>
                                                     <th>細項名稱</th>
                                                     <th>顏色</th>
-                                                    <th>SKU</th>
                                                     <th>價格<br><small class="text-muted">(留空使用主商品價格)</small></th>
                                                     <th>成本<br><small class="text-muted">(留空使用主商品成本)</small></th>
                                                     <th>庫存</th>
@@ -281,7 +280,6 @@
                                                         <tr>
                                                             <td><input type="text" class="form-control" name="variant_names[]" placeholder="細項名稱（如：黑、深藍）" value="{{ $variant->variant_name }}" required></td>
                                                             <td><input type="text" class="form-control" name="variant_colors[]" placeholder="顏色" value="{{ $variant->color }}"></td>
-                                                            <td><input type="text" class="form-control" name="variant_skus[]" placeholder="SKU" value="{{ $variant->sku }}"></td>
                                                             <td><input type="number" class="form-control" name="variant_prices[]" placeholder="價格" step="0.01" value="{{ $variant->price }}"></td>
                                                             <td><input type="number" class="form-control" name="variant_costs[]" placeholder="成本" step="0.01" value="{{ $variant->cost }}"></td>
                                                             <td><input type="number" class="form-control" name="variant_stocks[]" placeholder="庫存" value="{{ $variant->stock_quantity }}"></td>
@@ -298,6 +296,7 @@
                                                             </td>
                                                             <!-- 隱藏的細項 ID，用於保持現有記錄 -->
                                                             <input type="hidden" name="variant_ids[]" value="{{ $variant->id }}">
+                                                            <input type="hidden" name="variant_skus[]" value="{{ $variant->sku }}">
                                                         </tr>
                                                     @endforeach
                                                 @endif
@@ -481,7 +480,6 @@
             <tr>
                 <td><input type="text" class="form-control" name="variant_names[]" placeholder="細項名稱（如：黑、深藍）" required></td>
                 <td><input type="text" class="form-control" name="variant_colors[]" placeholder="顏色"></td>
-                <td><input type="text" class="form-control" name="variant_skus[]" placeholder="SKU"></td>
                 <td><input type="number" class="form-control" name="variant_prices[]" placeholder="價格" step="0.01"></td>
                 <td><input type="number" class="form-control" name="variant_costs[]" placeholder="成本" step="0.01"></td>
                 <td><input type="number" class="form-control" name="variant_stocks[]" placeholder="庫存" value="0"></td>
@@ -496,6 +494,7 @@
                         <i class="mdi mdi-delete"></i>
                     </button>
                 </td>
+                <input type="hidden" name="variant_skus[]" value="">
             </tr>
         `;
         $('#variants-table tbody').append(newRow);

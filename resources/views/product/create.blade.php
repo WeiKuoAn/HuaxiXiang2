@@ -252,18 +252,17 @@
                             
                             <div class="table-responsive">
                                 <table class="table table-bordered" id="variants-table">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>細項名稱</th>
-                                            <th>顏色</th>
-                                            <th>SKU</th>
-                                            <th>價格<br><small class="text-muted">(留空使用主商品價格)</small></th>
-                                            <th>成本<br><small class="text-muted">(留空使用主商品成本)</small></th>
-                                            <th>庫存</th>
-                                            <th>狀態</th>
-                                            <th>動作</th>
-                                        </tr>
-                                    </thead>
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>細項名稱</th>
+                                                    <th>顏色</th>
+                                                    <th>價格<br><small class="text-muted">(留空使用主商品價格)</small></th>
+                                                    <th>成本<br><small class="text-muted">(留空使用主商品成本)</small></th>
+                                                    <th>庫存</th>
+                                                    <th>狀態</th>
+                                                    <th>動作</th>
+                                                </tr>
+                                            </thead>
                                     <tbody>
                                         <!-- 動態新增的細項列 -->
                                     </tbody>
@@ -410,7 +409,6 @@
             <tr>
                 <td><input type="text" class="form-control" name="variant_names[]" placeholder="細項名稱（如：黑、深藍）" required></td>
                 <td><input type="text" class="form-control" name="variant_colors[]" placeholder="顏色"></td>
-                <td><input type="text" class="form-control" name="variant_skus[]" placeholder="SKU"></td>
                 <td><input type="number" class="form-control" name="variant_prices[]" placeholder="價格" step="0.01"></td>
                 <td><input type="number" class="form-control" name="variant_costs[]" placeholder="成本" step="0.01"></td>
                 <td><input type="number" class="form-control" name="variant_stocks[]" placeholder="庫存" value="0"></td>
@@ -425,6 +423,7 @@
                         <i class="mdi mdi-delete"></i>
                     </button>
                 </td>
+                <input type="hidden" name="variant_skus[]" value="">
             </tr>
         `;
         $('#variants-table tbody').append(newRow);
