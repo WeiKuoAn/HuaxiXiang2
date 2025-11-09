@@ -118,6 +118,87 @@
         #time-slot-section-0 .select2-selection__arrow {
             height: 36px !important;
         }
+
+        .day-worklog-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .day-worklog-card {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            height: 100%;
+            box-shadow: 0 2px 4px rgba(15, 34, 58, 0.05);
+        }
+
+        .day-worklog-name {
+            font-weight: 600;
+            color: #212529;
+            font-size: 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .day-worklog-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .day-worklog-label {
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+
+        .day-worklog-badge {
+            font-size: 1.05rem;
+            padding: 0.4rem 0.75rem;
+        }
+
+        @media (max-width: 991.98px) {
+            .day-worklog-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .day-worklog-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .day-worklog-placeholder {
+            border: 1px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            color: #6c757d;
+            background-color: #f8f9fa;
+        }
+
+        .day-worklog-error {
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            background-color: rgba(220, 53, 69, 0.08);
+            color: #dc3545;
+            border-radius: 6px;
+            padding: 12px 16px;
+        }
+
+        .day-worklog-loading {
+            border: 1px solid rgba(13, 110, 253, 0.1);
+            background-color: rgba(13, 110, 253, 0.06);
+            color: #0d6efd;
+            border-radius: 6px;
+            padding: 12px 16px;
+        }
     </style>
 @endsection
 
@@ -420,6 +501,14 @@
                                 <h5 class="category-title">
                                     <i class="fe-clock me-2"></i>加班費
                                 </h5>
+                                <div class="mb-4">
+                                    <h6 class="text-muted mb-2">
+                                        <i class="fe-users me-1"></i>當日出勤情況
+                                    </h6>
+                                    <div id="day-worklog-container" class="bg-white border rounded p-3">
+                                        <div class="day-worklog-placeholder"><i class="fe-info me-2"></i>請先選擇加成日期以載入出勤資料。</div>
+                                    </div>
+                                </div>
                                 <div id="overtime-container">
                                     <div class="person-row" data-overtime-index="0">
                                         <div class="row">
@@ -566,7 +655,6 @@
                                     </div>
                                 </div>
                             </div>
-
 
                             <!-- 提交按鈕 -->
                             <div class="row mt-4">
@@ -1584,134 +1672,55 @@
         function autoSelectNewOvertimeRecord(recordData) {
             console.log('開始處理新建立的加班記錄:', recordData);
             
-            // 記錄現有區段的數量
-            const existingContainers = document.querySelectorAll('[id^="overtime-records-container-"]');
-            console.log('現有區段數量:', existingContainers.length);
-            
-            let targetIndex = -1;
-            
-            // 檢查第一個區段是否為空（未選擇任何加班記錄）
-            if (existingContainers.length > 0) {
-                const firstSelect = document.getElementById('overtime_record_select_0');
-                if (firstSelect && (!firstSelect.value || firstSelect.value === '')) {
-                    console.log('第一個區段為空，使用第一個區段');
-                    targetIndex = 0;
-                }
-            }
-            
-            // 如果第一個區段不為空，或沒有任何區段，則創建新的區段
-            if (targetIndex === -1) {
-                console.log('創建新區段用於手動新增的加班記錄');
-                addOvertime();
-                
-                // 等待新區段建立完成
-                setTimeout(() => {
-                    const newContainers = document.querySelectorAll('[id^="overtime-records-container-"]');
-                    targetIndex = newContainers.length - 1;
-                    console.log('新區段數量:', newContainers.length, '目標索引:', targetIndex);
-                    
-                    // 直接添加新記錄，不載入現有記錄
-                    addRecordToOvertimeSection(recordData, targetIndex);
-                }, 100);
-            } else {
-                // 直接使用第一個區段
-                console.log('使用第一個區段，索引:', targetIndex);
-                addRecordToOvertimeSection(recordData, targetIndex);
-            }
+            // 無論如何都新增一個新的加班費區段，避免覆蓋既有設定
+            addOvertime();
+
+            // 計算新區段的索引（最後一個）
+            const containers = document.querySelectorAll('[id^="overtime-records-container-"]');
+            const targetIndex = containers.length - 1;
+
+            // 等待下拉選單就緒後再附加選項
+            addRecordToOvertimeSection(recordData, targetIndex);
         }
         
-        // 將記錄添加到指定的加班費區段（帶有回調函數版本）
-        function addRecordToOvertimeSection(recordData, index, callback) {
-            console.log(`添加記錄到區段 ${index}:`, recordData);
-            let selectElement = document.getElementById(`overtime_record_select_${index}`);
-            
-            // 定義實際添加記錄的函數
-            const actuallyAddRecord = () => {
-                selectElement = document.getElementById(`overtime_record_select_${index}`);
-                
-                if (selectElement) {
-                    console.log(`找到區段 ${index} 的下拉選單，現有選項數量:`, selectElement.options.length);
-                    
-                    // 檢查是否已經存在相同的記錄
-                    const existingOption = selectElement.querySelector(`option[value="${recordData.id}"]`);
-                    if (existingOption) {
-                        console.log(`區段 ${index} 已存在記錄 ${recordData.id}，直接選擇`);
-                        selectElement.value = recordData.id;
-                    } else {
-                        console.log(`區段 ${index} 不存在記錄 ${recordData.id}，添加新選項`);
-                        // 直接添加新記錄到下拉選單
-                        const newOption = document.createElement('option');
-                        newOption.value = recordData.id;
-                        newOption.setAttribute('data-formatted-hours', recordData.formatted_hours);
-                        newOption.setAttribute('data-user-name', recordData.user_name);
-                        newOption.setAttribute('data-minutes', recordData.minutes);
-                        newOption.setAttribute('data-reason', recordData.reason || '');
-                        newOption.setAttribute('data-created-by-name', recordData.created_by_name || '未知人員');
-                        newOption.textContent = `${recordData.user_name} - ${recordData.formatted_hours}`;
-                        
-                        // 添加到下拉選單
-                        selectElement.appendChild(newOption);
-                        
-                        // 選擇新建立的記錄
-                        selectElement.value = recordData.id;
-                    }
-                    
-                    console.log(`設置區段 ${index} 的值為:`, recordData.id);
-                    
-                    // 更新隱藏的 overtime_record 欄位
-                    const recordField = document.getElementById(`overtime_record_field_${index}`);
-                    if (recordField) {
-                        recordField.value = recordData.id;
-                        console.log(`設置隱藏欄位 overtime_record_field_${index} 的值為:`, recordData.id);
-                    }
-                    
-                    // 觸發變更事件來顯示編輯區段
-                    console.log(`觸發區段 ${index} 的編輯區段顯示`);
-                    toggleOvertimeEditSection(index);
-                    
-                    if (callback) callback();
-                } else {
-                    console.error(`無法找到區段 ${index} 的下拉選單`);
-                }
-            };
-            
+        // 將記錄添加到指定的加班費區段（等待下拉建立後附加選項）
+        function addRecordToOvertimeSection(recordData, index, attempt = 0) {
+            const selectElement = document.getElementById(`overtime_record_select_${index}`);
+
             if (!selectElement) {
-                console.log(`區段 ${index} 沒有下拉選單，先載入該日期的所有記錄`);
-                // 先載入該日期的所有加班記錄，創建下拉選單
-                const increaseDate = document.querySelector('input[name="increase_date"]').value;
-                const container = document.getElementById(`overtime-records-container-${index}`);
-                
-                if (!increaseDate) {
-                    console.error('未選擇加成日期，無法載入記錄');
+                if (attempt > 20) {
+                    console.error(`無法在區段 ${index} 建立加班記錄下拉選單。`);
                     return;
                 }
-                
-                // 使用 fetch 載入記錄
-                fetch(`/increase/overtime-records/${increaseDate}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // 先顯示該日期的所有記錄
-                        displayOvertimeRecordsForIndex(data.records, index);
-                        // 然後添加新記錄
-                        setTimeout(() => actuallyAddRecord(), 50);
-                    } else {
-                        console.error('載入記錄失敗:', data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('載入記錄時發生錯誤:', error);
-                });
-            } else {
-                // 下拉選單已存在，直接添加記錄
-                actuallyAddRecord();
+                setTimeout(() => addRecordToOvertimeSection(recordData, index, attempt + 1), 150);
+                return;
             }
+
+            let option = selectElement.querySelector(`option[value="${recordData.id}"]`);
+            if (!option) {
+                option = document.createElement('option');
+                option.value = recordData.id;
+                selectElement.appendChild(option);
+            }
+
+            option.setAttribute('data-formatted-hours', recordData.formatted_hours);
+            option.setAttribute('data-user-name', recordData.user_name);
+            option.setAttribute('data-minutes', recordData.minutes);
+            option.setAttribute('data-reason', recordData.reason || '');
+            option.setAttribute('data-created-by-name', recordData.created_by_name || '未知人員');
+            option.textContent = `${recordData.user_name} - ${recordData.formatted_hours}`;
+
+            // 選擇新建立的記錄
+            selectElement.value = recordData.id;
+
+            // 更新隱藏欄位供表單送出
+            const recordField = document.getElementById(`overtime_record_field_${index}`);
+            if (recordField) {
+                recordField.value = recordData.id;
+            }
+
+            // 刷新編輯區內容
+            toggleOvertimeEditSection(index);
         }
 
 
@@ -1719,6 +1728,7 @@
         document.querySelector('input[name="increase_date"]').addEventListener('change', function() {
             // 載入所有加班費區段的加班記錄
             loadAllOvertimeRecords();
+            loadDayWorkLogs();
         });
 
         // 載入所有加班費區段的加班記錄
@@ -1739,6 +1749,7 @@
             const increaseDate = document.querySelector('input[name="increase_date"]').value;
             if (increaseDate) {
                 loadOvertimeRecordsForIndex(0); // 載入預設的加班費區段
+                loadDayWorkLogs();
             }
         });
 
@@ -1763,5 +1774,76 @@
                 }
             }
         });
+
+        const workLogContainer = document.getElementById('day-worklog-container');
+
+        function loadDayWorkLogs() {
+            if (!workLogContainer) {
+                return;
+            }
+
+            const increaseDate = document.querySelector('input[name="increase_date"]').value;
+
+            if (!increaseDate) {
+                workLogContainer.innerHTML = '<div class="day-worklog-placeholder"><i class="fe-info me-2"></i>請先選擇加成日期以載入出勤資料。</div>';
+                return;
+            }
+
+            workLogContainer.innerHTML = '<div class="day-worklog-loading"><i class="fe-loader me-2"></i>資料載入中...</div>';
+
+            fetch(`/increase/day-works/${increaseDate}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        renderDayWorkLogs(data.records || []);
+                    } else {
+                        workLogContainer.innerHTML = `<div class="day-worklog-error"><i class="fe-alert-triangle me-2"></i>${data.message || '取得出勤資料時發生錯誤'}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('loadDayWorkLogs error:', error);
+                    workLogContainer.innerHTML = '<div class="day-worklog-error"><i class="fe-alert-triangle me-2"></i>取得出勤資料失敗，請稍後再試。</div>';
+                });
+        }
+
+        function renderDayWorkLogs(records) {
+            if (!records.length) {
+                workLogContainer.innerHTML = '<div class="day-worklog-placeholder"><i class="fe-info me-2"></i>當日尚無出勤紀錄。</div>';
+                return;
+            }
+
+            let html = '<div class="day-worklog-grid">';
+            records.forEach(record => {
+                const worktime = record.worktime_formatted
+                    ? `<span class="badge bg-success text-white day-worklog-badge">${record.worktime_formatted}</span>`
+                    : '<span class="badge bg-warning text-dark day-worklog-badge">未打卡</span>';
+                const dutytime = record.dutytime_formatted
+                    ? `<span class="badge bg-primary text-white day-worklog-badge">${record.dutytime_formatted}</span>`
+                    : '<span class="badge bg-warning text-dark day-worklog-badge">未打卡</span>';
+
+                html += `
+                    <div class="day-worklog-card">
+                        <div class="day-worklog-name">${record.user_name}</div>
+                        <div class="day-worklog-row">
+                            <span class="day-worklog-label">上班</span>
+                            ${worktime}
+                        </div>
+                        <div class="day-worklog-row">
+                            <span class="day-worklog-label">下班</span>
+                            ${dutytime}
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            workLogContainer.innerHTML = html;
+        }
     </script>
 @endsection

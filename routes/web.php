@@ -879,6 +879,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/increase/export-combined', [IncreaseController::class, 'exportCombined'])->name('increase.export-combined');
     Route::get('/increase/statistics', [IncreaseController::class, 'statistics'])->name('increase.statistics');
     Route::get('/increase/overtime-records/{date}', [IncreaseController::class, 'getOvertimeRecords'])->name('increase.overtime-records');
+    Route::get('/increase/day-works/{date}', [IncreaseController::class, 'getDayWorks'])->name('increase.day-works');
     
     // 夜間開爐時段管理路由
     Route::get('/increase/time-slots', [NightShiftTimeSlotController::class, 'index'])->name('increase.time-slots.index');

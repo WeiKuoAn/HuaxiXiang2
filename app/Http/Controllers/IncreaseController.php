@@ -11,6 +11,8 @@ use App\Models\IncreaseSetting;
 use App\Models\NightShiftTimeSlot;
 use App\Models\User;
 use App\Models\OvertimeRecord;
+use App\Models\Works;
+use Carbon\Carbon;
 
 class IncreaseController extends Controller
 {
@@ -1103,6 +1105,41 @@ class IncreaseController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => '取得加班記錄失敗：' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getDayWorks($date)
+    {
+        try {
+            $works = Works::with('user')
+                ->where(function ($query) use ($date) {
+                    $query->whereDate('worktime', $date)
+                          ->orWhereDate('dutytime', $date);
+                })
+                ->orderBy('worktime')
+                ->orderBy('dutytime')
+                ->get();
+
+            $records = $works->map(function ($work) {
+                return [
+                    'user_id' => $work->user_id,
+                    'user_name' => $work->user->name ?? '未知人員',
+                    'worktime_raw' => $work->worktime,
+                    'dutytime_raw' => $work->dutytime,
+                    'worktime_formatted' => $work->worktime ? Carbon::parse($work->worktime)->format('H:i') : null,
+                    'dutytime_formatted' => $work->dutytime ? Carbon::parse($work->dutytime)->format('H:i') : null,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'records' => $records,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => '取得出勤記錄失敗：' . $e->getMessage(),
             ], 500);
         }
     }
