@@ -24,6 +24,11 @@ class Works extends Model
         'remark',
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public static  function work_sum($workId)
     {
         $work = self::where('id',$workId)->first();
