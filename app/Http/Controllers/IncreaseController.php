@@ -107,7 +107,7 @@ class IncreaseController extends Controller
             ]);
 
             // 1. 處理晚間加成 - 電話人員
-            if ($request->filled('evening_phone')) {
+            if ($request->has('evening_phone')) {
                 $isSpecial = $increase->evening_is_typhoon || $increase->evening_is_newyear;
                 $unitPrice = $isSpecial ? 100 : 50; // 颱風/過年 $100，一般 $50
                 
@@ -133,7 +133,7 @@ class IncreaseController extends Controller
             }
 
             // 2. 處理晚間加成 - 接件人員
-            if ($request->filled('evening_receive')) {
+            if ($request->has('evening_receive')) {
                 $isSpecial = $increase->evening_is_typhoon || $increase->evening_is_newyear;
                 $unitPrice = $isSpecial ? 500 : 250; // 颱風/過年 $500，一般 $250
                 
@@ -159,7 +159,7 @@ class IncreaseController extends Controller
             }
 
             // 3. 處理夜間加成 - 電話人員
-            if ($request->filled('night_phone')) {
+            if ($request->has('night_phone')) {
                 $unitPrice = 100; // 夜間加成固定 $100（不受颱風/過年影響）
                 
                 foreach ($request->night_phone as $itemData) {
@@ -184,7 +184,7 @@ class IncreaseController extends Controller
             }
 
             // 4. 處理夜間加成 - 接件人員
-            if ($request->filled('night_receive')) {
+            if ($request->has('night_receive')) {
                 $unitPrice = 500; // 夜間加成固定 $500（不受颱風/過年影響）
                 
                 foreach ($request->night_receive as $itemData) {
@@ -209,7 +209,7 @@ class IncreaseController extends Controller
             }
 
             // 5. 處理夜間開爐項目
-            if ($request->filled('furnace')) {
+            if ($request->has('furnace')) {
                 foreach ($request->furnace as $furnaceData) {
                     // 跳過沒有時段或人員的項目
                     if (empty($furnaceData['time_slot_id']) || empty($furnaceData['furnace_person'])) {
@@ -235,7 +235,7 @@ class IncreaseController extends Controller
             }
 
             // 6. 處理加班費項目
-            if ($request->filled('overtime')) {
+            if ($request->has('overtime')) {
                 foreach ($request->overtime as $index => $overtimeData) {
                     \Log::info("處理加班費項目 {$index}:", [
                         'overtime_record_id' => $overtimeData['overtime_record'] ?? 'null',
@@ -361,7 +361,7 @@ class IncreaseController extends Controller
             $increase->items()->delete();
 
             // 1. 處理晚間加成 - 電話人員
-            if ($request->filled('evening_phone')) {
+            if ($request->has('evening_phone')) {
                 $isSpecial = $increase->evening_is_typhoon || $increase->evening_is_newyear;
                 $unitPrice = $isSpecial ? 100 : 50;
                 
@@ -387,7 +387,7 @@ class IncreaseController extends Controller
             }
 
             // 2. 處理晚間加成 - 接件人員
-            if ($request->filled('evening_receive')) {
+            if ($request->has('evening_receive')) {
                 $isSpecial = $increase->evening_is_typhoon || $increase->evening_is_newyear;
                 $unitPrice = $isSpecial ? 500 : 250;
                 
@@ -413,7 +413,7 @@ class IncreaseController extends Controller
             }
 
             // 3. 處理夜間加成 - 電話人員
-            if ($request->filled('night_phone')) {
+            if ($request->has('night_phone')) {
                 $unitPrice = 100;
                 
                 foreach ($request->night_phone as $itemData) {
@@ -438,7 +438,7 @@ class IncreaseController extends Controller
             }
 
             // 4. 處理夜間加成 - 接件人員
-            if ($request->filled('night_receive')) {
+            if ($request->has('night_receive')) {
                 $unitPrice = 500;
                 
                 foreach ($request->night_receive as $itemData) {
@@ -463,7 +463,7 @@ class IncreaseController extends Controller
             }
 
             // 5. 處理夜間開爐項目
-            if ($request->filled('furnace')) {
+            if ($request->has('furnace')) {
                 foreach ($request->furnace as $furnaceData) {
                     // 跳過沒有時段或人員的項目
                     if (empty($furnaceData['time_slot_id']) || empty($furnaceData['furnace_person'])) {
@@ -489,7 +489,7 @@ class IncreaseController extends Controller
             }
 
             // 6. 處理加班費項目
-            if ($request->filled('overtime')) {
+            if ($request->has('overtime')) {
                 foreach ($request->overtime as $overtimeData) {
                     // 跳過沒有 overtime_record 的項目
                     if (empty($overtimeData['overtime_record'])) {
