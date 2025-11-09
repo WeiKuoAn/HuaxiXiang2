@@ -12,6 +12,10 @@ class IncreaseItem extends Model
     protected $fillable = [
         'increase_id',
         'item_type',
+        'category',
+        'role',
+        'count',
+        'unit_price',
         'phone_person_id',
         'receive_person_id',
         'furnace_person_id',

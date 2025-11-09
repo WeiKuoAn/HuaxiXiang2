@@ -12,6 +12,10 @@ class Increase extends Model
     protected $fillable = [
         'increase_date',
         'comment',
+        'evening_is_typhoon',
+        'evening_is_newyear',
+        'night_is_typhoon',
+        'night_is_newyear',
         'created_by'
     ];
 
