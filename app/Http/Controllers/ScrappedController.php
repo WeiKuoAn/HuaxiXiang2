@@ -96,6 +96,15 @@ class ScrappedController extends Controller
         return view('sale.scrapped_check')->with('scrapped', $scrapped);
     }
 
+    /**
+     * Ajax 版本的 check_show - 用於 modal 顯示
+     */
+    public function check_show_ajax($id)
+    {
+        $scrapped = Sale::where('id', $id)->where('type_list', 'scrapped')->firstOrFail();
+        return view('sale.scrapped_check_modal')->with('scrapped', $scrapped)->render();
+    }
+
     public function check_data(Request $request, $id)
     {
         $sale = Sale::where('id', $id)->first();
@@ -137,6 +146,15 @@ class ScrappedController extends Controller
                 $sale_history->state = 'reset';
                 $sale_history->save();
             }
+            
+            // 檢查是否為 Ajax 請求
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => '報廢單對帳操作成功'
+                ]);
+            }
+            
             $user = session('user');
             $afterDate = session('afterDate');
             $beforeDate = session('beforeDate');
@@ -161,6 +179,15 @@ class ScrappedController extends Controller
                 $sale_history->state = 'usercheck';
                 $sale_history->save();
             }
+            
+            // 檢查是否為 Ajax 請求
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => '報廢單送出對帳成功'
+                ]);
+            }
+            
             return redirect()->route('person.sales');
         }
     }

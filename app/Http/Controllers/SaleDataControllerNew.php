@@ -767,7 +767,7 @@ class SaleDataControllerNew extends Controller
         $users = User::whereIn('job_id', [1, 3, 5])->where('status', '0')->orderby('seq')->get();
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
-        
+
         if (Auth::user()->level != 2 || Auth::user()->job_id == '9' || Auth::user()->job_id == '10' || Auth::user()->job_id == '3') {
             return view('sale.index')
                 ->with('sales', $sales)
@@ -787,34 +787,131 @@ class SaleDataControllerNew extends Controller
     public function wait_index(Request $request)  // 代確認業務單
     {
         $sales = Sale::where('status', 3);
+        $payDatas = PayData::leftJoin('users', 'pay_data.user_id', '=', 'users.id')
+        ->whereNotIn('users.job_id', [1, 2, 7])  // 不抓老闆、工程師、行政經理
+        ->where('pay_data.status', 0);
         if ($request) {
             $after_date = $request->after_date;
             if ($after_date) {
                 $sales = $sales->where('sale_date', '>=', $after_date);
+                $payDatas = $payDatas->where('pay_date', '>=', $after_date);
             }
             $before_date = $request->before_date;
             if ($before_date) {
                 $sales = $sales->where('sale_date', '<=', $before_date);
+                $payDatas = $payDatas->where('pay_date', '<=', $before_date);
             }
             $user = $request->user;
             if ($user != 'null') {
                 if (isset($user)) {
                     $sales = $sales->where('user_id', $user);
+                    $payDatas = $payDatas->where('user_id', $user);
                 } else {
                     $sales = $sales;
+                    $payDatas = $payDatas;
                 }
             }
         } else {
             $sales = $sales->orderby('sale_date', 'desc')->orderby('user_id', 'desc')->orderby('sale_on', 'asc');
+            $payDatas = $payDatas->orderby('pay_date', 'desc')->orderby('user_id', 'desc');
         }
         $sales = $sales->get();
-        $users = User::where('status', '0')->whereIn('job_id', [3, 5, 10])->get();
-
+        $payDatas = $payDatas->get();
+        // dd($sales);
+        $users = User::whereIn('job_id', [3, 5, 10])->get();
+        $sums = ['count' => 0, 'price' => 0, 'pay_price' => 0, 'cash_total' => 0, 'transfer_total' => 0, 'pay_count' => 0, 'actual_price' => 0];
         $total = 0;
         foreach ($sales as $sale) {
             $total += $sale->pay_price;
         }
-        return view('sale.wait')->with('sales', $sales)->with('request', $request)->with('users', $users)->with('total', $total);
+
+       
+        $datas = [];
+        foreach ($sales as $sale) {
+            $query = Sale::where('status', 3)->where('user_id', $sale->user_id);
+
+            // 只有在變數不為空時才加入日期條件
+            if (!empty($after_date)) {
+                $query = $query->where('sale_date', '>=', $after_date);
+            }
+            if (!empty($before_date)) {
+                $query = $query->where('sale_date', '<=', $before_date);
+            }
+            $datas[$sale->user_id]['name'] = $sale->user_name->name;
+            $datas[$sale->user_id]['items'] = $query->orderby('sale_date', 'desc')->orderby('user_id', 'desc')->orderby('sale_on', 'asc')->get();
+            $datas[$sale->user_id]['count'] = $datas[$sale->user_id]['items']->count();
+            $datas[$sale->user_id]['cash_total'] = $datas[$sale->user_id]['items']->where('pay_method', 'A')->sum('pay_price');
+            $datas[$sale->user_id]['transfer_total'] = $datas[$sale->user_id]['items']->where('pay_method', 'B')->sum('pay_price');
+
+            $datas[$sale->user_id]['cash_price'] = $datas[$sale->user_id]['items']->where('pay_method', 'C')->sum('cash_price');
+            $datas[$sale->user_id]['transfer_price'] = $datas[$sale->user_id]['items']->where('pay_method', 'C')->sum('transfer_price');
+            if ($datas[$sale->user_id]['cash_price'] > 0 && $datas[$sale->user_id]['transfer_price'] > 0) {
+                $datas[$sale->user_id]['cash_total'] = $datas[$sale->user_id]['cash_total'] + $datas[$sale->user_id]['cash_price'];
+                $datas[$sale->user_id]['transfer_total'] = $datas[$sale->user_id]['transfer_total'] + $datas[$sale->user_id]['transfer_price'];
+            }
+
+            $datas[$sale->user_id]['price'] = $datas[$sale->user_id]['items']->sum('pay_price');
+        }
+        
+        foreach ($payDatas as $key => $payData) {
+            $datas[$payData->user_id]['name'] = $payData->user_name->name;
+            $datas[$payData->user_id]['pay_datas'] = PayData::where('user_id', $payData->user_id)
+                ->where('status', 0)
+                ->get();
+            $datas[$payData->user_id]['pay_count'] = $datas[$payData->user_id]['pay_datas']->count();
+            $datas[$payData->user_id]['pay_price'] = $datas[$payData->user_id]['pay_datas']->sum('price');
+
+            if (!isset($datas[$payData->user_id]['count'])) {
+                $datas[$payData->user_id]['count'] = 0;
+            }
+            if (!isset($datas[$payData->user_id]['price'])) {
+                $datas[$payData->user_id]['price'] = 0;
+            }
+            if (!isset($datas[$payData->user_id]['cash_total'])) {
+                $datas[$payData->user_id]['cash_total'] = 0;
+            }
+            if (!isset($datas[$payData->user_id]['transfer_total'])) {
+                $datas[$payData->user_id]['transfer_total'] = 0;
+            }
+        }
+        $sums['actual_price'] = 0;
+        $sums['cash_actual_price'] = 0;
+        // 使用 foreach 遍歷 $datas 並累計到 $sums
+        foreach ($datas as $date => &$data) {
+            if (isset($data['count'])) {
+                $sums['count'] += $data['count'];
+            }
+            if (isset($data['price'])) {
+                $sums['price'] += $data['price'];
+            }
+            // 現金
+            if (isset($data['cash_total'])) {
+                $sums['cash_total'] += $data['cash_total'];
+            }
+            // 轉帳
+            if (isset($data['transfer_total'])) {
+                $sums['transfer_total'] += $data['transfer_total'];
+            }
+            // 加上支出資料的統計
+            if (isset($data['pay_count'])) {
+                $sums['pay_count'] += $data['pay_count'];
+            }
+            if (isset($data['pay_price'])) {
+                $sums['price'] += $data['pay_price'];
+            }
+            if (isset($data['pay_price'])) {
+                $sums['pay_price'] += $data['pay_price'];
+            }
+            // 計算實際收入（業務收入 - 支出）
+            $datas[$date]['cash_actual_price'] = ($data['cash_total'] ?? 0) - ($data['pay_price'] ?? 0);
+            $datas[$date]['actual_price'] = ($data['price'] ?? 0) - ($data['pay_price'] ?? 0);
+            if (isset($data['actual_price'])) {
+                $sums['actual_price'] += $data['actual_price'];
+            } else {
+                $sums['actual_price'] = 0;
+            }
+        }
+        return view('sale.wait')->with('sales', $sales)->with('request', $request)->with('users', $users)->with('datas', $datas)->with('total', $total);
     }
 
     public function user_sale($id, Request $request)  // 從用戶管理進去看業務單
@@ -930,7 +1027,7 @@ class SaleDataControllerNew extends Controller
             ->with('users', $users);
     }
 
-    public function check_show_gpt(Request $request , $id)
+    public function check_show_gpt(Request $request, $id)
     {
         $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
         $plans = Plan::where('status', 'up')->get();
@@ -1029,9 +1126,85 @@ class SaleDataControllerNew extends Controller
             ->with('souvenirs', $souvenirs);
     }
 
+    /**
+     * Ajax 版本的 check_show_gpt - 用於 modal 顯示
+     */
+    public function check_show_gpt_ajax(Request $request, $id)
+    {
+        $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
+        $plans = Plan::where('status', 'up')->get();
+        $products = Product::where('status', 'up')->where('category_id', '1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $customers = Customer::orderby('created_at', 'desc')->get();
+        $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
+        $suits = Suit::where('status', 'up')->get();
+        $souvenir_types = SouvenirType::where('status', 'up')->get();
+        $proms = Prom::where('status', 'up')->get();
+        $hospitals = Customer::whereIn('group_id', [2])->get();
+        $data = Sale::where('id', $id)->first();
+
+        if (!$data) {
+            return response()->json(['error' => '找不到指定的業務單'], 404);
+        }
+
+        // 載入相關資料
+        $sale_proms = Sale_prom::where('sale_id', $id)->get();
+        $sale_gdpapers = Sale_gdpaper::where('sale_id', $id)->get();
+        $sale_souvenirs = SaleSouvenir::where('sale_id', $id)->get();
+
+        // 載入每個後續處理項目對應的紀念品資料
+        foreach ($sale_proms as $sale_prom) {
+            $sale_prom->souvenir_data = SaleSouvenir::where('sale_id', $id)
+                ->where('sale_prom_id', $sale_prom->id)
+                ->first();
+
+            // 判斷商品類型
+            if ($sale_prom->souvenir_data) {
+                if ($sale_prom->souvenir_data->souvenir_type == null) {
+                    // 關聯商品：souvenir_type 為 null
+                    $sale_prom->is_custom_product = false;
+                    $sale_prom->product_id = $sale_prom->souvenir_data->product_name;  // product_name 存的是商品ID
+                    $sale_prom->variant_id = $sale_prom->souvenir_data->product_variant_id;
+                } else {
+                    // 自訂商品：souvenir_type 不為 null
+                    $sale_prom->is_custom_product = true;
+                    $sale_prom->product_name = $sale_prom->souvenir_data->product_name;  // product_name 存的是商品名稱
+                    $sale_prom->souvenir_type_id = $sale_prom->souvenir_data->souvenir_type;
+                }
+            }
+        }
+
+        // 載入來源公司資料
+        $sale_company = SaleCompanyCommission::where('sale_id', $id)->first();
+
+        // 載入接體地址資料
+        $sale_address = SaleAddress::where('sale_id', $id)->first();
+
+        // 載入紀念品資料
+        $souvenirs = Souvenir::where('status', 'up')->get();
+
+        // 返回部分視圖（用於 modal）
+        return view('sale.check_gpt_modal')
+            ->with('data', $data)
+            ->with('products', $products)
+            ->with('sources', $sources)
+            ->with('plans', $plans)
+            ->with('customers', $customers)
+            ->with('source_companys', $source_companys)
+            ->with('suits', $suits)
+            ->with('souvenir_types', $souvenir_types)
+            ->with('proms', $proms)
+            ->with('hospitals', $hospitals)
+            ->with('sale_proms', $sale_proms)
+            ->with('sale_gdpapers', $sale_gdpapers)
+            ->with('sale_souvenirs', $sale_souvenirs)
+            ->with('sale_company', $sale_company)
+            ->with('sale_address', $sale_address)
+            ->with('souvenirs', $souvenirs)
+            ->render();
+    }
+
     public function check_update_gpt(Request $request, $id)
     {
-        // dd($request->all());
         $sale = Sale::where('id', $id)->first();
 
         if (isset($request->admin_check)) {
@@ -1071,6 +1244,15 @@ class SaleDataControllerNew extends Controller
                 $sale_history->state = 'reset';
                 $sale_history->save();
             }
+
+            // 檢查是否為 Ajax 請求
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => '對帳操作成功'
+                ]);
+            }
+
             $user = session('user');
             $afterDate = session('afterDate');
             $beforeDate = session('beforeDate');
@@ -1095,6 +1277,15 @@ class SaleDataControllerNew extends Controller
                 $sale_history->state = 'usercheck';
                 $sale_history->save();
             }
+
+            // 檢查是否為 Ajax 請求
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => '送出對帳成功'
+                ]);
+            }
+
             return redirect()->route('person.sales');
         }
     }
@@ -2411,5 +2602,148 @@ class SaleDataControllerNew extends Controller
         $sale = Sale::where('id', $id)->first();
         $datas = SaleHistory::where('sale_id', $id)->get();
         return view('sale.history')->with('sale', $sale)->with('datas', $datas);
+    }
+
+    /**
+     * 檢查缺少的單號
+     */
+    public function checkMissingNumbers(Request $request)
+    {
+        // 建立查詢
+        $query = Sale::whereIn('status', [1, 3, 9, 100]);
+
+        // 篩選條件
+        if ($request->after_date) {
+            $query->where('sale_date', '>=', $request->after_date);
+        }
+        if ($request->before_date) {
+            $query->where('sale_date', '<=', $request->before_date);
+        }
+        if ($request->user_id && $request->user_id != 'null') {
+            $query->where('user_id', $request->user_id);
+        }
+        if ($request->type_list && $request->type_list != 'null') {
+            $query->where('type_list', $request->type_list);
+        }
+
+        // 取得所有 sale_on
+        $saleOns = $query->pluck('sale_on', 'id');
+
+        // 提取純數字並記錄對應的 ID
+        $numbers = [];
+        $numberToSales = [];  // 記錄每個數字對應的業務單
+        $invalidSales = [];  // 記錄異常單號
+
+        foreach ($saleOns as $id => $saleOn) {
+            // 移除 "No." 並提取數字
+            if (preg_match('/\d+/', $saleOn, $matches)) {
+                $number = (int) $matches[0];
+
+                // 過濾異常數字（單號應該在合理範圍內，1-20000）
+                if ($number > 0 && $number <= 20000) {
+                    $numbers[] = $number;
+
+                    // 記錄這個數字對應的業務單（可能有重複）
+                    if (!isset($numberToSales[$number])) {
+                        $numberToSales[$number] = [];
+                    }
+                    $numberToSales[$number][] = [
+                        'id' => $id,
+                        'sale_on' => $saleOn
+                    ];
+                } else {
+                    // 記錄異常單號
+                    $invalidSales[] = [
+                        'id' => $id,
+                        'sale_on' => $saleOn,
+                        'number' => $number
+                    ];
+                }
+            }
+        }
+
+        // 如果沒有有效的資料
+        if (empty($numbers)) {
+            $users = User::whereIn('job_id', [1, 3, 5])->where('status', '0')->orderby('seq')->get();
+            return view('sale.missing_numbers', [
+                'min' => null,
+                'max' => null,
+                'minSaleOn' => null,
+                'maxSaleOn' => null,
+                'missing' => [],
+                'duplicates' => [],
+                'invalid_sales' => $invalidSales,
+                'total_missing' => 0,
+                'total_duplicates' => 0,
+                'total_invalid' => count($invalidSales),
+                'total_records' => count($saleOns),
+                'users' => $users,
+                'request' => $request
+            ]);
+        }
+
+        // 排序並去重（用於找缺號）
+        $uniqueNumbers = array_unique($numbers);
+        sort($uniqueNumbers);
+
+        // 找出最大最小值
+        $min = min($uniqueNumbers);
+        $max = max($uniqueNumbers);
+
+        // 取得最大值對應的 sale_on
+        $maxSaleOn = isset($numberToSales[$max]) ? $numberToSales[$max][0]['sale_on'] : null;
+        $minSaleOn = isset($numberToSales[$min]) ? $numberToSales[$min][0]['sale_on'] : null;
+
+        // 檢查範圍是否過大（避免記憶體溢出）
+        $rangeSize = $max - $min + 1;
+        if ($rangeSize > 50000) {
+            $users = User::whereIn('job_id', [1, 3, 5])->where('status', '0')->orderby('seq')->get();
+            return view('sale.missing_numbers', [
+                'error' => '單號範圍過大（' . number_format($rangeSize) . ' 個），請縮小查詢範圍（使用日期或其他篩選條件）',
+                'min' => $min,
+                'max' => $max,
+                'minSaleOn' => $minSaleOn,
+                'maxSaleOn' => $maxSaleOn,
+                'missing' => [],
+                'duplicates' => [],
+                'invalid_sales' => $invalidSales,
+                'total_missing' => 0,
+                'total_duplicates' => 0,
+                'total_invalid' => count($invalidSales),
+                'total_records' => count($saleOns),
+                'users' => $users,
+                'request' => $request
+            ]);
+        }
+
+        // 建立完整範圍並找出缺少的
+        $fullRange = range($min, $max);
+        $missing = array_diff($fullRange, $uniqueNumbers);
+
+        // 找出重複的單號
+        $duplicates = [];
+        foreach ($numberToSales as $number => $sales) {
+            if (count($sales) > 1) {
+                $duplicates[$number] = $sales;
+            }
+        }
+
+        $users = User::whereIn('job_id', [1, 3, 5])->where('status', '0')->orderby('seq')->get();
+
+        return view('sale.missing_numbers', [
+            'min' => $min,
+            'max' => $max,
+            'minSaleOn' => $minSaleOn,
+            'maxSaleOn' => $maxSaleOn,
+            'missing' => array_values($missing),
+            'duplicates' => $duplicates,
+            'invalid_sales' => $invalidSales,
+            'total_missing' => count($missing),
+            'total_duplicates' => count($duplicates),
+            'total_invalid' => count($invalidSales),
+            'total_records' => count($saleOns),
+            'users' => $users,
+            'request' => $request
+        ]);
     }
 }

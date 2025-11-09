@@ -28,9 +28,13 @@ class PayDataController extends Controller
             $status = $request->status;
 
             if ($status !== null && $status !== '') {
-                $datas = PayData::where('status', $status);
+                if ($status == '0') {
+                    $datas = PayData::whereIn('status', ['0', '2']);
+                } else {
+                    $datas = PayData::where('status', $status);
+                }
             } else {
-                $datas = PayData::where('status', 0);
+                $datas = PayData::whereIn('status', ['0', '2']);
             }
 
             // key單日期
@@ -132,7 +136,6 @@ class PayDataController extends Controller
             $pay_items[$data->id]['items'] = $items->get();
         }
         // dd($pay_items);
-        // dd($pay_datas);
         return view('pay.index')
             ->with('datas', $datas)
             ->with('request', $request)
@@ -359,6 +362,19 @@ class PayDataController extends Controller
     {
         $data = PayData::where('id', $id)->first();
         $items = PayItem::where('pay_data_id', $id)->get();
+        
+        if (!$data) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '找不到該支出資料'
+                ], 404);
+            }
+            return redirect()->route('pays')->with('error', '找不到該支出資料');
+        }
+        
+        $message = '';
+        
         if (isset($request)) {
             if ($request->submit1 == 'true') {
                 $data->status = 1;
@@ -373,11 +389,13 @@ class PayDataController extends Controller
                 $sale_history->user_id = Auth::user()->id;
                 $sale_history->state = 'check';
                 $sale_history->save();
+                
+                $message = '審核成功！';
             } elseif ($request->submit1 == 'return') {
-                $data->status = 0;
+                $data->status = 2;
                 $data->save();
                 foreach ($items as $item) {
-                    $item->status = 0;
+                    $item->status = 2;
                     $item->save();
                 }
                 // 業務單軌跡-退回
@@ -386,6 +404,8 @@ class PayDataController extends Controller
                 $sale_history->user_id = Auth::user()->id;
                 $sale_history->state = 'return';
                 $sale_history->save();
+                
+                $message = '退回成功！';
             } else {
                 $data->status = 0;
                 $data->save();
@@ -399,9 +419,21 @@ class PayDataController extends Controller
                 $sale_history->user_id = Auth::user()->id;
                 $sale_history->state = 'not_check';
                 $sale_history->save();
+                
+                $message = '操作成功！';
             }
         }
-        return redirect()->route('pays');
+        
+        // 如果是 Ajax 請求，返回 JSON 響應
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message
+            ]);
+        }
+        
+        // 否則返回重定向
+        return redirect()->route('pays')->with('success', $message);
     }
 
     public function delshow($id)
@@ -1144,4 +1176,20 @@ class PayDataController extends Controller
             });
         }
     }
+
+    /**
+     * Ajax 請求獲取支出詳細資料（用於 Modal）
+     */
+    public function check_ajax($id)
+    {
+        $pays = Pay::where('status', 'up')->orderby('seq', 'asc')->get();
+        $data = PayData::where('id', $id)->first();
+        
+        if (!$data) {
+            return response()->json(['error' => '找不到該支出資料'], 404);
+        }
+        
+        return view('pay.check_modal')->with('data', $data)->with('pays', $pays);
+    }
 }
+
