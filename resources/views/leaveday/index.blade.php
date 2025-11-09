@@ -62,13 +62,19 @@
                                         </select>
                                     </div>
                                     <div class="me-sm-3">
-                                        <label class="form-label">假別</label>
+                                        <label class="form-label">狀態</label>
                                         <select class="form-select my-1 my-lg-0" id="status-select" name="state"
                                             onchange="this.form.submit()">
-                                            <option value="2" @if (!isset($request->state) || $request->state == '2') selected @endif>待審核
-                                            </option>
-                                            <option value="9" @if ($request->state == '9') selected @endif>已核准
-                                            </option>
+                                            @if (Auth::user()->job_id == 2)
+                                                {{-- 主管：預設顯示所有待審核 --}}
+                                                <option value="2" @if (!isset($request->state) || $request->state == '2') selected @endif>待審核</option>
+                                                <option value="9" @if ($request->state == '9') selected @endif>已核准</option>
+                                            @else
+                                                {{-- 其他人：預設顯示自己的審核假單 --}}
+                                                <option value="" @if (!isset($request->state) || $request->state == '') selected @endif>我的審核</option>
+                                                <option value="2" @if ($request->state == '2') selected @endif>所有待審核</option>
+                                                <option value="9" @if ($request->state == '9') selected @endif>已核准</option>
+                                            @endif
                                         </select>
                                     </div>
                                     <div class="me-3 mt-4">
@@ -130,7 +136,7 @@
                                             @else
                                                 <td>{{ date('Y-m-d', strtotime($data->created_at)) }}</td>
                                             @endif
-                                            <td>{{ $data->leave_name->name }}</td>
+                                            <td>{{ $data->leave_name ? $data->leave_name->name : $data->leave_day }}</td>
                                             <td>{{ $data->start_datetime }}</td>
                                             <td>{{ $data->end_datetime }}</td>
                                             <td>

@@ -272,10 +272,6 @@
                                     <td>{{ $key + 1 }}</td>
                                     <td>{{ $leaves_data->user_name->name }}</td>
                                     <td>{{ date('Y-m-d', strtotime($leaves_data->created_at)) }}</td>
-                                            @if ($leaves_data->leave_check)
-                                                {{ $leaves_data->leave_check->check_day }}
-                                            @endif
-                                        </td>
                                     <td>{{ $leaves_data->leave_name->name }}</td>
                                     <td>{{ $leaves_data->start_datetime }}</td>
                                     <td>{{ $leaves_data->end_datetime }}</td>

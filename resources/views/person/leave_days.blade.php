@@ -72,6 +72,8 @@
                                             </option>
                                             <option value="9" @if ($request->state == '9') selected @endif>已核准
                                             </option>
+                                            <option value="3" @if ($request->state == '3') selected @endif>已駁回
+                                            </option>
                                         </select>
                                     </div>
                                     <div class="me-3 mt-3">
@@ -144,7 +146,7 @@
                                             <td>{{ $data->comment }}</td>
                                             <td>{{ $data->leave_status() }}</td>
                                             <td>
-                                                @if ($data->state == 1)
+                                                @if ($data->state == 1 || $data->state == 3)
                                                     <div class="btn-group dropdown">
                                                         <a href="javascript: void(0);"
                                                             class="table-action-btn dropdown-toggle arrow-none btn btn-outline-secondary waves-effect"

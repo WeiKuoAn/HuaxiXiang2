@@ -544,12 +544,20 @@ class WorkController extends Controller
             // $row['姓名'] = date('Y-m-d', strtotime($data->worktime));
             foreach ($works as $key=>$data) {
                 $row['日期'] = date('Y-m-d', strtotime($data->worktime));
-                $row['上班時間'] = date('H:i', strtotime($data->worktime));
+                
+                // 檢查是否為未打卡的標記時間
+                $row['上班時間'] = (date('H:i:s', strtotime($data->worktime)) == '00:00:01')
+                    ? '未打卡'
+                    : date('H:i', strtotime($data->worktime));
+                
                 if($data->dutytime != null){
-                    $row['下班時間'] = date('H:i', strtotime($data->dutytime));
+                    $row['下班時間'] = (date('H:i:s', strtotime($data->dutytime)) == '23:59:59')
+                        ? '未打卡'
+                        : date('H:i', strtotime($data->dutytime));
                 }else{
                     $row['下班時間'] = '尚未下班';
                 }
+                
                 $row['時間'] = $data->total;
                 $row['備註'] = $data->remark;
                 if($data->status == '0'){

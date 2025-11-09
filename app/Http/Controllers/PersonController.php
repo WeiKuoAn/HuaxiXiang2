@@ -394,31 +394,108 @@ class PersonController extends Controller
 
     public function leave_check_show($id)
     {
-        $data = LeaveDay::where('id', $id)->first();
+        $data = LeaveDay::with(['workflow', 'workflow.steps', 'checks.user', 'checks.step'])->where('id', $id)->first();
         $items = LeaveDayCheck::where('leave_day_id', $data->id)->get();
         $leaves = Leaves::where('status', 0)->orderby('seq')->get();
+        
         return view('person.leave_check')->with('data', $data)->with('items', $items)->with('leaves', $leaves);
     }
 
     public function leave_check_update($id, Request $request)
     {
+        $data = LeaveDay::with(['user.job_data', 'workflow.steps'])->where('id', $id)->first();
+        
+        if (Auth::id() != $data->user_id) {
+            return redirect()->back()->with('error', '只有申請人可以送出此假單');
+        }
 
-        $data = LeaveDay::where('id', $id)->first();
-        $data->state = 2;
-        $data->save();
+        try {
+            // 記錄原始狀態
+            $originalState = $data->state;
+            
+            // 根據申請人的職稱取得對應的審核流程
+            $workflow = null;
+            
+            if ($data->user && $data->user->job_data) {
+                // 先尋找該職稱專用的請假審核流程
+                $workflow = \App\Models\Workflow::where('is_active', true)
+                    ->where('category', 'leave')
+                    ->where('job_id', $data->user->job_data->id)
+                    ->first();
+            }
+            
+            // 如果沒有找到專用流程，使用預設流程（沒有指定職稱的流程）
+            if (!$workflow) {
+                $workflow = \App\Models\Workflow::where('is_active', true)
+                    ->where('category', 'leave')
+                    ->whereNull('job_id')
+                    ->first();
+            }
+            
+            if (!$workflow) {
+                return redirect()->back()->with('error', '找不到適合的請假審核流程');
+            }
 
+            $lastRejectedCheck = $data->checks()
+                ->where('state', 3)
+                ->orderByDesc('created_at')
+                ->first();
 
-        $leave_data = LeaveDay::orderby('id', 'desc')->first();
-        $item = new LeaveDayCheck;
-        $item->leave_day_id = $leave_data->id;
-        $item->check_day = Carbon::now()->locale('zh-tw')->format('Y-m-d');
-        $item->state = 2;
-        $item->check_user_id = Auth::user()->id;
-        $item->created_at = Carbon::now()->locale('zh-tw');
-        $item->updated_at = Carbon::now()->locale('zh-tw');
-        $item->save();
+            $lastApprovedCheck = $data->checks()
+                ->where('state', 9)
+                ->orderByDesc('created_at')
+                ->first();
 
-        return redirect()->route('person.leave_days');
+            $shouldResumeFromRejection = false;
+            if ($lastRejectedCheck) {
+                if (!$lastApprovedCheck || Carbon::parse($lastRejectedCheck->created_at)->gt(Carbon::parse($lastApprovedCheck->created_at))) {
+                    $shouldResumeFromRejection = true;
+                }
+            }
+
+            if ($shouldResumeFromRejection) {
+                $resumeStepId = $lastRejectedCheck->step_id;
+                if (!$resumeStepId && $data->workflow) {
+                    $resumeStep = $data->workflow->steps
+                        ->sortBy('step_order')
+                        ->firstWhere('approver_user_id', $lastRejectedCheck->check_user_id);
+                    $resumeStepId = optional($resumeStep)->id;
+                }
+
+                // 創建送出審核記錄（state = 10）
+                $submitCheck = new \App\Models\LeaveDayCheck;
+                $submitCheck->leave_day_id = $data->id;
+                $submitCheck->check_user_id = $data->user_id; // 申請人自己送出
+                $submitCheck->state = 10; // 送出審核狀態
+                $submitCheck->check_day = \Carbon\Carbon::now()->locale('zh-tw')->format('Y-m-d');
+                $submitCheck->created_at = \Carbon\Carbon::now()->locale('zh-tw');
+                $submitCheck->save();
+                
+                // 移除舊的待審核紀錄，避免重複
+                $data->checks()
+                    ->where('state', 2)
+                    ->delete();
+                
+                // 重新開始審核流程
+                $workflowService = new LeaveWorkflowService();
+                $workflowService->startWorkflow($data, $workflow->id, false, $resumeStepId); // 不創建送出審核記錄，因為已經創建了
+            } else {
+                // 一般送出，使用正常流程
+                $workflowService = new LeaveWorkflowService();
+                $workflowService->startWorkflow($data, $workflow->id);
+            }
+            
+            $message = $originalState == 3 ? '假單已重新送出，等待審核' : '假單已送出，等待審核';
+            return redirect()->route('person.leave_days')->with('success', $message);
+            
+        } catch (\Exception $e) {
+            \Log::error('假單送出失敗', [
+                'leave_day_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return redirect()->back()->with('error', '送出失敗：' . $e->getMessage());
+        }
     }
 
     public function last_leave_days()
