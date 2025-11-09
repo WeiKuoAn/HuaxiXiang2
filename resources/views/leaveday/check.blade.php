@@ -375,7 +375,7 @@
                                                     <td><span class="badge {{ $record['badgeClass'] }}">{{ $record['statusText'] }}</span></td>
                                                     <td>
                                                         @if ($record['hasDate'] && $record['check']->created_at)
-                                                            {{ date('Y-m-d H:i', strtotime($record['check']->created_at)) }}
+                                                            {{ date('Y-m-d H:i', strtotime($record['check']->updated_at ?? $record['check']->created_at)) }}
                                                         @else
                                                             -
                                                         @endif
@@ -413,7 +413,7 @@
                                                     </td>
                                                     <td>
                                                         @if ($item->state == 9 || $item->state == 3)
-                                                            {{ $item->check_day ? date('Y-m-d H:i', strtotime($item->check_day)) : date('Y-m-d H:i', strtotime($item->created_at)) }}
+                                                            {{ $item->check_day ? date('Y-m-d H:i', strtotime($item->check_day)) : date('Y-m-d H:i', strtotime($item->updated_at ?? $item->created_at)) }}
                                                         @else
                                                             -
                                                     @endif
