@@ -115,6 +115,54 @@
                             <input type="text" class="form-control" value="{{ $data->user_name->name }}" readonly>
                         </div>
                     </div>
+
+                    <div class="row">
+                        <div class="mb-1 mt-1">
+                            <div class="form-check d-flex align-items-center gap-2" id="modal_send_div">
+                                <input type="checkbox" class="form-check-input" id="modal_send" @if($data->send == 1) checked @endif disabled>
+                                <label class="form-check-label mb-0" for="modal_send" style="color:#212529 !important;"><b>親送</b></label>
+                            </div>
+                        </div>
+                        <div class="mb-1 mt-1" id="modal_connector_div">
+                            <div class="form-check d-flex align-items-center gap-2 flex-wrap">
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="checkbox" class="form-check-input" id="modal_connector_address" @if($data->connector_address == 1) checked @endif disabled>
+                                    <label class="form-check-label mb-0" for="modal_connector_address" style="color:#212529 !important;"><b>接體地址不為客戶地址</b></label>
+                                </div>
+                                @if($data->connector_address == 1 && $sale_address)
+                                    <span class="text-muted small">
+                                        {{ $sale_address->county ?? '' }}{{ $sale_address->district ?? '' }}{{ $sale_address->address ?? '' }}
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="mb-1 mt-1" id="modal_connector_hospital_div">
+                            <div class="form-check d-flex align-items-center gap-2 flex-wrap">
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="checkbox" class="form-check-input" id="modal_connector_hospital" @if(isset($data->hospital_address) && $data->hospital_address != 0) checked @endif disabled>
+                                    <label class="form-check-label mb-0" for="modal_connector_hospital" style="color:#212529 !important;"><b>接體地址為醫院</b></label>
+                                </div>
+                                @if(isset($data->hospital_address) && $data->hospital_address != 0)
+                                    @if(isset($data->hospital_address_name))
+                                        <span class="text-muted small">
+                                            @if(optional($data->hospital_address_name->group)->name)
+                                                （{{ $data->hospital_address_name->group->name }}）
+                                            @endif
+                                            {{ $data->hospital_address_name->name }}
+                                        </span>
+                                    @else
+                                        <span class="text-danger small">接體地址輸入錯誤</span>
+                                    @endif
+                                @endif
+                            </div>
+                        </div>
+                        <div class="mb-1 mt-1" id="modal_cooperation_price_div">
+                            <div class="form-check d-flex align-items-center gap-2">
+                                <input type="checkbox" class="form-check-input" id="modal_cooperation_price" @if($data->cooperation_price == 1) checked @endif disabled>
+                                <label class="form-check-label mb-0" for="modal_cooperation_price" style="color:#212529 !important;"><b>院內價</b></label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
