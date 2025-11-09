@@ -609,7 +609,9 @@
         function addEveningPhone() {
             const container = document.getElementById('evening-phone-container');
             const existingRows = container.querySelectorAll('.person-row');
-            const newIndex = existingRows.length;
+            const newIndex = existingRows.length
+                ? Math.max(...Array.from(existingRows).map(row => parseInt(row.getAttribute('data-evening-phone-index')) || 0)) + 1
+                : 0;
 
             const newRow = document.createElement('div');
             newRow.className = 'person-row mb-2';
@@ -643,13 +645,7 @@
         }
 
         function removeEveningPhone(button) {
-            const container = document.getElementById('evening-phone-container');
-            const rows = container.querySelectorAll('.person-row');
-            if (rows.length > 1) {
-                button.closest('.person-row').remove();
-            } else {
-                alert('至少需保留一筆電話人員');
-            }
+            button.closest('.person-row')?.remove();
         }
 
         // ========== 晚間加成 - 接件人員 ==========
@@ -657,7 +653,9 @@
         function addEveningReceive() {
             const container = document.getElementById('evening-receive-container');
             const existingRows = container.querySelectorAll('.person-row');
-            const newIndex = existingRows.length;
+            const newIndex = existingRows.length
+                ? Math.max(...Array.from(existingRows).map(row => parseInt(row.getAttribute('data-evening-receive-index')) || 0)) + 1
+                : 0;
 
             const newRow = document.createElement('div');
             newRow.className = 'person-row mb-2';
@@ -691,13 +689,7 @@
         }
 
         function removeEveningReceive(button) {
-            const container = document.getElementById('evening-receive-container');
-            const rows = container.querySelectorAll('.person-row');
-            if (rows.length > 1) {
-                button.closest('.person-row').remove();
-            } else {
-                alert('至少需保留一筆接件人員');
-            }
+            button.closest('.person-row')?.remove();
         }
 
         // ========== 夜間加成 - 電話人員 ==========
@@ -705,7 +697,9 @@
         function addNightPhone() {
             const container = document.getElementById('night-phone-container');
             const existingRows = container.querySelectorAll('.person-row');
-            const newIndex = existingRows.length;
+            const newIndex = existingRows.length
+                ? Math.max(...Array.from(existingRows).map(row => parseInt(row.getAttribute('data-night-phone-index')) || 0)) + 1
+                : 0;
 
             const newRow = document.createElement('div');
             newRow.className = 'person-row mb-2';
@@ -739,13 +733,7 @@
         }
 
         function removeNightPhone(button) {
-            const container = document.getElementById('night-phone-container');
-            const rows = container.querySelectorAll('.person-row');
-            if (rows.length > 1) {
-                button.closest('.person-row').remove();
-            } else {
-                alert('至少需保留一筆電話人員');
-            }
+            button.closest('.person-row')?.remove();
         }
 
         // ========== 夜間加成 - 接件人員 ==========
@@ -753,7 +741,9 @@
         function addNightReceive() {
             const container = document.getElementById('night-receive-container');
             const existingRows = container.querySelectorAll('.person-row');
-            const newIndex = existingRows.length;
+            const newIndex = existingRows.length
+                ? Math.max(...Array.from(existingRows).map(row => parseInt(row.getAttribute('data-night-receive-index')) || 0)) + 1
+                : 0;
 
             const newRow = document.createElement('div');
             newRow.className = 'person-row mb-2';
@@ -787,13 +777,7 @@
         }
 
         function removeNightReceive(button) {
-            const container = document.getElementById('night-receive-container');
-            const rows = container.querySelectorAll('.person-row');
-            if (rows.length > 1) {
-                button.closest('.person-row').remove();
-            } else {
-                alert('至少需保留一筆接件人員');
-            }
+            button.closest('.person-row')?.remove();
         }
 
         // 新增夜間開爐
@@ -951,22 +935,18 @@
         // 移除夜間開爐
         function removeFurnace(button) {
             const container = document.getElementById('furnace-container');
+            button.closest('.person-row')?.remove();
             const rows = container.querySelectorAll('.person-row');
-
-            if (rows.length > 1) {
-                button.closest('.person-row').remove();
-                // 重新編號
-                container.querySelectorAll('.person-row').forEach((row, index) => {
-                    row.setAttribute('data-furnace-index', index);
-                    row.querySelectorAll('select, input').forEach(input => {
-                        const name = input.getAttribute('name');
-                        if (name) {
-                            input.setAttribute('name', name.replace(/furnace\[\d+\]/,
-                                `furnace[${index}]`));
-                        }
-                    });
+            container.querySelectorAll('.person-row').forEach((row, index) => {
+                row.setAttribute('data-furnace-index', index);
+                row.querySelectorAll('select, input').forEach(input => {
+                    const name = input.getAttribute('name');
+                    if (name) {
+                        input.setAttribute('name', name.replace(/furnace\[\d+\]/,
+                            `furnace[${index}]`));
+                    }
                 });
-            }
+            });
         }
 
         // 移除加班費
@@ -974,20 +954,17 @@
             const container = document.getElementById('overtime-container');
             const rows = container.querySelectorAll('.person-row');
 
-            if (rows.length > 1) {
-                button.closest('.person-row').remove();
-                // 重新編號
-                container.querySelectorAll('.person-row').forEach((row, index) => {
-                    row.setAttribute('data-overtime-index', index);
-                    row.querySelectorAll('select, input').forEach(input => {
-                        const name = input.getAttribute('name');
-                        if (name) {
-                            input.setAttribute('name', name.replace(/overtime\[\d+\]/,
-                                `overtime[${index}]`));
-                        }
-                    });
+            button.closest('.person-row')?.remove();
+            container.querySelectorAll('.person-row').forEach((row, index) => {
+                row.setAttribute('data-overtime-index', index);
+                row.querySelectorAll('select, input').forEach(input => {
+                    const name = input.getAttribute('name');
+                    if (name) {
+                        input.setAttribute('name', name.replace(/overtime\[\d+\]/,
+                            `overtime[${index}]`));
+                    }
                 });
-            }
+            });
         }
 
         // 計算夜間開爐價格
