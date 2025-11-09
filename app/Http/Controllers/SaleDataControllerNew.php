@@ -812,7 +812,7 @@ class SaleDataControllerNew extends Controller
                 }
             }
         } else {
-            $sales = $sales->orderby('sale_date', 'desc')->orderby('user_id', 'desc')->orderby('sale_on', 'asc');
+            $sales = $sales->orderby('sale_on', 'asc')->orderby('sale_date', 'desc')->orderby('user_id', 'desc');
             $payDatas = $payDatas->orderby('pay_date', 'desc')->orderby('user_id', 'desc');
         }
         $sales = $sales->get();
