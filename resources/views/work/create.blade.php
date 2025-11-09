@@ -176,44 +176,29 @@
                             <table class="month-calendar">
                                 <thead>
                                     <tr>
-                                        <th style="width: 14.28%;">週日</th>
                                         <th style="width: 14.28%;">週一</th>
                                         <th style="width: 14.28%;">週二</th>
                                         <th style="width: 14.28%;">週三</th>
                                         <th style="width: 14.28%;">週四</th>
                                         <th style="width: 14.28%;">週五</th>
                                         <th style="width: 14.28%;">週六</th>
+                                        <th style="width: 14.28%;">週日</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @php
-                                        $weekDays = [];
-                                        $currentWeek = [];
-                                        $firstDayOfWeek = $days[0]['dayOfWeek'];
-                                        
-                                        // 填充第一週之前的空格
-                                        for ($i = 0; $i < $firstDayOfWeek; $i++) {
-                                            $currentWeek[] = null;
-                                        }
-                                        
-                                        // 填充所有日期
+                                        $weekGroups = [];
                                         foreach ($days as $day) {
-                                            $currentWeek[] = $day;
-                                            
-                                            // 如果這週滿了（7天），就存入並開始新的一週
-                                            if (count($currentWeek) == 7) {
-                                                $weekDays[] = $currentWeek;
-                                                $currentWeek = [];
+                                            $date = \Carbon\Carbon::parse($day['date']);
+                                            $weekKey = $date->isoWeekYear . '-' . str_pad($date->isoWeek, 2, '0', STR_PAD_LEFT);
+                                            if (!isset($weekGroups[$weekKey])) {
+                                                $weekGroups[$weekKey] = array_fill(0, 7, null);
                                             }
+                                            $columnIndex = $date->isoWeekday() - 1; // 0=週一, 6=週日
+                                            $weekGroups[$weekKey][$columnIndex] = $day;
                                         }
-                                        
-                                        // 填充最後一週剩餘的空格
-                                        if (count($currentWeek) > 0) {
-                                            while (count($currentWeek) < 7) {
-                                                $currentWeek[] = null;
-                                            }
-                                            $weekDays[] = $currentWeek;
-                                        }
+                                        ksort($weekGroups);
+                                        $weekDays = array_values($weekGroups);
                                     @endphp
                                     
                                     @foreach ($weekDays as $week)
