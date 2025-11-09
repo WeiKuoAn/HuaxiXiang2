@@ -301,85 +301,66 @@
                                                 $submitIndex = 1;
                                                 
                                                 foreach($allChecks as $check) {
-                                                    if ($check->state == 1) { // 編輯假單
-                                                        $isEdit = false;
-                                                        if ($rejectedChecks->count() > 0) {
-                                                            $firstRejectionTime = $rejectedChecks->first()->created_at;
-                                                            $isEdit = $check->created_at > $firstRejectionTime;
+                                                    $stepNumber = '步驟 -';
+                                                    if (!empty($check->step_id) && $data->workflow) {
+                                                        $step = $data->workflow->steps->firstWhere('id', $check->step_id);
+                                                        if ($step) {
+                                                            $stepNumber = '步驟 ' . $step->step_order;
                                                         }
-                                                        
-                                                        $allRecords->push([
-                                                            'check' => $check,
-                                                            'stepText' => $isEdit ? '編輯' : '申請',
-                                                            'stepNumber' => ($isEdit ? '編輯' : '申請') . ($draftChecks->count() > 1 ? ' ' . $draftIndex : ''),
-                                                            'userName' => $data->user_name->name ?? '未知',
-                                                            'statusText' => $isEdit ? '編輯假單' : '新增假單',
-                                                            'badgeClass' => $isEdit ? 'bg-warning' : 'bg-secondary',
-                                                            'rowClass' => 'table-secondary',
-                                                            'hasDate' => true
-                                                        ]);
-                                                        $draftIndex++;
-                                                    } elseif ($check->state == 10) { // 送出審核
-                                                        $allRecords->push([
-                                                            'check' => $check,
-                                                            'stepText' => '送出',
-                                                            'stepNumber' => '送出' . ($submitChecks->count() > 1 ? ' ' . $submitIndex : ''),
-                                                            'userName' => $data->user_name->name ?? '未知',
-                                                            'statusText' => '送出審核',
-                                                            'badgeClass' => 'bg-info',
-                                                            'rowClass' => 'table-info',
-                                                            'hasDate' => true
-                                                        ]);
-                                                        $submitIndex++;
-                                                    } elseif (in_array($check->state, [2, 3, 9])) { // 審核記錄
-                                                        // 找到對應的審核人
-                                                        $approver = \App\Models\User::find($check->check_user_id);
-                                                        $approverName = $approver ? $approver->name : '未知';
-                                                        
-                                                        // 判斷狀態
-                                                        if ($check->state == 9) {
-                                                            $statusText = '已核准';
-                                                            $badgeClass = 'bg-success';
-                                                            $rowClass = 'table-success';
-                                                        } elseif ($check->state == 3) {
-                                                            $statusText = '已駁回';
-                                                            $badgeClass = 'bg-danger';
-                                                            $rowClass = 'table-danger';
-                                                        } else { // state == 2
-                                                            $statusText = '待審核';
-                                                            $badgeClass = 'bg-warning';
-                                                            $rowClass = 'table-warning';
+                                                    } elseif (empty($check->step_id) && $data->workflow) {
+                                                        $step = $data->workflow->steps->firstWhere('approver_user_id', $check->check_user_id);
+                                                        if ($step) {
+                                                            $stepNumber = '步驟 ' . $step->step_order;
                                                         }
-                                                        
-                                                        $allRecords->push([
-                                                            'check' => $check,
-                                                            'stepText' => '審核',
-                                                            'stepNumber' => '審核',
-                                                            'userName' => $approverName,
-                                                            'statusText' => $statusText,
-                                                            'badgeClass' => $badgeClass,
-                                                            'rowClass' => $rowClass,
-                                                            'hasDate' => in_array($check->state, [9, 3])
-                                                        ]);
                                                     }
+
+                                                    $badgeClass = 'bg-secondary';
+                                                    $rowClass = 'table-secondary';
+                                                    if ($check->state == 10) {
+                                                        $badgeClass = 'bg-info';
+                                                        $rowClass = 'table-info';
+                                                    } elseif ($check->state == 9) {
+                                                        $badgeClass = 'bg-success';
+                                                        $rowClass = 'table-success';
+                                                    } elseif ($check->state == 3) {
+                                                        $badgeClass = 'bg-danger';
+                                                        $rowClass = 'table-danger';
+                                                    } elseif ($check->state == 2) {
+                                                        $badgeClass = 'bg-warning';
+                                                        $rowClass = 'table-warning';
+                                                    }
+
+                                                    $userName = $check->user_name->name
+                                                        ?? (($check->check_user_id ? (\App\Models\User::find($check->check_user_id)->name ?? null) : null)
+                                                        ?? ($data->user_name->name ?? '未知'));
+
+                                                    $allRecords->push([
+                                                        'check' => $check,
+                                                        'stepText' => $stepNumber,
+                                                        'stepNumber' => $stepNumber,
+                                                        'userName' => $userName,
+                                                        'statusText' => $check->leave_check_status(),
+                                                        'badgeClass' => $badgeClass,
+                                                        'rowClass' => $rowClass,
+                                                        'hasDate' => in_array($check->state, [9, 3])
+                                                    ]);
                                                 }
                                                 
-                                                // 按時間排序
-                                                $allRecords = $allRecords->sortBy('check.created_at');
+                                                // 按審核時間排序
+                                                $allRecords = $allRecords->sortBy(function($record) {
+                                                    return $record['check']->updated_at ?? $record['check']->created_at;
+                                                });
                                             @endphp
                                             
                                             @foreach($allRecords as $record)
+                                                @php
+                                                    $recordTimestamp = $record['check']->updated_at ?? $record['check']->created_at;
+                                                @endphp
                                                 <tr align="center" class="{{ $record['rowClass'] }}">
                                                     <td>{{ $record['stepNumber'] }}</td>
                                                     <td>{{ $record['userName'] }}</td>
                                                     <td><span class="badge {{ $record['badgeClass'] }}">{{ $record['statusText'] }}</span></td>
-                                                    <td>
-                                                        @if ($record['hasDate'] && $record['check']->created_at)
-                                                            {{ date('Y-m-d H:i', strtotime($record['check']->updated_at ?? $record['check']->created_at)) }}
-                                                        @else
-                                                            -
-                                                        @endif
-                                                    </td>
+                                                    <td>{{ $recordTimestamp ? $recordTimestamp->format('Y-m-d H:i') : '-' }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
