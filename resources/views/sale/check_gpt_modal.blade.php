@@ -269,6 +269,19 @@
                             <input type="text" class="form-control" value="{{ number_format($data->transfer_price) }}" readonly>
                         </div>
                         @endif
+                        @php
+                            $shouldShowTransferDetail = in_array($data->pay_method, ['B', 'C']) || !empty($data->transfer_channel) || !empty($data->transfer_number);
+                        @endphp
+                        @if($shouldShowTransferDetail)
+                        <div class="mb-3 col-md-4">
+                            <label for="transfer_channel" class="form-label">匯款管道</label>
+                            <input type="text" class="form-control" value="{{ $data->transfer_channel ?? '—' }}" readonly>
+                        </div>
+                        <div class="mb-3 col-md-4">
+                            <label for="transfer_number" class="form-label">匯款後四碼</label>
+                            <input type="text" class="form-control" value="{{ $data->transfer_number ?? '—' }}" readonly>
+                        </div>
+                        @endif
                         <div class="mb-3 col-md-4">
                             <label for="pay_price" class="form-label">本次收款</label>
                             <input type="text" class="form-control" value="{{ number_format($data->pay_price) }}" readonly>
