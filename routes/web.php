@@ -17,6 +17,7 @@ use App\Http\Controllers\CustomrtGruopController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeregistrationController;
 use App\Http\Controllers\DisciplineController;
+use App\Http\Controllers\ReceiptBookController;
 use App\Http\Controllers\GiveController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\IncomeDataController;
@@ -956,5 +957,17 @@ Route::group(['prefix' => '/'], function () {
         Route::put('/{id}', [DisciplineController::class, 'update'])->name('disciplines.update');
         Route::delete('/{id}', [DisciplineController::class, 'destroy'])->name('disciplines.destroy');
         Route::post('/{id}/approve', [DisciplineController::class, 'approve'])->name('disciplines.approve');
+    });
+
+    // 跳單管理路由
+    Route::prefix('receipt-books')->group(function () {
+        Route::get('/', [ReceiptBookController::class, 'index'])->name('receipt-books.index');
+        Route::get('/create', [ReceiptBookController::class, 'create'])->name('receipt-books.create');
+        Route::post('/', [ReceiptBookController::class, 'store'])->name('receipt-books.store');
+        Route::get('/{id}', [ReceiptBookController::class, 'show'])->name('receipt-books.show');
+        Route::get('/{id}/edit', [ReceiptBookController::class, 'edit'])->name('receipt-books.edit');
+        Route::put('/{id}', [ReceiptBookController::class, 'update'])->name('receipt-books.update');
+        Route::delete('/{id}', [ReceiptBookController::class, 'destroy'])->name('receipt-books.destroy');
+        Route::post('/{id}/mark-returned', [ReceiptBookController::class, 'markAsReturned'])->name('receipt-books.mark-returned');
     });
 });

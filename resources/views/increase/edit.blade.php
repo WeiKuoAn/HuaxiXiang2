@@ -733,9 +733,6 @@
                                     @endforeach
                                 </div>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-success" onclick="addOvertime()">
-                                        <i class="fe-plus me-1"></i>新增加班費
-                                    </button>
                                     <button type="button" class="btn btn-sm btn-outline-info" onclick="toggleManualOvertimeForm()">
                                         <i class="fe-edit me-1"></i>手動新增加班記錄
                                     </button>
