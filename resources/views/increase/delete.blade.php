@@ -1,5 +1,51 @@
 @extends('layouts.vertical', ['page_title' => '刪除加成'])
 
+@section('css')
+    <style>
+        .form-label {
+            font-size: 1.05rem;
+        }
+        
+        .form-control, .form-control-sm {
+            font-size: 1.05rem;
+        }
+        
+        .btn {
+            font-size: 1.05rem;
+        }
+        
+        h5, h6 {
+            font-size: 1.2rem;
+        }
+        
+        .text-muted {
+            font-size: 1rem;
+        }
+        
+        .table {
+            font-size: 1.05rem;
+        }
+        
+        .badge {
+            font-size: 1rem !important;
+            padding: 0.6rem 1rem !important;
+        }
+        
+        .table .badge {
+            font-size: 1rem !important;
+            padding: 0.6rem 1rem !important;
+        }
+        
+        .alert {
+            font-size: 1.05rem;
+        }
+        
+        th, td {
+            font-size: 1.05rem;
+        }
+    </style>
+@endsection
+
 @section('content')
 <!-- Start Content-->
 <div class="container-fluid">

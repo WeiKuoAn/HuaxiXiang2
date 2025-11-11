@@ -89,7 +89,7 @@
         .day-worklog-name {
             font-weight: 600;
             color: #212529;
-            font-size: 1rem;
+            font-size: 1.15rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -104,12 +104,42 @@
 
         .day-worklog-label {
             color: #6c757d;
-            font-size: 0.95rem;
+            font-size: 1.05rem;
         }
 
         .day-worklog-badge {
+            font-size: 1.15rem;
+            padding: 0.5rem 0.85rem;
+        }
+        
+        .form-label {
             font-size: 1.05rem;
-            padding: 0.4rem 0.75rem;
+        }
+        
+        .form-control, .form-control-sm {
+            font-size: 1.05rem;
+        }
+        
+        .btn {
+            font-size: 1.05rem;
+        }
+        
+        h5, h6 {
+            font-size: 1.2rem;
+        }
+        
+        .text-muted {
+            font-size: 1rem;
+        }
+        
+        .badge {
+            font-size: 1rem !important;
+            padding: 0.6rem 1rem !important;
+        }
+        
+        .form-check-label .badge {
+            font-size: 1rem !important;
+            padding: 0.6rem 1rem !important;
         }
 
         @media (max-width: 991.98px) {
@@ -227,11 +257,12 @@
                                     <h5 class="category-title mb-0">
                                         <i class="fe-moon me-2"></i>晚間加成
                                     </h5>
-                                    <div>
+                                    <div class="text-end">
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="checkbox" name="evening_is_typhoon"
                                                 value="1" id="evening_is_typhoon"
-                                                {{ $increase->evening_is_typhoon ? 'checked' : '' }}>
+                                                {{ $increase->evening_is_typhoon ? 'checked' : '' }}
+                                                onchange="updateAllAmounts()">
                                             <label class="form-check-label fw-bold" for="evening_is_typhoon">
                                                 <span class="badge bg-warning text-dark">颱風</span>
                                             </label>
@@ -239,25 +270,29 @@
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="checkbox" name="evening_is_newyear"
                                                 value="1" id="evening_is_newyear"
-                                                {{ $increase->evening_is_newyear ? 'checked' : '' }}>
+                                                {{ $increase->evening_is_newyear ? 'checked' : '' }}
+                                                onchange="updateAllAmounts()">
                                             <label class="form-check-label fw-bold" for="evening_is_newyear">
                                                 <span class="badge bg-danger text-white">過年</span>
                                             </label>
                                         </div>
-                                        <small class="text-muted d-block mt-1">（勾選後：電話$100、接件$500）</small>
+                                        <small class="text-muted d-block mt-1" style="font-size: 0.8rem;">
+                                            颱風：電話+${{ number_format($increaseSettings['typhoon']->phone_bonus ?? 100, 0) }}、接件+${{ number_format($increaseSettings['typhoon']->receive_bonus ?? 500, 0) }} | 
+                                            過年：電話+${{ number_format($increaseSettings['newyear']->phone_bonus ?? 100, 0) }}、接件+${{ number_format($increaseSettings['newyear']->receive_bonus ?? 500, 0) }}
+                                        </small>
                                     </div>
                                 </div>
 
                                 <!-- 電話人員區塊 -->
                                 <div class="mb-3">
                                     <h6 class="text-muted mb-2">
-                                        <i class="fe-phone me-1"></i>電話人員 <small class="text-muted">(一般$50/次)</small>
+                                        <i class="fe-phone me-1"></i>電話人員 <small class="text-muted">(一般${{ number_format($increaseSettings['evening']->phone_bonus ?? 50, 0) }}/次)</small>
                                     </h6>
                                     <div id="evening-phone-container">
                                         @forelse($eveningPhoneItems as $index => $item)
                                             <div class="person-row mb-2" data-evening-phone-index="{{ $index }}">
                                                 <div class="row align-items-end">
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-5">
                                                         <label class="form-label">人員</label>
                                                         <select class="form-control"
                                                             name="evening_phone[{{ $index }}][person]"
@@ -270,11 +305,17 @@
                                                             @endforeach
                                                         </select>
                                                     </div>
-                                                    <div class="col-md-3">
+                                                    <div class="col-md-2">
                                                         <label class="form-label">次數</label>
                                                         <input type="number" class="form-control"
                                                             name="evening_phone[{{ $index }}][count]" min="0"
-                                                            value="{{ $item->count ?? 1 }}">
+                                                            value="{{ $item->count ?? 1 }}"
+                                                            onchange="calculateRowAmount(this, 'evening_phone', {{ $index }})"
+                                                            oninput="calculateRowAmount(this, 'evening_phone', {{ $index }})">
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label class="form-label">金額</label>
+                                                        <input type="text" class="form-control" id="evening_phone_amount_{{ $index }}" readonly>
                                                     </div>
                                                     <div class="col-md-3">
                                                         <button type="button" class="btn btn-sm btn-outline-danger"
@@ -287,7 +328,7 @@
                                         @empty
                                             <div class="person-row mb-2" data-evening-phone-index="0">
                                                 <div class="row align-items-end">
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-5">
                                                         <label class="form-label">人員</label>
                                                         <select class="form-control" name="evening_phone[0][person]"
                                                             data-toggle="select">
@@ -298,10 +339,16 @@
                                                             @endforeach
                                                         </select>
                                                     </div>
-                                                    <div class="col-md-3">
+                                                    <div class="col-md-2">
                                                         <label class="form-label">次數</label>
                                                         <input type="number" class="form-control"
-                                                            name="evening_phone[0][count]" min="0" value="1">
+                                                            name="evening_phone[0][count]" min="0" value="1"
+                                                            onchange="calculateRowAmount(this, 'evening_phone', 0)"
+                                                            oninput="calculateRowAmount(this, 'evening_phone', 0)">
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label class="form-label">金額</label>
+                                                        <input type="text" class="form-control" id="evening_phone_amount_0" readonly>
                                                     </div>
                                                     <div class="col-md-3">
                                                         <button type="button" class="btn btn-sm btn-outline-danger"
@@ -323,14 +370,14 @@
                                 <div class="mb-3">
                                     <h6 class="text-muted mb-2">
                                         <i class="fe-user-check me-1"></i>接件人員 <small
-                                            class="text-muted">(一般$250/次)</small>
+                                            class="text-muted">(一般${{ number_format($increaseSettings['evening']->receive_bonus ?? 250, 0) }}/次)</small>
                                     </h6>
                                     <div id="evening-receive-container">
                                         @forelse($eveningReceiveItems as $index => $item)
                                             <div class="person-row mb-2"
                                                 data-evening-receive-index="{{ $index }}">
                                                 <div class="row align-items-end">
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-5">
                                                         <label class="form-label">人員</label>
                                                         <select class="form-control"
                                                             name="evening_receive[{{ $index }}][person]"
@@ -343,11 +390,17 @@
                                                             @endforeach
                                                         </select>
                                                     </div>
-                                                    <div class="col-md-3">
+                                                    <div class="col-md-2">
                                                         <label class="form-label">次數</label>
                                                         <input type="number" class="form-control"
                                                             name="evening_receive[{{ $index }}][count]"
-                                                            min="0" value="{{ $item->count ?? 1 }}">
+                                                            min="0" value="{{ $item->count ?? 1 }}"
+                                                            onchange="calculateRowAmount(this, 'evening_receive', {{ $index }})"
+                                                            oninput="calculateRowAmount(this, 'evening_receive', {{ $index }})">
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label class="form-label">金額</label>
+                                                        <input type="text" class="form-control" id="evening_receive_amount_{{ $index }}" readonly>
                                                     </div>
                                                     <div class="col-md-3">
                                                         <button type="button" class="btn btn-sm btn-outline-danger"
@@ -360,7 +413,7 @@
                                         @empty
                                             <div class="person-row mb-2" data-evening-receive-index="0">
                                                 <div class="row align-items-end">
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-5">
                                                         <label class="form-label">人員</label>
                                                         <select class="form-control" name="evening_receive[0][person]"
                                                             data-toggle="select">
@@ -371,11 +424,17 @@
                                                             @endforeach
                                                         </select>
                                                     </div>
-                                                    <div class="col-md-3">
+                                                    <div class="col-md-2">
                                                         <label class="form-label">次數</label>
                                                         <input type="number" class="form-control"
                                                             name="evening_receive[0][count]" min="0"
-                                                            value="1">
+                                                            value="1"
+                                                            onchange="calculateRowAmount(this, 'evening_receive', 0)"
+                                                            oninput="calculateRowAmount(this, 'evening_receive', 0)">
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label class="form-label">金額</label>
+                                                        <input type="text" class="form-control" id="evening_receive_amount_0" readonly>
                                                     </div>
                                                     <div class="col-md-3">
                                                         <button type="button" class="btn btn-sm btn-outline-danger"
@@ -400,11 +459,12 @@
                                     <h5 class="category-title mb-0">
                                         <i class="fe-star me-2"></i>夜間加成
                                     </h5>
-                                    <div>
+                                    <div class="text-end">
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="checkbox" name="night_is_typhoon"
                                                 value="1" id="night_is_typhoon"
-                                                {{ $increase->night_is_typhoon ? 'checked' : '' }}>
+                                                {{ $increase->night_is_typhoon ? 'checked' : '' }}
+                                                onchange="updateAllAmounts()">
                                             <label class="form-check-label fw-bold" for="night_is_typhoon">
                                                 <span class="badge bg-warning text-dark">颱風</span>
                                             </label>
@@ -412,25 +472,30 @@
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="checkbox" name="night_is_newyear"
                                                 value="1" id="night_is_newyear"
-                                                {{ $increase->night_is_newyear ? 'checked' : '' }}>
+                                                {{ $increase->night_is_newyear ? 'checked' : '' }}
+                                                onchange="updateAllAmounts()">
                                             <label class="form-check-label fw-bold" for="night_is_newyear">
                                                 <span class="badge bg-danger text-white">過年</span>
                                             </label>
                                         </div>
-                                        <small class="text-muted d-block mt-1">（固定價格：電話$100、接件$500）</small>
+                                        <small class="text-muted d-block mt-1" style="font-size: 0.8rem;">
+                                            夜間：電話${{ number_format($increaseSettings['night']->phone_bonus ?? 100, 0) }}、接件${{ number_format($increaseSettings['night']->receive_bonus ?? 500, 0) }} | 
+                                            颱風：電話+${{ number_format($increaseSettings['typhoon']->phone_bonus ?? 100, 0) }}、接件+${{ number_format($increaseSettings['typhoon']->receive_bonus ?? 500, 0) }} | 
+                                            過年：電話+${{ number_format($increaseSettings['newyear']->phone_bonus ?? 100, 0) }}、接件+${{ number_format($increaseSettings['newyear']->receive_bonus ?? 500, 0) }}
+                                        </small>
                                     </div>
                                 </div>
 
                                 <!-- 電話人員區塊 -->
                                 <div class="mb-3">
                                     <h6 class="text-muted mb-2">
-                                        <i class="fe-phone me-1"></i>電話人員 <small class="text-muted">(固定$100/次)</small>
+                                        <i class="fe-phone me-1"></i>電話人員 <small class="text-muted">(固定${{ number_format($increaseSettings['night']->phone_bonus ?? 100, 0) }}/次)</small>
                                     </h6>
                                     <div id="night-phone-container">
                                         @forelse($nightPhoneItems as $index => $item)
                                             <div class="person-row mb-2" data-night-phone-index="{{ $index }}">
                                                 <div class="row align-items-end">
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-5">
                                                         <label class="form-label">人員</label>
                                                         <select class="form-control"
                                                             name="night_phone[{{ $index }}][person]"
@@ -443,11 +508,17 @@
                                                             @endforeach
                                                         </select>
                                                     </div>
-                                                    <div class="col-md-3">
+                                                    <div class="col-md-2">
                                                         <label class="form-label">次數</label>
                                                         <input type="number" class="form-control"
                                                             name="night_phone[{{ $index }}][count]" min="0"
-                                                            value="{{ $item->count ?? 1 }}">
+                                                            value="{{ $item->count ?? 1 }}"
+                                                            onchange="calculateRowAmount(this, 'night_phone', {{ $index }})"
+                                                            oninput="calculateRowAmount(this, 'night_phone', {{ $index }})">
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label class="form-label">金額</label>
+                                                        <input type="text" class="form-control" id="night_phone_amount_{{ $index }}" readonly>
                                                     </div>
                                                     <div class="col-md-3">
                                                         <button type="button" class="btn btn-sm btn-outline-danger"
@@ -460,7 +531,7 @@
                                         @empty
                                             <div class="person-row mb-2" data-night-phone-index="0">
                                                 <div class="row align-items-end">
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-5">
                                                         <label class="form-label">人員</label>
                                                         <select class="form-control" name="night_phone[0][person]"
                                                             data-toggle="select">
@@ -471,10 +542,16 @@
                                                             @endforeach
                                                         </select>
                                                     </div>
-                                                    <div class="col-md-3">
+                                                    <div class="col-md-2">
                                                         <label class="form-label">次數</label>
                                                         <input type="number" class="form-control"
-                                                            name="night_phone[0][count]" min="0" value="1">
+                                                            name="night_phone[0][count]" min="0" value="1"
+                                                            onchange="calculateRowAmount(this, 'night_phone', 0)"
+                                                            oninput="calculateRowAmount(this, 'night_phone', 0)">
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label class="form-label">金額</label>
+                                                        <input type="text" class="form-control" id="night_phone_amount_0" readonly>
                                                     </div>
                                                     <div class="col-md-3">
                                                         <button type="button" class="btn btn-sm btn-outline-danger"
@@ -496,13 +573,13 @@
                                 <div class="mb-3">
                                     <h6 class="text-muted mb-2">
                                         <i class="fe-user-check me-1"></i>接件人員 <small
-                                            class="text-muted">(固定$500/次)</small>
+                                            class="text-muted">(固定${{ number_format($increaseSettings['night']->receive_bonus ?? 500, 0) }}/次)</small>
                                     </h6>
                                     <div id="night-receive-container">
                                         @forelse($nightReceiveItems as $index => $item)
                                             <div class="person-row mb-2" data-night-receive-index="{{ $index }}">
                                                 <div class="row align-items-end">
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-5">
                                                         <label class="form-label">人員</label>
                                                         <select class="form-control"
                                                             name="night_receive[{{ $index }}][person]"
@@ -515,11 +592,17 @@
                                                             @endforeach
                                                         </select>
                                                     </div>
-                                                    <div class="col-md-3">
+                                                    <div class="col-md-2">
                                                         <label class="form-label">次數</label>
                                                         <input type="number" class="form-control"
                                                             name="night_receive[{{ $index }}][count]"
-                                                            min="0" value="{{ $item->count ?? 1 }}">
+                                                            min="0" value="{{ $item->count ?? 1 }}"
+                                                            onchange="calculateRowAmount(this, 'night_receive', {{ $index }})"
+                                                            oninput="calculateRowAmount(this, 'night_receive', {{ $index }})">
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label class="form-label">金額</label>
+                                                        <input type="text" class="form-control" id="night_receive_amount_{{ $index }}" readonly>
                                                     </div>
                                                     <div class="col-md-3">
                                                         <button type="button" class="btn btn-sm btn-outline-danger"
@@ -532,7 +615,7 @@
                                         @empty
                                             <div class="person-row mb-2" data-night-receive-index="0">
                                                 <div class="row align-items-end">
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-5">
                                                         <label class="form-label">人員</label>
                                                         <select class="form-control" name="night_receive[0][person]"
                                                             data-toggle="select">
@@ -543,10 +626,16 @@
                                                             @endforeach
                                                         </select>
                                                     </div>
-                                                    <div class="col-md-3">
+                                                    <div class="col-md-2">
                                                         <label class="form-label">次數</label>
                                                         <input type="number" class="form-control"
-                                                            name="night_receive[0][count]" min="0" value="1">
+                                                            name="night_receive[0][count]" min="0" value="1"
+                                                            onchange="calculateRowAmount(this, 'night_receive', 0)"
+                                                            oninput="calculateRowAmount(this, 'night_receive', 0)">
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label class="form-label">金額</label>
+                                                        <input type="text" class="form-control" id="night_receive_amount_0" readonly>
                                                     </div>
                                                     <div class="col-md-3">
                                                         <button type="button" class="btn btn-sm btn-outline-danger"
@@ -843,6 +932,91 @@
     <!-- end demo js-->
 
     <script>
+        // ========== 金額計算函數 ==========
+        
+        // 計算每行的金額
+        function calculateRowAmount(input, category, index) {
+            const count = parseInt(input.value) || 0;
+            let unitPrice = 0;
+            
+            // 取得颱風和過年的勾選狀態
+            let isTyphoon = false;
+            let isNewyear = false;
+            
+            if (category === 'evening_phone' || category === 'evening_receive') {
+                const typhoonCheckbox = document.getElementById('evening_is_typhoon');
+                const newyearCheckbox = document.getElementById('evening_is_newyear');
+                isTyphoon = typhoonCheckbox ? typhoonCheckbox.checked : false;
+                isNewyear = newyearCheckbox ? newyearCheckbox.checked : false;
+            } else if (category === 'night_phone' || category === 'night_receive') {
+                const typhoonCheckbox = document.getElementById('night_is_typhoon');
+                const newyearCheckbox = document.getElementById('night_is_newyear');
+                isTyphoon = typhoonCheckbox ? typhoonCheckbox.checked : false;
+                isNewyear = newyearCheckbox ? newyearCheckbox.checked : false;
+            }
+            
+            // 計算單價（基礎金額 + 颱風 + 過年）
+            const increaseSettings = @json($increaseSettings);
+            
+            if (category === 'evening_phone') {
+                unitPrice = (increaseSettings.evening && increaseSettings.evening.phone_bonus) ? Number(increaseSettings.evening.phone_bonus) : 50;
+                if (isTyphoon) unitPrice += (increaseSettings.typhoon && increaseSettings.typhoon.phone_bonus) ? Number(increaseSettings.typhoon.phone_bonus) : 100;
+                if (isNewyear) unitPrice += (increaseSettings.newyear && increaseSettings.newyear.phone_bonus) ? Number(increaseSettings.newyear.phone_bonus) : 100;
+            } else if (category === 'evening_receive') {
+                unitPrice = (increaseSettings.evening && increaseSettings.evening.receive_bonus) ? Number(increaseSettings.evening.receive_bonus) : 250;
+                if (isTyphoon) unitPrice += (increaseSettings.typhoon && increaseSettings.typhoon.receive_bonus) ? Number(increaseSettings.typhoon.receive_bonus) : 500;
+                if (isNewyear) unitPrice += (increaseSettings.newyear && increaseSettings.newyear.receive_bonus) ? Number(increaseSettings.newyear.receive_bonus) : 500;
+            } else if (category === 'night_phone') {
+                unitPrice = (increaseSettings.night && increaseSettings.night.phone_bonus) ? Number(increaseSettings.night.phone_bonus) : 100;
+                if (isTyphoon) unitPrice += (increaseSettings.typhoon && increaseSettings.typhoon.phone_bonus) ? Number(increaseSettings.typhoon.phone_bonus) : 100;
+                if (isNewyear) unitPrice += (increaseSettings.newyear && increaseSettings.newyear.phone_bonus) ? Number(increaseSettings.newyear.phone_bonus) : 100;
+            } else if (category === 'night_receive') {
+                unitPrice = (increaseSettings.night && increaseSettings.night.receive_bonus) ? Number(increaseSettings.night.receive_bonus) : 500;
+                if (isTyphoon) unitPrice += (increaseSettings.typhoon && increaseSettings.typhoon.receive_bonus) ? Number(increaseSettings.typhoon.receive_bonus) : 500;
+                if (isNewyear) unitPrice += (increaseSettings.newyear && increaseSettings.newyear.receive_bonus) ? Number(increaseSettings.newyear.receive_bonus) : 500;
+            }
+            
+            // 計算總金額
+            const totalAmount = unitPrice * count;
+            
+            // 更新金額顯示
+            const amountField = document.getElementById(`${category}_amount_${index}`);
+            if (amountField) {
+                amountField.value = totalAmount;
+            }
+        }
+        
+        // 當颱風/過年勾選改變時，重新計算所有行的金額
+        function updateAllAmounts() {
+            // 更新所有晚間加成 - 電話人員
+            document.querySelectorAll('[data-evening-phone-index]').forEach((row) => {
+                const index = row.getAttribute('data-evening-phone-index');
+                const input = row.querySelector('input[type="number"]');
+                if (input) calculateRowAmount(input, 'evening_phone', index);
+            });
+            
+            // 更新所有晚間加成 - 接件人員
+            document.querySelectorAll('[data-evening-receive-index]').forEach((row) => {
+                const index = row.getAttribute('data-evening-receive-index');
+                const input = row.querySelector('input[type="number"]');
+                if (input) calculateRowAmount(input, 'evening_receive', index);
+            });
+            
+            // 更新所有夜間加成 - 電話人員
+            document.querySelectorAll('[data-night-phone-index]').forEach((row) => {
+                const index = row.getAttribute('data-night-phone-index');
+                const input = row.querySelector('input[type="number"]');
+                if (input) calculateRowAmount(input, 'night_phone', index);
+            });
+            
+            // 更新所有夜間加成 - 接件人員
+            document.querySelectorAll('[data-night-receive-index]').forEach((row) => {
+                const index = row.getAttribute('data-night-receive-index');
+                const input = row.querySelector('input[type="number"]');
+                if (input) calculateRowAmount(input, 'night_receive', index);
+            });
+        }
+
         // ========== 晚間加成 - 電話人員 ==========
 
         function addEveningPhone() {
@@ -859,7 +1033,7 @@
 
             newRow.innerHTML = `
                 <div class="row align-items-end">
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <label class="form-label">人員</label>
                         <select class="form-control" name="evening_phone[${newIndex}][person]" data-toggle="select">
                             <option value="">請選擇人員</option>
@@ -868,9 +1042,15 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label">次數</label>
-                        <input type="number" class="form-control" name="evening_phone[${newIndex}][count]" min="0" value="1">
+                        <input type="number" class="form-control" name="evening_phone[${newIndex}][count]" min="0" value="1" 
+                               onchange="calculateRowAmount(this, 'evening_phone', ${newIndex})"
+                               oninput="calculateRowAmount(this, 'evening_phone', ${newIndex})">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">金額</label>
+                        <input type="text" class="form-control" id="evening_phone_amount_${newIndex}" readonly>
                     </div>
                     <div class="col-md-3">
                         <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeEveningPhone(this)">
@@ -882,6 +1062,12 @@
 
             container.appendChild(newRow);
             $(newRow).find('select[data-toggle="select"]').select2();
+            
+            // 計算新行的金額
+            setTimeout(() => {
+                const input = newRow.querySelector('input[type="number"]');
+                if (input) calculateRowAmount(input, 'evening_phone', newIndex);
+            }, 50);
         }
 
         function removeEveningPhone(button) {
@@ -904,7 +1090,7 @@
 
             newRow.innerHTML = `
                 <div class="row align-items-end">
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <label class="form-label">人員</label>
                         <select class="form-control" name="evening_receive[${newIndex}][person]" data-toggle="select">
                             <option value="">請選擇人員</option>
@@ -913,9 +1099,15 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label">次數</label>
-                        <input type="number" class="form-control" name="evening_receive[${newIndex}][count]" min="0" value="1">
+                        <input type="number" class="form-control" name="evening_receive[${newIndex}][count]" min="0" value="1"
+                               onchange="calculateRowAmount(this, 'evening_receive', ${newIndex})"
+                               oninput="calculateRowAmount(this, 'evening_receive', ${newIndex})">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">金額</label>
+                        <input type="text" class="form-control" id="evening_receive_amount_${newIndex}" readonly>
                     </div>
                     <div class="col-md-3">
                         <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeEveningReceive(this)">
@@ -927,6 +1119,12 @@
 
             container.appendChild(newRow);
             $(newRow).find('select[data-toggle="select"]').select2();
+            
+            // 計算新行的金額
+            setTimeout(() => {
+                const input = newRow.querySelector('input[type="number"]');
+                if (input) calculateRowAmount(input, 'evening_receive', newIndex);
+            }, 50);
         }
 
         function removeEveningReceive(button) {
@@ -949,7 +1147,7 @@
 
             newRow.innerHTML = `
                 <div class="row align-items-end">
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <label class="form-label">人員</label>
                         <select class="form-control" name="night_phone[${newIndex}][person]" data-toggle="select">
                             <option value="">請選擇人員</option>
@@ -958,9 +1156,15 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label">次數</label>
-                        <input type="number" class="form-control" name="night_phone[${newIndex}][count]" min="0" value="1">
+                        <input type="number" class="form-control" name="night_phone[${newIndex}][count]" min="0" value="1"
+                               onchange="calculateRowAmount(this, 'night_phone', ${newIndex})"
+                               oninput="calculateRowAmount(this, 'night_phone', ${newIndex})">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">金額</label>
+                        <input type="text" class="form-control" id="night_phone_amount_${newIndex}" readonly>
                     </div>
                     <div class="col-md-3">
                         <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeNightPhone(this)">
@@ -972,6 +1176,12 @@
 
             container.appendChild(newRow);
             $(newRow).find('select[data-toggle="select"]').select2();
+            
+            // 計算新行的金額
+            setTimeout(() => {
+                const input = newRow.querySelector('input[type="number"]');
+                if (input) calculateRowAmount(input, 'night_phone', newIndex);
+            }, 50);
         }
 
         function removeNightPhone(button) {
@@ -985,7 +1195,7 @@
             const existingRows = container.querySelectorAll('.person-row');
             const newIndex = existingRows.length ?
                 Math.max(...Array.from(existingRows).map(row => parseInt(row.getAttribute('data-night-receive-index')) ||
-                    0)) + 1 :
+                0)) + 1 :
                 0;
 
             const newRow = document.createElement('div');
@@ -994,7 +1204,7 @@
 
             newRow.innerHTML = `
                 <div class="row align-items-end">
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <label class="form-label">人員</label>
                         <select class="form-control" name="night_receive[${newIndex}][person]" data-toggle="select">
                             <option value="">請選擇人員</option>
@@ -1003,9 +1213,15 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label">次數</label>
-                        <input type="number" class="form-control" name="night_receive[${newIndex}][count]" min="0" value="1">
+                        <input type="number" class="form-control" name="night_receive[${newIndex}][count]" min="0" value="1"
+                               onchange="calculateRowAmount(this, 'night_receive', ${newIndex})"
+                               oninput="calculateRowAmount(this, 'night_receive', ${newIndex})">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">金額</label>
+                        <input type="text" class="form-control" id="night_receive_amount_${newIndex}" readonly>
                     </div>
                     <div class="col-md-3">
                         <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeNightReceive(this)">
@@ -1017,6 +1233,12 @@
 
             container.appendChild(newRow);
             $(newRow).find('select[data-toggle="select"]').select2();
+            
+            // 計算新行的金額
+            setTimeout(() => {
+                const input = newRow.querySelector('input[type="number"]');
+                if (input) calculateRowAmount(input, 'night_receive', newIndex);
+            }, 50);
         }
 
         function removeNightReceive(button) {
@@ -1762,6 +1984,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化所有預設的 select2 下拉選單
             $('select[data-toggle="select"]').select2();
+
+            // 初始化所有金額顯示
+            updateAllAmounts();
 
             // 初始化所有現有夜間開爐項目的價格計算
             document.querySelectorAll('#furnace-container .person-row').forEach((row, index) => {
