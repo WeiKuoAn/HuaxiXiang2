@@ -175,7 +175,7 @@
                             回上一頁
                         </button>
                         {{-- <button type="submit" name="submit1" value="flase" id="btn_submit" class="btn w-sm btn-danger waves-effect waves-light" onclick="if(!confirm('是否確定撤回?')){event.returnValue=false;return false;}">撤回</button> --}}
-                        @if ($data->status == 0)
+                        @if ($data->status == 0 || $data->status == 2)
                             @if ($data->user_id != Auth::user()->id)
                                 <button type="submit" name="submit1" value="true" id="btn_submit"
                                     class="btn w-sm btn-success waves-effect waves-light"
