@@ -264,7 +264,7 @@
                                                 {{ $increase->evening_is_typhoon ? 'checked' : '' }}
                                                 onchange="updateAllAmounts()">
                                             <label class="form-check-label fw-bold" for="evening_is_typhoon">
-                                                <span class="badge bg-warning text-dark">颱風</span>
+                                                <span class="badge bg-warning text-dark">天災</span>
                                             </label>
                                         </div>
                                         <div class="form-check form-check-inline">
@@ -277,7 +277,7 @@
                                             </label>
                                         </div>
                                         <small class="text-muted d-block mt-1" style="font-size: 0.8rem;">
-                                            颱風：電話+${{ number_format($increaseSettings['typhoon']->phone_bonus ?? 100, 0) }}、接件+${{ number_format($increaseSettings['typhoon']->receive_bonus ?? 500, 0) }} | 
+                                            天災：電話+${{ number_format($increaseSettings['typhoon']->phone_bonus ?? 100, 0) }}、接件+${{ number_format($increaseSettings['typhoon']->receive_bonus ?? 500, 0) }} | 
                                             過年：電話+${{ number_format($increaseSettings['newyear']->phone_bonus ?? 100, 0) }}、接件+${{ number_format($increaseSettings['newyear']->receive_bonus ?? 500, 0) }}
                                         </small>
                                     </div>
@@ -466,7 +466,7 @@
                                                 {{ $increase->night_is_typhoon ? 'checked' : '' }}
                                                 onchange="updateAllAmounts()">
                                             <label class="form-check-label fw-bold" for="night_is_typhoon">
-                                                <span class="badge bg-warning text-dark">颱風</span>
+                                                <span class="badge bg-warning text-dark">天災</span>
                                             </label>
                                         </div>
                                         <div class="form-check form-check-inline">
@@ -480,7 +480,7 @@
                                         </div>
                                         <small class="text-muted d-block mt-1" style="font-size: 0.8rem;">
                                             夜間：電話${{ number_format($increaseSettings['night']->phone_bonus ?? 100, 0) }}、接件${{ number_format($increaseSettings['night']->receive_bonus ?? 500, 0) }} | 
-                                            颱風：電話+${{ number_format($increaseSettings['typhoon']->phone_bonus ?? 100, 0) }}、接件+${{ number_format($increaseSettings['typhoon']->receive_bonus ?? 500, 0) }} | 
+                                            天災：電話+${{ number_format($increaseSettings['typhoon']->phone_bonus ?? 100, 0) }}、接件+${{ number_format($increaseSettings['typhoon']->receive_bonus ?? 500, 0) }} | 
                                             過年：電話+${{ number_format($increaseSettings['newyear']->phone_bonus ?? 100, 0) }}、接件+${{ number_format($increaseSettings['newyear']->receive_bonus ?? 500, 0) }}
                                         </small>
                                     </div>
@@ -939,7 +939,7 @@
             const count = parseInt(input.value) || 0;
             let unitPrice = 0;
             
-            // 取得颱風和過年的勾選狀態
+            // 取得天災和過年的勾選狀態
             let isTyphoon = false;
             let isNewyear = false;
             
@@ -955,7 +955,7 @@
                 isNewyear = newyearCheckbox ? newyearCheckbox.checked : false;
             }
             
-            // 計算單價（基礎金額 + 颱風 + 過年）
+            // 計算單價（基礎金額 + 天災 + 過年）
             const increaseSettings = @json($increaseSettings);
             
             if (category === 'evening_phone') {
@@ -986,7 +986,7 @@
             }
         }
         
-        // 當颱風/過年勾選改變時，重新計算所有行的金額
+        // 當天災/過年勾選改變時，重新計算所有行的金額
         function updateAllAmounts() {
             // 更新所有晚間加成 - 電話人員
             document.querySelectorAll('[data-evening-phone-index]').forEach((row) => {

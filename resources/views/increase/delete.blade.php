@@ -95,7 +95,7 @@
                                                 @if($increase->evening_is_typhoon || $increase->evening_is_newyear)
                                                     <strong>晚間加成：</strong>
                                                     @if($increase->evening_is_typhoon)
-                                                        <span class="badge bg-warning text-dark">颱風</span>
+                                                        <span class="badge bg-warning text-dark">天災</span>
                                                     @endif
                                                     @if($increase->evening_is_newyear)
                                                         <span class="badge bg-danger text-white">過年</span>
@@ -105,7 +105,7 @@
                                                 @if($increase->night_is_typhoon || $increase->night_is_newyear)
                                                     <strong>夜間加成：</strong>
                                                     @if($increase->night_is_typhoon)
-                                                        <span class="badge bg-warning text-dark">颱風</span>
+                                                        <span class="badge bg-warning text-dark">天災</span>
                                                     @endif
                                                     @if($increase->night_is_newyear)
                                                         <span class="badge bg-danger text-white">過年</span>
@@ -158,7 +158,7 @@
                                                 <td>
                                                     <span class="badge bg-info">晚間加成</span>
                                                     @if($increase->evening_is_typhoon)
-                                                        <span class="badge bg-warning text-dark">颱風</span>
+                                                        <span class="badge bg-warning text-dark">天災</span>
                                                     @endif
                                                     @if($increase->evening_is_newyear)
                                                         <span class="badge bg-danger text-white">過年</span>
@@ -175,7 +175,7 @@
                                                 <td>
                                                     <span class="badge bg-info">晚間加成</span>
                                                     @if($increase->evening_is_typhoon)
-                                                        <span class="badge bg-warning text-dark">颱風</span>
+                                                        <span class="badge bg-warning text-dark">天災</span>
                                                     @endif
                                                     @if($increase->evening_is_newyear)
                                                         <span class="badge bg-danger text-white">過年</span>
@@ -192,7 +192,7 @@
                                                 <td>
                                                     <span class="badge bg-dark">夜間加成</span>
                                                     @if($increase->night_is_typhoon)
-                                                        <span class="badge bg-warning text-dark">颱風</span>
+                                                        <span class="badge bg-warning text-dark">天災</span>
                                                     @endif
                                                     @if($increase->night_is_newyear)
                                                         <span class="badge bg-danger text-white">過年</span>
@@ -209,7 +209,7 @@
                                                 <td>
                                                     <span class="badge bg-dark">夜間加成</span>
                                                     @if($increase->night_is_typhoon)
-                                                        <span class="badge bg-warning text-dark">颱風</span>
+                                                        <span class="badge bg-warning text-dark">天災</span>
                                                     @endif
                                                     @if($increase->night_is_newyear)
                                                         <span class="badge bg-danger text-white">過年</span>
