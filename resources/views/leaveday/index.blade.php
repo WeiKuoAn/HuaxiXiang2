@@ -72,8 +72,6 @@
                                             @else
                                                 {{-- 其他人：預設顯示自己的審核假單 --}}
                                                 <option value="" @if (!isset($request->state) || $request->state == '') selected @endif>我的審核</option>
-                                                <option value="2" @if ($request->state == '2') selected @endif>所有待審核</option>
-                                                <option value="9" @if ($request->state == '9') selected @endif>已核准</option>
                                             @endif
                                         </select>
                                     </div>
