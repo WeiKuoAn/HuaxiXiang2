@@ -547,15 +547,17 @@ class SaleDataControllerNew extends Controller
             }
         }
 
-        foreach ($request->select_proms as $key => $select_prom) {
-            if (isset($select_prom)) {
-                $prom = new Sale_prom();
-                $prom->prom_type = $request->select_proms[$key];
-                $prom->sale_id = $sale_id->id;
-                $prom->prom_id = $request->prom[$key];
-                $prom->prom_total = $request->prom_total[$key];
-                $prom->comment = $request->prom_extra_text[$key];
-                $prom->save();
+        // 檢查是否有後續處理資料
+        if ($request->select_proms && is_array($request->select_proms)) {
+            foreach ($request->select_proms as $key => $select_prom) {
+                if (isset($select_prom)) {
+                    $prom = new Sale_prom();
+                    $prom->prom_type = $request->select_proms[$key];
+                    $prom->sale_id = $sale_id->id;
+                    $prom->prom_id = $request->prom[$key];
+                    $prom->prom_total = $request->prom_total[$key];
+                    $prom->comment = $request->prom_extra_text[$key];
+                    $prom->save();
 
                 // 這裡就能取得 $prom->id
                 // 如果有紀念品資料，這裡直接建立
@@ -585,8 +587,11 @@ class SaleDataControllerNew extends Controller
                 }
             }
         }
+        } // 結束後續處理的 if 檢查
 
-        foreach ($request->gdpaper_ids as $key => $gdpaper_id) {
+        // 檢查是否有金紙資料
+        if ($request->gdpaper_ids && is_array($request->gdpaper_ids)) {
+            foreach ($request->gdpaper_ids as $key => $gdpaper_id) {
             if (isset($gdpaper_id)) {
                 $gdpaper = new Sale_gdpaper();
                 $gdpaper->sale_id = $sale_id->id;
@@ -597,6 +602,7 @@ class SaleDataControllerNew extends Controller
                 $gdpaper->save();
             }
         }
+        } // 結束金紙的 if 檢查
 
         // 業務單軌跡-新增
         $sale_history = new SaleHistory();
@@ -1742,7 +1748,7 @@ class SaleDataControllerNew extends Controller
         }
 
         // 處理後續處理項目
-        if (isset($request->select_proms)) {
+        if ($request->select_proms && is_array($request->select_proms)) {
             foreach ($request->select_proms as $key => $select_prom) {
                 if (isset($select_prom)) {  // 不等於空的話
                     $prom = new Sale_prom();
@@ -1832,7 +1838,7 @@ class SaleDataControllerNew extends Controller
 
         // 處理金紙選購
         Sale_gdpaper::where('sale_id', $sale_id->id)->delete();
-        if (isset($request->gdpaper_ids)) {
+        if ($request->gdpaper_ids && is_array($request->gdpaper_ids)) {
             foreach ($request->gdpaper_ids as $key => $gdpaper_id) {
                 if (isset($gdpaper_id)) {
                     $gdpaper = new Sale_gdpaper();
