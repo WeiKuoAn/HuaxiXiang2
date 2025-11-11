@@ -45,7 +45,8 @@ class IncreaseSetting extends Model
         $typeNames = [
             'night' => '夜間加成',
             'evening' => '晚間加成',
-            'typhoon' => '颱風加成'
+            'typhoon' => '颱風',
+            'newyear' => '過年'
         ];
 
         return $typeNames[$this->type] ?? $this->type;

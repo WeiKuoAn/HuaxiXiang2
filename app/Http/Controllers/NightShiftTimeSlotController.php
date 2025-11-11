@@ -21,6 +21,21 @@ class NightShiftTimeSlotController extends Controller
     }
 
     /**
+     * 取得所有時段（用於整合頁面）
+     */
+    public function getAllTimeSlots()
+    {
+        $timeSlots = NightShiftTimeSlot::orderBy('sort_order')
+                                      ->orderBy('start_time')
+                                      ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $timeSlots
+        ]);
+    }
+
+    /**
      * 儲存新時段
      */
     public function store(Request $request)
@@ -59,12 +74,39 @@ class NightShiftTimeSlotController extends Controller
     {
         $timeSlot = NightShiftTimeSlot::findOrFail($id);
 
-        $validator = Validator::make($request->all(), [
+        // 準備數據，移除空值
+        $data = $request->only([
+            'name',
+            'start_time',
+            'end_time',
+            'min_weight',
+            'max_weight',
+            'price',
+            'sort_order',
+            'description'
+        ]);
+
+        // 處理 is_active
+        $data['is_active'] = $request->input('is_active', 0) ? true : false;
+
+        // 移除空的 min_weight 和 max_weight
+        if (empty($data['min_weight'])) {
+            $data['min_weight'] = null;
+        }
+        if (empty($data['max_weight'])) {
+            $data['max_weight'] = null;
+        }
+        if (empty($data['description'])) {
+            $data['description'] = null;
+        }
+
+        // 驗證
+        $validator = Validator::make($data, [
             'name' => 'required|string|max:255',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
+            'start_time' => 'required',
+            'end_time' => 'required',
             'min_weight' => 'nullable|numeric|min:0',
-            'max_weight' => 'nullable|numeric|min:0|gte:min_weight',
+            'max_weight' => 'nullable|numeric|min:0',
             'price' => 'required|numeric|min:0',
             'sort_order' => 'nullable|integer|min:0',
             'description' => 'nullable|string',
@@ -72,18 +114,45 @@ class NightShiftTimeSlotController extends Controller
         ]);
 
         if ($validator->fails()) {
+            // 判斷是否為 AJAX 請求
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '驗證失敗：' . $validator->errors()->first(),
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            
             return redirect()->back()
                            ->withErrors($validator)
                            ->withInput();
         }
 
-        $data = $request->all();
-        $data['is_active'] = $request->has('is_active');
+        try {
+            $timeSlot->update($data);
 
-        $timeSlot->update($data);
+            // 判斷是否為 AJAX 請求
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => '時段更新成功！',
+                    'data' => $timeSlot->fresh()
+                ]);
+            }
 
-        return redirect()->route('increase.time-slots.index')
-                        ->with('success', '時段更新成功！');
+            return redirect()->route('increase.time-slots.index')
+                            ->with('success', '時段更新成功！');
+        } catch (\Exception $e) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '更新失敗：' . $e->getMessage()
+                ], 500);
+            }
+            
+            return redirect()->back()
+                           ->with('error', '更新失敗：' . $e->getMessage());
+        }
     }
 
     /**

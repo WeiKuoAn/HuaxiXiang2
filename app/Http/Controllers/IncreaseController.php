@@ -49,7 +49,8 @@ class IncreaseController extends Controller
     {
         $users = User::where('status', '0')->orderby('level')->orderby('seq')->whereNotIn('job_id', [4,8,9,6,11])->get();
         $timeSlots = NightShiftTimeSlot::getActiveTimeSlots();
-        return view('increase.create', compact('users', 'timeSlots'));
+        $increaseSettings = IncreaseSetting::getActiveSettings();
+        return view('increase.create', compact('users', 'timeSlots', 'increaseSettings'));
     }
 
     public function store(Request $request)
@@ -96,6 +97,9 @@ class IncreaseController extends Controller
 
         try {
             DB::beginTransaction();
+            
+            // 獲取加成設定（動態金額）
+            $increaseSettings = IncreaseSetting::getActiveSettings();
 
             // 建立加成主檔
             $increase = Increase::create([
@@ -110,8 +114,14 @@ class IncreaseController extends Controller
 
             // 1. 處理晚間加成 - 電話人員
             if ($request->has('evening_phone')) {
-                $isSpecial = $increase->evening_is_typhoon || $increase->evening_is_newyear;
-                $unitPrice = $isSpecial ? 100 : 50; // 颱風/過年 $100，一般 $50
+                // 累加計算：基礎晚間費用 + 颱風費用（如果有勾選）+ 過年費用（如果有勾選）
+                $unitPrice = $increaseSettings['evening']->phone_bonus ?? 50;
+                if ($increase->evening_is_typhoon) {
+                    $unitPrice += $increaseSettings['typhoon']->phone_bonus ?? 100;
+                }
+                if ($increase->evening_is_newyear) {
+                    $unitPrice += $increaseSettings['newyear']->phone_bonus ?? 100;
+                }
                 
                 foreach ($request->evening_phone as $itemData) {
                     if (empty($itemData['person'])) continue;
@@ -136,8 +146,14 @@ class IncreaseController extends Controller
 
             // 2. 處理晚間加成 - 接件人員
             if ($request->has('evening_receive')) {
-                $isSpecial = $increase->evening_is_typhoon || $increase->evening_is_newyear;
-                $unitPrice = $isSpecial ? 500 : 250; // 颱風/過年 $500，一般 $250
+                // 累加計算：基礎晚間費用 + 颱風費用（如果有勾選）+ 過年費用（如果有勾選）
+                $unitPrice = $increaseSettings['evening']->receive_bonus ?? 250;
+                if ($increase->evening_is_typhoon) {
+                    $unitPrice += $increaseSettings['typhoon']->receive_bonus ?? 500;
+                }
+                if ($increase->evening_is_newyear) {
+                    $unitPrice += $increaseSettings['newyear']->receive_bonus ?? 500;
+                }
                 
                 foreach ($request->evening_receive as $itemData) {
                     if (empty($itemData['person'])) continue;
@@ -162,7 +178,14 @@ class IncreaseController extends Controller
 
             // 3. 處理夜間加成 - 電話人員
             if ($request->has('night_phone')) {
-                $unitPrice = 100; // 夜間加成固定 $100（不受颱風/過年影響）
+                // 累加計算：基礎夜間費用 + 颱風費用（如果有勾選）+ 過年費用（如果有勾選）
+                $unitPrice = $increaseSettings['night']->phone_bonus ?? 100;
+                if ($increase->night_is_typhoon) {
+                    $unitPrice += $increaseSettings['typhoon']->phone_bonus ?? 100;
+                }
+                if ($increase->night_is_newyear) {
+                    $unitPrice += $increaseSettings['newyear']->phone_bonus ?? 100;
+                }
                 
                 foreach ($request->night_phone as $itemData) {
                     if (empty($itemData['person'])) continue;
@@ -187,7 +210,14 @@ class IncreaseController extends Controller
 
             // 4. 處理夜間加成 - 接件人員
             if ($request->has('night_receive')) {
-                $unitPrice = 500; // 夜間加成固定 $500（不受颱風/過年影響）
+                // 累加計算：基礎夜間費用 + 颱風費用（如果有勾選）+ 過年費用（如果有勾選）
+                $unitPrice = $increaseSettings['night']->receive_bonus ?? 500;
+                if ($increase->night_is_typhoon) {
+                    $unitPrice += $increaseSettings['typhoon']->receive_bonus ?? 500;
+                }
+                if ($increase->night_is_newyear) {
+                    $unitPrice += $increaseSettings['newyear']->receive_bonus ?? 500;
+                }
                 
                 foreach ($request->night_receive as $itemData) {
                     if (empty($itemData['person'])) continue;
@@ -312,8 +342,9 @@ class IncreaseController extends Controller
         ])->findOrFail($id);
         $users = User::where('status', '0')->orderby('level')->orderby('seq')->whereNotIn('job_id', [4,8,9,6,11])->get();
         $timeSlots = NightShiftTimeSlot::getActiveTimeSlots();
+        $increaseSettings = IncreaseSetting::getActiveSettings();
         
-        return view('increase.edit', compact('increase', 'users', 'timeSlots'));
+        return view('increase.edit', compact('increase', 'users', 'timeSlots', 'increaseSettings'));
     }
 
     public function update(Request $request, $id)
@@ -347,6 +378,9 @@ class IncreaseController extends Controller
 
         try {
             DB::beginTransaction();
+            
+            // 獲取加成設定（動態金額）
+            $increaseSettings = IncreaseSetting::getActiveSettings();
 
             // 更新加成主檔
             $increase = Increase::findOrFail($id);
@@ -364,8 +398,14 @@ class IncreaseController extends Controller
 
             // 1. 處理晚間加成 - 電話人員
             if ($request->has('evening_phone')) {
-                $isSpecial = $increase->evening_is_typhoon || $increase->evening_is_newyear;
-                $unitPrice = $isSpecial ? 100 : 50;
+                // 累加計算：基礎晚間費用 + 颱風費用（如果有勾選）+ 過年費用（如果有勾選）
+                $unitPrice = $increaseSettings['evening']->phone_bonus ?? 50;
+                if ($increase->evening_is_typhoon) {
+                    $unitPrice += $increaseSettings['typhoon']->phone_bonus ?? 100;
+                }
+                if ($increase->evening_is_newyear) {
+                    $unitPrice += $increaseSettings['newyear']->phone_bonus ?? 100;
+                }
                 
                 foreach ($request->evening_phone as $itemData) {
                     if (empty($itemData['person'])) continue;
@@ -390,8 +430,14 @@ class IncreaseController extends Controller
 
             // 2. 處理晚間加成 - 接件人員
             if ($request->has('evening_receive')) {
-                $isSpecial = $increase->evening_is_typhoon || $increase->evening_is_newyear;
-                $unitPrice = $isSpecial ? 500 : 250;
+                // 累加計算：基礎晚間費用 + 颱風費用（如果有勾選）+ 過年費用（如果有勾選）
+                $unitPrice = $increaseSettings['evening']->receive_bonus ?? 250;
+                if ($increase->evening_is_typhoon) {
+                    $unitPrice += $increaseSettings['typhoon']->receive_bonus ?? 500;
+                }
+                if ($increase->evening_is_newyear) {
+                    $unitPrice += $increaseSettings['newyear']->receive_bonus ?? 500;
+                }
                 
                 foreach ($request->evening_receive as $itemData) {
                     if (empty($itemData['person'])) continue;
@@ -416,7 +462,14 @@ class IncreaseController extends Controller
 
             // 3. 處理夜間加成 - 電話人員
             if ($request->has('night_phone')) {
-                $unitPrice = 100;
+                // 累加計算：基礎夜間費用 + 颱風費用（如果有勾選）+ 過年費用（如果有勾選）
+                $unitPrice = $increaseSettings['night']->phone_bonus ?? 100;
+                if ($increase->night_is_typhoon) {
+                    $unitPrice += $increaseSettings['typhoon']->phone_bonus ?? 100;
+                }
+                if ($increase->night_is_newyear) {
+                    $unitPrice += $increaseSettings['newyear']->phone_bonus ?? 100;
+                }
                 
                 foreach ($request->night_phone as $itemData) {
                     if (empty($itemData['person'])) continue;
@@ -441,7 +494,14 @@ class IncreaseController extends Controller
 
             // 4. 處理夜間加成 - 接件人員
             if ($request->has('night_receive')) {
-                $unitPrice = 500;
+                // 累加計算：基礎夜間費用 + 颱風費用（如果有勾選）+ 過年費用（如果有勾選）
+                $unitPrice = $increaseSettings['night']->receive_bonus ?? 500;
+                if ($increase->night_is_typhoon) {
+                    $unitPrice += $increaseSettings['typhoon']->receive_bonus ?? 500;
+                }
+                if ($increase->night_is_newyear) {
+                    $unitPrice += $increaseSettings['newyear']->receive_bonus ?? 500;
+                }
                 
                 foreach ($request->night_receive as $itemData) {
                     if (empty($itemData['person'])) continue;
@@ -534,8 +594,9 @@ class IncreaseController extends Controller
     
     public function delete($id)
     {
-        $increase = Increase::with(['items.phonePerson', 'items.receivePerson', 'creator'])->findOrFail($id);
-        return view('increase.delete', compact('increase'));
+        $increase = Increase::with(['items.phonePerson', 'items.receivePerson', 'creator', 'items.overtimeRecord.user', 'items.furnacePerson'])->findOrFail($id);
+        $increaseSettings = IncreaseSetting::getActiveSettings();
+        return view('increase.delete', compact('increase', 'increaseSettings'));
     }
 
     public function destroy($id)

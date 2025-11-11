@@ -884,12 +884,19 @@ Route::group(['prefix' => '/'], function () {
     
     // 夜間開爐時段管理路由
     Route::get('/increase/time-slots', [NightShiftTimeSlotController::class, 'index'])->name('increase.time-slots.index');
+    Route::get('/increase/time-slots-api/all', [NightShiftTimeSlotController::class, 'getAllTimeSlots'])->name('increase.time-slots.all');
     Route::post('/increase/time-slots', [NightShiftTimeSlotController::class, 'store'])->name('increase.time-slots.store');
     Route::put('/increase/time-slots/{id}', [NightShiftTimeSlotController::class, 'update'])->name('increase.time-slots.update');
     Route::patch('/increase/time-slots/{id}/toggle-status', [NightShiftTimeSlotController::class, 'toggleStatus'])->name('increase.time-slots.toggle-status');
     Route::delete('/increase/time-slots/{id}', [NightShiftTimeSlotController::class, 'destroy'])->name('increase.time-slots.destroy');
     Route::get('/increase/time-slots/{id}', [NightShiftTimeSlotController::class, 'getTimeSlot'])->name('increase.time-slots.get');
     Route::get('/increase/time-slots-api/active', [NightShiftTimeSlotController::class, 'getActiveTimeSlots'])->name('increase.time-slots.active');
+
+    // 加成設定管理
+    Route::get('/increase-setting', [App\Http\Controllers\IncreaseSettingController::class, 'index'])->name('increase-setting.index');
+    Route::put('/increase-setting/batch-update', [App\Http\Controllers\IncreaseSettingController::class, 'batchUpdate'])->name('increase-setting.batch-update');
+    Route::get('/increase-setting/{id}/edit', [App\Http\Controllers\IncreaseSettingController::class, 'edit'])->name('increase-setting.edit');
+    Route::put('/increase-setting/{id}', [App\Http\Controllers\IncreaseSettingController::class, 'update'])->name('increase-setting.update');
 
     // 加班管理
     Route::get('/overtime', [OvertimeController::class, 'index'])->name('overtime.index');
