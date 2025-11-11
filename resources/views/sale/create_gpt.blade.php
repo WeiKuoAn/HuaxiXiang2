@@ -338,7 +338,12 @@
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">後續處理</h5>
+                            <div class="d-flex justify-content-between align-items-center bg-light p-2 mt-0 mb-3">
+                                <h5 class="text-uppercase mb-0">後續處理</h5>
+                                <button type="button" class="btn btn-primary btn-sm ibtnAdd_prom">
+                                    <i class="fa fas fa-plus me-1"></i>新增後續處理
+                                </button>
+                            </div>
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="table-responsive">
@@ -353,19 +358,13 @@
                                             </thead>
                                             <tbody>
                                                 @php $j = 0; @endphp
-                                                @for ($i = 0; $i < 1; $i++)
+                                                @for ($i = 0; $i < 0; $i++)
                                                     @php $j = $i+1; @endphp
                                                     <tr id="row-{{ $i }}">
                                                         <td class="text-center">
-                                                            @if ($j == 1)
-                                                                <button type="button"
-                                                                    class="ibtnAdd_prom demo-delete-row btn btn-primary btn-sm btn-icon"><i
-                                                                        class="fa fas fa-plus"></i></button>
-                                                            @else
-                                                                <button type="button"
-                                                                    class="ibtnDel_prom demo-delete-row btn btn-danger btn-sm btn-icon"><i
-                                                                        class="fa fa-times"></i></button>
-                                                            @endif
+                                                            <button type="button"
+                                                                class="ibtnDel_prom demo-delete-row btn btn-outline-danger btn-sm btn-icon"><i
+                                                                    class="fa fa-times"></i></button>
                                                         </td>
                                                         <td>
                                                             <select id="select_prom_{{ $i }}"
@@ -436,13 +435,16 @@
                 </div> <!-- end col -->
             </div>
 
-
-
             <div class="row" id="gdpaper_div">
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">金紙選購</h5>
+                            <div class="d-flex justify-content-between align-items-center bg-light p-2 mt-0 mb-3">
+                                <h5 class="text-uppercase mb-0">金紙選購</h5>
+                                <button type="button" class="btn btn-primary btn-sm ibtnAdd_gdpaper">
+                                    <i class="fa fas fa-plus me-1"></i>新增金紙
+                                </button>
+                            </div>
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="table-responsive">
@@ -457,19 +459,13 @@
                                             </thead>
                                             <tbody>
                                                 @php $j = 0; @endphp
-                                                @for ($i = 0; $i < 1; $i++)
+                                                @for ($i = 0; $i < 0; $i++)
                                                     @php $j = $i+1; @endphp
                                                     <tr id="row-{{ $i }}">
                                                         <td class="text-center">
-                                                            @if ($j == 1)
-                                                                <button type="button"
-                                                                    class="ibtnAdd_gdpaper demo-delete-row btn btn-primary btn-sm btn-icon"><i
-                                                                        class="fa fas fa-plus"></i></button>
-                                                            @else
-                                                                <button type="button"
-                                                                    class="ibtnDel_gdpaper demo-delete-row btn btn-danger btn-sm btn-icon"><i
-                                                                        class="fa fa-times"></i></button>
-                                                            @endif
+                                                            <button type="button"
+                                                                class="ibtnDel_gdpaper demo-delete-row btn btn-outline-danger btn-sm btn-icon"><i
+                                                                    class="fa fa-times"></i></button>
                                                         </td>
                                                         <td>
                                                             <select id="gdpaper_id_{{ $i }}"
@@ -2100,7 +2096,7 @@
 
 
 
-        $("table.gdpaper-list tbody").on("click", ".ibtnAdd_gdpaper", function() {
+        $(".ibtnAdd_gdpaper").click(function() {
             rowCount = $('table.gdpaper-list tr').length - 1;
             var newRow = $("<tr>");
             var cols = '';
