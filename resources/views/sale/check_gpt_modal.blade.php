@@ -92,6 +92,43 @@
                         </div>
                         @endif
                         
+                        @php
+                            // 套裝顯示邏輯：派件單 + (一次付清/尾款/追加) + 個別方案
+                            $shouldShowSuit = false;
+                            
+                            if ($data->type_list == 'dispatch' && in_array($data->pay_id, ['A', 'D', 'E'])) {
+                                if ($data->pay_id == 'D') {
+                                    // 尾款：需要查詢原始訂單的方案
+                                    $originalOrder = \App\Models\Sale::where('customer_id', $data->customer_id)
+                                        ->where('pet_name', $data->pet_name)
+                                        ->where('type_list', $data->type_list)
+                                        ->whereIn('pay_id', ['A', 'C'])
+                                        ->orderBy('id', 'desc')
+                                        ->first();
+                                    
+                                    if ($originalOrder && $originalOrder->plan_id == 1) {
+                                        $shouldShowSuit = true;
+                                    }
+                                } else {
+                                    // 一次付清或追加：直接檢查當前方案
+                                    if ($data->plan_id == 1) {
+                                        $shouldShowSuit = true;
+                                    }
+                                }
+                            }
+                        @endphp
+                        
+                        @if($shouldShowSuit)
+                        <div class="mb-3 col-md-4">
+                            <label for="suit_id" class="form-label">套裝選擇</label>
+                            @if($data->suit_id)
+                                <input type="text" class="form-control" value="{{ $suits->where('id', $data->suit_id)->first()->name ?? '' }}" readonly>
+                            @else
+                                <input type="text" class="form-control" value="未選擇套裝" readonly style="color: #999;">
+                            @endif
+                        </div>
+                        @endif
+                        
                         <div class="mb-3 col-md-4" id="religion_field" style="display: none;">
                             <label for="religion" class="form-label">宗教信仰<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" value="@if($data->religion == 'buddhism_taoism')佛道教@elseif($data->religion == 'christianity')基督教@elseif($data->religion == 'catholicism')天主教@elseif($data->religion == 'none')無宗教@elseif($data->religion == 'other')其他@endif" readonly>
