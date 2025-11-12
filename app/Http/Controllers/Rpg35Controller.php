@@ -34,6 +34,8 @@ class Rpg35Controller extends Controller
                 'sale_data.sale_date',
                 'sale_data.status',
                 'sale_data.id as sale_data_id',
+                'sale_data.pay_id',
+                'sale_data.customer_id',
                 'sale_data.kg',
                 'sale_data.variety',
                 'sale_data.pet_name',
@@ -63,10 +65,33 @@ class Rpg35Controller extends Controller
                 $datas[$promId]['details'][$promTotal] = [];
             }
 
+            $kg = $sale_prom->kg;
+            $variety = $sale_prom->variety;
+
+            if ((is_null($kg) || $kg === '') && $sale_prom->pay_id === 'D') {
+                $depositRecord = Sale_prom::join('sale_data', 'sale_data.id', '=', 'sale_prom.sale_id')
+                    ->leftJoin('customer', 'customer.id', '=', 'sale_data.customer_id')
+                    ->where('sale_data.customer_id', $sale_prom->customer_id)
+                    ->where('sale_data.pet_name', $sale_prom->pet_name)
+                    ->where('sale_data.pay_id', 'C')
+                    ->where('sale_data.status', '9')
+                    ->orderBy('sale_data.sale_date', 'desc')
+                    ->select(
+                        'sale_data.kg',
+                        'sale_data.variety'
+                    )
+                    ->first();
+
+                if ($depositRecord) {
+                    $kg = $depositRecord->kg ?? $kg;
+                    $variety = $depositRecord->variety ?? $variety;
+                }
+            }
+
             $datas[$promId]['details'][$promTotal][] = [
                 'sale_date' => $sale_prom->sale_date,
-                'kg' => $sale_prom->kg,
-                'variety' => $sale_prom->variety,
+                'kg' => $kg,
+                'variety' => $variety,
                 'pet_name' => $sale_prom->pet_name,
                 'customer_name' => $sale_prom->customer_name,
             ];
