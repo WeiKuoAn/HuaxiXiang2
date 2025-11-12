@@ -82,6 +82,7 @@ use App\Http\Controllers\Rpg31Controller;
 use App\Http\Controllers\Rpg32Controller;
 use App\Http\Controllers\Rpg33Controller;
 use App\Http\Controllers\Rpg34Controller;
+use App\Http\Controllers\Rpg35Controller;
 use App\Http\Controllers\SaleDataController;
 use App\Http\Controllers\SaleDataControllerNew;
 use App\Http\Controllers\SaleSourceController;
@@ -651,8 +652,7 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg06', [Rpg06Controller::class, 'rpg06'])->name('rpg06');  // 舊法會查詢
         Route::get('/rpg/rpg13', [Rpg13Controller::class, 'rpg13'])->name('rpg13');
         Route::get('/rpg/rpg13/detail/{year}/{month}/{product_id}/{type}', [Rpg13Controller::class, 'detail'])->name('rpg13.detail');
-        Route::get('/rpg/rpg34', [Rpg34Controller::class, 'rpg34'])->name('rpg34');
-        Route::get('/rpg/rpg34/detail/{year}/{month}/{product_id}/{type}', [Rpg34Controller::class, 'detail'])->name('rpg34.detail');
+        
         Route::get('/rpg/rpg09', [Rpg09Controller::class, 'rpg09'])->name('rpg09');
         Route::get('/rpg/rpg10', [Rpg10Controller::class, 'rpg10'])->name('rpg10');
         Route::get('/rpg/rpg15', [Rpg15Controller::class, 'rpg15'])->name('rpg15');
@@ -683,7 +683,8 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg30/detail/urn-souvenir/{season_start}/{season_end}/{urn_souvenir}', [Rpg30Controller::class, 'season_urn_souvenir_detail'])->name('rpg30.season.urn_souvenir.detail');
         Route::get('/rpg/rpg33', [Rpg33Controller::class, 'index'])->name('rpg33');
         Route::get('/rpg/rpg33/export', [Rpg33Controller::class, 'export'])->name('rpg33.export');
-
+        Route::get('/rpg/rpg34', [Rpg34Controller::class, 'rpg34'])->name('rpg34');
+        Route::get('/rpg/rpg35', [Rpg35Controller::class, 'rpg35'])->name('rpg35');
        
     });
 
