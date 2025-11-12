@@ -177,11 +177,34 @@
                                     @foreach ($data['items'] as $item_total => $item_count)
                                         @if ($item_count > 0)
                                             <div class="col-md-6 col-lg-4">
-                                                <div class="product-card rounded p-3 h-100">
-                                                    <div class="d-flex justify-content-between align-items-start">
+                                                <div class="product-card rounded p-3 h-100 d-flex flex-column">
+                                                    <div class="d-flex justify-content-between align-items-start mb-2">
                                                         <div class="product-name">{{ number_format($item_total) }}</div>
                                                         <div class="product-quantity">{{ number_format($item_count) }}</div>
                                                     </div>
+
+                                                    @php
+                                                        $details = $data['details'][$item_total] ?? [];
+                                                    @endphp
+
+                                                    @if (!empty($details))
+                                                        <div class="variant-section">
+                                                            <div class="variant-title">明細</div>
+                                                            @foreach ($details as $detail)
+                                                                <div
+                                                                    class="variant-item d-flex justify-content-between align-items-center">
+                                                                    <div class="me-2">
+                                                                        <div class="fw-semibold text-primary">{{ $detail['customer_name'] ?? '未提供姓名' }}</div>
+                                                                        <small class="text-muted">{{ $detail['sale_date'] ?? '未提供日期' }}</small>
+                                                                    </div>
+                                                                    <div class="text-end">
+                                                                        <div>{{ $detail['pet_name'] ?? '未提供寵物' }}  {{ $detail['kg'] ? '/ ' . $detail['kg'].'kg' : '' }}</div>
+                                                                        <small class="text-muted">{{ $detail['variety'] ?? '' }} </small>
+                                                                    </div>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         @endif
