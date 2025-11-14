@@ -43,18 +43,6 @@
                                             @if (!isset($request->before_date)) value="{{ $lastDay->format('Y-m-d') }}" @endif
                                             value="{{ $request->before_date }}">
                                     </div>
-                                    <label for="status-select" class="me-2">來源類別</label>
-                                    <div class="me-sm-3">
-                                        <select class="form-select my-1 my-lg-0" id="status-select" name="source"
-                                            onchange="this.form.submit()">
-                                            <option value="NULL">不限</option>
-                                            @foreach ($sources as $source)
-                                                <option value="{{ $source->code }}"
-                                                    @if ($request->source == $source->code) selected @endif>{{ $source->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
                                     <div class="me-3">
                                         <button type="submit" onclick="CheckSearch(event)"
                                             class="btn btn-success waves-effect waves-light me-1"><i
