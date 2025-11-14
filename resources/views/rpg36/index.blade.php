@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ['page_title' => '廠商佣金抽成'])
+@extends('layouts.vertical', ['page_title' => '員工佣金抽成'])
 
 @section('content')
     <!-- Start Content-->
@@ -12,10 +12,10 @@
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                             <li class="breadcrumb-item"><a href="javascript: void(0);">報表管理</a></li>
-                            <li class="breadcrumb-item active">廠商佣金抽成</li>
+                            <li class="breadcrumb-item active">員工佣金抽成</li>
                         </ol>
                     </div>
-                    <h4 class="page-title">廠商佣金抽成</h4>
+                    <h4 class="page-title">員工佣金抽成</h4>
                 </div>
             </div>
         </div>
@@ -25,10 +25,10 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <div class="row justify-content-between align-items-center">
+                        <div class="row justify-content-between">
                             <div class="col-auto">
                                 <form class="d-flex flex-wrap align-items-center" id="myForm"
-                                    action="{{ route('rpg12') }}" method="GET">
+                                    action="{{ route('rpg36') }}" method="GET">
                                     <label for="status-select" class="me-2">日期區間</label>
                                     <div class="me-2">
                                         <input type="date" class="form-control my-1 my-lg-0" id="inputPassword2"
@@ -70,18 +70,16 @@
                                                 $exportParams['source'] = $request->source;
                                             }
                                         @endphp
-                                        <a href="{{ route('rpg12.export', $exportParams) }}"
+                                        <a href="{{ route('rpg36.export', $exportParams) }}"
                                             class="btn btn-outline-primary waves-effect me-1"><i
                                                 class="fe-download me-1"></i>匯出</a>
                                     </div>
                                 </form>
                             </div>
                             <div class="col-auto">
-                                <div class="text-lg-end my-1 my-lg-0 d-flex flex-column align-items-end">
-                                    <h3>
-                                        <span class="text-danger">
-                                            共計：{{ number_format($sums['count']) }}單
-                                        </span>
+                                <div class="text-lg-end my-1 my-lg-0">
+                                    <h3><span
+                                            class="text-danger">共計：{{ number_format($sums['count']) }}單，佣金共{{ number_format($sums['commission']) }}元</span>
                                     </h3>
                                 </div>
                             </div><!-- end col-->
@@ -112,7 +110,7 @@
                                     <tbody>
                                         @foreach ($data['companys'] as $company_data)
                                             <tr>
-                                                <td colspan="7">{{ $company_data['name'] }}</td>
+                                                <td colspan="6">{{ $company_data['name'] }}</td>
                                             </tr>
                                             @foreach ($company_data['items'] as $key => $item)
                                                 <tr>
@@ -128,6 +126,7 @@
                                                 <td colspan="4"></td>
                                                 <td align="center">共計：{{ number_format($company_data['count']) }}單</td>
                                                 <td align="right">小計：{{ number_format($company_data['plan_amount']) }}元
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>

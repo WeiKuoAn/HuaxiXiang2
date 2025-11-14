@@ -83,6 +83,7 @@ use App\Http\Controllers\Rpg32Controller;
 use App\Http\Controllers\Rpg33Controller;
 use App\Http\Controllers\Rpg34Controller;
 use App\Http\Controllers\Rpg35Controller;
+use App\Http\Controllers\Rpg36Controller;
 use App\Http\Controllers\SaleDataController;
 use App\Http\Controllers\SaleDataControllerNew;
 use App\Http\Controllers\SaleSourceController;
@@ -646,6 +647,9 @@ Route::group(['prefix' => '/'], function () {
     // 管理權限報表 - 主管以上可訪問
     Route::middleware(['auth', 'rpg.flexible:management'])->group(function () {
         Route::get('/rpg/rpg12', [Rpg12Controller::class, 'rpg12'])->name('rpg12');
+        Route::get('/rpg/rpg12/export', [Rpg12Controller::class, 'exportXlsx'])->name('rpg12.export');
+        Route::get('/rpg/rpg36', [Rpg36Controller::class, 'rpg36'])->name('rpg36');
+        Route::get('/rpg/rpg36/export', [Rpg36Controller::class, 'exportXlsx'])->name('rpg36.export');
         Route::get('/rpg/rpg01', [Rpg01Controller::class, 'rpg01'])->name('rpg01');
         Route::get('/rpg/rpg01/detail/{date}/{plan_id}', [Rpg01Controller::class, 'detail'])->name('rpg01.detail');
         Route::get('/rpg/rpg04', [Rpg04Controller::class, 'rpg04'])->name('rpg04');

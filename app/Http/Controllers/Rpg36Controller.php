@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\CustGroup;
 use App\Models\SaleCompanyCommission;
 use App\Models\SaleSource;
 use Carbon\Carbon;
@@ -11,13 +12,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use ZipArchive;
 
-class Rpg12Controller extends Controller
+class Rpg36Controller extends Controller
 {
-    public function rpg12(Request $request)
+    public function rpg36(Request $request)
     {
-        $payload = $this->prepareRpg12Data($request);
+        $payload = $this->prepareRpg36Data($request);
 
-        return view('rpg12.index')
+        return view('rpg36.index')
             ->with('sources', $payload['sources'])
             ->with('years', $payload['years'])
             ->with('request', $request)
@@ -29,9 +30,9 @@ class Rpg12Controller extends Controller
 
     public function exportXlsx(Request $request)
     {
-        $payload = $this->prepareRpg12Data($request);
+        $payload = $this->prepareRpg36Data($request);
         $fileName = sprintf(
-            '廠商佣金抽成_%s_%s.xlsx',
+            '員工佣金抽成_%s_%s.xlsx',
             $payload['firstDay']->format('Ymd'),
             $payload['lastDay']->format('Ymd')
         );
@@ -48,7 +49,7 @@ class Rpg12Controller extends Controller
             $rows[] = ['查詢區間', $start . ' ~ ' . $end];
         }
 
-        $rows[] = ['來源名稱', '廠商', '日期', '客戶名稱', '寶貝名稱', '方案', '方案價格'];
+        $rows[] = ['來源名稱', '人員/廠商', '日期', '客戶名稱', '寶貝名稱', '方案', '方案價格'];
 
         foreach ($payload['datas'] as $typeData) {
             foreach ($typeData['companys'] as $companyData) {
@@ -78,13 +79,13 @@ class Rpg12Controller extends Controller
         ];
 
         $worksheetXml = $this->buildWorksheetXml($rows);
-        $tempFile = tempnam(sys_get_temp_dir(), 'rpg12_') . '.xlsx';
+        $tempFile = tempnam(sys_get_temp_dir(), 'rpg36_') . '.xlsx';
         $zip = new ZipArchive();
         $zip->open($tempFile, ZipArchive::CREATE | ZipArchive::OVERWRITE);
         $zip->addFromString('[Content_Types].xml', $this->buildContentTypesXml());
         $zip->addFromString('_rels/.rels', $this->buildRelsXml());
         $zip->addFromString('xl/_rels/workbook.xml.rels', $this->buildWorkbookRelsXml());
-        $zip->addFromString('xl/workbook.xml', $this->buildWorkbookXml());
+        $zip->addFromString('xl/workbook.xml', $this->buildWorkbookXml('員工佣金抽成'));
         $zip->addFromString('xl/worksheets/sheet1.xml', $worksheetXml);
         $zip->addFromString('xl/styles.xml', $this->buildStylesXml());
         $zip->close();
@@ -92,7 +93,7 @@ class Rpg12Controller extends Controller
         return response()->download($tempFile, $fileName, $headers)->deleteFileAfterSend(true);
     }
 
-    protected function prepareRpg12Data(Request $request): array
+    protected function prepareRpg36Data(Request $request): array
     {
         $years = range(Carbon::now()->year, 2022);
 
@@ -106,7 +107,7 @@ class Rpg12Controller extends Controller
             $lastDay = Carbon::parse($request->before_date ?? Carbon::now()->endOfMonth());
         }
 
-        $sources = SaleSource::whereIn('code', ['H', 'B', 'dogpark', 'G', 'other'])->get();
+        $sources = SaleSource::whereIn('code', ['H', 'B', 'dogpark', 'G', 'other', 'self'])->get();
 
         $sale_companys = SaleCompanyCommission::with(['company_name', 'self_name', 'user_name'])
             ->whereHas('sale', function ($query) {
@@ -116,7 +117,7 @@ class Rpg12Controller extends Controller
             })
             ->where('sale_date', '>=', $firstDay)
             ->where('sale_date', '<=', $lastDay)
-            ->whereIn('type', ['H', 'B', 'dogpark', 'G', 'other'])
+            ->where('type', '=', 'self')
             ->where('cooperation_price', '!=', '1');
 
         $source = $request->source;
@@ -130,7 +131,13 @@ class Rpg12Controller extends Controller
         foreach ($sale_companys as $sale_company) {
             $sourceName = SaleSource::where('code', $sale_company->type)->first();
             $datas[$sale_company->type]['name'] = $sourceName ? $sourceName->name : $sale_company->type;
-            $datas[$sale_company->type]['companys'][$sale_company->company_id]['name'] = $sale_company->company_name ? $sale_company->company_name->name : '未知公司';
+
+            if ($sale_company->type == 'self') {
+                $datas[$sale_company->type]['companys'][$sale_company->company_id]['name'] = $sale_company->self_name ? $sale_company->self_name->name : '未知用戶';
+            } else {
+                $datas[$sale_company->type]['companys'][$sale_company->company_id]['name'] = $sale_company->company_name ? $sale_company->company_name->name : '未知公司';
+            }
+
             $datas[$sale_company->type]['companys'][$sale_company->company_id]['items'] = DB::table('sale_company_commission')
                 ->join('sale_data', 'sale_data.id', '=', 'sale_company_commission.sale_id')
                 ->leftJoin('plan', 'plan.id', '=', 'sale_data.plan_id')
@@ -148,7 +155,8 @@ class Rpg12Controller extends Controller
                     'sale_company_commission.commission as commission_price',
                     'sale_data.status as status',
                     'plan.name as plan_name',
-                    'sale_data.pet_name'
+                    'sale_data.pet_name',
+                    'sale_data.plan_price'
                 )
                 ->orderBy('sale_company_commission.sale_date', 'desc')
                 ->get();
@@ -270,13 +278,15 @@ class Rpg12Controller extends Controller
             . '</Relationships>';
     }
 
-    protected function buildWorkbookXml(): string
+    protected function buildWorkbookXml(string $sheetName): string
     {
+        $sheetName = htmlspecialchars($sheetName, ENT_QUOTES | ENT_XML1);
+
         return '<?xml version="1.0" encoding="UTF-8"?>'
             . '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
             . 'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
             . '<sheets>'
-            . '<sheet name="廠商佣金抽成" sheetId="1" r:id="rId1"/>'
+            . '<sheet name="' . $sheetName . '" sheetId="1" r:id="rId1"/>'
             . '</sheets>'
             . '</workbook>';
     }
