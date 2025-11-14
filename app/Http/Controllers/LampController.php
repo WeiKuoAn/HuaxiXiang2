@@ -14,7 +14,8 @@ class LampController extends Controller
 {
     public function index(Request $request)
     {
-        
+        Lamp::closeExpired();
+
         $today = Carbon::now()->format("Y-m-d");
         $check_renew = $request->check_renew;
         if (!isset($check_renew)) {
@@ -208,6 +209,8 @@ class LampController extends Controller
 
     public function export(Request $request)
     {
+        Lamp::closeExpired();
+
         $today = Carbon::now()->format("Y-m-d");
         $check_renew = $request->check_renew;
         if (!isset($check_renew)) {
@@ -315,11 +318,6 @@ class LampController extends Controller
                 $row['顧客名稱'] = $data->cust_name->name;
                 $row['電話'] = $data->mobile;
                 $row['寶貝名稱'] = $data->pet_name;
-                if ($data->type == '4') {
-                    $row['目前簽約年份'] = $data->year . '天';
-                } else {
-                    $row['目前簽約年份'] = '第' . $data->year . '年';
-                }
                 $row['開始日期'] = $data->getRocStartDateAttribute();
                 if (!isset($request->check_close) || $request->check_close == '1') {
                     $row['結束日期'] = $data->getRocEndDateAttribute();
@@ -327,22 +325,15 @@ class LampController extends Controller
                     $row['結束日期'] = $data->getRocCloseDateAttribute();
                 }
                 $row['金額'] = $data->price;
-                if ($data->renew == '1') {
-                    $row['續約'] = '是（' . $data->renew_year . '年）';
-                } else {
-                    $row['續約'] = '';
-                }
                 fputcsv($file, array(
                     $row['編號'],
                     $row['平安燈類別'],
                     $row['顧客名稱'],
                     $row['電話'],
                     $row['寶貝名稱'],
-                    $row['目前簽約年份'],
                     $row['開始日期'],
                     $row['結束日期'],
                     $row['金額'],
-                    $row['續約']
                 ));
             }
 

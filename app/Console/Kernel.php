@@ -24,6 +24,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->command('lamp:auto-close')->dailyAt('00:30');
         // $schedule->command('inspire')->hourly();
     }
 

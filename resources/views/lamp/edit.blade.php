@@ -75,10 +75,6 @@
                                 <input type="text" class="form-control" id="pet_name" name="pet_name" value="{{ $data->pet_name }}"  required>
                            </div>
                            <div class="mb-3">
-                                <label for="year" class="form-label">第幾年<span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="year" name="year" value="{{ $data->year }}"  required>
-                           </div>
-                           <div class="mb-3">
                                 <label for="start_date" class="form-label">開始日期<span class="text-danger">*</span></label>
                                 <input type="text" class="date form-control change_cal_date" id="start_date" name="start_date"  value="{{ $data->getRocStartDateAttribute() }}" required>
                            </div>
@@ -90,19 +86,6 @@
                                 <label for="price" class="form-label">金額<span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="price" name="price"  value="{{ $data->price }}" required>
                            </div>
-                           <div id="renew_div">
-                                <div class="mb-3">
-                                    <label for="renew_year" class="form-label">再續約幾年<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="renew_year" name="renew_year" value="{{ $data->renew_year }}" >
-                                </div>
-                                <input type="hidden" name="renew_year_hidden" id="renew_year_hidden" value="{{ $data->renew_year }}">
-                            </div>
-                           <div class="mb-3 mt-3">
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="renew" name="renew" @if($data->renew == '1')  checked  @endif>
-                                    <label class="form-check-label" for="renew"><b>是否為續約？</b></label>
-                                </div>
-                            </div>
                             <div>
                                 <label class="form-label">備註</label>
                                 <textarea class="form-control" rows="3" placeholder="" name="comment">{{ $data->comment }}</textarea>

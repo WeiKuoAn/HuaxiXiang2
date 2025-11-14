@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use DateTime;
+use Illuminate\Support\Facades\DB;
 
 class Lamp extends Model
 {
@@ -54,6 +56,16 @@ class Lamp extends Model
     public function getRocCloseDateAttribute()
     {
         return $this->convertToROC($this->close_date);
+    }
+
+    public static function closeExpired(): int
+    {
+        $today = Carbon::today()->toDateString();
+
+        return static::query()
+            ->whereNull('close_date')
+            ->whereDate('end_date', '<', $today)
+            ->update(['close_date' => DB::raw('end_date')]);
     }
 
     // 私有的轉換函數

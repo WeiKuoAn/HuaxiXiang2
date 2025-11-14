@@ -157,15 +157,6 @@
                                 </select>
                             </div>
                             <div class="me-sm-2">
-                                <label class="form-label">續約</label>
-                                <select class="form-select my-1 my-lg-0" id="status-select" name="check_renew"
-                                    onchange="this.form.submit()">
-                                    <option value="" selected>請選擇</option>
-                                    <option value="1" @if ($request->check_renew == '1') selected @endif>是</option>
-                                    <option value="0" @if ($request->check_renew == '0') selected @endif>否</option>
-                                </select>
-                            </div>
-                            <div class="me-sm-2">
                                 <label class="form-label">狀態</label>
                                 <select class="form-select my-1 my-lg-0" id="status-select" name="check_close"
                                     onchange="this.form.submit()">
@@ -217,11 +208,9 @@
                                     <th>顧客名稱</th>
                                     <th>電話</th>
                                     <th>寶貝名稱</th>
-                                    <th>目前簽約年份</th>
                                     <th>開始日期</th>
                                     <th>結束日期</th>
                                     <th>金額</th>
-                                    <th>續約</th>
                                     <th>動作</th>
                                 </tr>
                             </thead>
@@ -241,7 +230,6 @@
                                         <td>{{ $data->cust_name->name }}</td>
                                         <td>{{ $data->mobile }}</td>
                                         <td>{{ $data->pet_name }}</td>
-                                        <td>第{{ $data->year }}年</td>
                                         <td>{{ $data->getRocStartDateAttribute() }}</td>
                                         @if (!isset($request->check_close) || $request->check_close == '1')
                                             <td>{{ $data->getRocEndDateAttribute() }}</td>
@@ -249,11 +237,6 @@
                                             <td>{{ $data->getRocCloseDateAttribute() }}</td>
                                         @endif
                                         <td>{{ number_format($data->price) }}</td>
-                                        <td>
-                                            @if ($data->renew == '1')
-                                                是（{{ $data->renew_year }}年）
-                                            @endif
-                                        </td>
                                         <td>
                                             <div class="btn-group dropdown">
                                                 <a href="javascript: void(0);"
