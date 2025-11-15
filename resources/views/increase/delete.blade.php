@@ -92,28 +92,51 @@
                                         <tr>
                                             <th>類別標記</th>
                                             <td>
-                                                @if($increase->evening_is_typhoon || $increase->evening_is_newyear)
+                                                @php
+                                                    $hasTag = false;
+                                                @endphp
+                                                <div>
+                                                    <strong>白天加成：</strong>
+                                                    @if($increase->day_is_typhoon)
+                                                        @php $hasTag = true; @endphp
+                                                        <span class="badge bg-warning text-dark">天災</span>
+                                                    @endif
+                                                    @if($increase->day_is_newyear)
+                                                        @php $hasTag = true; @endphp
+                                                        <span class="badge bg-danger text-white">過年</span>
+                                                    @endif
+                                                    @if(!$increase->day_is_typhoon && !$increase->day_is_newyear)
+                                                        <span class="text-muted">無特殊標記</span>
+                                                    @endif
+                                                </div>
+                                                <div class="mt-1">
                                                     <strong>晚間加成：</strong>
                                                     @if($increase->evening_is_typhoon)
+                                                        @php $hasTag = true; @endphp
                                                         <span class="badge bg-warning text-dark">天災</span>
                                                     @endif
                                                     @if($increase->evening_is_newyear)
+                                                        @php $hasTag = true; @endphp
                                                         <span class="badge bg-danger text-white">過年</span>
                                                     @endif
-                                                    <br>
-                                                @endif
-                                                @if($increase->night_is_typhoon || $increase->night_is_newyear)
+                                                    @if(!$increase->evening_is_typhoon && !$increase->evening_is_newyear)
+                                                        <span class="text-muted">無特殊標記</span>
+                                                    @endif
+                                                </div>
+                                                <div class="mt-1">
                                                     <strong>夜間加成：</strong>
                                                     @if($increase->night_is_typhoon)
+                                                        @php $hasTag = true; @endphp
                                                         <span class="badge bg-warning text-dark">天災</span>
                                                     @endif
                                                     @if($increase->night_is_newyear)
+                                                        @php $hasTag = true; @endphp
                                                         <span class="badge bg-danger text-white">過年</span>
                                                     @endif
-                                                @endif
-                                                @if(!$increase->evening_is_typhoon && !$increase->evening_is_newyear && !$increase->night_is_typhoon && !$increase->night_is_newyear)
-                                                    <span class="text-muted">無特殊標記</span>
-                                                @endif
+                                                    @if(!$increase->night_is_typhoon && !$increase->night_is_newyear)
+                                                        <span class="text-muted">無特殊標記</span>
+                                                    @endif
+                                                </div>
                                             </td>
                                         </tr>
                                         <tr>
@@ -152,7 +175,41 @@
                                     </thead>
                                     <tbody>
                                         @foreach($increase->items as $item)
-                                            @if($item->category === 'evening' && $item->role === 'phone')
+                                            @if($item->category === 'day' && $item->role === 'phone')
+                                            <tr>
+                                                <td>{{ $item->phonePerson->name ?? '未指定' }}</td>
+                                                <td>
+                                                    <span class="badge bg-secondary">白天加成</span>
+                                                    @if($increase->day_is_typhoon)
+                                                        <span class="badge bg-warning text-dark">天災</span>
+                                                    @endif
+                                                @if($increase->day_is_newyear)
+                                                        <span class="badge bg-danger text-white">過年</span>
+                                                    @endif
+                                                </td>
+                                                <td><span class="badge bg-primary">電話人員</span></td>
+                                                <td>{{ $item->count ?? 1 }}</td>
+                                                <td>${{ number_format($item->unit_price ?? 0, 0) }}</td>
+                                                <td>${{ number_format($item->total_amount, 0) }}</td>
+                                            </tr>
+                                            @elseif($item->category === 'day' && $item->role === 'receive')
+                                            <tr>
+                                                <td>{{ $item->receivePerson->name ?? '未指定' }}</td>
+                                                <td>
+                                                    <span class="badge bg-secondary">白天加成</span>
+                                                    @if($increase->day_is_typhoon)
+                                                        <span class="badge bg-warning text-dark">天災</span>
+                                                    @endif
+                                                    @if($increase->day_is_newyear)
+                                                        <span class="badge bg-danger text-white">過年</span>
+                                                    @endif
+                                                </td>
+                                                <td><span class="badge bg-success">接件人員</span></td>
+                                                <td>{{ $item->count ?? 1 }}</td>
+                                                <td>${{ number_format($item->unit_price ?? 0, 0) }}</td>
+                                                <td>${{ number_format($item->total_amount, 0) }}</td>
+                                            </tr>
+                                            @elseif($item->category === 'evening' && $item->role === 'phone')
                                             <tr>
                                                 <td>{{ $item->phonePerson->name ?? '未指定' }}</td>
                                                 <td>

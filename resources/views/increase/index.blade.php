@@ -107,6 +107,37 @@
                                                     'phone_exclude_bonus' => false
                                                 ];
                                                 
+                                                // 依照項目類別加入基本標籤
+                                                $categoryLabel = match($item->category) {
+                                                    'day' => '白天',
+                                                    'evening' => '晚間',
+                                                    'night' => '夜間',
+                                                    default => null,
+                                                };
+                                                if ($categoryLabel) {
+                                                    $displayItem['categories'][] = $categoryLabel;
+                                                }
+
+                                                $categoryTyphoon = match($item->category) {
+                                                    'day' => $data->day_is_typhoon,
+                                                    'evening' => $data->evening_is_typhoon,
+                                                    'night' => $data->night_is_typhoon,
+                                                    default => false,
+                                                };
+                                                if ($categoryTyphoon) {
+                                                    $displayItem['categories'][] = '天災';
+                                                }
+
+                                                $categoryNewyear = match($item->category) {
+                                                    'day' => $data->day_is_newyear,
+                                                    'evening' => $data->evening_is_newyear,
+                                                    'night' => $data->night_is_newyear,
+                                                    default => false,
+                                                };
+                                                if ($categoryNewyear) {
+                                                    $displayItem['categories'][] = '過年';
+                                                }
+
                                                 // 處理接電話人員
                                                 if ($item->phone_person_id) {
                                                     $displayItem['person_name'] = $item->phonePerson->name ?? '未指定';
@@ -114,9 +145,7 @@
                                                     $displayItem['phone_exclude_bonus'] = $item->phone_exclude_bonus;
                                                     
                                                     // 記錄類別
-                                                    if ($item->night_phone_amount > 0) $displayItem['categories'][] = '夜間';
-                                                    if ($item->evening_phone_amount > 0) $displayItem['categories'][] = '晚間';
-                                                    if ($item->typhoon_phone_amount > 0) $displayItem['categories'][] = '颱風';
+                                                    if ($item->typhoon_phone_amount > 0) $displayItem['categories'][] = '天災';
                                                 }
                                                 
                                                 // 處理接件人員
@@ -127,9 +156,7 @@
                                                     $displayItem['receive_amount'] = $item->total_receive_amount;
                                                     
                                                     // 記錄類別
-                                                    if ($item->night_receive_amount > 0) $displayItem['categories'][] = '夜間';
-                                                    if ($item->evening_receive_amount > 0) $displayItem['categories'][] = '晚間';
-                                                    if ($item->typhoon_receive_amount > 0) $displayItem['categories'][] = '颱風';
+                                                    if ($item->typhoon_receive_amount > 0) $displayItem['categories'][] = '天災';
                                                 }
                                                 
                                                 // 處理夜間開爐人員
@@ -203,9 +230,11 @@
                                                                         @foreach ($item['categories'] as $category)
                                                                             @php
                                                                                 $badgeClass = match($category) {
+                                                                                    '白天' => 'bg-secondary',
                                                                                     '夜間' => 'bg-primary',
                                                                                     '晚間' => 'bg-success', 
-                                                                                    '颱風' => 'bg-warning',
+                                                                                    '天災' => 'bg-warning text-dark',
+                                                                                    '過年' => 'bg-danger',
                                                                                     '加班費' => 'bg-info',
                                                                                     '夜間開爐' => 'bg-secondary',
                                                                                     default => 'bg-light text-dark'

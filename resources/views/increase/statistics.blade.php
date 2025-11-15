@@ -174,6 +174,12 @@
                                                     <div class="fw-bold text-primary">$0</div>
                                                 @endif
                                                 <div class="small">
+                                                    @if($monthlyData['day_phone_count'] > 0)
+                                                        <div class="text-info">白天電×{{ $monthlyData['day_phone_count'] }} ${{ number_format($monthlyData['day_phone_amount'], 0) }}</div>
+                                                    @endif
+                                                    @if($monthlyData['day_receive_count'] > 0)
+                                                        <div class="text-success">白天×{{ $monthlyData['day_receive_count'] }} ${{ number_format($monthlyData['day_receive_amount'], 0) }}</div>
+                                                    @endif
                                                     @if($monthlyData['evening_phone_count'] > 0)
                                                         <div class="text-info">晚電×{{ $monthlyData['evening_phone_count'] }} ${{ number_format($monthlyData['evening_phone_amount'], 0) }}</div>
                                                     @endif
@@ -249,10 +255,16 @@
                                                         @php
                                                             $tags = $userData['increase_tags'] ?? [];
                                                             $tagText = '';
-                                                            if (in_array('颱風', $tags)) $tagText .= '(颱風)';
+                                                            if (in_array('颱風', $tags)) $tagText .= '(天災)';
                                                             if (in_array('過年', $tags)) $tagText .= '(過年)';
                                                         @endphp
                                                         
+                                                        @if($userData['day_phone_count'] > 0)
+                                                            <div class="text-info">白天電×{{ $userData['day_phone_count'] }} ${{ number_format($userData['day_phone_amount'], 0) }}{!! $tagText !!}</div>
+                                                        @endif
+                                                        @if($userData['day_receive_count'] > 0)
+                                                            <div class="text-success">白天×{{ $userData['day_receive_count'] }} ${{ number_format($userData['day_receive_amount'], 0) }}{!! $tagText !!}</div>
+                                                        @endif
                                                         @if($userData['evening_phone_count'] > 0)
                                                             <div class="text-info">晚電×{{ $userData['evening_phone_count'] }} ${{ number_format($userData['evening_phone_amount'], 0) }}{!! $tagText !!}</div>
                                                         @endif
