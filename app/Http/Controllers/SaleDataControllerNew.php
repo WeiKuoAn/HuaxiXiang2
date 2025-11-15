@@ -1087,7 +1087,7 @@ class SaleDataControllerNew extends Controller
         $souvenirs = Souvenir::where('status', 'up')->get();
 
         $previousUrl = $request->session()->get('_previous.url');
-        $parsedUrl = parse_url($previousUrl);
+        $parsedUrl = $previousUrl ? parse_url($previousUrl) : null;
 
         // 初始化变量
         $user = null;
@@ -1095,7 +1095,7 @@ class SaleDataControllerNew extends Controller
         $beforeDate = null;
         // dd($source_companys);
 
-        if (isset($parsedUrl['query'])) {
+        if ($parsedUrl && isset($parsedUrl['query'])) {
             parse_str($parsedUrl['query'], $queryParameters);
 
             // 检查并获取user参数的值
@@ -1110,7 +1110,14 @@ class SaleDataControllerNew extends Controller
             }
 
             // 存储参数值在会话中
-            session(['user' => $user, 'afterDate' => $afterDate, 'beforeDate' => $beforeDate]);
+            session([
+                'user' => $user,
+                'afterDate' => $afterDate,
+                'beforeDate' => $beforeDate,
+                'sale_back_url' => $previousUrl,
+            ]);
+        } else {
+            session(['sale_back_url' => $previousUrl]);
         }
 
         return view('sale.check_gpt')
@@ -1264,7 +1271,13 @@ class SaleDataControllerNew extends Controller
             $beforeDate = session('beforeDate');
             // dd($user, $afterDate, $beforeDate);
             // 构建重定向的URL，将筛选条件添加到URL中
-            if (session()->has('user') || session()->has('after_date') || session()->has('before_date')) {
+            $backUrl = session('sale_back_url');
+            session()->forget('sale_back_url');
+            if ($backUrl) {
+                return redirect()->to($backUrl);
+            }
+
+            if (session()->has('user') || session()->has('afterDate') || session()->has('beforeDate')) {
                 $url = route('wait.sales', ['user' => $user, 'after_date' => $afterDate, 'before_date' => $beforeDate]);
                 // 重定向到筛选页面并传递筛选条件
                 return redirect($url);
@@ -1341,7 +1354,14 @@ class SaleDataControllerNew extends Controller
             }
 
             // 存储参数值在会话中
-            session(['user' => $user, 'afterDate' => $afterDate, 'beforeDate' => $beforeDate]);
+            session([
+                'user' => $user,
+                'afterDate' => $afterDate,
+                'beforeDate' => $beforeDate,
+                'sale_back_url' => $previousUrl,
+            ]);
+        } else {
+            session(['sale_back_url' => $previousUrl]);
         }
 
         return view('sale.check')
