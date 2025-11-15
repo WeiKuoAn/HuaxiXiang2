@@ -122,6 +122,7 @@
                                         <th>寶貝名稱</th>
                                         <th>地址</th>
                                         <th>群組</th>
+                                        <th>佣金</th>
                                         <th>備註</th>
                                         <th>動作</th>
                                     </tr>
@@ -169,6 +170,17 @@
                                             <td>
                                                 @if (isset($customer->group))
                                                     {{ $customer->group->name }}
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($customer->group_id != 1 || $customer->group_id == null)
+                                                    @if ($customer->commission == 1)
+                                                        有
+                                                    @else
+                                                        無
+                                                    @endif
+                                                @else
+                                                    -
                                                 @endif
                                             </td>
                                             <td>{{ $customer->comment }}</td>

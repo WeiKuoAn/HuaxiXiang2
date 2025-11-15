@@ -445,7 +445,7 @@ class IncreaseController extends Controller
             'comment' => 'nullable|string',
                 'day_is_typhoon' => 'nullable|boolean',
                 'day_is_newyear' => 'nullable|boolean',
-                'evening_is_typhoon' => 'nullable|boolean',
+            'evening_is_typhoon' => 'nullable|boolean',
             'evening_is_newyear' => 'nullable|boolean',
             'night_is_typhoon' => 'nullable|boolean',
             'night_is_newyear' => 'nullable|boolean',

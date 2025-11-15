@@ -129,7 +129,7 @@ class NightShiftTimeSlotController extends Controller
         }
 
         try {
-            $timeSlot->update($data);
+        $timeSlot->update($data);
 
             // 判斷是否為 AJAX 請求
             if ($request->wantsJson() || $request->ajax()) {
@@ -140,8 +140,8 @@ class NightShiftTimeSlotController extends Controller
                 ]);
             }
 
-            return redirect()->route('increase.time-slots.index')
-                            ->with('success', '時段更新成功！');
+        return redirect()->route('increase.time-slots.index')
+                        ->with('success', '時段更新成功！');
         } catch (\Exception $e) {
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([

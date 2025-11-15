@@ -35,4 +35,9 @@ class SaleSouvenir extends Model
     {
         return $this->belongsTo(\App\Models\ProductVariant::class, 'product_variant_id');
     }
+
+    public function type()
+    {
+        return $this->belongsTo(\App\Models\Souvenir::class, 'souvenir_type');
+    }
 }

@@ -238,4 +238,9 @@ class Sale extends Model
     {
         return $this->isBuddhistOrTaoist() && $this->hasDeathDate();
     }
+
+    public function sale_souvenir_names()
+    {
+        return $this->hasMany('App\Models\SaleSouvenir', 'sale_id', 'id');
+    }
 }
