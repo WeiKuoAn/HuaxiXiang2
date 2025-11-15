@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\CrematoriumEquipment;
 use App\Models\CrematoriumEquipmentInstance;
 use App\Models\CrematoriumEquipmentType;
 use App\Models\CrematoriumBooking;
@@ -118,12 +117,11 @@ class CrematoriumController extends Controller
         }
         
         $maintenance = $query->orderBy('created_at', 'desc')->get();
-        $equipments = CrematoriumEquipment::all();
         
         // 取得所有員工用於篩選選項
         $staff = User::where('status', '=', '0')->orderBy('name')->get();
 
-        return view('crematorium.maintenance', compact('maintenance', 'equipments', 'staff', 'request', 'isManager'));
+        return view('crematorium.maintenance', compact('maintenance', 'staff', 'request', 'isManager'));
     }
 
     /**
@@ -171,32 +169,32 @@ class CrematoriumController extends Controller
      */
     public function storeMaintenance(Request $request)
     {
-        $request->validate([
-            'equipment_id' => 'required|exists:crematorium_equipment,id',
-            'inspector' => 'required|string|max:255',
-            'maintainer' => 'nullable|string|max:255',
+        $data = $request->validate([
+            'maintenance_number' => 'nullable|string|max:20|unique:crematorium_maintenance,maintenance_number',
             'maintenance_date' => 'required|date',
+            'inspector' => 'required|integer|exists:users,id',
+            'maintainer' => 'nullable|integer|exists:users,id',
             'notes' => 'nullable|string',
-            // 供電系統檢查
+            'status' => 'nullable|integer|in:0,3,9',
             'power_system_status' => 'nullable|in:good,problem',
             'power_system_problem' => 'nullable|string',
             'high_voltage_wire_status' => 'nullable|in:good,problem',
             'high_voltage_wire_problem' => 'nullable|string',
-            // 檢查項目狀態
-            'sensor_status' => 'nullable|in:good,warning,error',
-            'relay_status' => 'nullable|in:good,warning,error',
-            'transformer_status' => 'nullable|in:good,warning,error',
-            'ignition_rod_status' => 'nullable|in:good,warning,error',
-            'nozzle_status' => 'nullable|in:good,warning,error',
-            'gasket_status' => 'nullable|in:good,warning,error',
-            'oil_pipe_status' => 'nullable|in:good,warning,error',
-            'oil_pump_status' => 'nullable|in:good,warning,error',
-            'photosensor_status' => 'nullable|in:good,warning,error',
-            'controller_status' => 'nullable|in:good,warning,error',
-            'support_rod_status' => 'nullable|in:good,warning,error',
         ]);
 
-        CrematoriumMaintenance::create($request->all());
+        // 若沒有傳單號，沿用 assignMaintenance 的格式自動產生
+        if (empty($data['maintenance_number'])) {
+            $prefix = now()->format('Ymd');
+            $lastRecord = CrematoriumMaintenance::where('maintenance_number', 'LIKE', $prefix . '%')
+                ->orderBy('maintenance_number', 'desc')
+                ->first();
+            $sequence = $lastRecord ? intval(substr($lastRecord->maintenance_number, -3)) + 1 : 1;
+            $data['maintenance_number'] = $prefix . str_pad($sequence, 3, '0', STR_PAD_LEFT);
+        }
+
+        $data['status'] = $data['status'] ?? 0;
+
+        CrematoriumMaintenance::create($data);
 
         return redirect()->route('crematorium.maintenance')
             ->with('success', '檢查記錄新增成功！');
@@ -207,7 +205,12 @@ class CrematoriumController extends Controller
      */
     public function showMaintenance($id)
     {
-        $maintenance = CrematoriumMaintenance::with('equipment')->findOrFail($id);
+        $maintenance = CrematoriumMaintenance::with([
+            'maintenanceDetails.equipmentInstance.equipmentType',
+            'inspectorUser',
+            'maintainerUser'
+        ])->findOrFail($id);
+
         return view('crematorium.maintenance_detail', compact('maintenance'));
     }
 
