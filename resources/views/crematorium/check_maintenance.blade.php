@@ -92,6 +92,13 @@
             padding: 8px;
             background-color: #fff5f5;
         }
+        
+        .equip-thumb {
+            max-height: 120px;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            margin-top: 6px;
+        }
 
         .problem-description-inline {
             /* 問題描述框在表格欄位中 */
@@ -597,9 +604,10 @@
                                                     <table class="table table-bordered table-hover">
                                                         <thead class="table-light">
                                                             <tr>
-                                                                <th width="30%">設備名稱</th>
-                                                                <th width="20%">正常</th>
-                                                                <th width="20%">有問題</th>
+                                                                <th width="22%">設備名稱</th>
+                                                                <th width="18%">設備圖片</th>
+                                                                <th width="15%">正常</th>
+                                                                <th width="15%">有問題</th>
                                                                 <th width="30%">問題描述</th>
                                                             </tr>
                                                         </thead>
@@ -620,6 +628,18 @@
                                                                         @if ($equipment->equipmentType->exclude_from_inventory)
                                                                             <span
                                                                                 class="badge bg-secondary badge-sm">不計庫存</span>
+                                                                        @endif
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        @if (!empty($equipment->equipmentType->image_path))
+                                                                            <a href="{{ asset('storage/' . $equipment->equipmentType->image_path) }}"
+                                                                                target="_blank">
+                                                                                <img src="{{ asset('storage/' . $equipment->equipmentType->image_path) }}"
+                                                                                    alt="{{ $equipment->equipmentType->name }}"
+                                                                                    class="equip-thumb">
+                                                                            </a>
+                                                                        @else
+                                                                            <span class="text-muted">—</span>
                                                                         @endif
                                                                     </td>
                                                                     <td class="text-center">

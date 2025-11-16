@@ -51,6 +51,7 @@ class CrematoriumEquipmentController extends Controller
             'stock_usable' => 'nullable|integer|min:0',
             'description' => 'nullable|string',
             'locations' => 'nullable|array',
+            'image' => 'nullable|image|max:5120',
         ]);
 
         $data = [
@@ -65,6 +66,12 @@ class CrematoriumEquipmentController extends Controller
         if ($data['exclude_from_inventory']) {
             $data['stock_new'] = 0;
             $data['stock_usable'] = 0;
+        }
+
+        // 圖片處理
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('equipment_types', 'public');
+            $data['image_path'] = $path;
         }
 
         // 創建設備類型
@@ -122,6 +129,7 @@ class CrematoriumEquipmentController extends Controller
             'stock_usable' => 'nullable|integer|min:0',
             'description' => 'nullable|string',
             'locations' => 'nullable|array',
+            'image' => 'nullable|image|max:5120',
         ]);
 
         $equipmentType = CrematoriumEquipmentType::findOrFail($id);
@@ -138,6 +146,12 @@ class CrematoriumEquipmentController extends Controller
         if ($data['exclude_from_inventory']) {
             $data['stock_new'] = 0;
             $data['stock_usable'] = 0;
+        }
+        
+        // 圖片處理（若有上傳則更新）
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('equipment_types', 'public');
+            $data['image_path'] = $path;
         }
         
         $equipmentType->update($data);

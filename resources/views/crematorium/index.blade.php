@@ -97,6 +97,11 @@
                                             @if($type->exclude_from_inventory)
                                                 <span class="badge bg-secondary ms-2">不列入庫存</span>
                                             @endif
+                                            @if($type->image_path)
+                                                <div class="mt-1">
+                                                    <img src="{{ asset('storage/'.$type->image_path) }}" alt="{{ $type->name }}" style="max-height:60px; border:1px solid #e9ecef; border-radius:4px;">
+                                                </div>
+                                            @endif
                                             @if($type->description)
                                                 <br>
                                                 <small class="text-muted">{{ $type->description }}</small>
