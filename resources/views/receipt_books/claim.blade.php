@@ -86,7 +86,7 @@
                             </table>
                         </div>
                         <div class="mt-3">
-                            {{ $receiptBooks->links('vendor.pagination.bootstrap-5') }}
+                            {{ $receiptBooks->links('vendor.pagination.bootstrap-4') }}
                         </div>
                     @endif
                 </div>
