@@ -179,6 +179,9 @@ class ReceiptBookController extends Controller
         $status = $request->status;
         if ($request->filled('returned_at')) {
             $status = 'returned';
+        } elseif ($request->filled('issue_date')) {
+            // 若更新了發放日期（有值），狀態改為「使用中」
+            $status = 'active';
         }
 
         $receiptBook->update([
