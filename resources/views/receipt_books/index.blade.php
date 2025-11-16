@@ -35,7 +35,7 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="javascript: void(0);">跳單管理</a></li>
-                        <li class="breadcrumb-item active">單本列表</li>
+                        <li class="breadcrumb-item active">收據列表</li>
                     </ol>
                 </div>
                 <h4 class="page-title">跳單管理</h4>
@@ -110,7 +110,7 @@
                         <div class="col-auto">
                             <div class="text-lg-end my-1 my-lg-0 mt-4">
                                 <a href="{{ route('receipt-books.create') }}" class="btn btn-danger waves-effect waves-light">
-                                    <i class="mdi mdi-plus-circle me-1"></i>新增單本
+                                    <i class="mdi mdi-plus-circle me-1"></i>新增收據
                                 </a>
                             </div>
                         </div>
@@ -120,7 +120,7 @@
         </div>
     </div>
 
-    <!-- 單本列表 -->
+    <!-- 收據列表 -->
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -222,7 +222,7 @@
                                                     <form action="{{ route('receipt-books.destroy', $book->id) }}" 
                                                           method="POST" 
                                                           class="d-inline"
-                                                          onsubmit="return confirm('確定要刪除此單本嗎？此操作無法復原。');">
+                                                          onsubmit="return confirm('確定要刪除此收據嗎？此操作無法復原。');">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" 
@@ -246,7 +246,7 @@
                     @else
                         <div class="text-center py-5">
                             <i class="fe-inbox" style="font-size: 48px; color: #ccc;"></i>
-                            <p class="text-muted mt-2">目前沒有單本記錄</p>
+                            <p class="text-muted mt-2">目前沒有收據記錄</p>
                             <a href="{{ route('receipt-books.create') }}" class="btn btn-primary">
                                 <i class="mdi mdi-plus-circle me-1"></i>新增第一本
                             </a>

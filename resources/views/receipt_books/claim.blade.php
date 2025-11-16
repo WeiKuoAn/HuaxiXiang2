@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ['page_title' => '認領單本'])
+@extends('layouts.vertical', ['page_title' => '認領收據'])
 
 @section('content')
 <!-- Start Content-->
@@ -12,10 +12,10 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('receipt-books.index') }}">跳單管理</a></li>
-                        <li class="breadcrumb-item active">認領單本</li>
+                        <li class="breadcrumb-item active">認領收據</li>
                     </ol>
                 </div>
-                <h4 class="page-title">認領單本</h4>
+                <h4 class="page-title">認領收據</h4>
             </div>
         </div>
     </div>
@@ -40,7 +40,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0">
-                            <i class="fe-inbox me-2"></i>未指派之單本
+                            <i class="fe-inbox me-2"></i>未指派之收據
                         </h5>
                         <a href="{{ route('receipt-books.index') }}" class="btn btn-secondary">
                             <i class="fe-arrow-left me-1"></i>返回列表
@@ -49,7 +49,7 @@
 
                     @if($receiptBooks->count() === 0)
                         <div class="alert alert-info mb-0">
-                            目前沒有可認領的單本。
+                            目前沒有可認領的收據。
                         </div>
                     @else
                         <div class="table-responsive">

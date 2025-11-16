@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ['page_title' => '單本詳情'])
+@extends('layouts.vertical', ['page_title' => '收據詳情'])
 
 @section('css')
     <style>
@@ -74,10 +74,10 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('receipt-books.index') }}">跳單管理</a></li>
-                        <li class="breadcrumb-item active">單本詳情</li>
+                        <li class="breadcrumb-item active">收據詳情</li>
                     </ol>
                 </div>
-                <h4 class="page-title">單本詳情</h4>
+                <h4 class="page-title">收據詳情</h4>
             </div>
         </div>
     </div>
@@ -91,7 +91,7 @@
         </div>
     @endif
 
-    <!-- 單本基本資訊 -->
+    <!-- 收據基本資訊 -->
     <div class="row">
         <div class="col-12">
             <div class="card">

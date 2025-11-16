@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ['page_title' => '編輯單本'])
+@extends('layouts.vertical', ['page_title' => '編輯收據'])
 
 @section('content')
 <!-- Start Content-->
@@ -12,10 +12,10 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('receipt-books.index') }}">跳單管理</a></li>
-                        <li class="breadcrumb-item active">編輯單本</li>
+                        <li class="breadcrumb-item active">編輯收據</li>
                     </ol>
                 </div>
-                <h4 class="page-title">編輯單本</h4>
+                <h4 class="page-title">編輯收據</h4>
             </div>
         </div>
     </div>

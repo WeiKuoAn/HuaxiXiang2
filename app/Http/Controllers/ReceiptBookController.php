@@ -211,13 +211,13 @@ class ReceiptBookController extends Controller
     }
 
     /**
-     * 認領單本
+     * 認領收據
      */
     public function claim(Request $request, $id)
     {
         $receiptBook = ReceiptBook::findOrFail($id);
         if (!is_null($receiptBook->holder_id)) {
-            return redirect()->back()->with('error', '此單本已被認領。');
+            return redirect()->back()->with('error', '此收據已被認領。');
         }
         $receiptBook->holder_id = Auth::id();
         // 認領後狀態改為「使用中」

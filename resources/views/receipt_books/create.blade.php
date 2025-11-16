@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ['page_title' => '新增單本'])
+@extends('layouts.vertical', ['page_title' => '新增收據'])
 
 @section('content')
 <!-- Start Content-->
@@ -12,10 +12,10 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('receipt-books.index') }}">跳單管理</a></li>
-                        <li class="breadcrumb-item active">新增單本</li>
+                        <li class="breadcrumb-item active">新增收據</li>
                     </ol>
                 </div>
-                <h4 class="page-title">新增單本</h4>
+                <h4 class="page-title">新增收據</h4>
             </div>
         </div>
     </div>
@@ -60,7 +60,7 @@
                             </div>
                             <small class="text-muted">
                                 <i class="fe-info me-1"></i>
-                                系統會檢查號碼範圍是否與現有單本重疊
+                                系統會檢查號碼範圍是否與現有收據重疊
                             </small>
                         </div>
 
@@ -136,13 +136,13 @@
                         <p class="text-muted small">
                             • 每本單子通常以 50 張為一本<br>
                             • 例如：1~50、51~100、101~150<br>
-                            • 號碼範圍不可與現有單本重疊
+                            • 號碼範圍不可與現有收據重疊
                         </p>
                     </div>
                     <div class="mb-3">
                         <h6 class="text-primary">後續操作</h6>
                         <p class="text-muted small">
-                            • 新增後可查看該單本的詳細使用情況<br>
+                            • 新增後可查看該收據的詳細使用情況<br>
                             • 系統會自動比對 sale_data 中的單號<br>
                             • 可快速檢查哪些單號尚未使用（跳號）
                         </p>
