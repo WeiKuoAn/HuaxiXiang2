@@ -531,7 +531,7 @@
 
                             </div>
 
-                                <!-- 1. 晚間加成區段 -->
+                            <!-- 1. 晚間加成區段 -->
                                 <div class="tab-pane fade" id="tab-evening" role="tabpanel" aria-labelledby="tab-evening-tab">
                             <div class="category-section">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -748,7 +748,7 @@
 
                             </div>
 
-                                <!-- 2. 夜間加成區段 -->
+                            <!-- 2. 夜間加成區段 -->
                                 <div class="tab-pane fade" id="tab-night" role="tabpanel" aria-labelledby="tab-night-tab">
                             <div class="category-section">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -1031,9 +1031,9 @@
                                 </button>
                             </div>
 
-                                </div>
+                            </div>
 
-                                <!-- 3. 加班費區段 -->
+                            <!-- 3. 加班費區段 -->
                                 <div class="tab-pane fade" id="tab-overtime" role="tabpanel" aria-labelledby="tab-overtime-tab">
                             <div class="category-section">
                                 <h5 class="category-title">
@@ -1646,7 +1646,7 @@
             const existingRows = container.querySelectorAll('.person-row');
             const newIndex = existingRows.length ?
                 Math.max(...Array.from(existingRows).map(row => parseInt(row.getAttribute('data-night-receive-index')) ||
-                0)) + 1 :
+                    0)) + 1 :
                 0;
 
             const newRow = document.createElement('div');

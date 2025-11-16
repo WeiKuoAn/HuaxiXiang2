@@ -460,514 +460,514 @@
 
                                 <!-- 晚間加成 -->
                                 <div class="tab-pane fade" id="tab-evening" role="tabpanel" aria-labelledby="tab-evening-tab">
-                                    <div class="category-section">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h5 class="category-title mb-0">
-                                                <i class="fe-moon me-2"></i>晚間加成
-                                            </h5>
+                            <div class="category-section">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="category-title mb-0">
+                                        <i class="fe-moon me-2"></i>晚間加成
+                                    </h5>
                                             <div class="text-end">
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="checkbox" name="evening_is_typhoon"
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="evening_is_typhoon"
                                                         value="1" id="evening_is_typhoon" onchange="updateAllAmounts()">
-                                                    <label class="form-check-label fw-bold" for="evening_is_typhoon">
+                                            <label class="form-check-label fw-bold" for="evening_is_typhoon">
                                                         <span class="badge bg-warning text-dark">天災</span>
-                                                    </label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="checkbox" name="evening_is_newyear"
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="evening_is_newyear"
                                                         value="1" id="evening_is_newyear" onchange="updateAllAmounts()">
-                                                    <label class="form-check-label fw-bold" for="evening_is_newyear">
-                                                        <span class="badge bg-danger text-white">過年</span>
-                                                    </label>
-                                                </div>
+                                            <label class="form-check-label fw-bold" for="evening_is_newyear">
+                                                <span class="badge bg-danger text-white">過年</span>
+                                            </label>
+                                        </div>
                                                 <small class="text-muted d-block mt-1" style="font-size: 0.8rem;">
                                                     天災：電話+${{ number_format($increaseSettings['typhoon']->phone_bonus ?? 100, 0) }}、接件+${{ number_format($increaseSettings['typhoon']->receive_bonus ?? 500, 0) }} | 
                                                     過年：電話+${{ number_format($increaseSettings['newyear']->phone_bonus ?? 100, 0) }}、接件+${{ number_format($increaseSettings['newyear']->receive_bonus ?? 500, 0) }}
                                                 </small>
-                                            </div>
-                                        </div>
+                                    </div>
+                                </div>
 
                                         <!-- 晚間電話人員 -->
-                                        <div class="mb-3">
-                                            <h6 class="text-muted mb-2">
+                                <div class="mb-3">
+                                    <h6 class="text-muted mb-2">
                                                 <i class="fe-phone me-1"></i>電話人員 <small class="text-muted">(一般${{ number_format($increaseSettings['evening']->phone_bonus ?? 50, 0) }}/次)</small>
-                                            </h6>
+                                    </h6>
                                             <div class="row text-muted fw-bold d-none d-md-flex px-2 mb-1">
                                                 <div class="col-md-5">人員</div>
                                                 <div class="col-md-2">次數</div>
                                                 <div class="col-md-2">金額</div>
                                                 <div class="col-md-3 text-center">操作</div>
                                             </div>
-                                            <div id="evening-phone-container">
-                                                <div class="person-row mb-2" data-evening-phone-index="0">
+                                    <div id="evening-phone-container">
+                                        <div class="person-row mb-2" data-evening-phone-index="0">
                                                     <div class="row align-items-center g-2">
                                                         <div class="col-md-5">
                                                             <label class="form-label d-md-none">人員</label>
-                                                            <select class="form-control" name="evening_phone[0][person]"
-                                                                data-toggle="select">
-                                                                <option value="">請選擇人員</option>
-                                                                @foreach ($users as $user)
-                                                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
+                                                    <select class="form-control" name="evening_phone[0][person]"
+                                                        data-toggle="select">
+                                                        <option value="">請選擇人員</option>
+                                                        @foreach ($users as $user)
+                                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
                                                         <div class="col-md-2">
                                                             <label class="form-label d-md-none">次數</label>
-                                                            <input type="number" class="form-control"
+                                                    <input type="number" class="form-control"
                                                                 name="evening_phone[0][count]" min="0" value="1"
                                                                 onchange="calculateRowAmount(this, 'evening_phone', 0)"
                                                                 oninput="calculateRowAmount(this, 'evening_phone', 0)">
-                                                        </div>
+                                                </div>
                                                         <div class="col-md-2">
                                                             <label class="form-label d-md-none">金額</label>
                                                             <input type="text" class="form-control text-end" id="evening_phone_amount_0" readonly>
                                                         </div>
                                                         <div class="col-md-3 text-end text-md-center">
-                                                            <button type="button" class="btn btn-sm btn-outline-danger"
-                                                                onclick="removeEveningPhone(this)">
-                                                                <i class="fe-trash-2 me-1"></i>移除
-                                                            </button>
-                                                        </div>
-                                                    </div>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        onclick="removeEveningPhone(this)">
+                                                        <i class="fe-trash-2 me-1"></i>移除
+                                                    </button>
                                                 </div>
                                             </div>
-                                            <button type="button" class="btn btn-sm btn-outline-primary"
-                                                onclick="addEveningPhone()">
-                                                <i class="fe-plus me-1"></i>新增電話人員
-                                            </button>
                                         </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                        onclick="addEveningPhone()">
+                                        <i class="fe-plus me-1"></i>新增電話人員
+                                    </button>
+                                </div>
 
                                         <!-- 晚間接件人員 -->
-                                        <div class="mb-3">
-                                            <h6 class="text-muted mb-2">
-                                                <i class="fe-user-check me-1"></i>接件人員 <small
+                                <div class="mb-3">
+                                    <h6 class="text-muted mb-2">
+                                        <i class="fe-user-check me-1"></i>接件人員 <small
                                                     class="text-muted">(一般${{ number_format($increaseSettings['evening']->receive_bonus ?? 250, 0) }}/次)</small>
-                                            </h6>
+                                    </h6>
                                             <div class="row text-muted fw-bold d-none d-md-flex px-2 mb-1">
                                                 <div class="col-md-5">人員</div>
                                                 <div class="col-md-2">次數</div>
                                                 <div class="col-md-2">金額</div>
                                                 <div class="col-md-3 text-center">操作</div>
                                             </div>
-                                            <div id="evening-receive-container">
-                                                <div class="person-row mb-2" data-evening-receive-index="0">
+                                    <div id="evening-receive-container">
+                                        <div class="person-row mb-2" data-evening-receive-index="0">
                                                     <div class="row align-items-center g-2">
                                                         <div class="col-md-5">
                                                             <label class="form-label d-md-none">人員</label>
-                                                            <select class="form-control" name="evening_receive[0][person]"
-                                                                data-toggle="select">
-                                                                <option value="">請選擇人員</option>
-                                                                @foreach ($users as $user)
-                                                                    <option value="{{ $user->id }}">{{ $user->name }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
+                                                    <select class="form-control" name="evening_receive[0][person]"
+                                                        data-toggle="select">
+                                                        <option value="">請選擇人員</option>
+                                                        @foreach ($users as $user)
+                                                            <option value="{{ $user->id }}">{{ $user->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
                                                         <div class="col-md-2">
                                                             <label class="form-label d-md-none">次數</label>
-                                                            <input type="number" class="form-control"
+                                                    <input type="number" class="form-control"
                                                                 name="evening_receive[0][count]" min="0" value="1"
                                                                 onchange="calculateRowAmount(this, 'evening_receive', 0)"
                                                                 oninput="calculateRowAmount(this, 'evening_receive', 0)">
-                                                        </div>
+                                                </div>
                                                         <div class="col-md-2">
                                                             <label class="form-label d-md-none">金額</label>
                                                             <input type="text" class="form-control text-end" id="evening_receive_amount_0" readonly>
                                                         </div>
                                                         <div class="col-md-3 text-end text-md-center">
-                                                            <button type="button" class="btn btn-sm btn-outline-danger"
-                                                                onclick="removeEveningReceive(this)">
-                                                                <i class="fe-trash-2 me-1"></i>移除
-                                                            </button>
-                                                        </div>
-                                                    </div>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        onclick="removeEveningReceive(this)">
+                                                        <i class="fe-trash-2 me-1"></i>移除
+                                                    </button>
                                                 </div>
                                             </div>
-                                            <button type="button" class="btn btn-sm btn-outline-primary"
-                                                onclick="addEveningReceive()">
-                                                <i class="fe-plus me-1"></i>新增接件人員
-                                            </button>
                                         </div>
                                     </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                        onclick="addEveningReceive()">
+                                        <i class="fe-plus me-1"></i>新增接件人員
+                                    </button>
+                                        </div>
                                 </div>
+                            </div>
 
                                 <!-- 夜間加成 -->
                                 <div class="tab-pane fade" id="tab-night" role="tabpanel" aria-labelledby="tab-night-tab">
-                                    <div class="category-section">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h5 class="category-title mb-0">
-                                                <i class="fe-star me-2"></i>夜間加成
-                                            </h5>
+                            <div class="category-section">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="category-title mb-0">
+                                        <i class="fe-star me-2"></i>夜間加成
+                                    </h5>
                                             <div class="text-end">
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="checkbox" name="night_is_typhoon"
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="night_is_typhoon"
                                                         value="1" id="night_is_typhoon" onchange="updateAllAmounts()">
-                                                    <label class="form-check-label fw-bold" for="night_is_typhoon">
+                                            <label class="form-check-label fw-bold" for="night_is_typhoon">
                                                         <span class="badge bg-warning text-dark">天災</span>
-                                                    </label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="checkbox" name="night_is_newyear"
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="night_is_newyear"
                                                         value="1" id="night_is_newyear" onchange="updateAllAmounts()">
-                                                    <label class="form-check-label fw-bold" for="night_is_newyear">
-                                                        <span class="badge bg-danger text-white">過年</span>
-                                                    </label>
-                                                </div>
+                                            <label class="form-check-label fw-bold" for="night_is_newyear">
+                                                <span class="badge bg-danger text-white">過年</span>
+                                            </label>
+                                        </div>
                                                 <small class="text-muted d-block mt-1" style="font-size: 0.8rem;">
                                                     夜間：電話${{ number_format($increaseSettings['night']->phone_bonus ?? 100, 0) }}、接件${{ number_format($increaseSettings['night']->receive_bonus ?? 500, 0) }} | 
                                                     天災：電話+${{ number_format($increaseSettings['typhoon']->phone_bonus ?? 100, 0) }}、接件+${{ number_format($increaseSettings['typhoon']->receive_bonus ?? 500, 0) }} | 
                                                     過年：電話+${{ number_format($increaseSettings['newyear']->phone_bonus ?? 100, 0) }}、接件+${{ number_format($increaseSettings['newyear']->receive_bonus ?? 500, 0) }}
                                                 </small>
-                                            </div>
-                                        </div>
+                                    </div>
+                                </div>
 
                                         <!-- 夜間電話人員 -->
-                                        <div class="mb-3">
-                                            <h6 class="text-muted mb-2">
+                                <div class="mb-3">
+                                    <h6 class="text-muted mb-2">
                                                 <i class="fe-phone me-1"></i>電話人員 <small class="text-muted">(固定${{ number_format($increaseSettings['night']->phone_bonus ?? 100, 0) }}/次)</small>
-                                            </h6>
+                                    </h6>
                                             <div class="row text-muted fw-bold d-none d-md-flex px-2 mb-1">
                                                 <div class="col-md-5">人員</div>
                                                 <div class="col-md-2">次數</div>
                                                 <div class="col-md-2">金額</div>
                                                 <div class="col-md-3 text-center">操作</div>
                                             </div>
-                                            <div id="night-phone-container">
-                                                <div class="person-row mb-2" data-night-phone-index="0">
+                                    <div id="night-phone-container">
+                                        <div class="person-row mb-2" data-night-phone-index="0">
                                                     <div class="row align-items-center g-2">
                                                         <div class="col-md-5">
                                                             <label class="form-label d-md-none">人員</label>
-                                                            <select class="form-control" name="night_phone[0][person]"
-                                                                data-toggle="select">
-                                                                <option value="">請選擇人員</option>
-                                                                @foreach ($users as $user)
-                                                                    <option value="{{ $user->id }}">{{ $user->name }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
+                                                    <select class="form-control" name="night_phone[0][person]"
+                                                        data-toggle="select">
+                                                        <option value="">請選擇人員</option>
+                                                        @foreach ($users as $user)
+                                                            <option value="{{ $user->id }}">{{ $user->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
                                                         <div class="col-md-2">
                                                             <label class="form-label d-md-none">次數</label>
-                                                            <input type="number" class="form-control"
+                                                    <input type="number" class="form-control"
                                                                 name="night_phone[0][count]" min="0" value="1"
                                                                 onchange="calculateRowAmount(this, 'night_phone', 0)"
                                                                 oninput="calculateRowAmount(this, 'night_phone', 0)">
-                                                        </div>
+                                                </div>
                                                         <div class="col-md-2">
                                                             <label class="form-label d-md-none">金額</label>
                                                             <input type="text" class="form-control text-end" id="night_phone_amount_0" readonly>
                                                         </div>
                                                         <div class="col-md-3 text-end text-md-center">
-                                                            <button type="button" class="btn btn-sm btn-outline-danger"
-                                                                onclick="removeNightPhone(this)">
-                                                                <i class="fe-trash-2 me-1"></i>移除
-                                                            </button>
-                                                        </div>
-                                                    </div>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        onclick="removeNightPhone(this)">
+                                                        <i class="fe-trash-2 me-1"></i>移除
+                                                    </button>
                                                 </div>
                                             </div>
-                                            <button type="button" class="btn btn-sm btn-outline-primary"
-                                                onclick="addNightPhone()">
-                                                <i class="fe-plus me-1"></i>新增電話人員
-                                            </button>
                                         </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                        onclick="addNightPhone()">
+                                        <i class="fe-plus me-1"></i>新增電話人員
+                                    </button>
+                                </div>
 
                                         <!-- 夜間接件人員 -->
-                                        <div class="mb-3">
-                                            <h6 class="text-muted mb-2">
-                                                <i class="fe-user-check me-1"></i>接件人員 <small
+                                <div class="mb-3">
+                                    <h6 class="text-muted mb-2">
+                                        <i class="fe-user-check me-1"></i>接件人員 <small
                                                     class="text-muted">(固定${{ number_format($increaseSettings['night']->receive_bonus ?? 500, 0) }}/次)</small>
-                                            </h6>
+                                    </h6>
                                             <div class="row text-muted fw-bold d-none d-md-flex px-2 mb-1">
                                                 <div class="col-md-5">人員</div>
                                                 <div class="col-md-2">次數</div>
                                                 <div class="col-md-2">金額</div>
                                                 <div class="col-md-3 text-center">操作</div>
                                             </div>
-                                            <div id="night-receive-container">
-                                                <div class="person-row mb-2" data-night-receive-index="0">
+                                    <div id="night-receive-container">
+                                        <div class="person-row mb-2" data-night-receive-index="0">
                                                     <div class="row align-items-center g-2">
                                                         <div class="col-md-5">
                                                             <label class="form-label d-md-none">人員</label>
-                                                            <select class="form-control" name="night_receive[0][person]"
-                                                                data-toggle="select">
-                                                                <option value="">請選擇人員</option>
-                                                                @foreach ($users as $user)
-                                                                    <option value="{{ $user->id }}">{{ $user->name }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
+                                                    <select class="form-control" name="night_receive[0][person]"
+                                                        data-toggle="select">
+                                                        <option value="">請選擇人員</option>
+                                                        @foreach ($users as $user)
+                                                            <option value="{{ $user->id }}">{{ $user->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
                                                         <div class="col-md-2">
                                                             <label class="form-label d-md-none">次數</label>
-                                                            <input type="number" class="form-control"
+                                                    <input type="number" class="form-control"
                                                                 name="night_receive[0][count]" min="0" value="1"
                                                                 onchange="calculateRowAmount(this, 'night_receive', 0)"
                                                                 oninput="calculateRowAmount(this, 'night_receive', 0)">
-                                                        </div>
+                                                </div>
                                                         <div class="col-md-2">
                                                             <label class="form-label d-md-none">金額</label>
                                                             <input type="text" class="form-control text-end" id="night_receive_amount_0" readonly>
                                                         </div>
                                                         <div class="col-md-3 text-end text-md-center">
-                                                            <button type="button" class="btn btn-sm btn-outline-danger"
-                                                                onclick="removeNightReceive(this)">
-                                                                <i class="fe-trash-2 me-1"></i>移除
-                                                            </button>
-                                                        </div>
-                                                    </div>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        onclick="removeNightReceive(this)">
+                                                        <i class="fe-trash-2 me-1"></i>移除
+                                                    </button>
                                                 </div>
                                             </div>
-                                            <button type="button" class="btn btn-sm btn-outline-primary"
-                                                onclick="addNightReceive()">
-                                                <i class="fe-plus me-1"></i>新增接件人員
-                                            </button>
                                         </div>
                                     </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                        onclick="addNightReceive()">
+                                        <i class="fe-plus me-1"></i>新增接件人員
+                                    </button>
+                                </div>
+                            </div>
 
                                 </div>
 
                                 <!-- 夜間開爐 -->
                                 <div class="tab-pane fade" id="tab-furnace" role="tabpanel" aria-labelledby="tab-furnace-tab">
-                                    <div class="category-section">
-                                        <h5 class="category-title">
-                                            <i class="fe-thermometer me-2"></i>夜間開爐
-                                        </h5>
-                                        <div id="furnace-container">
-                                            <div class="person-row" data-furnace-index="0">
-                                                <div class="row">
-                                                    <div class="col-md-4">
-                                                        <label class="form-label">夜間開爐時段</label>
-                                                        <select class="form-control" name="furnace[0][time_slot_id]"
-                                                            id="furnace_time_slot_0" onchange="calculateFurnacePrice(0)">
-                                                            <option value="">請選擇時段</option>
-                                                            @foreach ($timeSlots as $timeSlot)
-                                                                <option value="{{ $timeSlot->id }}"
-                                                                    data-price="{{ $timeSlot->price }}">
-                                                                    {{ $timeSlot->full_description }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <label class="form-label">負責人員</label>
-                                                        <select class="form-control" name="furnace[0][furnace_person]"
-                                                            data-toggle="select">
-                                                            <option value="">請選擇人員</option>
-                                                            @foreach ($users as $user)
-                                                                <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <label class="form-label">計算價格</label>
-                                                        <div class="input-group">
-                                                            <span class="input-group-text">$</span>
-                                                            <input type="text" class="form-control"
-                                                                id="furnace_calculated_price_0" readonly>
-                                                        </div>
-                                                        <small class="text-muted">根據時段自動計算</small>
-                                                    </div>
+                            <div class="category-section">
+                                <h5 class="category-title">
+                                    <i class="fe-thermometer me-2"></i>夜間開爐
+                                </h5>
+                                <div id="furnace-container">
+                                    <div class="person-row" data-furnace-index="0">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <label class="form-label">夜間開爐時段</label>
+                                                <select class="form-control" name="furnace[0][time_slot_id]"
+                                                    id="furnace_time_slot_0" onchange="calculateFurnacePrice(0)">
+                                                    <option value="">請選擇時段</option>
+                                                    @foreach ($timeSlots as $timeSlot)
+                                                        <option value="{{ $timeSlot->id }}"
+                                                            data-price="{{ $timeSlot->price }}">
+                                                            {{ $timeSlot->full_description }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">負責人員</label>
+                                                <select class="form-control" name="furnace[0][furnace_person]"
+                                                    data-toggle="select">
+                                                    <option value="">請選擇人員</option>
+                                                    @foreach ($users as $user)
+                                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">計算價格</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">$</span>
+                                                    <input type="text" class="form-control"
+                                                        id="furnace_calculated_price_0" readonly>
                                                 </div>
-                                                <div class="row mt-2">
-                                                    <div class="col-md-12">
-                                                        <button type="button"
-                                                            class="btn btn-sm btn-outline-danger remove-furnace"
-                                                            onclick="removeFurnace(this)">
-                                                            <i class="fe-trash-2 me-1"></i>移除
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                                <small class="text-muted">根據時段自動計算</small>
                                             </div>
                                         </div>
-                                        <button type="button" class="btn btn-sm btn-outline-success" onclick="addFurnace()">
-                                            <i class="fe-plus me-1"></i>新增夜間開爐
-                                        </button>
+                                        <div class="row mt-2">
+                                            <div class="col-md-12">
+                                                <button type="button"
+                                                    class="btn btn-sm btn-outline-danger remove-furnace"
+                                                    onclick="removeFurnace(this)">
+                                                    <i class="fe-trash-2 me-1"></i>移除
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
+                                <button type="button" class="btn btn-sm btn-outline-success" onclick="addFurnace()">
+                                    <i class="fe-plus me-1"></i>新增夜間開爐
+                                </button>
+                                    </div>
+                            </div>
 
                                 <!-- 加班 -->
                                 <div class="tab-pane fade" id="tab-overtime" role="tabpanel" aria-labelledby="tab-overtime-tab">
-                                    <div class="category-section">
-                                        <h5 class="category-title">
-                                            <i class="fe-clock me-2"></i>加班費
-                                        </h5>
-                                        <div class="mb-4">
-                                            <h6 class="text-muted mb-2">
-                                                <i class="fe-users me-1"></i>當日出勤情況
-                                            </h6>
-                                            <div id="day-worklog-container" class="bg-white border rounded p-3">
-                                                <div class="day-worklog-placeholder"><i class="fe-info me-2"></i>請先選擇加成日期以載入出勤資料。
+                            <div class="category-section">
+                                <h5 class="category-title">
+                                    <i class="fe-clock me-2"></i>加班費
+                                </h5>
+                                <div class="mb-4">
+                                    <h6 class="text-muted mb-2">
+                                        <i class="fe-users me-1"></i>當日出勤情況
+                                    </h6>
+                                    <div id="day-worklog-container" class="bg-white border rounded p-3">
+                                        <div class="day-worklog-placeholder"><i class="fe-info me-2"></i>請先選擇加成日期以載入出勤資料。
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="overtime-container">
+                                    <div class="person-row" data-overtime-index="0">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <label class="form-label">加班記錄選擇</label>
+                                                <div id="overtime-records-container-0">
+                                                    <div class="alert alert-info">
+                                                        <i class="fe-info me-2"></i>請選擇加成日期以載入該日期的加班記錄
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div id="overtime-container">
-                                            <div class="person-row" data-overtime-index="0">
-                                                <div class="row">
-                                                    <div class="col-md-12">
-                                                        <label class="form-label">加班記錄選擇</label>
-                                                        <div id="overtime-records-container-0">
-                                                            <div class="alert alert-info">
-                                                                <i class="fe-info me-2"></i>請選擇加成日期以載入該日期的加班記錄
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-3">
-                                                    <div class="col-md-12">
-                                                        <div id="overtime_edit_section_0" style="display: none;">
-                                                            <label class="form-label">加班詳細資料</label>
-                                                            <div class="card">
-                                                                <div class="card-body">
-                                                                    <div class="row mb-2">
-                                                                        <input type="hidden" name="overtime[0][overtime_record]"
-                                                                            id="overtime_record_field_0" value="">
-                                                                        <div class="col-md-4">
-                                                                            <label class="form-label small">加班分鐘</label>
-                                                                            <input type="number"
-                                                                                class="form-control form-control-sm"
-                                                                                name="overtime[0][minutes]"
-                                                                                id="overtime_minutes_field_0" min="1"
-                                                                                step="1"
-                                                                                onchange="calculateOvertimePayFromMinutes(0)">
-                                                                        </div>
-                                                                        <div class="col-md-4">
-                                                                            <label class="form-label small">事由<span
-                                                                                    class="text-danger">*</span></label>
-                                                                            <input type="text"
-                                                                                class="form-control form-control-sm"
-                                                                                name="overtime[0][reason]"
-                                                                                id="overtime_reason_field_0"
-                                                                                placeholder="請輸入加班事由">
-                                                                        </div>
-                                                                        <div class="col-md-4">
-                                                                            <label class="form-label small">加班倍數統計</label>
-                                                                            <div class="card bg-light">
-                                                                                <div class="card-body p-2">
-                                                                                    <div class="row">
-                                                                                        <div class="col-6">
-                                                                                            <small
-                                                                                                class="text-primary">1.34倍：</small>
-                                                                                            <span id="overtime_134_hours_0"
-                                                                                                class="fw-bold">0小時</span>
-                                                                                        </div>
-                                                                                        <div class="col-6">
-                                                                                            <small
-                                                                                                class="text-success">1.67倍：</small>
-                                                                                            <span id="overtime_167_hours_0"
-                                                                                                class="fw-bold">0小時</span>
-                                                                                        </div>
-                                                                                    </div>
+                                        <div class="row mt-3">
+                                            <div class="col-md-12">
+                                                <div id="overtime_edit_section_0" style="display: none;">
+                                                    <label class="form-label">加班詳細資料</label>
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <div class="row mb-2">
+                                                                <input type="hidden" name="overtime[0][overtime_record]"
+                                                                    id="overtime_record_field_0" value="">
+                                                                <div class="col-md-4">
+                                                                    <label class="form-label small">加班分鐘</label>
+                                                                    <input type="number"
+                                                                        class="form-control form-control-sm"
+                                                                        name="overtime[0][minutes]"
+                                                                        id="overtime_minutes_field_0" min="1"
+                                                                        step="1"
+                                                                        onchange="calculateOvertimePayFromMinutes(0)">
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <label class="form-label small">事由<span
+                                                                            class="text-danger">*</span></label>
+                                                                    <input type="text"
+                                                                        class="form-control form-control-sm"
+                                                                        name="overtime[0][reason]"
+                                                                        id="overtime_reason_field_0"
+                                                                        placeholder="請輸入加班事由">
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <label class="form-label small">加班倍數統計</label>
+                                                                    <div class="card bg-light">
+                                                                        <div class="card-body p-2">
+                                                                            <div class="row">
+                                                                                <div class="col-6">
+                                                                                    <small
+                                                                                        class="text-primary">1.34倍：</small>
+                                                                                    <span id="overtime_134_hours_0"
+                                                                                        class="fw-bold">0小時</span>
+                                                                                </div>
+                                                                                <div class="col-6">
+                                                                                    <small
+                                                                                        class="text-success">1.67倍：</small>
+                                                                                    <span id="overtime_167_hours_0"
+                                                                                        class="fw-bold">0小時</span>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="d-flex justify-content-between align-items-center">
-                                                                        <small class="text-muted">可自行調整加班資料</small>
-                                                                        <button type="button"
-                                                                            class="btn btn-sm btn-outline-primary"
-                                                                            onclick="saveOvertimeRecord(0)">
-                                                                            <i class="fe-save me-1"></i>儲存變更
-                                                                        </button>
-                                                                    </div>
-                                                                    <div class="mt-2" id="overtime_created_by_0"
-                                                                        style="display: none;">
-                                                                        <small class="text-muted">由 <span
-                                                                                class="fw-bold text-info"
-                                                                                id="overtime_created_by_name_0"></span> 新增</small>
-                                                                    </div>
                                                                 </div>
                                                             </div>
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <small class="text-muted">可自行調整加班資料</small>
+                                                                <button type="button"
+                                                                    class="btn btn-sm btn-outline-primary"
+                                                                    onclick="saveOvertimeRecord(0)">
+                                                                    <i class="fe-save me-1"></i>儲存變更
+                                                                </button>
+                                                            </div>
+                                                            <div class="mt-2" id="overtime_created_by_0"
+                                                                style="display: none;">
+                                                                <small class="text-muted">由 <span
+                                                                        class="fw-bold text-info"
+                                                                        id="overtime_created_by_name_0"></span> 新增</small>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-2">
-                                                    <div class="col-md-12">
-                                                        <button type="button"
-                                                            class="btn btn-sm btn-outline-danger remove-overtime"
-                                                            onclick="removeOvertime(this)">
-                                                            <i class="fe-trash-2 me-1"></i>移除
-                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="d-flex gap-2">
-                                            <button type="button" class="btn btn-sm btn-outline-info"
-                                                onclick="toggleManualOvertimeForm()">
-                                                <i class="fe-edit me-1"></i>手動新增加班記錄
-                                            </button>
+                                        <div class="row mt-2">
+                                            <div class="col-md-12">
+                                                <button type="button"
+                                                    class="btn btn-sm btn-outline-danger remove-overtime"
+                                                    onclick="removeOvertime(this)">
+                                                    <i class="fe-trash-2 me-1"></i>移除
+                                                </button>
+                                            </div>
                                         </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-info"
+                                        onclick="toggleManualOvertimeForm()">
+                                        <i class="fe-edit me-1"></i>手動新增加班記錄
+                                    </button>
+                                </div>
 
-                                        <!-- 手動新增加班記錄表單 -->
-                                        <div id="manual-overtime-form" style="display: none;" class="mt-3">
-                                            <div class="card border-info">
-                                                <div class="card-header bg-info text-white">
-                                                    <h6 class="mb-0"><i class="fe-edit me-2"></i>手動新增加班記錄</h6>
+                                <!-- 手動新增加班記錄表單 -->
+                                <div id="manual-overtime-form" style="display: none;" class="mt-3">
+                                    <div class="card border-info">
+                                        <div class="card-header bg-info text-white">
+                                            <h6 class="mb-0"><i class="fe-edit me-2"></i>手動新增加班記錄</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <label class="form-label">加班人員<span
+                                                            class="text-danger">*</span></label>
+                                                    <select class="form-control" id="manual_overtime_user"
+                                                        name="manual_overtime_user">
+                                                        <option value="">請選擇人員</option>
+                                                        @foreach ($users as $user)
+                                                            <option value="{{ $user->id }}">{{ $user->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
                                                 </div>
-                                                <div class="card-body">
-                                                    <div class="row">
-                                                        <div class="col-md-3">
-                                                            <label class="form-label">加班人員<span
-                                                                    class="text-danger">*</span></label>
-                                                            <select class="form-control" id="manual_overtime_user"
-                                                                name="manual_overtime_user">
-                                                                <option value="">請選擇人員</option>
-                                                                @foreach ($users as $user)
-                                                                    <option value="{{ $user->id }}">{{ $user->name }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-md-2">
-                                                            <label class="form-label">加班分鐘<span
-                                                                    class="text-danger">*</span></label>
-                                                            <input type="number" class="form-control"
-                                                                id="manual_overtime_minutes" name="manual_overtime_minutes"
-                                                                min="1" step="1"
-                                                                onchange="calculateManualOvertimeAmount()"
-                                                                oninput="calculateManualOvertimeAmount()">
-                                                        </div>
-                                                        <div class="col-md-3">
-                                                            <label class="form-label">事由<span class="text-danger">*</span></label>
-                                                            <input type="text" class="form-control"
-                                                                id="manual_overtime_reason" name="manual_overtime_reason"
-                                                                placeholder="請輸入加班事由">
-                                                        </div>
-                                                        <div class="col-md-2">
-                                                            <label class="form-label">加班倍數統計</label>
-                                                            <div class="card bg-light">
-                                                                <div class="card-body p-2">
-                                                                    <div class="row">
-                                                                        <div class="col-12 mb-1">
-                                                                            <small class="text-primary">1.34倍：</small>
-                                                                            <span id="manual_overtime_134_hours"
-                                                                                class="fw-bold">0小時</span>
-                                                                        </div>
-                                                                        <div class="col-12">
-                                                                            <small class="text-success">1.67倍：</small>
-                                                                            <span id="manual_overtime_167_hours"
-                                                                                class="fw-bold">0小時</span>
-                                                                        </div>
-                                                                    </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label">加班分鐘<span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="number" class="form-control"
+                                                        id="manual_overtime_minutes" name="manual_overtime_minutes"
+                                                        min="1" step="1"
+                                                        onchange="calculateManualOvertimeAmount()"
+                                                        oninput="calculateManualOvertimeAmount()">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">事由<span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control"
+                                                        id="manual_overtime_reason" name="manual_overtime_reason"
+                                                        placeholder="請輸入加班事由">
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label">加班倍數統計</label>
+                                                    <div class="card bg-light">
+                                                        <div class="card-body p-2">
+                                                            <div class="row">
+                                                                <div class="col-12 mb-1">
+                                                                    <small class="text-primary">1.34倍：</small>
+                                                                    <span id="manual_overtime_134_hours"
+                                                                        class="fw-bold">0小時</span>
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <small class="text-success">1.67倍：</small>
+                                                                    <span id="manual_overtime_167_hours"
+                                                                        class="fw-bold">0小時</span>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <div class="col-md-2 d-flex align-items-end">
-                                                            <button type="button" class="btn btn-success me-2"
-                                                                onclick="saveManualOvertimeRecord()">
-                                                                <i class="fe-save me-1"></i>儲存
-                                                            </button>
-                                                            <button type="button" class="btn btn-secondary"
-                                                                onclick="cancelManualOvertimeForm()">
-                                                                <i class="fe-x me-1"></i>取消
-                                                            </button>
-                                                        </div>
                                                     </div>
+                                                </div>
+                                                <div class="col-md-2 d-flex align-items-end">
+                                                    <button type="button" class="btn btn-success me-2"
+                                                        onclick="saveManualOvertimeRecord()">
+                                                        <i class="fe-save me-1"></i>儲存
+                                                    </button>
+                                                    <button type="button" class="btn btn-secondary"
+                                                        onclick="cancelManualOvertimeForm()">
+                                                        <i class="fe-x me-1"></i>取消
+                                                    </button>
+                                                        </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+                                </div>
                                 </div>
 
                             </div>
@@ -2465,7 +2465,7 @@
                     console.error('Error:', error);
                     container.innerHTML =
                         '<div class="alert alert-danger"><i class="fe-alert-triangle me-2"></i>載入失敗，請稍後再試</div>';
-                });
+            });
         }
 
         // 初始化頁面載入時的 select2
