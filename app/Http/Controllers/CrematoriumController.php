@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\CrematoriumBooking;
 use App\Models\CrematoriumEquipmentInstance;
 use App\Models\CrematoriumEquipmentType;
-use App\Models\CrematoriumBooking;
 use App\Models\CrematoriumMaintenance;
 use App\Models\CrematoriumPurchase;
 use App\Models\CrematoriumPurchaseItem;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class CrematoriumController extends Controller
 {
-
     /**
      * 火化爐預約管理
      */
@@ -55,7 +54,8 @@ class CrematoriumController extends Controller
 
         CrematoriumBooking::create($request->all());
 
-        return redirect()->route('crematorium.bookings')
+        return redirect()
+            ->route('crematorium.bookings')
             ->with('success', '預約新增成功！');
     }
 
@@ -66,58 +66,58 @@ class CrematoriumController extends Controller
     {
         // 取得當前用戶
         $user = auth()->user();
-        
+
         // 取得篩選參數
         $statusFilter = $request->get('status', '');
         $startDateFilter = $request->get('start_date', '');
         $endDateFilter = $request->get('end_date', '');
         $inspectorFilter = $request->get('inspector', '');
         $maintainerFilter = $request->get('maintainer', '');
-        
-        
+
         // 建立查詢
         $query = CrematoriumMaintenance::with(['inspectorUser', 'maintainerUser', 'maintenanceDetails']);
-        
+
         // 權限控制：如果不是管理者（job_id 不是 1、2、3、7、9）
         $managerJobIds = [1, 2, 3, 7, 9];
         $isManager = in_array($user->job_id, $managerJobIds);
-        
+
         if (!$isManager) {
             // 專員只能看到指派給自己的檢查記錄（檢查人員或保養人員是自己）
-            $query->where(function($q) use ($user) {
-                $q->where('inspector', $user->id)
-                  ->orWhere('maintainer', $user->id);
+            $query->where(function ($q) use ($user) {
+                $q
+                    ->where('inspector', $user->id)
+                    ->orWhere('maintainer', $user->id);
             });
         }
-        
+
         // 篩選條件（累加篩選，所有非空條件都要符合）
-        
+
         // 狀態篩選
         if ($statusFilter !== '' && $statusFilter !== null) {
-            $query->where('status', (int)$statusFilter);
+            $query->where('status', (int) $statusFilter);
         }
-        
+
         // 日期區間篩選
         if ($startDateFilter !== '' && $startDateFilter !== null) {
             $query->whereDate('maintenance_date', '>=', $startDateFilter);
         }
-        
+
         if ($endDateFilter !== '' && $endDateFilter !== null) {
             $query->whereDate('maintenance_date', '<=', $endDateFilter);
         }
-        
+
         // 檢查人員篩選
         if ($inspectorFilter !== '' && $inspectorFilter !== null) {
-            $query->where('inspector', (int)$inspectorFilter);
+            $query->where('inspector', (int) $inspectorFilter);
         }
-        
+
         // 保養人員篩選
         if ($maintainerFilter !== '' && $maintainerFilter !== null) {
-            $query->where('maintainer', (int)$maintainerFilter);
+            $query->where('maintainer', (int) $maintainerFilter);
         }
-        
-        $maintenance = $query->orderBy('created_at', 'desc')->get();
-        
+
+        $maintenance = $query->orderBy('created_at', 'desc')->whereIn('status', [0, 3])->get();
+
         // 取得所有員工用於篩選選項
         $staff = User::where('status', '=', '0')->orderBy('name')->get();
 
@@ -130,26 +130,26 @@ class CrematoriumController extends Controller
     public function createMaintenance()
     {
         $user = auth()->user();
-        
+
         // 權限檢查：只有管理者可以指派檢查人員
         $managerJobIds = [1, 2, 3, 7, 9];
         if (!in_array($user->job_id, $managerJobIds)) {
             abort(403, '您沒有權限指派檢查人員');
         }
-        
+
         $staff = User::where('status', '=', '0')->orderBy('name')->get();
-        
+
         // 生成檢查單號：格式 20251015001（年月日 + 流水號）
         $year = date('Y');
         $month = date('m');
         $day = date('d');
-        
+
         // 獲取今日最後一筆記錄的流水號
         $prefix = $year . $month . $day;
         $lastRecord = CrematoriumMaintenance::where('maintenance_number', 'LIKE', $prefix . '%')
             ->orderBy('maintenance_number', 'desc')
             ->first();
-        
+
         if ($lastRecord) {
             // 取得最後的流水號並加1
             $lastNumber = intval(substr($lastRecord->maintenance_number, -3));
@@ -158,9 +158,9 @@ class CrematoriumController extends Controller
             // 今日第一筆
             $newNumber = '001';
         }
-        
+
         $maintenanceNumber = $prefix . $newNumber;
-        
+
         return view('crematorium.create_maintenance', compact('staff', 'maintenanceNumber'));
     }
 
@@ -196,7 +196,8 @@ class CrematoriumController extends Controller
 
         CrematoriumMaintenance::create($data);
 
-        return redirect()->route('crematorium.maintenance')
+        return redirect()
+            ->route('crematorium.maintenance')
             ->with('success', '檢查記錄新增成功！');
     }
 
@@ -220,13 +221,13 @@ class CrematoriumController extends Controller
     public function assignMaintenance(Request $request)
     {
         $user = auth()->user();
-        
+
         // 權限檢查：只有管理者可以指派檢查人員
         $managerJobIds = [1, 2, 3, 7, 9];
         if (!in_array($user->job_id, $managerJobIds)) {
             abort(403, '您沒有權限指派檢查人員');
         }
-        
+
         // 驗證請求
         $request->validate([
             'maintenance_number' => 'required|string|unique:crematorium_maintenance,maintenance_number',
@@ -243,10 +244,11 @@ class CrematoriumController extends Controller
             'inspector' => $request->assigned_inspector,
             'maintainer' => $request->assigned_maintainer,
             'notes' => $request->instructions,
-            'status' => 0, // 未檢查
+            'status' => 0,  // 未檢查
         ]);
-        
-        return redirect()->route('crematorium.maintenance')
+
+        return redirect()
+            ->route('crematorium.maintenance')
             ->with('success', '檢查任務已成功指派！單號：' . $request->maintenance_number);
     }
 
@@ -257,30 +259,30 @@ class CrematoriumController extends Controller
     {
         $user = auth()->user();
         $maintenance = CrematoriumMaintenance::with([
-            'maintenanceDetails', 
-            'maintenanceDetails.equipmentInstance', 
+            'maintenanceDetails',
+            'maintenanceDetails.equipmentInstance',
             'maintenanceDetails.equipmentInstance.equipmentType',
-            'inspectorUser', 
+            'inspectorUser',
             'maintainerUser'
         ])->findOrFail($id);
-        
+
         // 權限檢查：如果不是管理者，只能編輯指派給自己的記錄
         $managerJobIds = [1, 2, 3, 7, 9];
         $isManager = in_array($user->job_id, $managerJobIds);
-        
+
         if (!$isManager) {
             // 檢查是否為指派給自己的檢查記錄
             if ($maintenance->inspector != $user->id && $maintenance->maintainer != $user->id) {
                 abort(403, '您沒有權限編輯此檢查記錄');
             }
         }
-        
+
         // 使用設備實例（已配置到火化爐的設備）
         $equipments = CrematoriumEquipmentInstance::with('equipmentType')
             ->orderBy('category')
             ->orderBy('sub_category')
             ->get();
-        
+
         return view('crematorium.edit_maintenance', compact('maintenance', 'equipments'));
     }
 
@@ -291,13 +293,13 @@ class CrematoriumController extends Controller
     {
         // 建立空的維護記錄物件供前端測試
         $maintenance = new CrematoriumMaintenance();
-        
+
         // 使用設備實例（已配置到火化爐的設備）
         $equipments = CrematoriumEquipmentInstance::with('equipmentType')
             ->orderBy('category')
             ->orderBy('sub_category')
             ->get();
-        
+
         return view('crematorium.edit_maintenance', compact('maintenance', 'equipments'));
     }
 
@@ -308,17 +310,17 @@ class CrematoriumController extends Controller
     {
         $user = auth()->user();
         $maintenance = CrematoriumMaintenance::findOrFail($id);
-        
+
         // 權限檢查：如果不是管理者，只能更新指派給自己的記錄
         $managerJobIds = [1, 2, 3, 7, 9];
         $isManager = in_array($user->job_id, $managerJobIds);
-        
+
         if (!$isManager) {
             if ($maintenance->inspector != $user->id && $maintenance->maintainer != $user->id) {
                 abort(403, '您沒有權限更新此檢查記錄');
             }
         }
-        
+
         // 驗證請求
         $request->validate([
             'maintenance_date' => 'required|date',
@@ -333,7 +335,7 @@ class CrematoriumController extends Controller
             'equipment_quantity' => 'nullable|array',
             'equipment_replacement_type' => 'nullable|array',
         ]);
-        
+
         DB::beginTransaction();
         try {
             // 更新維護記錄
@@ -344,7 +346,7 @@ class CrematoriumController extends Controller
                 'high_voltage_wire_status' => $request->high_voltage_wire_status,
                 'high_voltage_wire_problem' => $request->high_voltage_wire_problem,
                 'notes' => $request->notes,
-                'status' => 3, // 送審
+                'status' => 3,  // 送審
             ]);
 
             // 處理設備檢查記錄（使用 equipment_instance_id）並扣減庫存
@@ -354,7 +356,7 @@ class CrematoriumController extends Controller
                     $action = $request->equipment_action[$equipmentInstanceId] ?? null;
                     $quantity = $request->equipment_quantity[$equipmentInstanceId] ?? 0;
                     $replacementType = $request->equipment_replacement_type[$equipmentInstanceId] ?? 'new';
-                    
+
                     // 更新或創建檢查記錄
                     $maintenance->maintenanceDetails()->updateOrCreate(
                         [
@@ -369,14 +371,14 @@ class CrematoriumController extends Controller
                             'replacement_type' => $replacementType,
                         ]
                     );
-                    
+
                     // 如果處理方式為「更換」，扣減庫存
                     if ($action === 'replace' && $quantity > 0) {
                         $equipmentInstance = CrematoriumEquipmentInstance::with('equipmentType')->find($equipmentInstanceId);
-                        
+
                         if ($equipmentInstance && $equipmentInstance->equipmentType) {
                             $equipmentType = $equipmentInstance->equipmentType;
-                            
+
                             // 檢查是否列入庫存計算
                             if (!$equipmentType->exclude_from_inventory) {
                                 // 根據更換類型扣減庫存
@@ -396,34 +398,65 @@ class CrematoriumController extends Controller
                     }
                 }
             }
-            
+
             DB::commit();
-            return redirect()->route('crematorium.maintenance')
+            return redirect()
+                ->route('crematorium.maintenance')
                 ->with('success', '檢查記錄已更新並送審！已自動扣減庫存。');
-                
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->with('error', '更新失敗：' . $e->getMessage())
                 ->withInput();
         }
     }
 
-    /**
-     * 送審檢查記錄
-     */
-    public function submitForReview($id)
+    public function checkMaintenance($id)
     {
-        $maintenance = CrematoriumMaintenance::findOrFail($id);
-        
-        // 檢查是否為送審狀態
-        if ($maintenance->status != 3) {
-            return response()->json(['success' => false, 'message' => '只有送審狀態的記錄才能審核通過']);
+        $user = auth()->user();
+        $maintenance = CrematoriumMaintenance::with([
+            'maintenanceDetails',
+            'maintenanceDetails.equipmentInstance',
+            'maintenanceDetails.equipmentInstance.equipmentType',
+            'inspectorUser',
+            'maintainerUser'
+        ])->findOrFail($id);
+
+        // 權限檢查：如果不是管理者，只能編輯指派給自己的記錄
+        $managerJobIds = [1, 2, 3, 7, 9];
+        $isManager = in_array($user->job_id, $managerJobIds);
+
+        if (!$isManager) {
+            // 檢查是否為指派給自己的檢查記錄
+            if ($maintenance->inspector != $user->id && $maintenance->maintainer != $user->id) {
+                abort(403, '您沒有權限編輯此檢查記錄');
+            }
         }
-        
-        $maintenance->update(['status' => 9]);
-        
-        return response()->json(['success' => true, 'message' => '審核通過']);
+
+        // 使用設備實例（已配置到火化爐的設備）
+        $equipments = CrematoriumEquipmentInstance::with('equipmentType')
+            ->orderBy('category')
+            ->orderBy('sub_category')
+            ->get();
+
+        return view('crematorium.check_maintenance', compact('maintenance', 'equipments'));
+    }
+
+    public function checkMaintenanceUpdate(Request $request, $id)
+    {
+        $user = auth()->user();
+        $maintenance = CrematoriumMaintenance::findOrFail($id);
+        if ($request->submit == 'check') {
+            if($user->job_id == 1 || $user->job_id == 2 || $user->job_id == 3 || $user->job_id == 7 || $user->job_id == 10) {
+                $maintenance->update(['status' => 9]);
+                return redirect()->route('crematorium.maintenance')->with('success', '檢查記錄確認審核成功！');
+            } else {
+                $maintenance->update(['status' => 3]);
+                return redirect()->route('crematorium.maintenance')->with('success', '檢查記錄送出審核成功！');
+            }
+        }
+        return redirect()->route('crematorium.maintenance')->with('error', '您沒有權限審核此檢查記錄！');
     }
 
     /**
@@ -439,7 +472,7 @@ class CrematoriumController extends Controller
         }
 
         if ($request->filled('equipment_type_id')) {
-            $query->whereHas('items', function($q) use ($request) {
+            $query->whereHas('items', function ($q) use ($request) {
                 $q->where('equipment_type_id', $request->equipment_type_id);
             });
         }
@@ -452,7 +485,8 @@ class CrematoriumController extends Controller
             $query->where('purchase_date', '<=', $request->end_date);
         }
 
-        $purchases = $query->orderBy('purchase_date', 'desc')
+        $purchases = $query
+            ->orderBy('purchase_date', 'desc')
             ->orderBy('id', 'desc')
             ->paginate(20);
 
@@ -512,7 +546,7 @@ class CrematoriumController extends Controller
                 'invoice_number' => null,
                 'purchaser_id' => auth()->id(),
                 'notes' => $request->notes,
-                'status' => 'confirmed', // 直接確認
+                'status' => 'confirmed',  // 直接確認
             ]);
 
             // 創建進貨明細並更新庫存
@@ -540,11 +574,13 @@ class CrematoriumController extends Controller
 
             DB::commit();
 
-            return redirect()->route('crematorium.purchases.index')
+            return redirect()
+                ->route('crematorium.purchases.index')
                 ->with('success', '進貨記錄新增成功！');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->with('error', '進貨記錄新增失敗：' . $e->getMessage())
                 ->withInput();
         }
@@ -559,7 +595,8 @@ class CrematoriumController extends Controller
 
         // 只有待確認狀態的記錄才能編輯
         if ($purchase->status !== 'pending') {
-            return redirect()->route('crematorium.purchases.index')
+            return redirect()
+                ->route('crematorium.purchases.index')
                 ->with('error', '只有待確認狀態的進貨記錄才能編輯！');
         }
 
@@ -577,7 +614,8 @@ class CrematoriumController extends Controller
 
         // 只有待確認狀態的記錄才能編輯
         if ($purchase->status !== 'pending') {
-            return redirect()->route('crematorium.purchases.index')
+            return redirect()
+                ->route('crematorium.purchases.index')
                 ->with('error', '只有待確認狀態的進貨記錄才能編輯！');
         }
 
@@ -636,11 +674,13 @@ class CrematoriumController extends Controller
 
             DB::commit();
 
-            return redirect()->route('crematorium.purchases.index')
+            return redirect()
+                ->route('crematorium.purchases.index')
                 ->with('success', '進貨記錄更新成功！');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->with('error', '進貨記錄更新失敗：' . $e->getMessage())
                 ->withInput();
         }
@@ -655,7 +695,8 @@ class CrematoriumController extends Controller
 
         // 只有待確認狀態的記錄才能刪除
         if ($purchase->status !== 'pending') {
-            return redirect()->route('crematorium.purchases.index')
+            return redirect()
+                ->route('crematorium.purchases.index')
                 ->with('error', '只有待確認狀態的進貨記錄才能刪除！');
         }
 
@@ -665,11 +706,13 @@ class CrematoriumController extends Controller
 
             DB::commit();
 
-            return redirect()->route('crematorium.purchases.index')
+            return redirect()
+                ->route('crematorium.purchases.index')
                 ->with('success', '進貨記錄刪除成功！');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('crematorium.purchases.index')
+            return redirect()
+                ->route('crematorium.purchases.index')
                 ->with('error', '進貨記錄刪除失敗：' . $e->getMessage());
         }
     }

@@ -25,45 +25,39 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="row justify-content-between">
-                        <div class="col-auto">
-                            <h5 class="card-title">設備類型列表（庫存管理）</h5>
-                        </div>
-                        <div class="col-auto">
-                            <a href="{{ route('crematorium.instances.index') }}" class="btn btn-success me-2">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h5 class="card-title mb-0">設備類型列表（庫存管理）</h5>
+                    </div>
+                    <div class="d-flex flex-wrap align-items-center mb-3">
+                        <form method="GET" action="{{ route('crematorium.equipment.index') }}" class="d-flex align-items-center gap-2 me-auto">
+                            <select name="category" class="form-select" onchange="this.form.submit()" style="min-width: 180px;">
+                                <option value="">全部類別</option>
+                                <option value="furnace_1" {{ $categoryFilter == 'furnace_1' ? 'selected' : '' }}>一爐</option>
+                                <option value="furnace_2" {{ $categoryFilter == 'furnace_2' ? 'selected' : '' }}>二爐</option>
+                                <option value="ventilation" {{ $categoryFilter == 'ventilation' ? 'selected' : '' }}>抽風</option>
+                            </select>
+                            @if($categoryFilter)
+                                <a href="{{ route('crematorium.equipment.index') }}" class="btn btn-outline-secondary text-nowrap">
+                                    <i class="mdi mdi-close me-1"></i>清除
+                                </a>
+                            @endif
+                        </form>
+                        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
+                            <a href="{{ route('crematorium.instances.index') }}" class="btn btn-success">
                                 <i class="mdi mdi-map-marker-multiple me-1"></i>設備位置管理
                             </a>
-                            <a href="{{ route('crematorium.repairs.index') }}" class="btn btn-danger me-2">
+                            <a href="{{ route('crematorium.repairs.index') }}" class="btn btn-danger">
                                 <i class="mdi mdi-alert-circle me-1"></i>報修單
                             </a>
-                            <a href="{{ route('crematorium.maintenance') }}" class="btn btn-info me-2">
+                            <a href="{{ route('crematorium.maintenance') }}" class="btn btn-info">
                                 <i class="mdi mdi-clipboard-check me-1"></i>檢查記錄
                             </a>
-                            <a href="{{ route('crematorium.purchases.index') }}" class="btn btn-warning me-2">
+                            <a href="{{ route('crematorium.purchases.index') }}" class="btn btn-warning">
                                 <i class="mdi mdi-package-variant me-1"></i>設備進貨
                             </a>
                             <a href="{{ route('crematorium.equipment.create') }}" class="btn btn-primary">
                                 <i class="mdi mdi-plus-circle me-1"></i>新增設備類型
                             </a>
-                        </div>
-                    </div>
-
-                    <!-- 篩選區域 -->
-                    <div class="row mb-3">
-                        <div class="col-md-8">
-                            <form method="GET" action="{{ route('crematorium.equipment.index') }}" class="d-flex align-items-center">
-                                <select name="category" class="form-select me-2" onchange="this.form.submit()" style="min-width: 150px;">
-                                    <option value="">全部類別</option>
-                                    <option value="furnace_1" {{ $categoryFilter == 'furnace_1' ? 'selected' : '' }}>一爐</option>
-                                    <option value="furnace_2" {{ $categoryFilter == 'furnace_2' ? 'selected' : '' }}>二爐</option>
-                                    <option value="ventilation" {{ $categoryFilter == 'ventilation' ? 'selected' : '' }}>抽風</option>
-                                </select>
-                                @if($categoryFilter)
-                                    <a href="{{ route('crematorium.equipment.index') }}" class="btn btn-outline-secondary" style="white-space: nowrap;">
-                                        <i class="mdi mdi-close"></i>清除篩選
-                                    </a>
-                                @endif
-                            </form>
                         </div>
                     </div>
 
@@ -120,25 +114,27 @@
                                             @if($type->exclude_from_inventory)
                                                 <span class="text-muted">—</span>
                                             @else
-                                                <div class="mb-1">
-                                                    <span class="badge bg-primary me-1">全新：{{ $type->stock_new }}</span>
-                                                    <span class="badge bg-info me-1">堪用：{{ $type->stock_usable }}</span>
+                                                <div class="d-flex flex-wrap align-items-center gap-1 mb-1">
+                                                    <span class="badge bg-light text-dark">全新 {{ $type->stock_new }}</span>
+                                                    <span class="badge bg-light text-dark">堪用 {{ $type->stock_usable }}</span>
                                                 </div>
-                                                <div>
-                                                    <strong>總計：{{ $type->stock_total }}</strong>
+                                                <div class="d-flex align-items-center gap-1">
+                                                    <span class="text-muted">總計：{{ $type->stock_total }}</span>
                                                     @if($type->stock_total <= 0)
-                                                        <span class="badge bg-danger ms-1">缺貨</span>
+                                                        <span class="badge bg-danger">缺貨</span>
                                                     @elseif($type->stock_total <= 5)
-                                                        <span class="badge bg-warning ms-1">庫存不足</span>
+                                                        <span class="badge bg-warning text-dark">庫存不足</span>
                                                     @endif
                                                 </div>
                                             @endif
                                         </td>
                                         <td>
-                                            <span class="badge bg-success">使用中：{{ $type->active_count }}</span>
-                                            @if($type->broken_count > 0)
-                                                <span class="badge bg-danger ms-1">故障：{{ $type->broken_count }}</span>
-                                            @endif
+                                            <div class="d-flex align-items-center gap-1">
+                                                <span class="badge bg-light text-dark">使用中： {{ $type->active_count }}</span>
+                                                @if($type->broken_count > 0)
+                                                    <span class="badge bg-danger">故障 {{ $type->broken_count }}</span>
+                                                @endif
+                                            </div>
                                         </td>
                                         <td>
                                             <div class="btn-group dropdown">
