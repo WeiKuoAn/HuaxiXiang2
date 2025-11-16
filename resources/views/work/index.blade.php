@@ -134,8 +134,12 @@
                 </div>
             </div>
         </div>
-
-
-
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center mb-3">
+                    <a href="{{ route('increase.personnel.index') }}" class="btn btn-secondary waves-effect waves-light m-1">回上一頁</a>
+                </div>
+            </div>
+        </div> -->
     </div> <!-- container -->
 @endsection
