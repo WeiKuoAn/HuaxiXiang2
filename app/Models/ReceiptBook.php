@@ -44,7 +44,7 @@ class ReceiptBook extends Model
     }
 
     /**
-     * 获取该单本的所有号码范围
+     * 获取该收據的所有号码范围
      */
     public function getAllNumbers()
     {
@@ -67,7 +67,7 @@ class ReceiptBook extends Model
             // 移除 "NO." 或 "no." 前缀，取得纯数字
             $number = (int) preg_replace('/^NO\./i', '', $sale->sale_on);
             
-            // 检查是否在当前单本的范围内
+            // 检查是否在当前收據的范围内
             if ($number >= $this->start_number && $number <= $this->end_number) {
                 $usedNumbers[] = $number;
             }

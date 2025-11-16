@@ -17,6 +17,7 @@ class CrematoriumEquipmentType extends Model
         'stock_new',
         'stock_usable',
         'description',
+        'image_path',
     ];
 
     protected $casts = [
