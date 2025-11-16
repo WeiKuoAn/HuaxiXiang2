@@ -51,7 +51,7 @@ class ReceiptBookController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // 为每个单本添加统计信息
+        // 为每个收據添加统计信息
         foreach ($receiptBooks as $book) {
             $book->statistics = $book->getStatistics();
         }
@@ -104,7 +104,7 @@ class ReceiptBookController extends Controller
         })->exists();
 
         if ($overlap) {
-            return back()->withInput()->withErrors(['start_number' => '该号码范围与现有单本重叠，请重新输入']);
+            return back()->withInput()->withErrors(['start_number' => '该号码范围与现有收據重叠，请重新输入']);
         }
 
         ReceiptBook::create([
@@ -119,7 +119,7 @@ class ReceiptBookController extends Controller
         ]);
 
         return redirect()->route('receipt-books.index')
-            ->with('success', '单本创建成功！');
+            ->with('success', '收據创建成功！');
     }
 
     /**
@@ -190,7 +190,7 @@ class ReceiptBookController extends Controller
         ]);
 
         return redirect()->route('receipt-books.show', $receiptBook->id)
-            ->with('success', '单本更新成功！');
+            ->with('success', '收據更新成功！');
     }
 
     /**
@@ -232,7 +232,7 @@ class ReceiptBookController extends Controller
         $receiptBook->delete();
 
         return redirect()->route('receipt-books.index')
-            ->with('success', '单本删除成功！');
+            ->with('success', '收據删除成功！');
     }
 
     /**

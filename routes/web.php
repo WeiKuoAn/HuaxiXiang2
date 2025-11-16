@@ -46,6 +46,9 @@ use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PromController;
 use App\Http\Controllers\PromTypeController;
+use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\PropertyRecordController;
+use App\Http\Controllers\PropertyTypeController;
 use App\Http\Controllers\PujaController;
 use App\Http\Controllers\PujaDataController;
 use App\Http\Controllers\PujaTypeController;
@@ -726,6 +729,7 @@ Route::group(['prefix' => '/'], function () {
             Route::get('/{id}/edit', [CrematoriumEquipmentController::class, 'edit'])->name('edit');
             Route::put('/{id}/update', [CrematoriumEquipmentController::class, 'update'])->name('update');
             Route::delete('/{id}', [CrematoriumEquipmentController::class, 'destroy'])->name('destroy');
+            
         });
 
         // 設備類型管理（庫存管理）
@@ -765,6 +769,8 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/maintenance/{id}', [CrematoriumController::class, 'showMaintenance'])->name('showMaintenance');
         Route::get('/maintenance/{id}/edit', [CrematoriumController::class, 'editMaintenance'])->name('editMaintenance');
         Route::put('/maintenance/{id}/update', [CrematoriumController::class, 'updateMaintenance'])->name('updateMaintenance');
+        Route::get('/maintenance/{id}/check', [CrematoriumController::class, 'checkMaintenance'])->name('checkMaintenance');
+        Route::put('/maintenance/{id}/check/update', [CrematoriumController::class, 'checkMaintenanceUpdate'])->name('checkMaintenanceUpdate');
         Route::post('/maintenance/{id}/submit-review', [CrematoriumController::class, 'submitForReview'])->name('submitForReview');
         
         // 測試路由
@@ -872,6 +878,39 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/give/del/{id}', [GiveController::class, 'delete'])->name('give.del');
     Route::post('/give/del/{id}', [GiveController::class, 'destroy'])->name('give.del.data');
 
+    /* 財產管理 */
+    Route::prefix('property')->name('property.')->group(function () {
+        Route::get('/', [PropertyController::class, 'index'])->name('index');
+        Route::get('/create', [PropertyController::class, 'create'])->name('create');
+        Route::post('/', [PropertyController::class, 'store'])->name('store');
+        Route::get('/records', [PropertyRecordController::class, 'index'])->name('records.index');
+        Route::get('/{property}/edit', [PropertyController::class, 'edit'])
+            ->whereNumber('property')
+            ->name('edit');
+        Route::put('/{property}', [PropertyController::class, 'update'])
+            ->whereNumber('property')
+            ->name('update');
+        Route::delete('/{property}', [PropertyController::class, 'destroy'])
+            ->whereNumber('property')
+            ->name('destroy');
+        Route::get('/{property}', [PropertyController::class, 'show'])
+            ->whereNumber('property')
+            ->name('show');
+        Route::post('/{property}/records', [PropertyRecordController::class, 'store'])
+            ->whereNumber('property')
+            ->name('records.store');
+    });
+    Route::delete('/property-records/{record}', [PropertyRecordController::class, 'destroy'])->name('property.records.destroy');
+
+    Route::prefix('property/types')->name('property.types.')->group(function () {
+        Route::get('/', [PropertyTypeController::class, 'index'])->name('index');
+        Route::get('/create', [PropertyTypeController::class, 'create'])->name('create');
+        Route::post('/', [PropertyTypeController::class, 'store'])->name('store');
+        Route::get('/{type}/edit', [PropertyTypeController::class, 'edit'])->name('edit');
+        Route::put('/{type}', [PropertyTypeController::class, 'update'])->name('update');
+        Route::delete('/{type}', [PropertyTypeController::class, 'destroy'])->name('destroy');
+    });
+
     // 加成管理
     Route::get('/increase', [IncreaseController::class, 'index'])->name('increase.index');
     Route::get('/increase/personnel', [IncreaseController::class, 'personnel_index'])->name('increase.personnel.index');
@@ -976,6 +1015,9 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/', [ReceiptBookController::class, 'index'])->name('receipt-books.index');
         Route::get('/create', [ReceiptBookController::class, 'create'])->name('receipt-books.create');
         Route::post('/', [ReceiptBookController::class, 'store'])->name('receipt-books.store');
+        // 認領清單與認領動作
+        Route::get('/claim', [ReceiptBookController::class, 'claimable'])->name('receipt-books.claimable');
+        Route::post('/{id}/claim', [ReceiptBookController::class, 'claim'])->name('receipt-books.claim');
         Route::get('/{id}', [ReceiptBookController::class, 'show'])->name('receipt-books.show');
         Route::get('/{id}/edit', [ReceiptBookController::class, 'edit'])->name('receipt-books.edit');
         Route::put('/{id}', [ReceiptBookController::class, 'update'])->name('receipt-books.update');
