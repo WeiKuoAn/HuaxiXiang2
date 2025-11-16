@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ['page_title' => '認領收據'])
+@extends('layouts.vertical', ['page_title' => '我的收據繳回'])
 
 @section('content')
 <!-- Start Content-->
@@ -12,10 +12,10 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('receipt-books.index') }}">跳單管理</a></li>
-                        <li class="breadcrumb-item active">認領收據</li>
+                        <li class="breadcrumb-item active">我的收據繳回</li>
                     </ol>
                 </div>
-                <h4 class="page-title">認領收據</h4>
+                <h4 class="page-title">我的收據繳回</h4>
             </div>
         </div>
     </div>
@@ -40,72 +40,19 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0">
-                            <i class="fe-inbox me-2"></i>未指派之收據
+                            <i class="fe-user-check me-2"></i>我持有的收據（可繳回）
                         </h5>
-                        <a href="{{ route('receipt-books.index') }}" class="btn btn-secondary">
-                            <i class="fe-arrow-left me-1"></i>返回列表
-                        </a>
+                        <div>
+                            <a href="{{ route('receipt-books.claimable') }}" class="btn btn-outline-primary me-2">
+                                <i class="fe-plus-circle me-1"></i>前往認領收據
+                            </a>
+                            <a href="{{ route('receipt-books.index') }}" class="btn btn-secondary">
+                                <i class="fe-arrow-left me-1"></i>返回列表
+                            </a>
+                        </div>
                     </div>
 
-                    @if($receiptBooks->count() === 0)
-                        <div class="alert alert-info mb-0">
-                            目前沒有可認領的收據。
-                        </div>
-                    @else
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>號碼範圍</th>
-                                        <th>發放日期</th>
-                                        <th>備註</th>
-                                        <th class="text-end">操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($receiptBooks as $book)
-                                        <tr>
-                                            <td>
-                                                <span class="badge bg-primary">
-                                                    {{ $book->start_number }} ~ {{ $book->end_number }}
-                                                </span>
-                                            </td>
-                                            <td>{{ optional($book->issue_date)->format('Y-m-d') }}</td>
-                                            <td>{{ $book->note ?: '-' }}</td>
-                                            <td class="text-end">
-                                                <form action="{{ route('receipt-books.claim', $book->id) }}" method="POST" class="d-inline" onsubmit="return confirm('確定要認領這一本嗎？');">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-success btn-sm">
-                                                        <i class="fe-check me-1"></i>認領
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-3">
-                            {{ $receiptBooks->appends(['my_page' => request('my_page')])->links('vendor.pagination.bootstrap-4') }}
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 我的收據繳回 -->
-    <div class="row mt-3">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0">
-                            <i class="fe-user-check me-2"></i>我的收據（可繳回）
-                        </h5>
-                    </div>
-
-                    @if(isset($myBooks) && $myBooks->count() === 0)
+                    @if($myBooks->count() === 0)
                         <div class="alert alert-info mb-0">
                             你目前沒有可繳回的收據。
                         </div>
@@ -121,12 +68,10 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach(($myBooks ?? collect()) as $book)
+                                    @foreach($myBooks as $book)
                                         <tr>
                                             <td>
-                                                <span class="badge bg-primary">
-                                                    {{ $book->start_number }} ~ {{ $book->end_number }}
-                                                </span>
+            <span class="badge bg-primary">{{ $book->start_number }} ~ {{ $book->end_number }}</span>
                                             </td>
                                             <td>{{ optional($book->issue_date)->format('Y-m-d') ?: '-' }}</td>
                                             <td>
@@ -156,7 +101,7 @@
                             </table>
                         </div>
                         <div class="mt-3">
-                            {{ ($myBooks ?? collect())->appends(['claim_page' => request('claim_page')])->links('vendor.pagination.bootstrap-4') }}
+                            {{ $myBooks->links('vendor.pagination.bootstrap-4') }}
                         </div>
                     @endif
                 </div>

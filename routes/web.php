@@ -1017,6 +1017,7 @@ Route::group(['prefix' => '/'], function () {
         Route::post('/', [ReceiptBookController::class, 'store'])->name('receipt-books.store');
         // 認領清單與認領動作
         Route::get('/claim', [ReceiptBookController::class, 'claimable'])->name('receipt-books.claimable');
+        Route::get('/returns', [ReceiptBookController::class, 'returns'])->name('receipt-books.returns');
         Route::post('/{id}/claim', [ReceiptBookController::class, 'claim'])->name('receipt-books.claim');
         Route::get('/{id}', [ReceiptBookController::class, 'show'])->name('receipt-books.show');
         Route::get('/{id}/edit', [ReceiptBookController::class, 'edit'])->name('receipt-books.edit');

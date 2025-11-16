@@ -206,10 +206,35 @@ class ReceiptBookController extends Controller
             ->where('status', 'unused')
             ->orderBy('start_number', 'desc')
             ->orderBy('issue_date', 'desc')
-            ->paginate(20);
-        return view('receipt_books.claim', compact('receiptBooks'));
+            ->paginate(20, ['*'], 'claim_page');
+
+        // 登入者持有且尚未繳回的收據清單（供繳回）
+        $myBooks = ReceiptBook::where('holder_id', Auth::id())
+            ->where(function ($q) {
+                $q->whereNull('returned_at')->orWhere('status', '!=', 'returned');
+            })
+            ->orderBy('start_number', 'desc')
+            ->orderBy('issue_date', 'desc')
+            ->paginate(20, ['*'], 'my_page');
+
+        return view('receipt_books.claim', compact('receiptBooks', 'myBooks'));
     }
 
+    /**
+     * 我的收據繳回頁
+     */
+    public function returns(Request $request)
+    {
+        $myBooks = ReceiptBook::where('holder_id', Auth::id())
+            ->where(function ($q) {
+                $q->whereNull('returned_at')->orWhere('status', '!=', 'returned');
+            })
+            ->orderBy('start_number', 'desc')
+            ->orderBy('issue_date', 'desc')
+            ->paginate(20);
+
+        return view('receipt_books.returns', compact('myBooks'));
+    }
     /**
      * 認領收據
      */
@@ -250,6 +275,6 @@ class ReceiptBookController extends Controller
             'returned_at' => now(),
         ]);
 
-        return redirect()->back()->with('success', '已标记为缴回！');
+        return redirect()->back()->with('success', '已缴回！');
     }
 }
