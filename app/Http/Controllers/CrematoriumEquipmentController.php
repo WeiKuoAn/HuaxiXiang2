@@ -75,7 +75,13 @@ class CrematoriumEquipmentController extends Controller
             foreach ($request->locations as $location) {
                 list($category, $subCategory) = explode('|', $location);
                 
-                $locationText = ['furnace_1' => '一爐', 'furnace_2' => '二爐', 'ventilation' => '抽風'][$category];
+                $locationText = [
+                    'furnace_1' => '一爐',
+                    'furnace_2' => '二爐',
+                    'ventilation' => '抽風',
+                    'furnace_1_ventilation' => '一爐抽風',
+                    'furnace_2_ventilation' => '二爐抽風',
+                ][$category];
                 if ($subCategory) {
                     $subMap = ['fire_1' => '一火', 'fire_2' => '二火', 'fire_1a' => '一火A', 'fire_1b' => '一火B'];
                     $locationText .= '-' . $subMap[$subCategory];
@@ -146,7 +152,13 @@ class CrematoriumEquipmentController extends Controller
         foreach ($newLocations as $location) {
             list($category, $subCategory) = explode('|', $location);
             
-            $locationText = ['furnace_1' => '一爐', 'furnace_2' => '二爐', 'ventilation' => '抽風'][$category];
+            $locationText = [
+                'furnace_1' => '一爐',
+                'furnace_2' => '二爐',
+                'ventilation' => '抽風',
+                'furnace_1_ventilation' => '一爐抽風',
+                'furnace_2_ventilation' => '二爐抽風',
+            ][$category];
             if ($subCategory) {
                 $subMap = ['fire_1' => '一火', 'fire_2' => '二火', 'fire_1a' => '一火A', 'fire_1b' => '一火B'];
                 $locationText .= '-' . $subMap[$subCategory];

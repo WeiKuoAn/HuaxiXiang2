@@ -26,7 +26,8 @@
             ['category' => 'furnace_2', 'sub_category' => 'fire_1a', 'name' => '二爐-一火A'],
             ['category' => 'furnace_2', 'sub_category' => 'fire_1b', 'name' => '二爐-一火B'],
             ['category' => 'furnace_2', 'sub_category' => 'fire_2', 'name' => '二爐-二火'],
-            ['category' => 'ventilation', 'sub_category' => null, 'name' => '抽風'],
+            ['category' => 'furnace_1_ventilation', 'sub_category' => null, 'name' => '一爐-抽風'],
+            ['category' => 'furnace_2_ventilation', 'sub_category' => null, 'name' => '二爐-抽風'],
         ];
     @endphp
 

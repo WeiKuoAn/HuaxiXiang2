@@ -80,7 +80,8 @@
                                         <option value="">請選擇火化爐</option>
                                         <option value="furnace_1" {{ old('category') == 'furnace_1' ? 'selected' : '' }}>一爐</option>
                                         <option value="furnace_2" {{ old('category') == 'furnace_2' ? 'selected' : '' }}>二爐</option>
-                                        <option value="ventilation" {{ old('category') == 'ventilation' ? 'selected' : '' }}>抽風</option>
+                                        <option value="furnace_1_ventilation" {{ old('category') == 'furnace_1_ventilation' ? 'selected' : '' }}>一爐抽風</option>
+                                        <option value="furnace_2_ventilation" {{ old('category') == 'furnace_2_ventilation' ? 'selected' : '' }}>二爐抽風</option>
                                     </select>
                                     @error('category')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -155,7 +156,7 @@ function updateSubCategory() {
         subCategory.innerHTML += '<option value="fire_1b">一火B</option>';
         subCategory.innerHTML += '<option value="fire_2">二火</option>';
         subCategory.disabled = false;
-    } else if (category === 'ventilation') {
+    } else if (category === 'ventilation' || category === 'furnace_1_ventilation' || category === 'furnace_2_ventilation') {
         subCategory.innerHTML = '<option value="">無需選擇</option>';
         subCategory.disabled = true;
     } else {

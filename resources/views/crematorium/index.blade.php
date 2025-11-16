@@ -34,7 +34,8 @@
                                 <option value="">全部類別</option>
                                 <option value="furnace_1" {{ $categoryFilter == 'furnace_1' ? 'selected' : '' }}>一爐</option>
                                 <option value="furnace_2" {{ $categoryFilter == 'furnace_2' ? 'selected' : '' }}>二爐</option>
-                                <option value="ventilation" {{ $categoryFilter == 'ventilation' ? 'selected' : '' }}>抽風</option>
+                                <option value="furnace_1_ventilation" {{ $categoryFilter == 'furnace_1_ventilation' ? 'selected' : '' }}>一爐抽風</option>
+                                <option value="furnace_2_ventilation" {{ $categoryFilter == 'furnace_2_ventilation' ? 'selected' : '' }}>二爐抽風</option>
                             </select>
                             @if($categoryFilter)
                                 <a href="{{ route('crematorium.equipment.index') }}" class="btn btn-outline-secondary text-nowrap">

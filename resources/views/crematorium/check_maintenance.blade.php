@@ -553,6 +553,8 @@
                                         'furnace_1' => '一爐',
                                         'furnace_2' => '二爐',
                                         'ventilation' => '抽風',
+                                        'furnace_1_ventilation' => '一爐抽風',
+                                        'furnace_2_ventilation' => '二爐抽風',
                                     ];
 
                                     // 定義子類別顯示名稱

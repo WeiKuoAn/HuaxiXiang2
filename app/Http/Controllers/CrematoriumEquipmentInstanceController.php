@@ -38,7 +38,7 @@ class CrematoriumEquipmentInstanceController extends Controller
     {
         $validated = $request->validate([
             'equipment_type_id' => 'required|exists:crematorium_equipment_types,id',
-            'category' => 'required|in:furnace_1,furnace_2,ventilation',
+            'category' => 'required|in:furnace_1,furnace_2,ventilation,furnace_1_ventilation,furnace_2_ventilation',
             'sub_category' => 'nullable|in:fire_1,fire_2,fire_1a,fire_1b',
             'status' => 'required|in:active,maintenance,broken,inactive',
             'installed_date' => 'nullable|date',
@@ -47,7 +47,13 @@ class CrematoriumEquipmentInstanceController extends Controller
         ]);
 
         // 建立完整位置描述
-        $categoryText = ['furnace_1' => '一爐', 'furnace_2' => '二爐', 'ventilation' => '抽風'][$validated['category']];
+        $categoryText = [
+            'furnace_1' => '一爐',
+            'furnace_2' => '二爐',
+            'ventilation' => '抽風',
+            'furnace_1_ventilation' => '一爐抽風',
+            'furnace_2_ventilation' => '二爐抽風',
+        ][$validated['category']];
         $subText = '';
         if ($validated['sub_category']) {
             $subMap = ['fire_1' => '一火', 'fire_2' => '二火', 'fire_1a' => '一火A', 'fire_1b' => '一火B'];
@@ -81,7 +87,7 @@ class CrematoriumEquipmentInstanceController extends Controller
         
         $validated = $request->validate([
             'equipment_type_id' => 'required|exists:crematorium_equipment_types,id',
-            'category' => 'required|in:furnace_1,furnace_2,ventilation',
+            'category' => 'required|in:furnace_1,furnace_2,ventilation,furnace_1_ventilation,furnace_2_ventilation',
             'sub_category' => 'nullable|in:fire_1,fire_2,fire_1a,fire_1b',
             'status' => 'required|in:active,maintenance,broken,inactive',
             'installed_date' => 'nullable|date',
@@ -90,7 +96,13 @@ class CrematoriumEquipmentInstanceController extends Controller
         ]);
 
         // 建立完整位置描述
-        $categoryText = ['furnace_1' => '一爐', 'furnace_2' => '二爐', 'ventilation' => '抽風'][$validated['category']];
+        $categoryText = [
+            'furnace_1' => '一爐',
+            'furnace_2' => '二爐',
+            'ventilation' => '抽風',
+            'furnace_1_ventilation' => '一爐抽風',
+            'furnace_2_ventilation' => '二爐抽風',
+        ][$validated['category']];
         $subText = '';
         if ($validated['sub_category']) {
             $subMap = ['fire_1' => '一火', 'fire_2' => '二火', 'fire_1a' => '一火A', 'fire_1b' => '一火B'];

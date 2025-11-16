@@ -98,7 +98,8 @@
                                                 <option value="">請選擇類別</option>
                                                 <option value="furnace_1">一爐</option>
                                                 <option value="furnace_2">二爐</option>
-                                                <option value="ventilation">抽風</option>
+                                                <option value="furnace_1_ventilation">一爐抽風</option>
+                                                <option value="furnace_2_ventilation">二爐抽風</option>
                                             </select>
                                         </div>
                                         <div class="col-md-4">
@@ -193,7 +194,8 @@ function addEquipmentRow() {
                     <option value="">請選擇類別</option>
                     <option value="furnace_1">一爐</option>
                     <option value="furnace_2">二爐</option>
-                    <option value="ventilation">抽風</option>
+                    <option value="furnace_1_ventilation">一爐抽風</option>
+                    <option value="furnace_2_ventilation">二爐抽風</option>
                 </select>
             </div>
             <div class="col-md-4">

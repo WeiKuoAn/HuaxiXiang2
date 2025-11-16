@@ -90,6 +90,8 @@ class CrematoriumEquipmentInstance extends Model
             'furnace_1' => '一爐',
             'furnace_2' => '二爐',
             'ventilation' => '抽風',
+            'furnace_1_ventilation' => '一爐抽風',
+            'furnace_2_ventilation' => '二爐抽風',
         ];
 
         return $categories[$this->category] ?? '未知類別';
@@ -100,7 +102,7 @@ class CrematoriumEquipmentInstance extends Model
      */
     public function getSubCategoryTextAttribute()
     {
-        if ($this->category == 'ventilation') {
+        if (in_array($this->category, ['ventilation', 'furnace_1_ventilation', 'furnace_2_ventilation'])) {
             return '';
         }
 

@@ -142,11 +142,16 @@
 
                                         <div class="row mt-2">
                                             <div class="col-md-6">
-                                                <h6 class="text-info">其他</h6>
+                                                <h6 class="text-info">抽風</h6>
                                                 <div class="form-check mb-2">
-                                                    <input class="form-check-input" type="checkbox" name="locations[]" value="ventilation|" id="loc_vent"
-                                                           {{ is_array(old('locations')) && in_array('ventilation|', old('locations')) ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="loc_vent">抽風</label>
+                                                    <input class="form-check-input" type="checkbox" name="locations[]" value="furnace_1_ventilation|" id="loc_v_1"
+                                                           {{ is_array(old('locations')) && in_array('furnace_1_ventilation|', old('locations')) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="loc_v_1">一爐-抽風</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" name="locations[]" value="furnace_2_ventilation|" id="loc_v_2"
+                                                           {{ is_array(old('locations')) && in_array('furnace_2_ventilation|', old('locations')) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="loc_v_2">二爐-抽風</label>
                                                 </div>
                                             </div>
                                         </div>
