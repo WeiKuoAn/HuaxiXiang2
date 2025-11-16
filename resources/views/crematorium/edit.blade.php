@@ -29,7 +29,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <form action="{{ route('crematorium.equipment.update', $equipmentType->id) }}" method="POST">
+                    <form action="{{ route('crematorium.equipment.update', $equipmentType->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -40,6 +40,20 @@
                         
                         <div class="row">
                             <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="image" class="form-label">設備圖片</label>
+                                    <input type="file" class="form-control @error('image') is-invalid @enderror" id="image" name="image" accept="image/*" onchange="previewImage(event)">
+                                    @error('image')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                    <div class="mt-2">
+                                        @if($equipmentType->image_path)
+                                            <img id="image_preview" src="{{ asset('storage/'.$equipmentType->image_path) }}" alt="" style="max-height:120px; border:1px solid #e9ecef; border-radius:4px;">
+                                        @else
+                                            <img id="image_preview" src="#" alt="" style="display:none; max-height:120px; border:1px solid #e9ecef; border-radius:4px;">
+                                        @endif
+                                    </div>
+                                </div>
                                 <div class="mb-3">
                                     <label for="name" class="form-label">設備名稱 <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control @error('name') is-invalid @enderror" 
@@ -192,6 +206,14 @@
 </div> <!-- container -->
 
 <script>
+    function previewImage(e) {
+        const img = document.getElementById('image_preview');
+        const [file] = e.target.files;
+        if (file) {
+            img.src = URL.createObjectURL(file);
+            img.style.display = 'block';
+        }
+    }
     // 切換庫存欄位顯示/隱藏
     function toggleInventoryFields() {
         const checkbox = document.getElementById('exclude_from_inventory');
