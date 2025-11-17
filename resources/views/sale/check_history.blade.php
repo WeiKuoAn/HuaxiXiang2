@@ -129,7 +129,7 @@
                                                     <td align="center">{{ $item->check_user_name->name }}</td>
                                                     <td align="center">
                                                         <a href="javascript:void(0)"
-                                                            onclick="openCheckModal({{ $item->id }}, 'normal')">
+                                                            onclick="openCheckModal({{ $item->id }}, '{{ $item->type_list == 'scrapped' ? 'scrapped' : 'normal' }}')">
                                                             <i class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i>
                                                         </a>
                                                     </td>
@@ -271,6 +271,10 @@
         }
 
         function openCheckModal(saleId, type) {
+            // 更新 modal 標題
+            var modalTitle = type === 'scrapped' ? '報廢單詳情' : '業務詳情';
+            $('#checkModalLabel').text(modalTitle);
+
             // 顯示 modal
             var checkModal = new bootstrap.Modal(document.getElementById('checkModal'));
             checkModal.show();
