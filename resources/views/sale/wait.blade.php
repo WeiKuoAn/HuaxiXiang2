@@ -446,9 +446,6 @@
                         // 關閉 modal
                         bootstrap.Modal.getInstance(document.getElementById('checkModal')).hide();
 
-                        // 顯示成功訊息
-                        alert(response.message || '對帳成功！');
-
                         // 重新載入頁面
                         location.reload();
                     } else {
@@ -583,9 +580,6 @@
                     if (response.success) {
                         // 關閉 modal
                         bootstrap.Modal.getInstance(document.getElementById('payModal')).hide();
-
-                        // 顯示成功訊息
-                        alert(response.message || '操作成功！');
 
                         // 重新載入頁面
                         location.reload();
