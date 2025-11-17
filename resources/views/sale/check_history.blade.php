@@ -127,9 +127,11 @@
                                                     </td>
                                                     <td align="center">{{ number_format($item->pay_price) }}</td>
                                                     <td align="center">{{ $item->check_user_name->name }}</td>
-                                                    <td align="center"><a href="javascript:void(0)"
-                                                            onclick="openCheckWindow('{{ route('sale.check', $item->id) }}')"><i
-                                                                class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i></a>
+                                                    <td align="center">
+                                                        <a href="javascript:void(0)"
+                                                            onclick="openCheckModal({{ $item->id }}, 'normal')">
+                                                            <i class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i>
+                                                        </a>
                                                     </td>
                                                 </tr>
                                         @endforeach
@@ -174,9 +176,8 @@
                                                     <td align="center">{{ $pay_item->comment }}</td>
                                                     <td align="center">
                                                         <a href="javascript:void(0)"
-                                                            onclick="openCheckWindow('{{ route('pay.check', $pay_item->pay_data_id) }}')">
-                                                            <i
-                                                                class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i>
+                                                            onclick="openPayModal({{ $pay_item->pay_data_id }})">
+                                                            <i class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i>
                                                         </a>
                                                     </td>
                                                 </tr>
@@ -209,6 +210,48 @@
         </div>
 
     </div> <!-- container -->
+
+    <!-- 確認對帳 Modal -->
+    <div class="modal fade" id="checkModal" tabindex="-1" role="dialog" aria-labelledby="checkModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="checkModalLabel">業務詳情</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="checkModalBody" style="overflow-y: auto; max-height: calc(80vh);">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">載入中...</span>
+                        </div>
+                        <p class="mt-2">載入中，請稍候...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看支出 Modal -->
+    <div class="modal fade" id="payModal" tabindex="-1" role="dialog" aria-labelledby="payModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="payModalLabel">查看支出Key單</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="payModalBody" style="overflow-y: auto; max-height: calc(80vh);">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">載入中...</span>
+                        </div>
+                        <p class="mt-2">載入中，請稍候...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('script')
@@ -227,23 +270,211 @@
             return true;
         }
 
-        function openCheckWindow(url) {
-            // 開啟新視窗，設定視窗大小和位置
-            var width = 1200;
-            var height = 800;
-            var left = (screen.width - width) / 2;
-            var top = (screen.height - height) / 2;
+        function openCheckModal(saleId, type) {
+            // 顯示 modal
+            var checkModal = new bootstrap.Modal(document.getElementById('checkModal'));
+            checkModal.show();
 
-            var newWindow = window.open(url, '_blank',
-                'width=' + width + ',height=' + height +
-                ',left=' + left + ',top=' + top +
-                ',scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no,status=no'
-            );
+            // 重置 modal 內容為載入中
+            $('#checkModalBody').html(`
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">載入中...</span>
+                    </div>
+                    <p class="mt-2">載入中，請稍候...</p>
+                </div>
+            `);
 
-            // 確保新視窗獲得焦點
-            if (newWindow) {
-                newWindow.focus();
-            }
+            // 發送 Ajax 請求獲取對帳資料
+            var url = type === 'scrapped' ?
+                '{{ route('sale.scrapped.check.ajax', ':id') }}'.replace(':id', saleId) :
+                '{{ route('sale.check.ajax', ':id') }}'.replace(':id', saleId);
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(response) {
+                    // 將返回的 HTML 填入 modal
+                    $('#checkModalBody').html(response);
+
+                    // 重新初始化表單內的 JavaScript（如果需要）
+                    initializeModalForm();
+                },
+                error: function(xhr, status, error) {
+                    $('#checkModalBody').html(`
+                        <div class="alert alert-danger" role="alert">
+                            <h4 class="alert-heading">載入失敗</h4>
+                            <p>無法載入業務詳情，請稍後再試。</p>
+                            <hr>
+                            <p class="mb-0">錯誤訊息：${error}</p>
+                        </div>
+                    `);
+                    console.error('Ajax error:', error);
+                }
+            });
         }
+
+        function initializeModalForm() {
+            // 重新初始化 Select2（如果需要）
+            setTimeout(function() {
+                if ($.fn.select2) {
+                    $('#checkModalBody select.select2').select2({
+                        dropdownParent: $('#checkModal')
+                    });
+                }
+            }, 300);
+        }
+
+        function openPayModal(payId) {
+            // 顯示 modal
+            var payModal = new bootstrap.Modal(document.getElementById('payModal'));
+            payModal.show();
+
+            // 重置 modal 內容為載入中
+            $('#payModalBody').html(`
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">載入中...</span>
+                    </div>
+                    <p class="mt-2">載入中，請稍候...</p>
+                </div>
+            `);
+
+            // 發送 Ajax 請求獲取支出資料
+            var url = '{{ route('pay.check.ajax', ':id') }}'.replace(':id', payId);
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(response) {
+                    // 將返回的 HTML 填入 modal
+                    $('#payModalBody').html(response);
+
+                    // 重新初始化表單內的 JavaScript（如果需要）
+                    initializePayModalForm();
+                },
+                error: function(xhr, status, error) {
+                    $('#payModalBody').html(`
+                        <div class="alert alert-danger" role="alert">
+                            <h4 class="alert-heading">載入失敗</h4>
+                            <p>無法載入支出資料，請稍後再試。</p>
+                            <hr>
+                            <p class="mb-0">錯誤訊息：${error}</p>
+                        </div>
+                    `);
+                    console.error('Ajax error:', error);
+                }
+            });
+        }
+
+        // 初始化支出視窗表單
+        function initializePayModalForm() {
+            // 重新初始化 Select2（如果需要）
+            setTimeout(function() {
+                if ($.fn.select2) {
+                    $('#payModalBody select.select2').select2({
+                        dropdownParent: $('#payModal')
+                    });
+                }
+            }, 300);
+        }
+
+        // 處理 modal 內的表單提交（使用 click 事件而非 submit 事件）
+        $(document).on('click', '#checkModalBody button[type="submit"]', function(e) {
+            e.preventDefault();
+
+            var clickedButton = $(this);
+            var form = clickedButton.closest('form');
+            var formData = new FormData(form[0]);
+
+            // 手動添加被點擊按鈕的 name 和 value
+            if (clickedButton.attr('name')) {
+                formData.append(clickedButton.attr('name'), clickedButton.attr('value'));
+            }
+
+            // 禁用提交按鈕防止重複提交
+            clickedButton.prop('disabled', true);
+
+            $.ajax({
+                url: form.attr('action'),
+                type: form.attr('method'),
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') || form.find('input[name="_token"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // 關閉 modal
+                        bootstrap.Modal.getInstance(document.getElementById('checkModal')).hide();
+
+                        // 重新載入頁面
+                        location.reload();
+                    } else {
+                        alert(response.message || '操作失敗，請稍後再試。');
+                        clickedButton.prop('disabled', false);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var errorMessage = '提交失敗：' + error;
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    alert(errorMessage);
+                    clickedButton.prop('disabled', false);
+                }
+            });
+        });
+
+        // 處理支出 modal 內的表單提交（使用 click 事件而非 submit 事件）
+        $(document).on('click', '#payModalBody button[type="submit"]', function(e) {
+            e.preventDefault();
+
+            var clickedButton = $(this);
+            var form = clickedButton.closest('form');
+            var formData = new FormData(form[0]);
+
+            // 手動添加被點擊按鈕的 name 和 value
+            if (clickedButton.attr('name')) {
+                formData.append(clickedButton.attr('name'), clickedButton.attr('value'));
+            }
+
+            // 禁用提交按鈕防止重複提交
+            clickedButton.prop('disabled', true);
+
+            $.ajax({
+                url: form.attr('action'),
+                type: form.attr('method'),
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') || form.find('input[name="_token"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // 關閉 modal
+                        bootstrap.Modal.getInstance(document.getElementById('payModal')).hide();
+
+                        // 重新載入頁面
+                        location.reload();
+                    } else {
+                        alert(response.message || '操作失敗，請稍後再試。');
+                        clickedButton.prop('disabled', false);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var errorMessage = '提交失敗：' + error;
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    alert(errorMessage);
+                    clickedButton.prop('disabled', false);
+                }
+            });
+        });
     </script>
 @endsection
