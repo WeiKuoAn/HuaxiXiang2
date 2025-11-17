@@ -245,6 +245,25 @@
                         });
                         $hasCreatorInfo = isset($customer->created_at) && (isset($customer->createdBy) || !empty($customer->created_up));
                         $shouldShowCreationRow = $hasCreatorInfo && !$hasCreatedAction;
+                        
+                        // 確保歷史記錄按時間降序排列（最新的在前）
+                        $histories = $histories->sortByDesc('created_at')->values();
+                        
+                        // 如果需要顯示建立記錄，將其加入歷史記錄並重新排序
+                        if ($shouldShowCreationRow) {
+                            $creationRecord = (object)[
+                                'created_at' => $customer->created_at,
+                                'action' => 'created',
+                                'user' => $customer->createdBy ?? null,
+                                'created_up' => $customer->created_up ?? null,
+                                'is_creation' => true
+                            ];
+                            $allHistories = $histories->push($creationRecord)->sortByDesc(function($item) {
+                                return $item->created_at ? $item->created_at->timestamp : 0;
+                            })->values();
+                        } else {
+                            $allHistories = $histories;
+                        }
                     @endphp
                     <div class="table-responsive">
                         <table class="table table-sm align-middle mb-0">
@@ -257,27 +276,27 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if($shouldShowCreationRow)
-                                    <tr>
-                                        <td class="text-muted">
-                                            {{ optional($customer->created_at)->format('Y-m-d H:i') ?? '-' }}
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-secondary">{{ $actionLabels['created'] }}</span>
-                                        </td>
-                                        <td>
-                                            @if(isset($customer->createdBy))
-                                                {{ $customer->createdBy->name }}
-                                            @elseif(!empty($customer->created_up))
-                                                使用者 #{{ $customer->created_up }}
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td class="text-muted">新增客戶資料</td>
-                                    </tr>
-                                @endif
-                                @forelse($histories as $history)
+                                @forelse($allHistories as $history)
+                                    @if(isset($history->is_creation) && $history->is_creation)
+                                        <tr>
+                                            <td class="text-muted">
+                                                {{ optional($history->created_at)->format('Y-m-d H:i') ?? '-' }}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">{{ $actionLabels['created'] }}</span>
+                                            </td>
+                                            <td>
+                                                @if(isset($history->user))
+                                                    {{ $history->user->name }}
+                                                @elseif(!empty($history->created_up))
+                                                    使用者 #{{ $history->created_up }}
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td class="text-muted">新增客戶資料</td>
+                                        </tr>
+                                    @else
                                     <tr>
                                         <td class="text-muted">
                                             {{ $history->created_at ? $history->created_at->format('Y-m-d H:i') : '-' }}
@@ -323,27 +342,26 @@
                                             </ul>
                                         </td>
                                     </tr>
-                                @empty
-                                    @if(!$shouldShowCreationRow)
-                                        <tr>
-                                            <td class="text-muted">
-                                                {{ optional($customer->created_at)->format('Y-m-d H:i') ?? '-' }}
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-secondary">{{ $actionLabels['created'] }}</span>
-                                            </td>
-                                            <td>
-                                                @if(isset($customer->createdBy))
-                                                    {{ $customer->createdBy->name }}
-                                                @elseif(!empty($customer->created_up))
-                                                    使用者 #{{ $customer->created_up }}
-                                                @else
-                                                    -
-                                                @endif
-                                            </td>
-                                            <td class="text-muted">尚無修改紀錄</td>
-                                        </tr>
                                     @endif
+                                @empty
+                                    <tr>
+                                        <td class="text-muted">
+                                            {{ optional($customer->created_at)->format('Y-m-d H:i') ?? '-' }}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ $actionLabels['created'] }}</span>
+                                        </td>
+                                        <td>
+                                            @if(isset($customer->createdBy))
+                                                {{ $customer->createdBy->name }}
+                                            @elseif(!empty($customer->created_up))
+                                                使用者 #{{ $customer->created_up }}
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="text-muted">尚無修改紀錄</td>
+                                    </tr>
                                 @endforelse
                             </tbody>
                         </table>
