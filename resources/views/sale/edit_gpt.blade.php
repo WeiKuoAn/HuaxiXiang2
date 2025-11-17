@@ -1275,7 +1275,23 @@
         // 載入指定類型的客戶
         function loadCustomersByType(type) {
             // 獲取當前已選擇的值
+            // 先嘗試從 Select2 獲取，如果沒有則從原生 select 的 selected 選項獲取
             var currentSelected = $('#source_company_name_q').val();
+            
+            // 如果沒有值，嘗試從初始 HTML 中獲取 selected 的選項值
+            if (!currentSelected) {
+                var selectedOption = $('#source_company_name_q option:selected');
+                if (selectedOption.length > 0 && selectedOption.val()) {
+                    currentSelected = selectedOption.val();
+                }
+            }
+            
+            // 如果還是沒有值，使用 PHP 變數中的值（最可靠的方式）
+            @if (isset($sale_company) && $sale_company->company_id)
+                if (!currentSelected) {
+                    currentSelected = {{ $sale_company->company_id }};
+                }
+            @endif
 
             $.ajax({
                 url: '{{ route('customers.by-type') }}',
@@ -1287,29 +1303,73 @@
                 dataType: 'json',
                 success: function(data) {
                     var customerSelect = $('#source_company_name_q');
+                    
+                    // 如果 Select2 已經初始化，先銷毀它
+                    if (customerSelect.hasClass('select2-hidden-accessible')) {
+                        customerSelect.select2('destroy');
+                    }
+                    
+                    // 清空並填入新的選項
                     customerSelect.empty();
                     customerSelect.html(data.html);
+                    
+                    // 如果有選中的值，設定它
+                    if (currentSelected) {
+                        // 確保選項存在後再設定值
+                        if (customerSelect.find('option[value="' + currentSelected + '"]').length > 0) {
+                            customerSelect.val(currentSelected);
+                        }
+                    }
+                    
+                    // 重新初始化 Select2
+                    customerSelect.select2({
+                        width: '100%',
+                        dropdownParent: customerSelect.parent()
+                    });
+                    
+                    // 如果有選中的值，再次設定並觸發 change 事件，確保 Select2 正確顯示
+                    if (currentSelected && customerSelect.find('option[value="' + currentSelected + '"]').length > 0) {
+                        customerSelect.val(currentSelected).trigger('change');
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.error('載入客戶資料失敗:', error);
                     var customerSelect = $('#source_company_name_q');
+                    
+                    // 如果 Select2 已經初始化，先銷毀它
+                    if (customerSelect.hasClass('select2-hidden-accessible')) {
+                        customerSelect.select2('destroy');
+                    }
+                    
                     customerSelect.empty();
                     customerSelect.append('<option value="">載入失敗，請重試</option>');
+                    
+                    // 重新初始化 Select2
+                    customerSelect.select2({
+                        width: '100%',
+                        dropdownParent: customerSelect.parent()
+                    });
                 }
             });
         }
 
-        var type = $('select[name="type"]').val();
-        if (type == 'H' || type == 'B' || type == 'Salon' || type == 'G' || type == 'dogpark' || type == 'other' || type ==
-            'self') {
-            $("#source_company").show(300);
-            $("#source_company_name_q").prop('required', true);
-            // 載入對應類型的客戶
-            loadCustomersByType(type);
+        // 等待 Select2 初始化完成後再載入資料
+        $(document).ready(function() {
+            // 延遲執行，確保 Select2 已經初始化
+            setTimeout(function() {
+                var type = $('select[name="type"]').val();
+                if (type == 'H' || type == 'B' || type == 'Salon' || type == 'G' || type == 'dogpark' || type == 'other' || type ==
+                    'self') {
+                    $("#source_company").show(300);
+                    $("#source_company_name_q").prop('required', true);
+                    // 載入對應類型的客戶
+                    loadCustomersByType(type);
                 } else {
-            $("#source_company").hide(300);
-            $("#source_company_name_q").prop('required', false);
-        }
+                    $("#source_company").hide(300);
+                    $("#source_company_name_q").prop('required', false);
+                }
+            }, 100);
+        });
 
         $('select[name="type"]').on('change', function() {
             var selectedType = $(this).val();
