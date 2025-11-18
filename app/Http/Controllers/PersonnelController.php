@@ -436,7 +436,14 @@ class PersonnelController extends Controller
             $totalPauseDays = 0;
             foreach ($pauseRecords as $pause) {
                 $pauseStart = Carbon::parse($pause->pause_date);
-                $pauseEnd = $pause->resume_date ? Carbon::parse($pause->resume_date) : $now;
+                
+                // 如果 resume_date 存在且小於等於當前日期，使用 resume_date；否則使用當前日期
+                if ($pause->resume_date) {
+                    $resumeDate = Carbon::parse($pause->resume_date);
+                    $pauseEnd = $resumeDate->lte($now) ? $resumeDate : $now;
+                } else {
+                    $pauseEnd = $now;
+                }
 
                 // 計算暫停期間的天數
                 $pauseDays = $pauseStart->diffInDays($pauseEnd);
@@ -492,7 +499,14 @@ class PersonnelController extends Controller
             $totalPauseDays = 0;
             foreach ($pauseRecords as $pause) {
                 $pauseStart = Carbon::parse($pause->pause_date);
-                $pauseEnd = $pause->resume_date ? Carbon::parse($pause->resume_date) : $now;
+                
+                // 如果 resume_date 存在且小於等於當前日期，使用 resume_date；否則使用當前日期
+                if ($pause->resume_date) {
+                    $resumeDate = Carbon::parse($pause->resume_date);
+                    $pauseEnd = $resumeDate->lte($now) ? $resumeDate : $now;
+                } else {
+                    $pauseEnd = $now;
+                }
 
                 // 計算暫停期間的天數
                 $pauseDays = $pauseStart->diffInDays($pauseEnd);
