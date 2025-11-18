@@ -28,42 +28,51 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="row justify-content-between">
-                        <form class="d-flex flex-wrap align-items-center" action="{{ route('contracts') }}"
-                            method="GET">
-                            <div class="me-1 col-1">
+                    <form action="{{ route('contracts') }}" method="GET">
+                        <div class="row g-3 mb-3">
+                            <!-- 第一行：編號、起始日期、結束日期 -->
+                            <div class="col-md-2">
+                                <label for="number" class="form-label">編號</label>
+                                <input type="text" class="form-control" id="number" name="number"
+                                    value="{{ $request->number }}" placeholder="請輸入編號">
+                            </div>
+                            <div class="col-md-2">
                                 <label for="start_date_start" class="form-label">起始日期</label>
                                 <input type="text" class="form-control date change_cal_date" id="start_date_start"
-                                    name="start_date_start" value="{{ $request->start_date_start }}">
+                                    name="start_date_start" value="{{ $request->start_date_start }}" placeholder="開始">
                             </div>
-                            <div class="me-2 col-1">
-                                <label for="start_date" class="form-label ">&nbsp;</label>
+                            <div class="col-md-2">
+                                <label for="start_date_end" class="form-label">&nbsp;</label>
                                 <input type="text" class="form-control date change_cal_date" id="start_date_end"
-                                    name="start_date_end" value="{{ $request->start_date_end }}">
+                                    name="start_date_end" value="{{ $request->start_date_end }}" placeholder="結束">
                             </div>
-                            <div class="me-2 col-1">
+                            <div class="col-md-2">
                                 <label for="end_date_start" class="form-label">結束日期</label>
                                 <input type="text" class="form-control date change_cal_date" id="end_date_start"
-                                    name="end_date_start" value="{{ $request->end_date_start }}">
+                                    name="end_date_start" value="{{ $request->end_date_start }}" placeholder="開始">
                             </div>
-                            <div class="me-2 col-1">
+                            <div class="col-md-2">
                                 <label for="end_date_end" class="form-label">&nbsp;</label>
                                 <input type="text" class="form-control date change_cal_date" id="end_date_end"
-                                    name="end_date_end" value="{{ $request->end_date_end }}">
+                                    name="end_date_end" value="{{ $request->end_date_end }}" placeholder="結束">
                             </div>
-                            <div class="me-2 col-1">
-                                <label for="before_date" class="form-label">顧客姓名</label>
-                                <input type="search" class="form-control my-1 my-lg-0" id="cust_name" name="cust_name"
-                                    value="{{ $request->cust_name }}">
+                            <div class="col-md-2">
+                                <label for="cust_name" class="form-label">顧客姓名</label>
+                                <input type="search" class="form-control" id="cust_name" name="cust_name"
+                                    value="{{ $request->cust_name }}" placeholder="請輸入顧客姓名">
                             </div>
-                            <div class="me-2 col-1">
-                                <label for="before_date" class="form-label">寶貝姓名</label>
-                                <input type="search" class="form-control my-1 my-lg-0" id="pet_name" name="pet_name"
-                                    value="{{ $request->pet_name }}">
+                        </div>
+
+                        <!-- 第二行：寶貝姓名、合約類別、續約、狀態 -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-2">
+                                <label for="pet_name" class="form-label">寶貝姓名</label>
+                                <input type="search" class="form-control" id="pet_name" name="pet_name"
+                                    value="{{ $request->pet_name }}" placeholder="請輸入寶貝姓名">
                             </div>
-                            <div class="me-sm-2">
+                            <div class="col-md-2">
                                 <label class="form-label">合約類別</label>
-                                <select class="form-select my-1 my-lg-0" id="status-select" name="type"
+                                <select class="form-select" id="status-select" name="type"
                                     onchange="this.form.submit()">
                                     <option value="null" selected>請選擇...</option>
                                     @foreach ($contract_types as $contract_type)
@@ -73,18 +82,18 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="me-sm-2">
+                            <div class="col-md-2">
                                 <label class="form-label">續約</label>
-                                <select class="form-select my-1 my-lg-0" id="status-select" name="check_renew"
+                                <select class="form-select" id="status-select" name="check_renew"
                                     onchange="this.form.submit()">
                                     <option value="" selected>請選擇</option>
                                     <option value="1" @if ($request->check_renew == '1') selected @endif>是</option>
                                     <option value="0" @if ($request->check_renew == '0') selected @endif>否</option>
                                 </select>
                             </div>
-                            <div class="me-sm-2">
+                            <div class="col-md-2">
                                 <label class="form-label">狀態</label>
-                                <select class="form-select my-1 my-lg-0" id="status-select" name="check_close"
+                                <select class="form-select" id="status-select" name="check_close"
                                     onchange="this.form.submit()">
                                     <option value="1" @if ($request->check_close == '1' || !isset($request->check_close)) selected @endif>未結案
                                     </option>
@@ -92,29 +101,23 @@
                                     </option>
                                 </select>
                             </div>
-                            <div class="me-2 mt-3">
-                                <button type="submit" class="btn btn-success waves-effect waves-light me-1"><i
-                                        class="fe-search me-1"></i>搜尋</button>
-                            </div>
-                            <div class="me-2 mt-3">
+                            <div class="col-md-4 d-flex align-items-end gap-2">
+                                <button type="submit" class="btn btn-success waves-effect waves-light">
+                                    <i class="fe-search me-1"></i>搜尋
+                                </button>
                                 <a href="{{ route('contract.export', request()->input()) }}">
-                                    <button type="button" class="btn btn-primary waves-effect waves-light me-1"><i
-                                            class="fe-download me-1"></i>匯出</button>
+                                    <button type="button" class="btn btn-primary waves-effect waves-light">
+                                        <i class="fe-download me-1"></i>匯出
+                                    </button>
+                                </a>
+                                <a href="{{ route('contract.create') }}">
+                                    <button type="button" class="btn btn-danger waves-effect waves-light">
+                                        <i class="mdi mdi-plus-circle me-1"></i>新增合約
+                                    </button>
                                 </a>
                             </div>
-                            <div class="col-auto" style="margin-top: 28px;">
-                                <div class="text-lg-end my-1 my-lg-0">
-                                    {{-- <button type="button" class="btn btn-success waves-effect waves-light me-1"><i class="mdi mdi-cog"></i></button> --}}
-                                    <a href="{{ route('contract.create') }}">
-                                        <button type="button" class="btn btn-danger waves-effect waves-light"
-                                            data-bs-toggle="modal" data-bs-target="#custom-modal"><i
-                                                class="mdi mdi-plus-circle me-1"></i>新增合約</button>
-                                    </a>
-                                </div>
-                            </div><!-- end col-->
-                        </form>
-
-                    </div> <!-- end row -->
+                        </div>
+                    </form>
                 </div>
             </div> <!-- end card -->
         </div> <!-- end col-->

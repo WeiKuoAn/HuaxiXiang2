@@ -67,6 +67,12 @@ class ContractController extends Controller
                 $datas = $datas->where('pet_name','like' ,$pet_name);
             }
 
+            $number = $request->number;
+            if ($number) {
+                $number = $request->number.'%';
+                $datas = $datas->where('number','like' ,$number);
+            }
+
             $type = $request->type;
 
             if ($type != "null") {
