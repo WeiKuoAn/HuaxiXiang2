@@ -87,6 +87,7 @@ use App\Http\Controllers\Rpg33Controller;
 use App\Http\Controllers\Rpg34Controller;
 use App\Http\Controllers\Rpg35Controller;
 use App\Http\Controllers\Rpg36Controller;
+use App\Http\Controllers\Rpg37Controller;
 use App\Http\Controllers\SaleDataController;
 use App\Http\Controllers\SaleDataControllerNew;
 use App\Http\Controllers\SaleSourceController;
@@ -379,6 +380,9 @@ Route::group(['prefix' => '/'], function () {
     // Route::post('/sale/del/{id}', [SaleDataController::class, 'destroy'])->name('sale.data.del');
     // Route::get('/sale/check/{id}', [SaleDataController::class, 'check_show'])->name('sale.check');
     // Route::post('/sale/check/{id}', [SaleDataController::class, 'check_update'])->name('sale.data.check');
+    //gemini
+    Route::get('/sale/create/gemini', [SaleDataControllerNew::class, 'create_gpt_gemini'])->name('sale.create.gemini');
+    Route::get('/sale/create/modern', [SaleDataControllerNew::class, 'create_modern'])->name('sale.create.modern');
     // 業務對帳明細
     Route::get('/sale/check/history', [SaleDataController::class, 'checkHistory'])->name('sales.checkHistory');
     Route::get('/sale/history/{id}', [SaleDataController::class, 'history'])->name('sale.history');
@@ -653,6 +657,8 @@ Route::group(['prefix' => '/'], function () {
         Route::get('/rpg/rpg12/export', [Rpg12Controller::class, 'exportXlsx'])->name('rpg12.export');
         Route::get('/rpg/rpg36', [Rpg36Controller::class, 'rpg36'])->name('rpg36');
         Route::get('/rpg/rpg36/export', [Rpg36Controller::class, 'exportXlsx'])->name('rpg36.export');
+        Route::get('/rpg/rpg37', [Rpg37Controller::class, 'rpg37'])->name('rpg37');
+        Route::get('/rpg/rpg37/detail/{promId}', [Rpg37Controller::class, 'detail'])->name('rpg37.detail');
         Route::get('/rpg/rpg01', [Rpg01Controller::class, 'rpg01'])->name('rpg01');
         Route::get('/rpg/rpg01/detail/{date}/{plan_id}', [Rpg01Controller::class, 'detail'])->name('rpg01.detail');
         Route::get('/rpg/rpg04', [Rpg04Controller::class, 'rpg04'])->name('rpg04');
@@ -720,18 +726,6 @@ Route::group(['prefix' => '/'], function () {
     });
 
      // 火化爐管理路由
-    // 設備圖片路由 - 提供 storage 目錄中的圖片
-    Route::get('/storage/equipment_types/{filename}', function ($filename) {
-        $path = storage_path('app/public/equipment_types/' . $filename);
-        
-        if (!file_exists($path)) {
-            abort(404);
-        }
-        
-        $mimeType = mime_content_type($path);
-        return response()->file($path, ['Content-Type' => $mimeType]);
-    })->where('filename', '.*');
-
      Route::prefix('crematorium')->name('crematorium.')->group(function () {
         // 設備管理（舊版 - 保留用於遷移）
         Route::prefix('equipment')->name('equipment.')->group(function () {
@@ -862,6 +856,8 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/api/banks/{bankCode}/branches', [BankController::class, 'getBranches']);
 
     Route::get('/online-columbarium', [OnlineColumbariumController::class, 'index'])->name('columbarium.index');
+    Route::get('/online-columbarium/data', [OnlineColumbariumController::class, 'getData'])->name('columbarium.getData');
+    Route::get('/online-columbarium/search', [OnlineColumbariumController::class, 'search'])->name('columbarium.search');
 
     // 儲戶
     Route::get('/deregistration', [DeregistrationController::class, 'index'])->name('deregistration.index');
