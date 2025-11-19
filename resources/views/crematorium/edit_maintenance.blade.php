@@ -632,9 +632,9 @@
                                                                     </td>
                                                                     <td class="text-center">
                                                                         @if (!empty($equipment->equipmentType->image_path))
-                                                                            <a href="{{ asset('storage/' . $equipment->equipmentType->image_path) }}"
+                                                                            <a href="{{ Storage::url($equipment->equipmentType->image_path) }}"
                                                                                 target="_blank">
-                                                                                <img src="{{ asset('storage/' . $equipment->equipmentType->image_path) }}"
+                                                                                <img src="{{ Storage::url($equipment->equipmentType->image_path) }}"
                                                                                     alt="{{ $equipment->equipmentType->name }}"
                                                                                     class="equip-thumb">
                                                                             </a>

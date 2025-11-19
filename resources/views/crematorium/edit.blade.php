@@ -48,7 +48,7 @@
                                     @enderror
                                     <div class="mt-2">
                                         @if($equipmentType->image_path)
-                                            <img id="image_preview" src="{{ asset('storage/'.$equipmentType->image_path) }}" alt="" style="max-height:120px; border:1px solid #e9ecef; border-radius:4px;">
+                                            <img id="image_preview" src="{{ Storage::url($equipmentType->image_path) }}" alt="" style="max-height:120px; border:1px solid #e9ecef; border-radius:4px;">
                                         @else
                                             <img id="image_preview" src="#" alt="" style="display:none; max-height:120px; border:1px solid #e9ecef; border-radius:4px;">
                                         @endif
