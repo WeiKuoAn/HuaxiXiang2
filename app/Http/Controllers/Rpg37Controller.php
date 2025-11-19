@@ -408,7 +408,8 @@ class Rpg37Controller extends Controller
      */
     private function getMonthlySourceData($promId, $firstDay, $lastDay)
     {
-        $data = Sale_prom::join('sale_data', 'sale_data.id', '=', 'sale_prom.sale_id')
+        // 使用子查詢來避免 GROUP BY 問題
+        $subQuery = Sale_prom::join('sale_data', 'sale_data.id', '=', 'sale_prom.sale_id')
             ->leftJoin('sale_source', function($join) {
                 $join->on(DB::raw('sale_source.code COLLATE utf8mb4_unicode_ci'), '=', DB::raw('sale_data.type COLLATE utf8mb4_unicode_ci'));
             })
@@ -421,13 +422,19 @@ class Rpg37Controller extends Controller
             ->select(
                 DB::raw('DATE_FORMAT(sale_data.sale_date, "%Y-%m") as month'),
                 DB::raw('IFNULL(sale_source.name, "未知來源") COLLATE utf8mb4_unicode_ci as source'),
-                DB::raw('COUNT(DISTINCT sale_prom.id) as volume'),
-                DB::raw('SUM(sale_prom.prom_total) as revenue')
+                'sale_prom.id',
+                'sale_prom.prom_total'
+            );
+
+        $data = DB::table(DB::raw("({$subQuery->toSql()}) as sub"))
+            ->mergeBindings($subQuery->getQuery())
+            ->select(
+                'month',
+                'source',
+                DB::raw('COUNT(DISTINCT id) as volume'),
+                DB::raw('SUM(prom_total) as revenue')
             )
-            ->groupBy(
-                DB::raw('DATE_FORMAT(sale_data.sale_date, "%Y-%m")'),
-                DB::raw('IFNULL(sale_source.name, "未知來源") COLLATE utf8mb4_unicode_ci')
-            )
+            ->groupBy('month', 'source')
             ->orderBy('month')
             ->get();
 
