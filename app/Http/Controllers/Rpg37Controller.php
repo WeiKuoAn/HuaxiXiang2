@@ -89,7 +89,8 @@ class Rpg37Controller extends Controller
      */
     private function getSourceAnalysis($firstDay, $lastDay)
     {
-        $data = Sale_prom::join('sale_data', 'sale_data.id', '=', 'sale_prom.sale_id')
+        // 使用子查詢來避免 GROUP BY 問題
+        $subQuery = Sale_prom::join('sale_data', 'sale_data.id', '=', 'sale_prom.sale_id')
             ->join('prom', 'prom.id', '=', 'sale_prom.prom_id')
             ->leftJoin('sale_source', function($join) {
                 $join->on(DB::raw('sale_source.code COLLATE utf8mb4_unicode_ci'), '=', DB::raw('sale_data.type COLLATE utf8mb4_unicode_ci'));
@@ -106,14 +107,21 @@ class Rpg37Controller extends Controller
             ->select(
                 DB::raw('IFNULL(sale_source.name, "未知來源") COLLATE utf8mb4_unicode_ci as source'),
                 DB::raw('IFNULL(sale_source.code, "") as source_code'),
-                DB::raw('COUNT(DISTINCT sale_prom.id) as volume'),
-                DB::raw('SUM(sale_prom.prom_total) as revenue'),
-                DB::raw('SUM(sale_prom.prom_total - COALESCE(product.cost, 0)) as profit')
+                'sale_prom.id',
+                'sale_prom.prom_total',
+                DB::raw('COALESCE(product.cost, 0) as cost')
+            );
+
+        $data = DB::table(DB::raw("({$subQuery->toSql()}) as sub"))
+            ->mergeBindings($subQuery->getQuery())
+            ->select(
+                'source',
+                'source_code',
+                DB::raw('COUNT(DISTINCT id) as volume'),
+                DB::raw('SUM(prom_total) as revenue'),
+                DB::raw('SUM(prom_total - cost) as profit')
             )
-            ->groupBy(
-                DB::raw('IFNULL(sale_source.name, "未知來源") COLLATE utf8mb4_unicode_ci'),
-                DB::raw('IFNULL(sale_source.code, "")')
-            )
+            ->groupBy('source', 'source_code')
             ->get();
 
         return $data;
