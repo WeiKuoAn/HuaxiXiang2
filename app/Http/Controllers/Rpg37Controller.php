@@ -105,12 +105,15 @@ class Rpg37Controller extends Controller
             ->where('sale_data.type', '!=', '')
             ->select(
                 DB::raw('IFNULL(sale_source.name, "未知來源") COLLATE utf8mb4_unicode_ci as source'),
-                'sale_source.code as source_code',
+                DB::raw('IFNULL(sale_source.code, "") as source_code'),
                 DB::raw('COUNT(DISTINCT sale_prom.id) as volume'),
                 DB::raw('SUM(sale_prom.prom_total) as revenue'),
                 DB::raw('SUM(sale_prom.prom_total - COALESCE(product.cost, 0)) as profit')
             )
-            ->groupBy(DB::raw('IFNULL(sale_source.name, "未知來源") COLLATE utf8mb4_unicode_ci'), 'sale_source.code')
+            ->groupBy(
+                DB::raw('IFNULL(sale_source.name, "未知來源") COLLATE utf8mb4_unicode_ci'),
+                DB::raw('IFNULL(sale_source.code, "")')
+            )
             ->get();
 
         return $data;
@@ -413,7 +416,10 @@ class Rpg37Controller extends Controller
                 DB::raw('COUNT(DISTINCT sale_prom.id) as volume'),
                 DB::raw('SUM(sale_prom.prom_total) as revenue')
             )
-            ->groupBy('month', DB::raw('IFNULL(sale_source.name, "未知來源") COLLATE utf8mb4_unicode_ci'))
+            ->groupBy(
+                DB::raw('DATE_FORMAT(sale_data.sale_date, "%Y-%m")'),
+                DB::raw('IFNULL(sale_source.name, "未知來源") COLLATE utf8mb4_unicode_ci')
+            )
             ->orderBy('month')
             ->get();
 
