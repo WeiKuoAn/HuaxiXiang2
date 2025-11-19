@@ -70,8 +70,18 @@ class CrematoriumEquipmentController extends Controller
 
         // 圖片處理
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('equipment_types', 'public');
-            $data['image_path'] = $path;
+            $file = $request->file('image');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $destinationPath = public_path('assets/uploads/equipment_types');
+            
+            // 如果目錄不存在，則建立目錄
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0777, true);
+            }
+            
+            // 將檔案移動到指定目錄
+            $file->move($destinationPath, $fileName);
+            $data['image_path'] = 'assets/uploads/equipment_types/' . $fileName;
         }
 
         // 創建設備類型
@@ -150,8 +160,23 @@ class CrematoriumEquipmentController extends Controller
         
         // 圖片處理（若有上傳則更新）
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('equipment_types', 'public');
-            $data['image_path'] = $path;
+            $file = $request->file('image');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $destinationPath = public_path('assets/uploads/equipment_types');
+            
+            // 如果目錄不存在，則建立目錄
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0777, true);
+            }
+            
+            // 刪除舊圖片（如果存在）
+            if ($equipmentType->image_path && file_exists(public_path($equipmentType->image_path))) {
+                @unlink(public_path($equipmentType->image_path));
+            }
+            
+            // 將檔案移動到指定目錄
+            $file->move($destinationPath, $fileName);
+            $data['image_path'] = 'assets/uploads/equipment_types/' . $fileName;
         }
         
         $equipmentType->update($data);

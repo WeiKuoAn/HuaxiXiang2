@@ -99,7 +99,7 @@
                                             @endif
                                             @if($type->image_path)
                                                 <div class="mt-1">
-                                                    <img src="{{ Storage::url($type->image_path) }}" alt="{{ $type->name }}" style="max-height:60px; border:1px solid #e9ecef; border-radius:4px;">
+                                                    <img src="{{ str_starts_with($type->image_path, 'assets/') ? asset($type->image_path) : Storage::url($type->image_path) }}" alt="{{ $type->name }}" style="max-height:60px; border:1px solid #e9ecef; border-radius:4px;">
                                                 </div>
                                             @endif
                                             @if($type->description)

@@ -632,9 +632,12 @@
                                                                     </td>
                                                                     <td class="text-center">
                                                                         @if (!empty($equipment->equipmentType->image_path))
-                                                                            <a href="{{ Storage::url($equipment->equipmentType->image_path) }}"
+                                                                            @php
+                                                                                $imageUrl = str_starts_with($equipment->equipmentType->image_path, 'assets/') ? asset($equipment->equipmentType->image_path) : Storage::url($equipment->equipmentType->image_path);
+                                                                            @endphp
+                                                                            <a href="{{ $imageUrl }}"
                                                                                 target="_blank">
-                                                                                <img src="{{ Storage::url($equipment->equipmentType->image_path) }}"
+                                                                                <img src="{{ $imageUrl }}"
                                                                                     alt="{{ $equipment->equipmentType->name }}"
                                                                                     class="equip-thumb">
                                                                             </a>
@@ -1132,5 +1135,8 @@
                 }
             });
         });
+    </script>
+@endsection
+
     </script>
 @endsection
