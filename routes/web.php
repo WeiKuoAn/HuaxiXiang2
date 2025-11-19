@@ -720,6 +720,18 @@ Route::group(['prefix' => '/'], function () {
     });
 
      // 火化爐管理路由
+    // 設備圖片路由 - 提供 storage 目錄中的圖片
+    Route::get('/storage/equipment_types/{filename}', function ($filename) {
+        $path = storage_path('app/public/equipment_types/' . $filename);
+        
+        if (!file_exists($path)) {
+            abort(404);
+        }
+        
+        $mimeType = mime_content_type($path);
+        return response()->file($path, ['Content-Type' => $mimeType]);
+    })->where('filename', '.*');
+
      Route::prefix('crematorium')->name('crematorium.')->group(function () {
         // 設備管理（舊版 - 保留用於遷移）
         Route::prefix('equipment')->name('equipment.')->group(function () {
