@@ -121,7 +121,8 @@
                                             <option value="{{ $equipmentType->id }}"
                                                     {{ $item->equipment_type_id == $equipmentType->id ? 'selected' : '' }}
                                                     data-stock-new="{{ $equipmentType->stock_new ?? 0 }}"
-                                                    data-stock-usable="{{ $equipmentType->stock_usable ?? 0 }}">
+                                                    data-stock-usable="{{ $equipmentType->stock_usable ?? 0 }}"
+                                                    data-cost-price="{{ $equipmentType->cost_price ?? 0 }}">
                                                 {{ $equipmentType->name }}
                                             </option>
                                             @endforeach
@@ -213,7 +214,8 @@ $(document).ready(function() {
                             @foreach($equipmentTypes as $equipmentType)
                             <option value="{{ $equipmentType->id }}"
                                     data-stock-new="{{ $equipmentType->stock_new ?? 0 }}"
-                                    data-stock-usable="{{ $equipmentType->stock_usable ?? 0 }}">
+                                    data-stock-usable="{{ $equipmentType->stock_usable ?? 0 }}"
+                                    data-cost-price="{{ $equipmentType->cost_price ?? 0 }}">
                                 {{ $equipmentType->name }}
                             </option>
                             @endforeach
@@ -266,20 +268,41 @@ $(document).ready(function() {
         }
     });
 
-    // 設備選擇時顯示庫存
+    // 設備選擇時顯示庫存並自動填入成本價格
     $(document).on('change', '.equipment-select', function() {
         const selectedOption = $(this).find('option:selected');
         const stockNew = selectedOption.data('stock-new');
         const stockUsable = selectedOption.data('stock-usable');
+        const costPrice = selectedOption.data('cost-price');
         const stockInfo = $(this).siblings('.stock-info');
+        const row = $(this).closest('.item-row');
+        const unitPriceInput = row.find('.unit-price-input');
         
         if (selectedOption.val()) {
             stockInfo.html(
                 '<i class="mdi mdi-information-outline"></i> ' +
                 '目前庫存：全新 <strong>' + stockNew + '</strong> / 堪用 <strong>' + stockUsable + '</strong>'
             );
+            
+            // 自動填入成本價格到單價欄位（如果單價欄位為空）
+            if (costPrice && costPrice > 0 && (!unitPriceInput.val() || unitPriceInput.val() == 0)) {
+                // 如果是整數就不顯示小數點
+                const price = parseFloat(costPrice);
+                unitPriceInput.val(price % 1 === 0 ? price : price.toFixed(2));
+                // 觸發計算小計
+                unitPriceInput.trigger('input');
+            }
         } else {
             stockInfo.html('');
+        }
+    });
+
+    // 格式化單價顯示（整數不顯示小數點）
+    $(document).on('blur', '.unit-price-input', function() {
+        const value = parseFloat($(this).val());
+        if (!isNaN(value) && value >= 0) {
+            // 如果是整數就不顯示小數點
+            $(this).val(value % 1 === 0 ? value : value.toFixed(2));
         }
     });
 
@@ -309,15 +332,24 @@ $(document).ready(function() {
     $('.equipment-select').each(function() {
         $(this).trigger('change');
     });
+    
+    // 格式化現有的單價欄位（整數不顯示小數點）
+    $('.unit-price-input').each(function() {
+        const value = parseFloat($(this).val());
+        if (!isNaN(value) && value >= 0) {
+            $(this).val(value % 1 === 0 ? value : value.toFixed(2));
+        }
+    });
+    
     $('.item-row').each(function() {
         const row = $(this);
         const quantity = parseFloat(row.find('.quantity-input').val()) || 0;
-            const unitPrice = parseFloat(row.find('.unit-price-input').val()) || 0;
-            const subtotal = quantity * unitPrice;
-            row.find('.subtotal-display').val(subtotal.toFixed(0));
-        });
+        const unitPrice = parseFloat(row.find('.unit-price-input').val()) || 0;
+        const subtotal = quantity * unitPrice;
+        row.find('.subtotal-display').val(subtotal.toFixed(0));
+    });
         
-        calculateGrandTotal();
+    calculateGrandTotal();
 });
 </script>
 @endsection

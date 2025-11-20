@@ -84,6 +84,7 @@
                                     <th>設備名稱</th>
                                     <th>配置位置</th>
                                     <th>庫存狀態</th>
+                                    <th>成本價格</th>
                                     <th>使用中/故障</th>
                                     <th>動作</th>
                                 </tr>
@@ -135,6 +136,13 @@
                                             @endif
                                         </td>
                                         <td>
+                                            @if($type->cost_price)
+                                                <span class="text-primary fw-bold">${{ number_format($type->cost_price, 0) }}</span>
+                                            @else
+                                                <span class="text-muted">—</span>
+                                            @endif
+                                        </td>
+                                        <td>
                                             <div class="d-flex align-items-center gap-1">
                                                 <span class="badge bg-light text-dark">使用中： {{ $type->active_count }}</span>
                                                 @if($type->broken_count > 0)
@@ -161,7 +169,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="text-center text-muted">暫無設備類型資料</td>
+                                        <td colspan="7" class="text-center text-muted">暫無設備類型資料</td>
                                     </tr>
                                 @endforelse
                             </tbody>

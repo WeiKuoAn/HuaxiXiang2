@@ -80,7 +80,7 @@
                             </div>
 
                             <div class="row" id="inventory_fields">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <div class="mb-3">
                                         <label for="stock_new" class="form-label">全新庫存</label>
                                         <input type="number" class="form-control @error('stock_new') is-invalid @enderror"
@@ -91,7 +91,7 @@
                                         @enderror
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <div class="mb-3">
                                         <label for="stock_usable" class="form-label">堪用庫存</label>
                                         <input type="number" class="form-control @error('stock_usable') is-invalid @enderror"
@@ -102,11 +102,22 @@
                                         @enderror
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <div class="mb-3">
                                         <label class="form-label">總庫存</label>
                                         <input type="text" class="form-control bg-light" id="stock_total" value="0" readonly>
                                         <small class="text-muted">全新 + 堪用</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="cost_price" class="form-label">成本價格</label>
+                                        <input type="number" class="form-control @error('cost_price') is-invalid @enderror"
+                                            id="cost_price" name="cost_price" value="{{ old('cost_price') }}" min="0" step="0.01">
+                                        @error('cost_price')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <small class="text-muted">進貨時會自動帶入此價格</small>
                                     </div>
                                 </div>
                             </div>
