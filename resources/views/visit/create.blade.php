@@ -77,7 +77,6 @@
                                                 <label class="form-label">拜訪專員<span class="text-danger">*</span></label>
                                                 <input type="text" class="form-control" value="{{ Auth::user()->name }}" readonly>
                                                 <input type="hidden" name="user_id" id="visit_user_id" value="{{ Auth::user()->id }}">
-                                                <small class="text-muted">拜訪專員固定為當前登入者</small>
                                             </div>
                                         </div>
                                     </div>
