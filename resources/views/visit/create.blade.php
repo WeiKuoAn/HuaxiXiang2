@@ -1,101 +1,294 @@
-@extends('layouts.vertical', ["page_title"=> "新增拜訪紀錄"])
+@extends('layouts.vertical', ['page_title' => '新增拜訪紀錄'])
 
 @section('css')
-<!-- third party css -->
-<link href="{{asset('assets/libs/dropzone/dropzone.min.css')}}" rel="stylesheet" type="text/css" />
-<link href="{{asset('assets/libs/select2/select2.min.css')}}" rel="stylesheet" type="text/css" />
-<link href="{{asset('assets/libs/flatpickr/flatpickr.min.css')}}" rel="stylesheet" type="text/css" />
-<!-- third party css end -->
+    <!-- third party css -->
+    <link href="{{ asset('assets/libs/dropzone/dropzone.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/libs/select2/select2.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/libs/flatpickr/flatpickr.min.css') }}" rel="stylesheet" type="text/css" />
+    <!-- third party css end -->
 @endsection
 
 @section('content')
-<!-- Start Content-->
-<div class="container-fluid">
+    <!-- Start Content-->
+    <div class="container-fluid">
 
-    <!-- start page title -->
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box">
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">拜訪管理</a></li>
-                        <li class="breadcrumb-item active">新增拜訪紀錄</li>
-                    </ol>
+        <!-- start page title -->
+        <div class="row">
+            <div class="col-12">
+                <div class="page-title-box">
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
+                            <li class="breadcrumb-item"><a href="javascript: void(0);">拜訪管理</a></li>
+                            <li class="breadcrumb-item active">新增拜訪紀錄</li>
+                        </ol>
+                    </div>
+                    <h4 class="page-title">新增拜訪紀錄</h4>
                 </div>
-                <h4 class="page-title">新增拜訪紀錄</h4>
             </div>
         </div>
-    </div>
-    <!-- end page title -->
+        <!-- end page title -->
 
-    <div class="row">
-        <div class="col-xl-6">
-            <div class="card">
-                <div class="card-body">
-                    <form action="{{ route('visit.create.data',$customer->id) }}" method="POST">
-                    @csrf
-                    <div class="row">
-                        <div class="col-xl-12">
-                            <div class="mb-3">
-                                <div class="mb-3">
-                                   <label class="form-label">客戶名稱<span class="text-danger">*</span></label>
-                                   <input type="text" class="form-control" name="name" value="{{ $customer->name }}" required>
-                                   <input type="hidden" class="form-control" name="customer_id" value="{{ $customer->id }}" required>
-                               </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="mb-3">
-                                   <label class="form-label">拜訪日期<span class="text-danger">*</span></label>
-                                   <input type="date" class="form-control" name="date" value="" required>
-                               </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="mb-3">
-                                   <label class="form-label">拜訪紀錄<span class="text-danger">*</span></label>
-                                   <textarea class="form-control" rows="5" placeholder="" name="comment" required></textarea>
-                               </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="mb-3">
-                                   <label class="form-label">拜訪專員<span class="text-danger">*</span></label>
-                                   <input type="text" class="form-control" value="{{ Auth::user()->name }}" readonly required>
-                               </div>
-                            </div>
-                            
-                        </div> <!-- end col-->
-                        
-                    </div>
-                    <!-- end row -->
+        <div class="row">
+            <div class="col-xl-6">
+                <div class="card">
+                    <div class="card-body">
+                        <form action="{{ route('visit.create.data', $customer->id) }}" method="POST" id="visitForm" onsubmit="return validateForm(event)">
+                            @csrf
+                            <div class="row">
+                                <div class="col-xl-12">
+                                    <div class="mb-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">客戶名稱<span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" name="name"
+                                                value="{{ $customer->name }}" required>
+                                            <input type="hidden" class="form-control" name="customer_id"
+                                                value="{{ $customer->id }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">拜訪日期<span class="text-danger">*</span></label>
+                                            <input type="date" class="form-control" name="date" value=""
+                                                required>
+                                        </div>
+                                    </div>
+                                     <div class="mb-3">
+                                         <div class="mb-3">
+                                             <label class="form-label">拜訪類別<span class="text-danger">*</span></label>
+                                             <select class="form-select" id="visit_type" name="visit_type" required onchange="toggleVisitTypeFields()">
+                                                 <option value="">請選擇拜訪類別</option>
+                                                 <option value="visit" selected>拜訪</option>
+                                                 <option value="supply">補給</option>
+                                             </select>
+                                         </div>
+                                     </div>
+
+                                    <!-- 拜訪類別欄位 -->
+                                    <div id="visit_fields">
+                                        <div class="mb-3">
+                                            <div class="mb-3">
+                                                <label class="form-label">拜訪紀錄<span class="text-danger">*</span></label>
+                                                <textarea class="form-control" rows="5" placeholder="" name="comment" id="visit_comment"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="mb-3">
+                                                <label class="form-label">拜訪專員<span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" value="{{ Auth::user()->name }}" readonly>
+                                                <input type="hidden" name="user_id" id="visit_user_id" value="{{ Auth::user()->id }}">
+                                                <small class="text-muted">拜訪專員固定為當前登入者</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                     <!-- 補給類別欄位 -->
+                                     <div id="supply_fields" style="display: none;">
+                                         <div class="mb-3">
+                                             <label class="form-label">需要補充的項目：<span class="text-danger">*</span></label>
+                                             
+                                             <div class="row mb-2">
+                                                 <div class="col-md-6">
+                                                     <div class="input-group">
+                                                         <span class="input-group-text">大箱</span>
+                                                         <input type="number" class="form-control supplement-quantity" 
+                                                                id="supplement_box_large_qty" name="supplement_quantities[大箱]" 
+                                                                min="0" value="0" placeholder="數量">
+                                                     </div>
+                                                 </div>
+                                                 <div class="col-md-6">
+                                                     <div class="input-group">
+                                                         <span class="input-group-text">小箱</span>
+                                                         <input type="number" class="form-control supplement-quantity" 
+                                                                id="supplement_box_small_qty" name="supplement_quantities[小箱]" 
+                                                                min="0" value="0" placeholder="數量">
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                             
+                                             <div class="row mb-2">
+                                                 <div class="col-md-6">
+                                                     <div class="input-group">
+                                                         <span class="input-group-text">迷你箱</span>
+                                                         <input type="number" class="form-control supplement-quantity" 
+                                                                id="supplement_box_mini_qty" name="supplement_quantities[迷你箱]" 
+                                                                min="0" value="0" placeholder="數量">
+                                                     </div>
+                                                 </div>
+                                                 <div class="col-md-6">
+                                                     <div class="input-group">
+                                                         <span class="input-group-text">DM</span>
+                                                         <input type="number" class="form-control supplement-quantity" 
+                                                                id="supplement_dm_qty" name="supplement_quantities[DM]" 
+                                                                min="0" value="0" placeholder="數量">
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                         <div class="mb-3">
+                                             <label class="form-label">誰補<span class="text-danger">*</span></label>
+                                             <select class="form-select" id="supplement_by" name="supplement_by">
+                                                 <option value="">請選擇人員</option>
+                                                 @if (isset($users))
+                                                     @foreach ($users as $user)
+                                                         <option value="{{ $user->id }}">{{ $user->name }}
+                                                         </option>
+                                                     @endforeach
+                                                 @else
+                                                     <option value="{{ Auth::user()->id }}">{{ Auth::user()->name }}
+                                                     </option>
+                                                 @endif
+                                             </select>
+                                         </div>
+                                     </div>
 
 
-                    <div class="row mt-3">
-                        <div class="col-12 text-center">
-                            <button type="submit" class="btn btn-success waves-effect waves-light m-1"><i class="fe-check-circle me-1"></i>新增</button>
-                            <button type="reset" class="btn btn-secondary waves-effect waves-light m-1" onclick="history.go(-1)"><i class="fe-x me-1"></i>回上一頁</button>
-                        </div>
-                    </div>
-                  </form>
-                </div> <!-- end card-body -->
-            </div> <!-- end card-->
-        </div> <!-- end col-->
-    </div>
-    <!-- end row-->
+                                </div> <!-- end col-->
 
-</div> <!-- container -->
+                            </div>
+                            <!-- end row -->
+
+
+                            <div class="row mt-3">
+                                <div class="col-12 text-center">
+                                    <button type="submit" class="btn btn-success waves-effect waves-light m-1"><i
+                                            class="fe-check-circle me-1"></i>新增</button>
+                                    <button type="reset" class="btn btn-secondary waves-effect waves-light m-1"
+                                        onclick="history.go(-1)"><i class="fe-x me-1"></i>回上一頁</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div> <!-- end card-body -->
+                </div> <!-- end card-->
+            </div> <!-- end col-->
+        </div>
+        <!-- end row-->
+
+    </div> <!-- container -->
 @endsection
 
 @section('script')
-<!-- third party js -->
+    <!-- third party js -->
 
-<script src="{{ asset('assets/js/twzipcode-1.4.1-min.js') }}"></script>
-<script src="{{ asset('assets/js/twzipcode.js') }}"></script>
-<script src="{{asset('assets/libs/dropzone/dropzone.min.js')}}"></script>
-<script src="{{asset('assets/libs/select2/select2.min.js')}}"></script>
-<script src="{{asset('assets/libs/flatpickr/flatpickr.min.js')}}"></script>
-<!-- third party js ends -->
+    <script src="{{ asset('assets/js/twzipcode-1.4.1-min.js') }}"></script>
+    <script src="{{ asset('assets/js/twzipcode.js') }}"></script>
+    <script src="{{ asset('assets/libs/dropzone/dropzone.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/select2/select2.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/flatpickr/flatpickr.min.js') }}"></script>
+    <!-- third party js ends -->
 
-<!-- demo app -->
-<script src="{{asset('assets/js/pages/create-project.init.js')}}"></script>
-<!-- end demo js-->
+    <!-- demo app -->
+    <script src="{{ asset('assets/js/pages/create-project.init.js') }}"></script>
+    <!-- end demo js-->
+
+     <script>
+         function toggleVisitTypeFields() {
+             const visitType = document.getElementById('visit_type').value;
+             const visitFields = document.getElementById('visit_fields');
+             const supplyFields = document.getElementById('supply_fields');
+             const visitComment = document.getElementById('visit_comment');
+             const visitUserId = document.getElementById('visit_user_id');
+             const supplementBox = document.getElementById('supplement_box');
+             const supplementDm = document.getElementById('supplement_dm');
+             const supplementBy = document.getElementById('supplement_by');
+
+             if (visitType === 'visit') {
+                 // 顯示拜訪欄位
+                 visitFields.style.display = 'block';
+                 visitComment.required = true;
+                 visitUserId.required = true;
+                 
+                 // 隱藏補給欄位
+                 supplyFields.style.display = 'none';
+                 supplementBox.required = false;
+                 supplementDm.required = false;
+                 supplementBy.required = false;
+                 supplementBox.checked = false;
+                 supplementDm.checked = false;
+                 supplementBy.value = '';
+             } else if (visitType === 'supply') {
+                 // 顯示補給欄位
+                 supplyFields.style.display = 'block';
+                 
+                 // 隱藏拜訪欄位
+                 visitFields.style.display = 'none';
+                 visitComment.required = false;
+                 visitUserId.required = false;
+                 visitComment.value = '';
+                 visitUserId.value = '';
+                 
+                 // 補給欄位的必填驗證（至少選一個項目）
+                 supplementBy.required = true;
+             } else {
+                 // 未選擇時隱藏所有欄位
+                 visitFields.style.display = 'none';
+                 supplyFields.style.display = 'none';
+                 visitComment.required = false;
+                 visitUserId.required = false;
+                 supplementBox.required = false;
+                 supplementDm.required = false;
+                 supplementBy.required = false;
+             }
+         }
+
+         // 驗證表單函數
+         function validateForm(event) {
+             const visitType = document.getElementById('visit_type');
+             if (!visitType) return true;
+             
+             const visitTypeValue = visitType.value;
+             if (visitTypeValue === 'supply') {
+                 const quantities = document.querySelectorAll('.supplement-quantity');
+                 let hasQuantity = false;
+                 let totalQuantity = 0;
+                 
+                 quantities.forEach(function(input) {
+                     const qty = parseInt(input.value) || 0;
+                     totalQuantity += qty;
+                     if (qty > 0) {
+                         hasQuantity = true;
+                     }
+                 });
+                 
+                 if (!hasQuantity || totalQuantity === 0) {
+                     event.preventDefault();
+                     event.stopPropagation();
+                     
+                     alert('請至少輸入一個需要補充的項目數量！所有數量不能都是 0！');
+                     
+                     // 高亮顯示所有數量輸入欄位
+                     quantities.forEach(function(input) {
+                         input.style.borderColor = '#dc3545';
+                         input.style.backgroundColor = '#fff5f5';
+                         input.classList.add('is-invalid');
+                         
+                         // 移除高亮（當用戶開始輸入時）
+                         const removeHighlight = function() {
+                             this.style.borderColor = '';
+                             this.style.backgroundColor = '';
+                             this.classList.remove('is-invalid');
+                         };
+                         input.addEventListener('input', removeHighlight, { once: true });
+                         input.addEventListener('change', removeHighlight, { once: true });
+                     });
+                     
+                     // 滾動到第一個數量輸入欄位
+                     if (quantities.length > 0) {
+                         quantities[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                         setTimeout(function() {
+                             quantities[0].focus();
+                         }, 100);
+                     }
+                     
+                     return false;
+                 }
+             }
+             return true;
+         }
+
+         // 頁面載入時初始化
+         document.addEventListener('DOMContentLoaded', function() {
+             toggleVisitTypeFields();
+         });
+     </script>
 @endsection

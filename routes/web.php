@@ -90,6 +90,7 @@ use App\Http\Controllers\Rpg36Controller;
 use App\Http\Controllers\Rpg37Controller;
 use App\Http\Controllers\SaleDataController;
 use App\Http\Controllers\SaleDataControllerNew;
+use App\Http\Controllers\SaleDataGeminiController;
 use App\Http\Controllers\SaleSourceController;
 use App\Http\Controllers\ScrappedController;
 use App\Http\Controllers\SeniorityPausesController;
@@ -381,7 +382,7 @@ Route::group(['prefix' => '/'], function () {
     // Route::get('/sale/check/{id}', [SaleDataController::class, 'check_show'])->name('sale.check');
     // Route::post('/sale/check/{id}', [SaleDataController::class, 'check_update'])->name('sale.data.check');
     //gemini
-    Route::get('/sale/create/gemini', [SaleDataControllerNew::class, 'create_gpt_gemini'])->name('sale.create.gemini');
+    Route::get('/sale/create/gemini', [SaleDataGeminiController::class, 'create_gpt_gemini'])->name('sale.create.gemini');
     Route::get('/sale/create/modern', [SaleDataControllerNew::class, 'create_modern'])->name('sale.create.modern');
     // 業務對帳明細
     Route::get('/sale/check/history', [SaleDataController::class, 'checkHistory'])->name('sales.checkHistory');

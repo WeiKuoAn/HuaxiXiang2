@@ -55,7 +55,8 @@ class VisitController extends Controller
 
     public function index(Request $request, $id)
     {
-        $datas = Visit::where('customer_id', $id);
+        $datas = Visit::where('customer_id', $id)
+            ->with(['user_name', 'supplement_by_user']);
         if (isset($request)) {
             $after_date = $request->after_date;
             if ($after_date) {
@@ -79,7 +80,8 @@ class VisitController extends Controller
     public function create(Request $request, $id)
     {
         $customer = Customer::where('id', $id)->first();
-        return view('visit.create')->with('customer', $customer);
+        $users = User::where('status', '0')->orderBy('name')->get();
+        return view('visit.create')->with('customer', $customer)->with('users', $users);
     }
 
     public function store(Request $request, $id)
@@ -88,8 +90,37 @@ class VisitController extends Controller
         $data = new Visit;
         $data->customer_id = $request->customer_id;
         $data->date = $request->date;
-        $data->comment = $request->comment;
-        $data->user_id = Auth::user()->id;
+        $data->visit_type = $request->visit_type ?? 'visit';
+        
+        // 根據拜訪類別處理不同欄位
+        if ($request->visit_type === 'supply') {
+            // 補給類別：處理補充項目和數量
+            $supplementQuantities = $request->supplement_quantities ?? [];
+            // 過濾掉數量為0或空的項目，只保留有數量的項目
+            $supplementItems = [];
+            $supplementTextParts = [];
+            foreach ($supplementQuantities as $item => $quantity) {
+                if (!empty($quantity) && $quantity > 0) {
+                    $qty = (int)$quantity;
+                    $supplementItems[$item] = $qty;
+                    $supplementTextParts[] = $qty . '個' . $item;
+                }
+            }
+            $data->supplement_items = !empty($supplementItems) ? $supplementItems : null;
+            // 補給類別：「誰補」填入 supplement_by 欄位
+            $data->supplement_by = $request->supplement_by;
+            $data->user_id = null; // 補給類別不需要拜訪專員
+            // 生成補給文字描述：補給5個大箱、3個小箱、10個DM
+            // 確保 comment 不為 null（資料庫欄位不允許 null）
+            $data->comment = !empty($supplementTextParts) ? '補給' . implode('、', $supplementTextParts) : '補給';
+        } else {
+            // 拜訪類別：處理拜訪紀錄和拜訪專員
+            $data->comment = $request->comment ?? ''; // 確保不為 null
+            $data->user_id = $request->user_id ?? Auth::user()->id;
+            $data->supplement_items = null;
+            $data->supplement_by = null;
+        }
+        
         $data->save();
         return redirect()->route('visits', $id)->with('customer', $customer);
     }
@@ -97,8 +128,11 @@ class VisitController extends Controller
     public function show(Request $request, $cust_id, $id)
     {
         $customer = Customer::where('id', $cust_id)->first();
-        $data = Visit::where('customer_id', $cust_id)->where('id', $id)->first();
-        return view('visit.edit')->with('customer', $customer)->with('data', $data);
+        $data = Visit::where('customer_id', $cust_id)->where('id', $id)
+            ->with(['user_name', 'supplement_by_user'])
+            ->first();
+        $users = User::where('status', '0')->orderBy('name')->get();
+        return view('visit.edit')->with('customer', $customer)->with('data', $data)->with('users', $users);
     }
 
     public function update(Request $request, $cust_id, $id)
@@ -109,7 +143,38 @@ class VisitController extends Controller
         // dd($data);
         $data->customer_id = $request->customer_id;
         $data->date = $request->date;
-        $data->comment = $request->comment;
+        $data->visit_type = $request->visit_type ?? 'visit';
+        
+        // 根據拜訪類別處理不同欄位
+        if ($request->visit_type === 'supply') {
+            // 補給類別：處理補充項目和數量
+            $supplementQuantities = $request->supplement_quantities ?? [];
+            // 過濾掉數量為0或空的項目，只保留有數量的項目
+            $supplementItems = [];
+            $supplementTextParts = [];
+            foreach ($supplementQuantities as $item => $quantity) {
+                if (!empty($quantity) && $quantity > 0) {
+                    $qty = (int)$quantity;
+                    $supplementItems[$item] = $qty;
+                    $supplementTextParts[] = $qty . '個' . $item;
+                }
+            }
+            $data->supplement_items = !empty($supplementItems) ? $supplementItems : null;
+            $data->supplement_by = $request->supplement_by;
+            // 生成補給文字描述：補給5個大箱、3個小箱、10個DM
+            // 確保 comment 不為 null（資料庫欄位不允許 null）
+            $data->comment = !empty($supplementTextParts) ? '補給' . implode('、', $supplementTextParts) : '補給';
+            $data->user_id = null; // 補給類別不需要拜訪專員
+        } else {
+            // 拜訪類別：處理拜訪紀錄和拜訪專員
+            $data->comment = $request->comment ?? ''; // 確保不為 null
+            // 拜訪專員固定為當前登入者
+            $data->user_id = Auth::user()->id;
+            // 拜訪類別：清除補給相關欄位
+            $data->supplement_items = null;
+            $data->supplement_by = null;
+        }
+        
         $data->save();
         return redirect()->route('visits', $cust_id)->with('customer', $customer);
     }

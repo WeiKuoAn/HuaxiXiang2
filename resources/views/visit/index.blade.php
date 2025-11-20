@@ -83,6 +83,7 @@
                                 <tr>
                                     <th>編號</th>
                                     <th>拜訪日期</th>
+                                    <th>拜訪類別</th>
                                     <th>拜訪內容</th>
                                     <th>拜訪人</th>
                                     <th>動作</th>
@@ -93,8 +94,23 @@
                                 <tr>
                                     <td>{{ $key+1 }}</td>
                                     <td>{{ $data->date }}</td>
-                                    <td><div id="content">{{ $data->comment }}</div></td>
-                                    <td>{{ $data->user_name->name }}</td>
+                                    <td>
+                                        @if($data->visit_type === 'supply')
+                                            補給
+                                        @else
+                                            拜訪
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div id="content">{{ $data->comment }}</div>
+                                    </td>
+                                    <td>
+                                        @if($data->visit_type === 'supply')
+                                            {{ $data->supplement_by_user->name ?? '-' }}
+                                        @else
+                                            {{ $data->user_name->name ?? '-' }}
+                                        @endif
+                                    </td>
                                     <td>
                                         <div class="btn-group dropdown">
                                             <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-outline-secondary waves-effect" data-bs-toggle="dropdown" aria-expanded="false">動作 <i class="mdi mdi-arrow-down-drop-circle"></i></a>
