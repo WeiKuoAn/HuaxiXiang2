@@ -114,7 +114,50 @@
                                                 @foreach ($sale->proms as $prom)
                                                     @if ($prom->prom_type == 'A')
                                                         @if (isset($prom->prom_id))
-                                                            {{ $prom->prom_name->name }}-{{ number_format($prom->prom_total) }}<br>
+                                                            {{ $prom->prom_name->name }}-{{ number_format($prom->prom_total) }}
+                                                            @php
+                                                                $souvenir_data = \App\Models\SaleSouvenir::where('sale_prom_id', $prom->id)->first();
+                                                            @endphp
+                                                            @if(isset($souvenir_data))
+                                                                @if($souvenir_data->souvenir_type == null)
+                                                                    {{-- 關聯商品（骨灰罐） --}}
+                                                                    @php
+                                                                        $product = \App\Models\Product::find($souvenir_data->product_name);
+                                                                        $variant = null;
+                                                                        if($souvenir_data->product_variant_id) {
+                                                                            $variant = \App\Models\ProductVariant::find($souvenir_data->product_variant_id);
+                                                                        }
+                                                                    @endphp
+                                                                    <div class="text-muted small mt-1">
+                                                                        <strong>商品：</strong>{{ $product->name ?? '' }}
+                                                                        @if($variant)
+                                                                            <br><strong>細項：</strong>{{ $variant->variant_name }}@if($variant->color) ({{ $variant->color }})@endif
+                                                                        @endif
+                                                                        @if($souvenir_data->product_num)
+                                                                            <br><strong>數量：</strong>{{ $souvenir_data->product_num }}
+                                                                        @endif
+                                                                        @if($souvenir_data->comment)
+                                                                            <br><strong>備註：</strong>{{ $souvenir_data->comment }}
+                                                                        @endif
+                                                                    </div>
+                                                                @else
+                                                                    {{-- 自訂商品 --}}
+                                                                    @php
+                                                                        $souvenirType = \App\Models\SouvenirType::find($souvenir_data->souvenir_type);
+                                                                    @endphp
+                                                                    <div class="text-muted small mt-1">
+                                                                        <strong>類型：</strong>{{ $souvenirType->name ?? '' }}
+                                                                        <br><strong>商品名稱：</strong>{{ $souvenir_data->product_name }}
+                                                                        @if($souvenir_data->product_num)
+                                                                            <br><strong>數量：</strong>{{ $souvenir_data->product_num }}
+                                                                        @endif
+                                                                        @if($souvenir_data->comment)
+                                                                            <br><strong>備註：</strong>{{ $souvenir_data->comment }}
+                                                                        @endif
+                                                                    </div>
+                                                                @endif
+                                                            @endif
+                                                            <br>
                                                         @else
                                                             無
                                                         @endif
@@ -125,7 +168,50 @@
                                                 @foreach ($sale->proms as $prom)
                                                     @if ($prom->prom_type == 'B')
                                                         @if (isset($prom->prom_id))
-                                                            {{ $prom->prom_name->name }}-{{ number_format($prom->prom_total) }}<br>
+                                                            {{ $prom->prom_name->name }}-{{ number_format($prom->prom_total) }}
+                                                            @php
+                                                                $souvenir_data = \App\Models\SaleSouvenir::where('sale_prom_id', $prom->id)->first();
+                                                            @endphp
+                                                            @if(isset($souvenir_data))
+                                                                @if($souvenir_data->souvenir_type == null)
+                                                                    {{-- 關聯商品（紀念品） --}}
+                                                                    @php
+                                                                        $product = \App\Models\Product::find($souvenir_data->product_name);
+                                                                        $variant = null;
+                                                                        if($souvenir_data->product_variant_id) {
+                                                                            $variant = \App\Models\ProductVariant::find($souvenir_data->product_variant_id);
+                                                                        }
+                                                                    @endphp
+                                                                    <div class="text-muted small mt-1">
+                                                                        <strong>商品：</strong>{{ $product->name ?? '' }}
+                                                                        @if($variant)
+                                                                            <br><strong>細項：</strong>{{ $variant->variant_name }}@if($variant->color) ({{ $variant->color }})@endif
+                                                                        @endif
+                                                                        @if($souvenir_data->product_num)
+                                                                            <br><strong>數量：</strong>{{ $souvenir_data->product_num }}
+                                                                        @endif
+                                                                        @if($souvenir_data->comment)
+                                                                            <br><strong>備註：</strong>{{ $souvenir_data->comment }}
+                                                                        @endif
+                                                                    </div>
+                                                                @else
+                                                                    {{-- 自訂商品 --}}
+                                                                    @php
+                                                                        $souvenirType = \App\Models\SouvenirType::find($souvenir_data->souvenir_type);
+                                                                    @endphp
+                                                                    <div class="text-muted small mt-1">
+                                                                        <strong>類型：</strong>{{ $souvenirType->name ?? '' }}
+                                                                        <br><strong>商品名稱：</strong>{{ $souvenir_data->product_name }}
+                                                                        @if($souvenir_data->product_num)
+                                                                            <br><strong>數量：</strong>{{ $souvenir_data->product_num }}
+                                                                        @endif
+                                                                        @if($souvenir_data->comment)
+                                                                            <br><strong>備註：</strong>{{ $souvenir_data->comment }}
+                                                                        @endif
+                                                                    </div>
+                                                                @endif
+                                                            @endif
+                                                            <br>
                                                         @else
                                                             無
                                                         @endif
