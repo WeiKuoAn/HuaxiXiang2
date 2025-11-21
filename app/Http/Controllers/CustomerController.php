@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Contract;
 use App\Models\CustGroup;
 use App\Models\Customer;
-use App\Models\CustomerHistory;
 use App\Models\CustomerAddress;
+use App\Models\CustomerHistory;
 use App\Models\CustomerMobile;
 use App\Models\Gdpaper;
 use App\Models\Lamp;
@@ -232,11 +232,28 @@ class CustomerController extends Controller
     {
         $groups = CustGroup::where('status', 'up')->get();
 
-        // 檢查電話重複（保持原有邏輯）
+        // 檢查電話重複：檢查所有提交的電話，比對 customer.mobile 和 customer_mobile 表
         if ($request->not_mobile == '0' || $request->not_mobile == null) {
-            $data = Customer::where('mobile', $request->mobiles[0])->first();
-            if (isset($data)) {
-                return view('customer.create')->with('groups', $groups)->with(['hint' => '1']);
+            $mobiles = $request->input('mobiles', []);
+
+            // 過濾掉空值
+            $mobiles = array_filter($mobiles, function ($mobile) {
+                return !empty($mobile);
+            });
+
+            // 檢查每個電話是否重複
+            foreach ($mobiles as $mobile) {
+                // 檢查 customer 表的 mobile 欄位
+                $customerExists = Customer::where('mobile', $mobile)->first();
+                if ($customerExists) {
+                    return view('customer.create')->with('groups', $groups)->with(['hint' => '1']);
+                }
+
+                // 檢查 customer_mobile 表
+                $customerMobileExists = CustomerMobile::where('mobile', $mobile)->first();
+                if ($customerMobileExists) {
+                    return view('customer.create')->with('groups', $groups)->with(['hint' => '1']);
+                }
             }
         }
 
@@ -390,6 +407,55 @@ class CustomerController extends Controller
         // 處理多個電話
         $mobiles = $request->input('mobiles', []);
         
+        // 檢查電話重複：檢查所有提交的電話，比對 customer.mobile 和 customer_mobile 表
+        // 但需要排除當前客戶自己的電話
+        $mobilesFiltered = array_filter($mobiles, function($mobile) {
+            return !empty($mobile);
+        });
+        
+        // 取得當前客戶的所有電話（用於排除）
+        $currentCustomerMobiles = [];
+        if (!empty($customer->mobile) && $customer->mobile != '未提供電話') {
+            $currentCustomerMobiles[] = $customer->mobile;
+        }
+        foreach ($customer->mobiles as $mobile) {
+            if (!empty($mobile->mobile)) {
+                $currentCustomerMobiles[] = $mobile->mobile;
+            }
+        }
+        
+        // 檢查每個電話是否重複（排除當前客戶自己的電話）
+        foreach ($mobilesFiltered as $mobile) {
+            // 如果是當前客戶的電話，跳過檢查
+            if (in_array($mobile, $currentCustomerMobiles)) {
+                continue;
+            }
+            
+            // 檢查 customer 表的 mobile 欄位
+            $customerExists = Customer::where('mobile', $mobile)
+                ->where('id', '!=', $id)  // 排除當前客戶
+                ->first();
+            if ($customerExists) {
+                $groups = CustGroup::where('status', 'up')->get();
+                return view('customer.edit')
+                    ->with('customer', $customer)
+                    ->with('groups', $groups)
+                    ->with(['hint' => '1', 'error_message' => '電話號碼 ' . $mobile . ' 已被其他客戶使用']);
+            }
+            
+            // 檢查 customer_mobile 表
+            $customerMobileExists = CustomerMobile::where('mobile', $mobile)
+                ->where('customer_id', '!=', $id)  // 排除當前客戶
+                ->first();
+            if ($customerMobileExists) {
+                $groups = CustGroup::where('status', 'up')->get();
+                return view('customer.edit')
+                    ->with('customer', $customer)
+                    ->with('groups', $groups)
+                    ->with(['hint' => '1', 'error_message' => '電話號碼 ' . $mobile . ' 已被其他客戶使用']);
+            }
+        }
+
         // 如果有電話，第一筆寫入 customer 表的 mobile 欄位
         if (!empty($mobiles) && !empty($mobiles[0])) {
             $customer->mobile = $mobiles[0];
@@ -602,6 +668,7 @@ class CustomerController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+
     private function buildCustomerHistoryPayload(
         array $originalAttributes,
         Customer $customer,
@@ -671,7 +738,7 @@ class CustomerController extends Controller
         return collect($mobiles)->map(function ($mobile) {
             return [
                 'mobile' => $mobile->mobile ?? ($mobile['mobile'] ?? ''),
-                'is_primary' => (bool)($mobile->is_primary ?? ($mobile['is_primary'] ?? false)),
+                'is_primary' => (bool) ($mobile->is_primary ?? ($mobile['is_primary'] ?? false)),
             ];
         })->values()->toArray();
     }
@@ -687,7 +754,7 @@ class CustomerController extends Controller
                 'county' => $address->county ?? ($address['county'] ?? ''),
                 'district' => $address->district ?? ($address['district'] ?? ''),
                 'address' => $address->address ?? ($address['address'] ?? ''),
-                'is_primary' => (bool)($address->is_primary ?? ($address['is_primary'] ?? false)),
+                'is_primary' => (bool) ($address->is_primary ?? ($address['is_primary'] ?? false)),
             ];
         })->values()->toArray();
     }

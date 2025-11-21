@@ -33,6 +33,17 @@
             <div class="col-6">
                 <div class="card">
                     <div class="card-body">
+                        @if (isset($hint) && $hint == '1')
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                @if (isset($error_message))
+                                    {{ $error_message }}
+                                @else
+                                    電話號碼已被使用
+                                @endif
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @endif
                         <form action="{{ route('customer.edit.data', $customer->id) }}" method="POST">
                             @csrf
                             <div class="row">
