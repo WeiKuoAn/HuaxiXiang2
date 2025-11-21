@@ -167,7 +167,7 @@
                                     value="{{ $user->census_address }}">
                             </div>
 
-                            <div class="row">
+                            {{-- <div class="row">
                                 <div class="col-lg-4">
                                     <!-- Date View -->
                                     <div class="mb-3">
@@ -185,7 +185,7 @@
                                             value="{{ $user->bank_number }}" placeholder="帳戶號碼">
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
 
                             <div class="row">
                                 <div class="col-lg-3">

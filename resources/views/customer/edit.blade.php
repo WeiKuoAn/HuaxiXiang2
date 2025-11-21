@@ -215,13 +215,6 @@
                                         </div>
                                     </div>
 
-                                    <div class="row">
-                                        <label class="form-label">舊地址<span class="text-danger">*</span></label>
-                                        <div class="mb-3 mt-1">
-                                            <input type="text" class="form-control" name="old-address"
-                                                placeholder="輸入地址" value="{{ $customer->address }}">
-                                        </div>
-                                    </div>
 
                                     <div class="row">
                                         <label class="form-label">備註</label>
