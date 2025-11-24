@@ -89,10 +89,27 @@ class CustomerController extends Controller
                 $query->where('name', 'like', '%' . $request->name . '%');
             }
             if (!empty($request->mobile)) {
-                $query->where('mobile', 'like', $request->mobile . '%');
-                $customer_mobiles = CustomerMobile::where('mobile', 'like', $request->mobile . '%')->get();
-                foreach ($customer_mobiles as $customer_mobile) {
-                    $query->orWhere('id', $customer_mobile->customer_id);
+                // 收集所有符合電話條件的客戶 ID
+                $customer_ids = [];
+                
+                // 從 customer 表查找
+                $customers_by_mobile = Customer::where('mobile', 'like', $request->mobile . '%')
+                    ->pluck('id')
+                    ->toArray();
+                $customer_ids = array_merge($customer_ids, $customers_by_mobile);
+                
+                // 從 customer_mobile 表查找
+                $customer_mobiles = CustomerMobile::where('mobile', 'like', $request->mobile . '%')
+                    ->pluck('customer_id')
+                    ->toArray();
+                $customer_ids = array_merge($customer_ids, $customer_mobiles);
+                
+                // 去重並使用 whereIn
+                $customer_ids = array_unique($customer_ids);
+                if (!empty($customer_ids)) {
+                    $query->whereIn('id', $customer_ids);
+                } else {
+                    $query->whereNull('id'); // 確保沒有結果
                 }
             }
             if (!empty($request->group_id)) {

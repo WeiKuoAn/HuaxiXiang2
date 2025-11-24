@@ -26,84 +26,91 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <div class="row justify-content-between">
-                            <div class="col-auto">
-                                <form class="d-flex flex-wrap align-items-center" action="{{ route('customer') }}"
-                                    method="GET">
-                                    <div class="me-3">
-                                        <input type="search" class="form-control my-1 my-lg-0" id="inputPassword2"
-                                            name="name" placeholder="姓名" value="{{ $request->name }}">
-                                    </div>
-                                    <div class="me-3">
-                                        <input type="search" class="form-control my-1 my-lg-0" id="inputPassword2"
-                                            name="mobile" placeholder="電話" value="{{ $request->mobile }}">
-                                    </div>
-                                    <div class="me-3">
-                                        <input type="search" class="form-control my-1 my-lg-0" id="inputPassword2"
-                                            name="pet_name" placeholder="寶貝名" value="{{ $request->pet_name }}">
-                                    </div>
-                                    <div class="me-sm-3">
-                                        <select class="form-select my-1 my-lg-0" id="status-select" name="county"
-                                            onchange="this.form.submit()">
-                                            <option value="null" selected>選擇地區</option>
-                                            @foreach ($countys as $county)
-                                                <option value="{{ $county }}"
-                                                    @if ($county == $request->county) selected @endif>{{ $county }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="me-sm-3">
-                                        <select class="form-select my-1 my-lg-0" id="district" name="district"
-                                            onchange="this.form.submit()">
-                                            <option value="null" selected>選擇地區</option>
-                                            @foreach ($districts as $district)
-                                                <option value="{{ $district }}"
-                                                    @if ($district == $request->district) selected @endif>{{ $district }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="me-3">
-                                        <input type="search" class="form-control my-1 my-lg-0" id="inputPassword2"
-                                            name="address" placeholder="地址" value="{{ $request->address }}">
-                                    </div>
-                                    {{-- <label for="status-select" class="me-2">Sort By</label> --}}
-                                    <div class="me-sm-3">
-                                        <select class="form-select my-1 my-lg-0" id="status-select" name="group_id"
-                                            onchange="this.form.submit()">
-                                            <option value="" selected>不限</option>
-                                            @foreach ($customer_groups as $customer_group)
-                                                <option value="{{ $customer_group->id }}"
-                                                    @if ($customer_group->id == $request->group_id) selected @endif>
-                                                    {{ $customer_group->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="me-3">
-                                        <button type="submit" class="btn btn-success waves-effect waves-light me-1"><i
-                                                class="fe-search me-1"></i>搜尋</button>
-                                    </div>
-                                    @if (Auth::user()->job_id != 5)
-                                        <div class="me-3">
-                                            <a href="{{ route('customer.export', request()->input()) }}">
-                                                <button type="button"
-                                                    class="btn btn-primary waves-effect waves-light me-1"><i
-                                                        class="fe-download me-1"></i>匯出</button>
-                                            </a>
-                                        </div>
-                                    @endif
-                                </form>
-                            </div>
-                            <div class="col-auto">
-                                <div class="text-lg-end my-1 my-lg-0">
-                                    {{-- <button type="button" class="btn btn-success waves-effect waves-light me-1"><i class="mdi mdi-cog"></i></button> --}}
-                                    <a href="{{ route('customer.create') }}"
-                                        class="btn btn-danger waves-effect waves-light"><i
-                                            class="mdi mdi-plus-circle me-1"></i>新增客戶</a>
+                        <form action="{{ route('customer') }}" method="GET">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">姓名</label>
+                                    <input type="search" class="form-control" name="name" placeholder="姓名"
+                                        value="{{ $request->name }}">
                                 </div>
-                            </div><!-- end col-->
-                        </div> <!-- end row -->
+                                <div class="col-md-3">
+                                    <label class="form-label">電話</label>
+                                    <input type="search" class="form-control" name="mobile" placeholder="電話"
+                                        value="{{ $request->mobile }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">寶貝名</label>
+                                    <input type="search" class="form-control" name="pet_name" placeholder="寶貝名"
+                                        value="{{ $request->pet_name }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">群組</label>
+                                    <select class="form-select" name="group_id" onchange="this.form.submit()">
+                                        <option value="" selected>不限</option>
+                                        @foreach ($customer_groups as $customer_group)
+                                            <option value="{{ $customer_group->id }}"
+                                                @if ($customer_group->id == $request->group_id) selected @endif>
+                                                {{ $customer_group->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">縣市</label>
+                                    <select class="form-select" name="county" onchange="this.form.submit()">
+                                        <option value="null" selected>選擇縣市</option>
+                                        @foreach ($countys as $county)
+                                            <option value="{{ $county }}"
+                                                @if ($county == $request->county) selected @endif>{{ $county }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">區</label>
+                                    <select class="form-select" name="district" onchange="this.form.submit()">
+                                        <option value="null" selected>選擇區</option>
+                                        @foreach ($districts as $district)
+                                            <option value="{{ $district }}"
+                                                @if ($district == $request->district) selected @endif>{{ $district }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">地址</label>
+                                    <input type="search" class="form-control" name="address" placeholder="地址"
+                                        value="{{ $request->address }}">
+                                </div>
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <div class="w-100">
+                                        <button type="submit" class="btn btn-success waves-effect waves-light w-100">
+                                            <i class="fe-search me-1"></i>搜尋
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        @if (Auth::user()->job_id != 5)
+                                            <a href="{{ route('customer.export', request()->input()) }}">
+                                                <button type="button" class="btn btn-primary waves-effect waves-light">
+                                                    <i class="fe-download me-1"></i>匯出
+                                                </button>
+                                            </a>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <a href="{{ route('customer.create') }}"
+                                            class="btn btn-danger waves-effect waves-light">
+                                            <i class="mdi mdi-plus-circle me-1"></i>新增客戶
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div> <!-- end card -->
             </div> <!-- end col-->
