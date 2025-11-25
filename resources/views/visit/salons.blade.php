@@ -89,17 +89,6 @@
                                     <!-- 第二行篩選 -->
                                     <div class="row">
                                         <div class="col-md-2 mb-2 mb-md-0">
-                                            <select class="form-select" name="has_bank_account"
-                                                onchange="this.form.submit()">
-                                                <option value="null" @if (!isset($request->has_bank_account) || $request->has_bank_account == 'null') selected @endif>
-                                                    是否有匯款帳號</option>
-                                                <option value="1" @if ($request->has_bank_account === '1') selected @endif>
-                                                    有匯款帳號</option>
-                                                <option value="0" @if ($request->has_bank_account === '0') selected @endif>
-                                                    沒有匯款帳號</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-2 mb-2 mb-md-0">
                                             <select class="form-select" name="contract_status"
                                                 onchange="this.form.submit()">
                                                 <option value="null" @if (!isset($request->contract_status) || $request->contract_status == 'null') selected @endif>
@@ -108,6 +97,17 @@
                                                     有簽約</option>
                                                 <option value="0" @if ($request->contract_status === '0') selected @endif>
                                                     沒有簽約</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 mb-2 mb-md-0">
+                                            <select class="form-select" name="has_bank_account"
+                                                onchange="this.form.submit()">
+                                                <option value="null" @if (!isset($request->has_bank_account) || $request->has_bank_account == 'null') selected @endif>
+                                                    是否有匯款帳號</option>
+                                                <option value="1" @if ($request->has_bank_account === '1') selected @endif>
+                                                    有匯款帳號</option>
+                                                <option value="0" @if ($request->has_bank_account === '0') selected @endif>
+                                                    沒有匯款帳號</option>
                                             </select>
                                         </div>
                                         <div class="col-md-2 mb-2 mb-md-0">

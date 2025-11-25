@@ -75,20 +75,7 @@
                                             </select>
                                         </div>
                                         <div class="col-md-2 mb-2 mb-md-0">
-                                            <select class="form-select" name="commission" onchange="this.form.submit()">
-                                                <option value="null" @if (!isset($request->commission) || $request->commission == 'null') selected @endif>
-                                                    是否有佣金</option>
-                                                <option value="1" @if ($request->commission === '1') selected @endif>有佣金
-                                                </option>
-                                                <option value="0" @if ($request->commission === '0') selected @endif>
-                                                    沒有佣金</option>
-                                            </select>
-                                        </div>
-                                    </div>
 
-                                    <!-- 第二行篩選 -->
-                                    <div class="row">
-                                        <div class="col-md-2 mb-2 mb-md-0">
                                             <select class="form-select" name="has_bank_account"
                                                 onchange="this.form.submit()">
                                                 <option value="null" @if (!isset($request->has_bank_account) || $request->has_bank_account == 'null') selected @endif>
@@ -97,6 +84,20 @@
                                                     有匯款帳號</option>
                                                 <option value="0" @if ($request->has_bank_account === '0') selected @endif>
                                                     沒有匯款帳號</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- 第二行篩選 -->
+                                    <div class="row">
+                                        <div class="col-md-2 mb-2 mb-md-0">
+                                            <select class="form-select" name="commission" onchange="this.form.submit()">
+                                                <option value="null" @if (!isset($request->commission) || $request->commission == 'null') selected @endif>
+                                                    是否有佣金</option>
+                                                <option value="1" @if ($request->commission === '1') selected @endif>有佣金
+                                                </option>
+                                                <option value="0" @if ($request->commission === '0') selected @endif>
+                                                    沒有佣金</option>
                                             </select>
                                         </div>
                                         <div class="col-md-2 mb-2 mb-md-0">
