@@ -175,7 +175,7 @@
                                         <th>佣金</th>
                                         <th>拜訪</th>
                                         <th>簽約</th>
-                                        <th>指派人員</th>
+                                        <th>負責人員</th>
                                         <th>拜訪次數</th>
                                         <th>叫件次數</th>
                                         <th>最近叫件日期</th>
@@ -247,28 +247,23 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <div class="btn-group dropdown">
-                                                    <a href="javascript: void(0);"
-                                                        class="table-action-btn dropdown-toggle arrow-none btn btn-outline-secondary waves-effect"
-                                                        data-bs-toggle="dropdown" aria-expanded="false">動作 <i
-                                                            class="mdi mdi-arrow-down-drop-circle"></i></a>
-                                                    <div class="dropdown-menu dropdown-menu-end">
-                                                        <a class="dropdown-item" href="{{ route('visits', $data->id) }}"
-                                                            target="_blank"><i
-                                                                class="mdi mdi-file-document me-2 font-18 text-muted vertical-middle"></i>查看拜訪</a>
-                                                        <a class="dropdown-item"
-                                                            href="{{ route('visit.create', $data->id) }}"
-                                                            target="_blank"><i
-                                                                class="mdi mdi-text-box-plus-outline me-2 text-muted font-18 vertical-middle"></i>新增拜訪</a>
-                                                        <a class="dropdown-item"
-                                                            href="{{ route('visit.source.sale', $data->id) }}"
-                                                            target="_blank"><i
-                                                                class="mdi mdi-clipboard-text-search me-2 font-18 text-muted vertical-middle"></i>叫件紀錄</a>
-                                                        <a class="dropdown-item"
-                                                            href="{{ route('visit.company.edit', $data->id) }}"
-                                                            target="_blank"><i
-                                                                class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯資料</a>
-                                                    </div>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('customer.detail', $data->id) }}"><i
+                                                            class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i>查看資料</a>
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('visit.company.edit', $data->id) }}"><i
+                                                            class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯資料</a>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('visit.create', $data->id) }}"><i
+                                                            class="mdi mdi-text-box-plus-outline me-2 text-muted font-18 vertical-middle"></i>新增拜訪</a>
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('visits', $data->id) }}"><i
+                                                            class="mdi mdi-file-document me-2 font-18 text-muted vertical-middle"></i>查看拜訪</a>
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('visit.source.sale', $data->id) }}"><i
+                                                            class="mdi mdi-clipboard-text-search me-2 font-18 text-muted vertical-middle"></i>叫件紀錄</a>
                                                 </div>
                                             </td>
                                         </tr>
