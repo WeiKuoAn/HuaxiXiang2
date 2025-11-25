@@ -6,6 +6,7 @@ use App\Models\Contract;
 use App\Models\CustGroup;
 use App\Models\Customer;
 use App\Models\CustomerBank;
+use App\Models\CustomerMobile;
 use App\Models\Lamp;
 use App\Models\Plan;
 use App\Models\Product;
@@ -256,6 +257,12 @@ class VisitController extends Controller
                     $datas = $datas->where('contract_status', $contract_status);
                 }
             }
+            $assigned_to = $request->assigned_to;
+            if ($assigned_to != 'null') {
+                if (isset($assigned_to)) {
+                    $datas = $datas->where('assigned_to', $assigned_to);
+                }
+            }
             $seq = $request->seq;
             $recently_date_sort = $request->recently_date_sort;
 
@@ -277,7 +284,7 @@ class VisitController extends Controller
             $datas = $datas->orderby('name', 'desc');
         }
 
-        $datas = $datas->paginate(50);
+        $datas = $datas->with('assigned_to_name')->paginate(50);
 
         $data_countys = Customer::where('group_id', 2)->whereNotNull('county')->where('county', '!=', '')->get();
         foreach ($data_countys as $data_county) {
@@ -309,7 +316,10 @@ class VisitController extends Controller
             $data->recently_date = SaleCompanyCommission::whereNotIn('type', ['self'])->where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
         }
 
-        return view('visit.hospitals')->with('datas', $datas)->with('request', $request)->with('countys', $countys)->with('districts', $districts);
+        // 獲取負責人列表
+        $users = User::where('status', '0')->whereIn('job_id', [1,2,3,10])->orderBy('name')->get();
+
+        return view('visit.hospitals')->with('datas', $datas)->with('request', $request)->with('countys', $countys)->with('districts', $districts)->with('users', $users);
     }
 
     public function etiquettes(Request $request)  // 禮儀社
@@ -369,18 +379,33 @@ class VisitController extends Controller
                     $datas = $datas->where('contract_status', $contract_status);
                 }
             }
+            $assigned_to = $request->assigned_to;
+            if ($assigned_to != 'null') {
+                if (isset($assigned_to)) {
+                    $datas = $datas->where('assigned_to', $assigned_to);
+                }
+            }
+            $seq = $request->seq;
+            $recently_date_sort = $request->recently_date_sort;
+
+            // 如果兩個排序都有選擇，優先使用叫件日期排序
+            if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
+                $datas = $datas->orderByRaw('(
+                    SELECT MAX(sale_date) 
+                    FROM sale_company_commission 
+                    WHERE company_id = customer.id
+                ) ' . $recently_date_sort);
+            } elseif ($seq != 'null' && isset($seq)) {
+                $datas = $datas->orderby('created_at', $seq);
+            }
         }
 
-        $recently_date_sort = $request->recently_date_sort;
-        if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
-            $datas = $datas->orderByRaw('(
-                SELECT MAX(sale_date) 
-                FROM sale_company_commission 
-                WHERE company_id = customer.id
-            ) ' . $recently_date_sort);
+        // 如果沒有選擇任何排序，使用預設排序
+        if (!isset($request->seq) && !isset($request->recently_date_sort)) {
+            $datas = $datas->orderby('name', 'desc');
         }
 
-        $datas = $datas->paginate(50);
+        $datas = $datas->with('assigned_to_name')->paginate(50);
 
         $bankData = $this->getFlatBankData();  // flat 結構的銀行分行 JSON
         foreach ($datas as $data) {
@@ -414,7 +439,10 @@ class VisitController extends Controller
         }
         $districts = array_unique($districts);
 
-        return view('visit.etiquettes')->with('datas', $datas)->with('request', $request)->with('countys', $countys)->with('districts', $districts);
+        // 獲取負責人列表
+        $users = User::where('status', '0')->whereIn('job_id', [1,2,3,10])->orderBy('name')->get();
+
+        return view('visit.etiquettes')->with('datas', $datas)->with('request', $request)->with('countys', $countys)->with('districts', $districts)->with('users', $users);
     }
 
     public function reproduces(Request $request)  // 繁殖場
@@ -474,18 +502,33 @@ class VisitController extends Controller
                     $datas = $datas->where('contract_status', $contract_status);
                 }
             }
+            $assigned_to = $request->assigned_to;
+            if ($assigned_to != 'null') {
+                if (isset($assigned_to)) {
+                    $datas = $datas->where('assigned_to', $assigned_to);
+                }
+            }
+            $seq = $request->seq;
+            $recently_date_sort = $request->recently_date_sort;
+
+            // 如果兩個排序都有選擇，優先使用叫件日期排序
+            if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
+                $datas = $datas->orderByRaw('(
+                    SELECT MAX(sale_date) 
+                    FROM sale_company_commission 
+                    WHERE company_id = customer.id
+                ) ' . $recently_date_sort);
+            } elseif ($seq != 'null' && isset($seq)) {
+                $datas = $datas->orderby('created_at', $seq);
+            }
         }
 
-        $recently_date_sort = $request->recently_date_sort;
-        if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
-            $datas = $datas->orderByRaw('(
-                SELECT MAX(sale_date) 
-                FROM sale_company_commission 
-                WHERE company_id = customer.id
-            ) ' . $recently_date_sort);
+        // 如果沒有選擇任何排序，使用預設排序
+        if (!isset($request->seq) && !isset($request->recently_date_sort)) {
+            $datas = $datas->orderby('name', 'desc');
         }
 
-        $datas = $datas->paginate(50);
+        $datas = $datas->with('assigned_to_name')->paginate(50);
 
         $bankData = $this->getFlatBankData();  // flat 結構的銀行分行 JSON
         foreach ($datas as $data) {
@@ -518,7 +561,10 @@ class VisitController extends Controller
         }
         $districts = array_unique($districts);
 
-        return view('visit.reproduces')->with('datas', $datas)->with('request', $request)->with('countys', $countys)->with('districts', $districts);
+        // 獲取負責人列表
+        $users = User::where('status', '0')->whereIn('job_id', [1,2,3,10])->orderBy('name')->get();
+
+        return view('visit.reproduces')->with('datas', $datas)->with('request', $request)->with('countys', $countys)->with('districts', $districts)->with('users', $users);
     }
 
     public function dogparks(Request $request)  // 狗園
@@ -578,18 +624,33 @@ class VisitController extends Controller
                     $datas = $datas->where('contract_status', $contract_status);
                 }
             }
+            $assigned_to = $request->assigned_to;
+            if ($assigned_to != 'null') {
+                if (isset($assigned_to)) {
+                    $datas = $datas->where('assigned_to', $assigned_to);
+                }
+            }
+            $seq = $request->seq;
+            $recently_date_sort = $request->recently_date_sort;
+
+            // 如果兩個排序都有選擇，優先使用叫件日期排序
+            if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
+                $datas = $datas->orderByRaw('(
+                    SELECT MAX(sale_date) 
+                    FROM sale_company_commission 
+                    WHERE company_id = customer.id
+                ) ' . $recently_date_sort);
+            } elseif ($seq != 'null' && isset($seq)) {
+                $datas = $datas->orderby('created_at', $seq);
+            }
         }
 
-        $recently_date_sort = $request->recently_date_sort;
-        if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
-            $datas = $datas->orderByRaw('(
-                SELECT MAX(sale_date) 
-                FROM sale_company_commission 
-                WHERE company_id = customer.id
-            ) ' . $recently_date_sort);
+        // 如果沒有選擇任何排序，使用預設排序
+        if (!isset($request->seq) && !isset($request->recently_date_sort)) {
+            $datas = $datas->orderby('name', 'desc');
         }
 
-        $datas = $datas->paginate(50);
+        $datas = $datas->with('assigned_to_name')->paginate(50);
 
         $bankData = $this->getFlatBankData();  // flat 結構的銀行分行 JSON
         foreach ($datas as $data) {
@@ -622,7 +683,10 @@ class VisitController extends Controller
         }
         $districts = array_unique($districts);
 
-        return view('visit.dogparks')->with('datas', $datas)->with('request', $request)->with('countys', $countys)->with('districts', $districts);
+        // 獲取負責人列表
+        $users = User::where('status', '0')->whereIn('job_id', [1,2,3,10])->orderBy('name')->get();
+
+        return view('visit.dogparks')->with('datas', $datas)->with('request', $request)->with('countys', $countys)->with('districts', $districts)->with('users', $users);
     }
 
     public function salons(Request $request)  // 美容院
@@ -682,18 +746,33 @@ class VisitController extends Controller
                     $datas = $datas->where('contract_status', $contract_status);
                 }
             }
+            $assigned_to = $request->assigned_to;
+            if ($assigned_to != 'null') {
+                if (isset($assigned_to)) {
+                    $datas = $datas->where('assigned_to', $assigned_to);
+                }
+            }
+            $seq = $request->seq;
+            $recently_date_sort = $request->recently_date_sort;
+
+            // 如果兩個排序都有選擇，優先使用叫件日期排序
+            if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
+                $datas = $datas->orderByRaw('(
+                    SELECT MAX(sale_date) 
+                    FROM sale_company_commission 
+                    WHERE company_id = customer.id
+                ) ' . $recently_date_sort);
+            } elseif ($seq != 'null' && isset($seq)) {
+                $datas = $datas->orderby('created_at', $seq);
+            }
         }
 
-        $recently_date_sort = $request->recently_date_sort;
-        if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
-            $datas = $datas->orderByRaw('(
-                SELECT MAX(sale_date) 
-                FROM sale_company_commission 
-                WHERE company_id = customer.id
-            ) ' . $recently_date_sort);
+        // 如果沒有選擇任何排序，使用預設排序
+        if (!isset($request->seq) && !isset($request->recently_date_sort)) {
+            $datas = $datas->orderby('name', 'desc');
         }
 
-        $datas = $datas->paginate(50);
+        $datas = $datas->with('assigned_to_name')->paginate(50);
 
         $bankData = $this->getFlatBankData();  // flat 結構的銀行分行 JSON
         foreach ($datas as $data) {
@@ -726,7 +805,10 @@ class VisitController extends Controller
         }
         $districts = array_unique($districts);
 
-        return view('visit.salons')->with('datas', $datas)->with('request', $request)->with('countys', $countys)->with('districts', $districts);
+        // 獲取負責人列表
+        $users = User::where('status', '0')->whereIn('job_id', [1,2,3,10])->orderBy('name')->get();
+
+        return view('visit.salons')->with('datas', $datas)->with('request', $request)->with('countys', $countys)->with('districts', $districts)->with('users', $users);
     }
 
     public function others(Request $request)
@@ -786,18 +868,33 @@ class VisitController extends Controller
                     $datas = $datas->where('contract_status', $contract_status);
                 }
             }
+            $assigned_to = $request->assigned_to;
+            if ($assigned_to != 'null') {
+                if (isset($assigned_to)) {
+                    $datas = $datas->where('assigned_to', $assigned_to);
+                }
+            }
+            $seq = $request->seq;
+            $recently_date_sort = $request->recently_date_sort;
+
+            // 如果兩個排序都有選擇，優先使用叫件日期排序
+            if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
+                $datas = $datas->orderByRaw('(
+                    SELECT MAX(sale_date) 
+                    FROM sale_company_commission 
+                    WHERE company_id = customer.id
+                ) ' . $recently_date_sort);
+            } elseif ($seq != 'null' && isset($seq)) {
+                $datas = $datas->orderby('created_at', $seq);
+            }
         }
 
-        $recently_date_sort = $request->recently_date_sort;
-        if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
-            $datas = $datas->orderByRaw('(
-                SELECT MAX(sale_date) 
-                FROM sale_company_commission 
-                WHERE company_id = customer.id
-            ) ' . $recently_date_sort);
+        // 如果沒有選擇任何排序，使用預設排序
+        if (!isset($request->seq) && !isset($request->recently_date_sort)) {
+            $datas = $datas->orderby('name', 'desc');
         }
 
-        $datas = $datas->paginate(50);
+        $datas = $datas->with('assigned_to_name')->paginate(50);
 
         $bankData = $this->getFlatBankData();  // flat 結構的銀行分行 JSON
         foreach ($datas as $data) {
@@ -830,7 +927,10 @@ class VisitController extends Controller
         }
         $districts = array_unique($districts);
 
-        return view('visit.others')->with('datas', $datas)->with('request', $request)->with('countys', $countys)->with('districts', $districts);
+        // 獲取負責人列表
+        $users = User::where('status', '0')->whereIn('job_id', [1,2,3,10])->orderBy('name')->get();
+
+        return view('visit.others')->with('datas', $datas)->with('request', $request)->with('countys', $countys)->with('districts', $districts)->with('users', $users);
     }
 
     // 新增公司
@@ -847,6 +947,12 @@ class VisitController extends Controller
 
     public function company_store(Request $request)
     {
+        // 準備視圖所需的變數（用於驗證失敗時返回）
+        $users = User::where('status', '0')->whereIn('job_id', ['1', '2', '3', '5', '10'])->get();
+        $json = file_get_contents(public_path('assets/data/banks.json'));
+        $banks = collect(json_decode($json, true));
+        $groupedBanks = $banks->groupBy('銀行代號/總機構代碼');
+        
         // dd($request->company_type);
         $hospital_type = Str::contains($request->company_type, 'hospitals');  // 醫院
         $etiquette_type = Str::contains($request->company_type, 'etiquettes');  // 禮儀社
@@ -855,7 +961,35 @@ class VisitController extends Controller
         $salons_type = Str::contains($request->company_type, 'salons');  // 美容院
         $others_type = Str::contains($request->company_type, 'others');  // 其他業者
 
-        $data = Customer::where('mobile', $request->mobile)->first();
+        // 處理多筆電話
+        $mobiles = $request->input('mobiles', []);
+        
+        // 檢查電話重複：檢查所有提交的電話，比對 customer.mobile 和 customer_mobile 表
+        $data = null;
+        if ($request->not_mobile != 1) {
+            // 過濾掉空值
+            $mobilesFiltered = array_filter($mobiles, function($mobile) {
+                return !empty($mobile);
+            });
+            
+            // 檢查每個電話是否重複
+            foreach ($mobilesFiltered as $mobile) {
+                // 檢查 customer 表的 mobile 欄位
+                $customerExists = Customer::where('mobile', $mobile)->first();
+                if ($customerExists) {
+                    $data = $customerExists;
+                    break;
+                }
+                
+                // 檢查 customer_mobile 表
+                $customerMobileExists = CustomerMobile::where('mobile', $mobile)->first();
+                if ($customerMobileExists) {
+                    $data = $customerMobileExists;
+                    break;
+                }
+            }
+        }
+        
         if ($request->not_mobile == 1) {  // 未提供電話
             $customer = new Customer;
             $customer->name = $request->name;
@@ -863,7 +997,8 @@ class VisitController extends Controller
             $customer->county = $request->county;
             $customer->district = $request->district;
             $customer->address = $request->address;
-            if (!empty($request->bank) || !empty($request->branch) || !empty($request->bank_number)) {
+            // 處理帳戶資訊：如果勾選「不提供帳戶」，則不儲存帳戶資訊
+            if ($request->not_provide_bank != 1 && (!empty($request->bank) || !empty($request->branch) || !empty($request->bank_number))) {
                 $customer->bank = $request->bank;
                 $customer->branch = $request->branch;
                 $customer->bank_number = $request->bank_number;
@@ -874,18 +1009,32 @@ class VisitController extends Controller
             $customer->assigned_to = $request->assigned_to;
         } else {
             if (isset($data)) {
-                return view('visit.company_create')->with(['hint' => '1', 'company_type' => $request->company_type]);
+                return view('visit.company_create')
+                    ->with('hint', '1')
+                    ->with('company_type', $request->company_type)
+                    ->with('groupedBanks', $groupedBanks)
+                    ->with('users', $users);
             } else {
                 if (isset($data)) {
-                    return view('visit.company_create')->with(['hint' => '1', 'company_type' => $request->company_type]);
+                    return view('visit.company_create')
+                        ->with('hint', '1')
+                        ->with('company_type', $request->company_type)
+                        ->with('groupedBanks', $groupedBanks)
+                        ->with('users', $users);
                 } else {
                     $customer = new Customer;
                     $customer->name = $request->name;
-                    $customer->mobile = $request->mobile;
+                    // 處理多筆電話：第一筆寫入 customer.mobile
+                    if (!empty($mobiles) && !empty($mobiles[0])) {
+                        $customer->mobile = $mobiles[0];
+                    } else {
+                        $customer->mobile = '未提供電話';
+                    }
                     $customer->county = $request->county;
                     $customer->district = $request->district;
                     $customer->address = $request->address;
-                    if (!empty($request->bank) || !empty($request->branch) || !empty($request->bank_number)) {
+                    // 處理帳戶資訊：如果勾選「不提供帳戶」，則不儲存帳戶資訊
+                    if ($request->not_provide_bank != 1 && (!empty($request->bank) || !empty($request->branch) || !empty($request->bank_number))) {
                         $customer->bank = $request->bank;
                         $customer->branch = $request->branch;
                         $customer->bank_number = $request->bank_number;
@@ -898,35 +1047,51 @@ class VisitController extends Controller
             }
         }
 
+        // 設定群組和建立者
         if ($hospital_type) {
             $customer->group_id = 2;
-            $customer->created_up = Auth::user()->id;
-            $customer->save();
-            return redirect()->route('hospitals');
         } elseif ($etiquette_type) {
             $customer->group_id = 5;
-            $customer->created_up = Auth::user()->id;
-            $customer->save();
-            return redirect()->route('etiquettes');
         } elseif ($reproduce_type) {
             $customer->group_id = 4;
-            $customer->created_up = Auth::user()->id;
-            $customer->save();
-            return redirect()->route('reproduces');
         } elseif ($dogpark_type) {
             $customer->group_id = 3;
-            $customer->created_up = Auth::user()->id;
-            $customer->save();
-            return redirect()->route('dogparks');
         } elseif ($salons_type) {
             $customer->group_id = 6;
-            $customer->created_up = Auth::user()->id;
-            $customer->save();
-            return redirect()->route('salons');
         } elseif ($others_type) {
             $customer->group_id = 7;
-            $customer->created_up = Auth::user()->id;
-            $customer->save();
+        }
+        
+        $customer->created_up = Auth::user()->id;
+        
+        // 儲存客戶資料
+        $customer->save();
+        
+        // 處理多筆電話：所有電話都寫入 customer_mobile 表
+        if ($request->not_mobile != 1 && !empty($mobiles)) {
+            for ($i = 0; $i < count($mobiles); $i++) {
+                if (!empty($mobiles[$i])) {
+                    $mobile = new CustomerMobile;
+                    $mobile->customer_id = $customer->id;
+                    $mobile->mobile = $mobiles[$i];
+                    $mobile->is_primary = ($i === 0) ? 1 : 0;  // 第一筆為主要電話
+                    $mobile->save();
+                }
+            }
+        }
+
+        // 根據類型重定向
+        if ($hospital_type) {
+            return redirect()->route('hospitals');
+        } elseif ($etiquette_type) {
+            return redirect()->route('etiquettes');
+        } elseif ($reproduce_type) {
+            return redirect()->route('reproduces');
+        } elseif ($dogpark_type) {
+            return redirect()->route('dogparks');
+        } elseif ($salons_type) {
+            return redirect()->route('salons');
+        } elseif ($others_type) {
             return redirect()->route('others');
         }
     }

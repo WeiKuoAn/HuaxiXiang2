@@ -126,15 +126,6 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="row">
-                                            <label class="form-label">舊地址<span class="text-danger">*</span></label>
-                                            <div class="mb-3 mt-1">
-                                                <input type="text" class="form-control" name="old-address"
-                                                    placeholder="輸入地址" value="{{ $data->address }}">
-                                            </div>
-                                        </div>
-                                    </div> <!-- end col-->
-                                    <div class="row">
                                         <label class="form-label">備註</label>
                                         <div class="mb-3">
                                             <textarea class="form-control" rows="3" placeholder="" name="comment">{{ $data->comment }}</textarea>

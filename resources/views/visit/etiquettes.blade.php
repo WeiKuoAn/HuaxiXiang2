@@ -44,64 +44,81 @@
                                 <form action="{{ route('etiquettes') }}" method="GET">
                                     <!-- 第一行篩選 -->
                                     <div class="row mb-3">
-                                        <div class="col-md-2">
+                                        <div class="col-md-2 mb-2 mb-md-0">
                                             <input type="search" class="form-control" name="name" placeholder="姓名" value="{{ $request->name }}">
                                         </div>
-                                        <div class="col-md-2">
+                                        <div class="col-md-2 mb-2 mb-md-0">
                                             <input type="search" class="form-control" name="mobile" placeholder="電話" value="{{ $request->mobile }}">
                                         </div>
-                                        <div class="col-md-2">
+                                        <div class="col-md-2 mb-2 mb-md-0">
                                             <select class="form-select" name="county" onchange="this.form.submit()">
-                                                <option value="null" selected>選擇縣市</option>
+                                                <option value="null" @if (!isset($request->county) || $request->county == 'null') selected @endif>選擇縣市</option>
                                                 @foreach ($countys as $county)
                                                     <option value="{{ $county }}" @if ($county == $request->county) selected @endif>{{ $county }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div class="col-md-2 mb-2 mb-md-0">
                                             <select class="form-select" name="district" onchange="this.form.submit()">
-                                                <option value="null" selected>選擇地區</option>
+                                                <option value="null" @if (!isset($request->district) || $request->district == 'null') selected @endif>選擇地區</option>
                                                 @foreach ($districts as $district)
                                                     <option value="{{ $district }}" @if ($district == $request->district) selected @endif>{{ $district }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div class="col-md-2 mb-2 mb-md-0">
                                             <select class="form-select" name="commission" onchange="this.form.submit()">
-                                                <option value="null" @if (is_null($request->commission)) selected @endif>是否有佣金</option>
-                                                <option value="1" @if ($request->commission === 1) selected @endif>有</option>
-                                                <option value="0" @if ($request->commission === 0) selected @endif>沒有</option>
+                                                <option value="null" @if (!isset($request->commission) || $request->commission == 'null') selected @endif>是否有佣金</option>
+                                                <option value="1" @if ($request->commission === '1') selected @endif>有佣金</option>
+                                                <option value="0" @if ($request->commission === '0') selected @endif>沒有佣金</option>
                                             </select>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <button type="submit" class="btn btn-success waves-effect waves-light w-100">
-                                                <i class="fe-search me-1"></i>搜尋
-                                            </button>
                                         </div>
                                     </div>
                                     
                                     <!-- 第二行篩選 -->
                                     <div class="row">
-                                        <div class="col-md-2">
+                                        <div class="col-md-2 mb-2 mb-md-0">
                                             <select class="form-select" name="has_bank_account" onchange="this.form.submit()">
                                                 <option value="null" @if (!isset($request->has_bank_account) || $request->has_bank_account == 'null') selected @endif>是否有匯款帳號</option>
-                                                <option value="1" @if ($request->has_bank_account === '1') selected @endif>有</option>
-                                                <option value="0" @if ($request->has_bank_account === '0') selected @endif>沒有</option>
+                                                <option value="1" @if ($request->has_bank_account === '1') selected @endif>有匯款帳號</option>
+                                                <option value="0" @if ($request->has_bank_account === '0') selected @endif>沒有匯款帳號</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div class="col-md-2 mb-2 mb-md-0">
                                             <select class="form-select" name="contract_status" onchange="this.form.submit()">
                                                 <option value="null" @if (!isset($request->contract_status) || $request->contract_status == 'null') selected @endif>是否簽約過</option>
-                                                <option value="1" @if ($request->contract_status === '1') selected @endif>有</option>
-                                                <option value="0" @if ($request->contract_status === '0') selected @endif>沒有</option>
+                                                <option value="1" @if ($request->contract_status === '1') selected @endif>有簽約</option>
+                                                <option value="0" @if ($request->contract_status === '0') selected @endif>沒有簽約</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div class="col-md-2 mb-2 mb-md-0">
+                                            <select class="form-select" name="assigned_to" onchange="this.form.submit()">
+                                                <option value="null" @if (!isset($request->assigned_to) || $request->assigned_to == 'null') selected @endif>選擇負責人</option>
+                                                @if (isset($users))
+                                                    @foreach ($users as $user)
+                                                        <option value="{{ $user->id }}" @if ($request->assigned_to == $user->id) selected @endif>{{ $user->name }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 mb-2 mb-md-0">
+                                            <select class="form-select" name="seq" onchange="this.form.submit()">
+                                                <option value="null" @if (!isset($request->seq) || $request->seq == 'null') selected @endif>建立時間排序</option>
+                                                <option value="desc" @if ($request->seq == 'desc') selected @endif>最新建立</option>
+                                                <option value="asc" @if ($request->seq == 'asc') selected @endif>最舊建立</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 mb-2 mb-md-0">
                                             <select class="form-select" name="recently_date_sort" onchange="this.form.submit()">
                                                 <option value="null" @if (!isset($request->recently_date_sort) || $request->recently_date_sort == 'null') selected @endif>叫件日期排序</option>
                                                 <option value="desc" @if ($request->recently_date_sort == 'desc') selected @endif>最新叫件</option>
                                                 <option value="asc" @if ($request->recently_date_sort == 'asc') selected @endif>最舊叫件</option>
                                             </select>
+                                        </div>
+                                        <div class="col-md-2 d-flex align-items-end mb-2 mb-md-0">
+                                            <button type="submit" class="btn btn-success waves-effect waves-light w-100">
+                                                <i class="fe-search me-1"></i>搜尋
+                                            </button>
                                         </div>
                                     </div>
                                 </form>
@@ -195,20 +212,20 @@
                                                     data-bs-toggle="dropdown" aria-expanded="false">動作 <i
                                                         class="mdi mdi-arrow-down-drop-circle"></i></a>
                                                 <div class="dropdown-menu dropdown-menu-end">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('visit.company.edit', $data->id) }}"
-                                                        target="_blank"><i
-                                                            class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯</a>
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('visit.source.sale', $data->id) }}"
-                                                        target="_blank"><i
-                                                            class="mdi mdi-clipboard-text-search me-2 font-18 text-muted vertical-middle"></i>叫件紀錄</a>
                                                     <a class="dropdown-item" href="{{ route('visits', $data->id) }}"
                                                         target="_blank"><i
                                                             class="mdi mdi-file-document me-2 font-18 text-muted vertical-middle"></i>查看拜訪</a>
                                                     <a class="dropdown-item"
                                                         href="{{ route('visit.create', $data->id) }}" target="_blank"><i
                                                             class="mdi mdi-text-box-plus-outline me-2 text-muted font-18 vertical-middle"></i>新增拜訪</a>
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('visit.company.edit', $data->id) }}"
+                                                        target="_blank"><i
+                                                            class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯資料</a>
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('visit.source.sale', $data->id) }}"
+                                                        target="_blank"><i
+                                                            class="mdi mdi-clipboard-text-search me-2 font-18 text-muted vertical-middle"></i>叫件紀錄</a>
                                                 </div>
                                             </div>
                                         </td>
