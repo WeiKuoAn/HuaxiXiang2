@@ -141,11 +141,14 @@ require __DIR__ . '/auth.php';
 
 // 20230321更新
 
-Route::group(['prefix' => '/'], function () {
-    Route::get('', function () {
-        Auth::logout();
-        return view('auth.login');
-    });
+// 首頁（登入頁面）- 不需要認證
+Route::get('', function () {
+    Auth::logout();
+    return view('auth.login');
+});
+
+// 所有需要登入的路由
+Route::group(['prefix' => '/', 'middleware' => ['auth']], function () {
     // 登入後的打卡畫面
     Route::get('dashboard', [DashboardController::class, 'loginSuccess'])->name('index');
     Route::post('/dashboard', [DashboardController::class, 'store'])->name('index.worktime');
@@ -204,6 +207,7 @@ Route::group(['prefix' => '/'], function () {
     Route::get('/person_inventory', [PersonController::class, 'person_inventory'])->name('person.inventory');
     Route::get('person/sale_statistics', [PersonController::class, 'sale_statistics'])->name('preson.sale_statistics');
     Route::get('person/last_leave_days', [PersonController::class, 'last_leave_days'])->name('person.last_leave_days');
+    Route::get('person/increases', [PersonController::class, 'increases'])->name('person.increases');
 
     /* 請假管理 */
     Route::get('personnel/leave_days', [LeaveDayController::class, 'index'])->name('personnel.leave_days');
@@ -384,6 +388,7 @@ Route::group(['prefix' => '/'], function () {
     //gemini
     Route::get('/sale/create/gemini', [SaleDataGeminiController::class, 'create_gpt_gemini'])->name('sale.create.gemini');
     Route::get('/sale/create/modern', [SaleDataControllerNew::class, 'create_modern'])->name('sale.create.modern');
+    Route::get('/sale/create/gpt_product', [SaleDataControllerNew::class, 'create_gpt_product'])->name('sale.create.gpt_product');
     // 業務對帳明細
     Route::get('/sale/check/history', [SaleDataController::class, 'checkHistory'])->name('sales.checkHistory');
     Route::get('/sale/history/{id}', [SaleDataController::class, 'history'])->name('sale.history');
@@ -428,6 +433,7 @@ Route::group(['prefix' => '/'], function () {
 
     Route::get('/prom/search', [SaleDataController::class, 'prom_search'])->name('prom.search');
     Route::get('/gdpaper/search', [SaleDataController::class, 'gdpaper_search'])->name('gdpaper.search');
+    Route::get('/combo-product/search', [SaleDataControllerNew::class, 'combo_product_search'])->name('combo.product.search');
     Route::get('/customer/search', [SaleDataController::class, 'customer_search'])->name('customer.search');
     Route::get('/company/search', [SaleDataController::class, 'company_search'])->name('company.search');
     Route::get('/customers/by-type', [SaleDataController::class, 'get_customers_by_type'])->name('customers.by-type');

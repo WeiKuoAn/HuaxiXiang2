@@ -15,35 +15,36 @@
     @yield('body-extra')>
     <!-- Begin page -->
     <div id="wrapper">
-        @if (Auth::user()->status == 0)<!--用戶是否啟用-->
-            @if (Auth::user()->job_id == 1 || Auth::user()->job_id == 7)
-                <!-- 老闆(1) 工程師(7)-->
-                @include('layouts.topbar/admin-topbar')
-            @elseif(Auth::user()->job_id == 2)
-                <!-- 行政主管(2) -->
-                @include('layouts.topbar/admin-istrative-topbar')
-            @elseif(Auth::user()->job_id == 3)
-                <!-- 專員主管(3) -->
-                @include('layouts.topbar/admin-sale-topbar')
-            @elseif(Auth::user()->job_id == 4)
-                <!-- 行政(4) -->
-                @include('layouts.topbar/istrative-topbar')
-            @elseif(Auth::user()->job_id == 5)
-                <!-- 專員(5) -->
-                @include('layouts.topbar/sale-topbar')
-            @elseif(Auth::user()->job_id == 6)
-                <!-- 股東(6) -->
-                @include('layouts.topbar/shareholder-topbar')
-            @elseif(Auth::user()->job_id == 9)
-                <!-- 純對帳帳號(9) -->
-                @include('layouts.topbar/check-topbar')
-            @else
-                @include('layouts.topbar/sale-topbar')
+        @auth
+            @if (Auth::user()->status == 0)<!--用戶是否啟用-->
+                @if (Auth::user()->job_id == 1 || Auth::user()->job_id == 7)
+                    <!-- 老闆(1) 工程師(7)-->
+                    @include('layouts.topbar/admin-topbar')
+                @elseif(Auth::user()->job_id == 2)
+                    <!-- 行政主管(2) -->
+                    @include('layouts.topbar/admin-istrative-topbar')
+                @elseif(Auth::user()->job_id == 3)
+                    <!-- 專員主管(3) -->
+                    @include('layouts.topbar/admin-sale-topbar')
+                @elseif(Auth::user()->job_id == 4)
+                    <!-- 行政(4) -->
+                    @include('layouts.topbar/istrative-topbar')
+                @elseif(Auth::user()->job_id == 5)
+                    <!-- 專員(5) -->
+                    @include('layouts.topbar/sale-topbar')
+                @elseif(Auth::user()->job_id == 6)
+                    <!-- 股東(6) -->
+                    @include('layouts.topbar/shareholder-topbar')
+                @elseif(Auth::user()->job_id == 9)
+                    <!-- 純對帳帳號(9) -->
+                    @include('layouts.topbar/check-topbar')
+                @else
+                    @include('layouts.topbar/sale-topbar')
+                @endif
             @endif
-        @endif
 
-        @if (Auth::user()->status == 0)<!--用戶是否啟用-->
-            @include('layouts.shared/all-left-sidebar')
+            @if (Auth::user()->status == 0)<!--用戶是否啟用-->
+                @include('layouts.shared/all-left-sidebar')
             {{-- @if (Auth::user()->job_id == 1 || Auth::user()->job_id == 7)
                 <!-- 老闆(1) 工程師(7)-->
                 @include('layouts.shared/admin-left-sidebar')
@@ -71,7 +72,13 @@
             @else
                 @include('layouts.shared/sale-left-sidebar')
             @endif --}}
-        @endif
+            @endif
+        @else
+            <!-- 未登入時：重定向到登入頁面 -->
+            <script>
+                window.location.href = '{{ route('login') }}';
+            </script>
+        @endauth
 
         <!-- ============================================================== -->
         <!-- Start Page Content here -->
