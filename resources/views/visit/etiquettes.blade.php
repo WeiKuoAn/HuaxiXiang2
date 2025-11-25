@@ -249,13 +249,13 @@
                                                             target="_blank"><i
                                                                 class="mdi mdi-text-box-plus-outline me-2 text-muted font-18 vertical-middle"></i>新增拜訪</a>
                                                         <a class="dropdown-item"
-                                                            href="{{ route('visit.company.edit', $data->id) }}"
-                                                            target="_blank"><i
-                                                                class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯資料</a>
-                                                        <a class="dropdown-item"
                                                             href="{{ route('visit.source.sale', $data->id) }}"
                                                             target="_blank"><i
                                                                 class="mdi mdi-clipboard-text-search me-2 font-18 text-muted vertical-middle"></i>叫件紀錄</a>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('visit.company.edit', $data->id) }}"
+                                                            target="_blank"><i
+                                                                class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯資料</a>
                                                     </div>
                                                 </div>
                                             </td>
