@@ -242,13 +242,6 @@
                                                             class="mdi mdi-arrow-down-drop-circle"></i></a>
                                                     <div class="dropdown-menu dropdown-menu-end">
                                                         <a class="dropdown-item"
-                                                            href="{{ route('customer.detail', $data->id) }}"><i
-                                                                class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i>查看資料</a>
-                                                        <a class="dropdown-item"
-                                                            href="{{ route('visit.company.edit', $data->id) }}"><i
-                                                                class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯資料</a>
-                                                        <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item"
                                                             href="{{ route('visit.create', $data->id) }}"><i
                                                                 class="mdi mdi-text-box-plus-outline me-2 text-muted font-18 vertical-middle"></i>新增拜訪</a>
                                                         <a class="dropdown-item"
@@ -257,6 +250,13 @@
                                                         <a class="dropdown-item"
                                                             href="{{ route('visit.source.sale', $data->id) }}"><i
                                                                 class="mdi mdi-clipboard-text-search me-2 font-18 text-muted vertical-middle"></i>叫件紀錄</a>
+                                                        <div class="dropdown-divider"></div>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('customer.detail', $data->id) }}"><i
+                                                                class="mdi mdi-eye me-2 text-muted font-18 vertical-middle"></i>查看資料</a>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('visit.company.edit', $data->id) }}"><i
+                                                                class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯資料</a>
                                                     </div>
                                                 </div>
                                             </td>
