@@ -23,6 +23,7 @@ class User extends Authenticatable
         'mobile',
         'address',
         'entry_date',
+        'part_time_entry_date',
         'resign_date',
         'level',
         'job_id',
@@ -86,5 +87,29 @@ class User extends Authenticatable
     public function assignedTasks()
     {
         return $this->belongsToMany(Task::class, 'task_items');
+    }
+
+    /**
+     * 取得使用者的權限
+     */
+    public function permissions()
+    {
+        return $this->hasMany(UserPermission::class);
+    }
+
+    /**
+     * 檢查使用者是否有特定權限
+     */
+    public function hasPermission($permissionName)
+    {
+        return UserPermission::hasPermission($this->id, $permissionName);
+    }
+
+    /**
+     * 取得使用者的所有權限
+     */
+    public function getAllPermissions()
+    {
+        return UserPermission::getUserPermissions($this->id);
     }
 }

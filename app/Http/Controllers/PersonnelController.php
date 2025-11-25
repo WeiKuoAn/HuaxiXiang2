@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Validation\Rules;
+use App\Models\OvertimeRecord;
 
 class PersonnelController extends Controller
 {
@@ -70,6 +71,7 @@ class PersonnelController extends Controller
             $datas[$user->id]['pay_data'] = $user_pay_data;
             $datas[$user->id]['balance'] = intval($user_balance) + intval($user_cash) - intval($user_pay_data);
             $datas[$user->id]['seniority'] = $this->seniority($user->entry_date, $user->id);
+            $datas[$user->id]['part_time_seniority'] = $this->part_time_seniority($user->part_time_entry_date, $user->id);
             $datas[$user->id]['specil_vacation'] = $this->specil_vacation($user->entry_date, $user->id);
             $datas[$user->id]['remain_specil_vacation'] = intval($this->specil_vacation($user->entry_date, $user->id)) + intval($day);  // 剩餘休假天數
         }
@@ -233,6 +235,70 @@ class PersonnelController extends Controller
         if ($user_entry_date != null) {
             $today = date('Y-m-d', strtotime(Carbon::now()->locale('zh-tw')));
             $startDate = Carbon::parse($user_entry_date);  // 將起始日期字串轉換為 Carbon 日期物件
+
+            // 如果有提供 user_id，檢查是否有年資暫停記錄或轉成兼職的日期
+            if ($user_id) {
+                $user = User::find($user_id);
+                $endDate = null;
+
+                // 優先檢查是否有轉成兼職的日期
+                if ($user && $user->part_time_entry_date) {
+                    $partTimeDate = Carbon::parse($user->part_time_entry_date);
+                    // 確保兼職日期在入職日期之後
+                    if ($partTimeDate->gte($startDate)) {
+                        $endDate = $partTimeDate;
+                    }
+                }
+
+                // 如果沒有兼職日期，檢查是否有年資暫停記錄
+                if ($endDate === null) {
+                    $pauseRecords = SeniorityPauses::where('user_id', $user_id)
+                        ->where('pause_date', '<=', $today)
+                        ->orderBy('pause_date')
+                        ->get();
+
+                    if ($pauseRecords->count() > 0) {
+                        // 如果有暫停記錄，年資計算到第一個暫停日期
+                        $firstPauseDate = Carbon::parse($pauseRecords->first()->pause_date);
+                        $endDate = $firstPauseDate;
+                    }
+                }
+
+                // 如果都沒有，計算到當前日期
+                if ($endDate === null) {
+                    $endDate = Carbon::parse($today);
+                }
+            } else {
+                $endDate = Carbon::parse($today);  // 計算年數差距
+            }
+
+            $diffDays = $startDate->diffInDays($endDate);
+
+            // 計算年數和月數
+            $years = floor($diffDays / 365);
+            $remainingDays = $diffDays % 365;
+            $months = floor($remainingDays / 30);
+
+            // 格式化輸出
+            if ($years > 0 && $months > 0) {
+                return $years . '年' . $months . '個月';
+            } elseif ($years > 0) {
+                return $years . '年';
+            } elseif ($months > 0) {
+                return $months . '個月';
+            } else {
+                return '未滿1個月';
+            }
+        } else {
+            return '未滿1個月';
+        }
+    }
+
+    private function part_time_seniority($user_part_time_entry_date, $user_id = null)
+    {
+        if ($user_part_time_entry_date != null) {
+            $today = date('Y-m-d', strtotime(Carbon::now()->locale('zh-tw')));
+            $startDate = Carbon::parse($user_part_time_entry_date);  // 將起始日期字串轉換為 Carbon 日期物件
 
             // 如果有提供 user_id，檢查是否有年資暫停記錄
             if ($user_id) {
@@ -533,4 +599,6 @@ class PersonnelController extends Controller
             return $start->copy()->addYears($fullYears);
         }
     }
+
+    
 }

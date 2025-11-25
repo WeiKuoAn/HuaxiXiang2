@@ -62,6 +62,14 @@
                                     value="{{ $user->entry_date }}">
                             </div>
 
+                            @if($user->job_id == '11' || $user->job_id == '12')
+                            <div class="mb-3">
+                                <label class="form-label">兼職入職時間<span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" data-toggle="flatpicker" name="part_time_entry_date"
+                                    value="{{ $user->part_time_entry_date }}">
+                            </div>
+                            @endif
+
                             <div class="mb-3">
                                 <label for="project-priority" class="form-label">分館<span
                                         class="text-danger">*</span></label>

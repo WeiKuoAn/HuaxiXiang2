@@ -85,7 +85,17 @@
                                                 <td>{{ $user->resign_date }}</td>
                                             @endif
                                             <td>{{ $user->mobile }}</td>
-                                            <td>{{ $datas[$user->id]['seniority'] }}</td>
+                                            <td>
+                                                @if($user->part_time_entry_date!=null && $user->part_time_entry_date != '')
+                                                    <span>正職年資：</span>
+                                                    {{ $datas[$user->id]['seniority'] }}
+                                                    <br>
+                                                    <span>兼職年資：</span>
+                                                    {{ $datas[$user->id]['part_time_seniority'] }}
+                                                @else
+                                                    {{ $datas[$user->id]['seniority'] }}
+                                                @endif
+                                            </td>
                                             {{-- <td>
                                             @if ($datas[$user->id]['balance'] <= 0)
                                                 <span style="color:red;">{{ number_format($datas[$user->id]['balance']) }}</span>
