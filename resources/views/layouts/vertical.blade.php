@@ -73,11 +73,6 @@
                 @include('layouts.shared/sale-left-sidebar')
             @endif --}}
             @endif
-        @else
-            <!-- 未登入時：重定向到登入頁面 -->
-            <script>
-                window.location.href = '{{ route('login') }}';
-            </script>
         @endauth
 
         <!-- ============================================================== -->
