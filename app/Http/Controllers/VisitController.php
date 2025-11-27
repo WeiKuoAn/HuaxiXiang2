@@ -2293,7 +2293,7 @@ class VisitController extends Controller
         }
 
         // 生成 CSV 內容（不使用套件）
-        $filename = '醫院列表_' . date('Y-m-d_H-i-s') . '.csv';
+        $filename = '美容院列表_' . date('Y-m-d_H-i-s') . '.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -2477,7 +2477,7 @@ class VisitController extends Controller
         }
 
         // 生成 CSV 內容（不使用套件）
-        $filename = '醫院列表_' . date('Y-m-d_H-i-s') . '.csv';
+        $filename = '其他列表_' . date('Y-m-d_H-i-s') . '.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
