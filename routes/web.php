@@ -142,10 +142,10 @@ require __DIR__ . '/auth.php';
 // 20230321更新
 
 // 首頁（登入頁面）- 不需要認證
-Route::get('', function () {
-    Auth::logout();
-    return view('auth.login');
-});
+    Route::get('', function () {
+        Auth::logout();
+        return view('auth.login');
+    });
 
 // 所有需要登入的路由
 Route::group(['prefix' => '/', 'middleware' => ['auth']], function () {
@@ -313,6 +313,8 @@ Route::group(['prefix' => '/', 'middleware' => ['auth']], function () {
     Route::post('visit/company/create', [VisitController::class, 'company_store'])->name('visit.company.create.data');
     Route::get('visit/company/edit/{id}', [VisitController::class, 'company_edit'])->name('visit.company.edit');
     Route::post('visit/company/edit/{id}', [VisitController::class, 'company_update'])->name('visit.company.edit.data');
+    Route::get('visit/company/delete/{id}', [VisitController::class, 'company_delete'])->name('visit.company.delete');
+    Route::delete('visit/company/delete/{id}', [VisitController::class, 'company_destroy'])->name('visit.company.destroy');
 
     /* 客戶群組管理 */
     Route::get('/customer/group', [CustomrtGruopController::class, 'index'])->name('customer.group');

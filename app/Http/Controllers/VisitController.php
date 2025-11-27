@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Contract;
 use App\Models\CustGroup;
 use App\Models\Customer;
+use App\Models\CustomerAddress;
 use App\Models\CustomerBank;
 use App\Models\CustomerMobile;
 use App\Models\Lamp;
@@ -990,13 +991,26 @@ class VisitController extends Controller
             }
         }
         
+        // 處理多個地址
+        $addresses = $request->input('addresses', []);
+        $counties = $request->input('county', []);
+        $districts = $request->input('district', []);
+
         if ($request->not_mobile == 1) {  // 未提供電話
             $customer = new Customer;
             $customer->name = $request->name;
             $customer->mobile = '未提供電話';
-            $customer->county = $request->county;
-            $customer->district = $request->district;
-            $customer->address = $request->address;
+            // 如果有地址，第一筆寫入 customer 表
+            if (!empty($counties) && !empty($counties[0])) {
+                $customer->county = $counties[0] ?? '';
+                $customer->district = $districts[0] ?? '';
+                $customer->address = $addresses[0] ?? '';
+            } else {
+                // 如果沒有地址或選擇「未提供地址」
+                $customer->county = '';
+                $customer->district = '';
+                $customer->address = '未提供地址';
+            }
             // 處理帳戶資訊：如果勾選「不提供帳戶」，則不儲存帳戶資訊
             if ($request->not_provide_bank != 1 && (!empty($request->bank) || !empty($request->branch) || !empty($request->bank_number))) {
                 $customer->bank = $request->bank;
@@ -1007,6 +1021,7 @@ class VisitController extends Controller
             $customer->visit_status = $request->visit_status;
             $customer->contract_status = $request->contract_status;
             $customer->assigned_to = $request->assigned_to;
+            $customer->blacklist = $request->has('blacklist') ? 1 : 0;
         } else {
             if (isset($data)) {
                 return view('visit.company_create')
@@ -1030,9 +1045,17 @@ class VisitController extends Controller
                     } else {
                         $customer->mobile = '未提供電話';
                     }
-                    $customer->county = $request->county;
-                    $customer->district = $request->district;
-                    $customer->address = $request->address;
+                    // 如果有地址，第一筆寫入 customer 表
+                    if (!empty($counties) && !empty($counties[0])) {
+                        $customer->county = $counties[0] ?? '';
+                        $customer->district = $districts[0] ?? '';
+                        $customer->address = $addresses[0] ?? '';
+                    } else {
+                        // 如果沒有地址或選擇「未提供地址」
+                        $customer->county = '';
+                        $customer->district = '';
+                        $customer->address = '未提供地址';
+                    }
                     // 處理帳戶資訊：如果勾選「不提供帳戶」，則不儲存帳戶資訊
                     if ($request->not_provide_bank != 1 && (!empty($request->bank) || !empty($request->branch) || !empty($request->bank_number))) {
                         $customer->bank = $request->bank;
@@ -1043,6 +1066,7 @@ class VisitController extends Controller
                     $customer->visit_status = $request->visit_status;
                     $customer->contract_status = $request->contract_status;
                     $customer->assigned_to = $request->assigned_to;
+                    $customer->blacklist = $request->has('blacklist') ? 1 : 0;
                 }
             }
         }
@@ -1080,6 +1104,30 @@ class VisitController extends Controller
             }
         }
 
+        // 處理多個地址：所有地址都寫入 customer_addresses 表
+        for ($i = 0; $i < count($addresses); $i++) {
+            if (!empty($addresses[$i])) {
+                $address = new CustomerAddress;
+                $address->customer_id = $customer->id;
+                $address->county = $counties[$i] ?? '';
+                $address->district = $districts[$i] ?? '';
+                $address->address = $addresses[$i];
+                $address->is_primary = ($i === 0) ? 1 : 0;  // 第一筆為主要地址
+                $address->save();
+            }
+        }
+
+        // 如果沒有地址或選擇「未提供地址」，建立預設地址記錄
+        if (empty($addresses) || $request->not_address == 1) {
+            $address = new CustomerAddress;
+            $address->customer_id = $customer->id;
+            $address->county = '';
+            $address->district = '';
+            $address->address = '未提供地址';
+            $address->is_primary = 1;
+            $address->save();
+        }
+
         // 根據類型重定向
         if ($hospital_type) {
             return redirect()->route('hospitals');
@@ -1106,7 +1154,7 @@ class VisitController extends Controller
         $banks = collect(json_decode($json, true));
         $groupedBanks = $banks->groupBy('銀行代號/總機構代碼');
         $company_type = $request->headers->get('referer');
-        $data = Customer::with('mobiles')->where('id', $id)->first();
+        $data = Customer::with(['mobiles', 'addresses'])->where('id', $id)->first();
         $groups = CustGroup::get();
         return View('visit.company_edit')
             ->with('hint', 0)
@@ -1137,9 +1185,23 @@ class VisitController extends Controller
             $data->mobile = '未提供電話';
         }
         
-        $data->county = $request->county;
-        $data->district = $request->district;
-        $data->address = $request->address;
+        // 處理多個地址
+        $addresses = $request->input('addresses', []);
+        $counties = $request->input('county', []);
+        $districts = $request->input('district', []);
+        
+        // 如果有地址，第一筆寫入 customer 表
+        if (!empty($counties) && !empty($counties[0])) {
+            $data->county = $counties[0] ?? '';
+            $data->district = $districts[0] ?? '';
+            $data->address = $addresses[0] ?? '';
+        } else {
+            // 如果沒有地址或選擇「未提供地址」
+            $data->county = '';
+            $data->district = '';
+            $data->address = '未提供地址';
+        }
+        
         $data->group_id = $request->group_id;
         
         // 處理帳戶資訊：如果勾選「不提供帳戶」，則不儲存帳戶資訊
@@ -1157,6 +1219,7 @@ class VisitController extends Controller
         $data->visit_status = $request->visit_status;
         $data->contract_status = $request->contract_status;
         $data->assigned_to = $request->assigned_to == 'null' ? null : $request->assigned_to;
+        $data->blacklist = $request->has('blacklist') ? 1 : 0;
         $data->save();
 
         // 處理多筆電話：刪除舊的電話記錄，重新建立
@@ -1173,6 +1236,31 @@ class VisitController extends Controller
             }
         }
 
+        // 處理多個地址：刪除舊的地址記錄，重新建立
+        CustomerAddress::where('customer_id', $id)->delete();
+        for ($i = 0; $i < count($addresses); $i++) {
+            if (!empty($addresses[$i])) {
+                $address = new CustomerAddress;
+                $address->customer_id = $data->id;
+                $address->county = $counties[$i] ?? '';
+                $address->district = $districts[$i] ?? '';
+                $address->address = $addresses[$i];
+                $address->is_primary = ($i === 0) ? 1 : 0;  // 第一筆為主要地址
+                $address->save();
+            }
+        }
+
+        // 如果沒有地址或選擇「未提供地址」，建立預設地址記錄
+        if (empty($addresses) || $request->not_address == 1) {
+            $address = new CustomerAddress;
+            $address->customer_id = $data->id;
+            $address->county = '';
+            $address->district = '';
+            $address->address = '未提供地址';
+            $address->is_primary = 1;
+            $address->save();
+        }
+
         // 返回到原始來源頁面
         $originalReferer = session('original_referer');
         if ($originalReferer) {
@@ -1186,8 +1274,57 @@ class VisitController extends Controller
     public function company_delete($id, Request $request)
     {
         $company_type = $request->headers->get('referer');
-        $data = Customer::where('id', $id)->first();
-        return View('visit.company_del')->with('data', $data)->with('company_type', $company_type);
+        $data = Customer::with(['mobiles', 'addresses'])->where('id', $id)->first();
+        $users = User::where('status', '0')->whereIn('job_id', ['1', '2', '3', '5', '10'])->get();
+        $json = file_get_contents(public_path('assets/data/banks.json'));
+        $banks = collect(json_decode($json, true));
+        $groupedBanks = $banks->groupBy('銀行代號/總機構代碼');
+        $groups = CustGroup::get();
+        return View('visit.company_del')
+            ->with('data', $data)
+            ->with('company_type', $company_type)
+            ->with('groupedBanks', $groupedBanks)
+            ->with('users', $users)
+            ->with('groups', $groups);
+    }
+
+    public function company_destroy($id, Request $request)
+    {
+        $customer = Customer::where('id', $id)->first();
+        
+        // 判斷來源頁面類型，以便刪除後重定向到正確的列表頁
+        $company_type = $request->company_type ?? $request->headers->get('referer');
+        $hospital_type = Str::contains($company_type, 'hospitals');  // 醫院
+        $etiquette_type = Str::contains($company_type, 'etiquettes');  // 禮儀社
+        $reproduce_type = Str::contains($company_type, 'reproduces');  // 繁殖場
+        $dogpark_type = Str::contains($company_type, 'dogparks');  // 狗園
+        $salons_type = Str::contains($company_type, 'salons');  // 美容院
+        $others_type = Str::contains($company_type, 'others');  // 其他業者
+        
+        // 刪除相關記錄
+        CustomerAddress::where('customer_id', $id)->delete();
+        CustomerMobile::where('customer_id', $id)->delete();
+        
+        // 刪除客戶記錄
+        $customer->delete();
+        
+        // 根據類型重定向
+        if ($hospital_type) {
+            return redirect()->route('hospitals')->with('success', '資料已刪除！');
+        } elseif ($etiquette_type) {
+            return redirect()->route('etiquettes')->with('success', '資料已刪除！');
+        } elseif ($reproduce_type) {
+            return redirect()->route('reproduces')->with('success', '資料已刪除！');
+        } elseif ($dogpark_type) {
+            return redirect()->route('dogparks')->with('success', '資料已刪除！');
+        } elseif ($salons_type) {
+            return redirect()->route('salons')->with('success', '資料已刪除！');
+        } elseif ($others_type) {
+            return redirect()->route('others')->with('success', '資料已刪除！');
+        } else {
+            // 如果無法判斷類型，重定向到醫院列表（預設）
+            return redirect()->route('hospitals')->with('success', '資料已刪除！');
+        }
     }
 
     public function source_sale($id, Request $request)  // 叫件紀錄

@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ['page_title' => '編輯合作公司'])
+@extends('layouts.vertical', ['page_title' => '刪除合作公司'])
 
 @section('css')
     <!-- third party css -->
@@ -20,10 +20,10 @@
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Huaxixiang</a></li>
                             <li class="breadcrumb-item"><a href="javascript: void(0);">拜訪管理</a></li>
-                            <li class="breadcrumb-item active">編輯合作公司</li>
+                            <li class="breadcrumb-item active">刪除合作公司</li>
                         </ol>
                     </div>
-                    <h4 class="page-title">編輯合作公司</h4>
+                    <h4 class="page-title">刪除合作公司</h4>
                 </div>
             </div>
         </div>
@@ -33,8 +33,10 @@
             <div class="col-xl-6">
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{ route('visit.company.edit.data', $data->id) }}" method="POST">
+                        <form action="{{ route('visit.company.destroy', $data->id) }}" method="POST" id="deleteForm">
                             @csrf
+                            @method('DELETE')
+                            <input type="hidden" name="company_type" value="{{ $company_type }}">
                             <div class="row">
                                 <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">基本資訊</h5>
                                 <input type="hidden" class="form-control" name="company_type" value="{{ $company_type }}">
@@ -114,57 +116,42 @@
 
                                     <h5 class="text-uppercase bg-light p-2 mt-0 mb-3">地址</h5>
                                     <div class="row">
-                                        <label class="form-label">地址<span class="text-danger">*</span></label>
+                                        <label class="form-label">地址</label>
                                         <div id="address-container">
                                             @if(isset($data->addresses) && count($data->addresses) > 0)
                                                 @foreach ($data->addresses as $i => $addr)
-                                                    <div class="address-item mb-3" data-county="{{ $addr->county ?? '' }}" data-district="{{ $addr->district ?? '' }}">
+                                                    <div class="address-item mb-3">
                                                         <div class="row">
                                                             <div class="col-12">
                                                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                                                     <span class="text-muted">地址 #{{ $i + 1 }}</span>
-                                                                    <button type="button" class="btn btn-sm btn-outline-danger remove-address"
-                                                                        @if ($i == 0) style="display:none;" @endif>
-                                                                        <i class="fe-trash-2"></i> 移除
-                                                                    </button>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-12">
-                                                                <div id="twzipcode-{{ $i + 1 }}"></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row mt-1">
-                                                            <div class="col-12">
-                                                                <input type="text" class="form-control" name="addresses[]" 
-                                                                    value="{{ $addr->address }}" placeholder="輸入地址" required>
+                                                                <div class="form-control" style="background-color: #f8f9fa;">
+                                                                    {{ $addr->county }}{{ $addr->district }}{{ $addr->address }}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         <hr class="mt-3 mb-0" style="border-color: #e9ecef; opacity: 0.5;">
                                                     </div>
                                                 @endforeach
                                             @elseif (isset($data->address) && $data->address)
-                                                <div class="address-item mb-3" data-county="{{ $data->county ?? '' }}" data-district="{{ $data->district ?? '' }}">
+                                                <div class="address-item mb-3">
                                                     <div class="row">
                                                         <div class="col-12">
                                                             <div class="d-flex justify-content-between align-items-center mb-2">
                                                                 <span class="text-muted">地址 #1</span>
-                                                                <button type="button" class="btn btn-sm btn-outline-danger remove-address" style="display: none;">
-                                                                    <i class="fe-trash-2"></i> 移除
-                                                                </button>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-12">
-                                                            <div id="twzipcode-1"></div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mt-1">
-                                                        <div class="col-12">
-                                                            <input type="text" class="form-control" name="addresses[]"
-                                                                value="{{ $data->address }}" placeholder="輸入地址" required>
+                                                            <div class="form-control" style="background-color: #f8f9fa;">
+                                                                {{ $data->county }}{{ $data->district }}{{ $data->address }}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <hr class="mt-3 mb-0" style="border-color: #e9ecef; opacity: 0.5;">
@@ -173,32 +160,13 @@
                                                 <div class="address-item mb-3">
                                                     <div class="row">
                                                         <div class="col-12">
-                                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                                <span class="text-muted">地址 #1</span>
-                                                                <button type="button" class="btn btn-sm btn-outline-danger remove-address" style="display: none;">
-                                                                    <i class="fe-trash-2"></i> 移除
-                                                                </button>
+                                                            <div class="form-control" style="background-color: #f8f9fa;">
+                                                                無地址資料
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="row">
-                                                        <div class="col-12">
-                                                            <div id="twzipcode-1"></div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mt-1">
-                                                        <div class="col-12">
-                                                            <input type="text" class="form-control" name="addresses[]" placeholder="輸入地址" required>
-                                                        </div>
-                                                    </div>
-                                                    <hr class="mt-3 mb-0" style="border-color: #e9ecef; opacity: 0.5;">
                                                 </div>
                                             @endif
-                                        </div>
-                                        <div class="mb-3 text-end">
-                                            <button type="button" class="btn btn-outline-primary btn-sm" id="add-address">
-                                                <i class="fe-plus"></i> 新增地址
-                                            </button>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -267,21 +235,14 @@
                                     <div class="mb-1 mt-1">
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="not_mobile"
-                                                name="not_mobile" @if($data->mobile == '未提供電話') checked @endif>
+                                                name="not_mobile" @if($data->mobile == '未提供電話') checked @endif disabled>
                                             <label class="form-check-label" for="not_mobile"><b>未提供電話</b></label>
                                         </div>
                                     </div>
                                     <div class="mb-1 mt-1">
                                         <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="not_address"
-                                                name="not_address" @if($data->address == '未提供地址' || (isset($data->addresses) && count($data->addresses) > 0 && $data->addresses->first()->address == '未提供地址')) checked @endif>
-                                            <label class="form-check-label" for="not_address"><b>（親送）未提供地址</b></label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-1 mt-1">
-                                        <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="blacklist" name="blacklist" value="1" 
-                                                @if($data->blacklist == 1) checked @endif>
+                                                @if($data->blacklist == 1) checked @endif disabled>
                                             <label class="form-check-label" for="blacklist">
                                                 <span style="color: #dc3545; font-weight: bold;">🚫 黑名單</span>
                                             </label>
@@ -358,10 +319,12 @@
             </div> <!-- container -->
             <div class="row mt-3">
                 <div class="col-12 text-center">
-                    <button type="submit" class="btn btn-success waves-effect waves-light m-1"><i
-                            class="fe-check-circle me-1"></i>修改</button>
-                    <button type="reset" class="btn btn-secondary waves-effect waves-light m-1"
-                        onclick="history.go(-1)"><i class="fe-x me-1"></i>回上一頁</button>
+                    <button type="button" class="btn btn-danger waves-effect waves-light m-1" onclick="confirmDelete()">
+                        <i class="fe-trash-2 me-1"></i>確認刪除
+                    </button>
+                    <button type="button" class="btn btn-secondary waves-effect waves-light m-1"
+                        onclick="history.go(-1)">
+                        <i class="fe-x me-1"></i>取消</button>
                 </div>
             </div>
             </form>
@@ -502,139 +465,12 @@
                     }
                 });
 
-                // 表單提交驗證
-                $('form').on('submit', function(e) {
-                    var notProvideBank = $('#not_provide_bank').is(':checked');
-                    var bank = $('#bank').val();
-                    var branch = $('#branch').val();
-                    var bankNumber = $('#bank_number').val();
-                    
-                    // 檢查：要麼勾選「不提供帳戶」，要麼三個欄位都填寫
-                    if (!notProvideBank) {
-                        if (!bank || !branch || !bankNumber) {
-                            e.preventDefault();
-                            alert('請完整填寫匯款帳戶（銀行、分行、帳戶號碼），或勾選「不提供帳戶」');
-                            return false;
-                        }
-                    } else {
-                        // 如果勾選「不提供帳戶」，確保欄位都是空的
-                        if (bank || branch || bankNumber) {
-                            e.preventDefault();
-                            alert('已勾選「不提供帳戶」，請清空所有帳戶欄位');
-                            return false;
-                        }
+                // 刪除確認函數
+                function confirmDelete() {
+                    if (confirm('確定要刪除此公司資料嗎？此操作無法復原！')) {
+                        document.getElementById('deleteForm').submit();
                     }
-                });
-
-                $('#not_address').change(function() {
-                    if ($(this).is(':checked')) {
-                        $(this).val(1);
-                        $("input[name='addresses[]']").prop('required', false);
-                    } else {
-                        $(this).val(0);
-                        $("input[name='addresses[]']").prop('required', true);
-                    }
-                });
-
-                $(document).ready(function() {
-                    // 初始化所有現有地址的郵遞區號選擇器
-                    $(".address-item").each(function(index) {
-                        const addressNumber = index + 1;
-                        const twzipcodeId = `twzipcode-${addressNumber}`;
-                        
-                        if ($(this).find(`#${twzipcodeId}`).length > 0) {
-                            // 從地址資料中取得縣市和區
-                            const county = $(this).data('county') || '{{ $data->county ?? "" }}';
-                            const district = $(this).data('district') || '{{ $data->district ?? "" }}';
-                            
-                            $(`#${twzipcodeId}`).twzipcode({
-                                css: [" form-control", "mt-1 form-control", "mt-1 form-control"],
-                                countyName: "county[]",
-                                districtName: "district[]",
-                                countySel: county,
-                                districtSel: district,
-                            });
-                        }
-                    });
-
-                    // 新增地址功能
-                    $("#add-address").click(function() {
-                        const addressCount = $(".address-item").length + 1;
-                        const newAddressHtml = `
-                            <div class="address-item mb-3">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span class="text-muted">地址 #${addressCount}</span>
-                                            <button type="button" class="btn btn-sm btn-outline-danger remove-address">
-                                                <i class="fe-trash-2"></i> 移除
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div id="twzipcode-${addressCount}"></div>
-                                    </div>
-                                </div>
-                                <div class="row mt-1">
-                                    <div class="col-12">
-                                        <input type="text" class="form-control" name="addresses[]" placeholder="輸入地址" required>
-                                    </div>
-                                </div>
-                                <hr class="mt-3 mb-0" style="border-color: #e9ecef; opacity: 0.5;">
-                            </div>
-                        `;
-                        
-                        $("#address-container").append(newAddressHtml);
-                        
-                        // 初始化新地址的郵遞區號選擇器
-                        $(`#twzipcode-${addressCount}`).twzipcode({
-                            css: [" form-control", "mt-1 form-control", "mt-1 form-control"],
-                            countyName: "county[]",
-                            districtName: "district[]",
-                        });
-                        
-                        // 更新所有地址的編號
-                        updateAddressNumbers();
-                    });
-
-                    // 移除地址功能
-                    $(document).on("click", ".remove-address", function() {
-                        $(this).closest(".address-item").remove();
-                        updateAddressNumbers();
-                        
-                        // 如果只剩一個地址，隱藏移除按鈕
-                        if ($(".address-item").length === 1) {
-                            $(".remove-address").hide();
-                        }
-                    });
-
-                    // 更新地址編號
-                    function updateAddressNumbers() {
-                        $(".address-item").each(function(index) {
-                            const addressNumber = index + 1;
-                            $(this).find(".text-muted").text(`地址 #${addressNumber}`);
-                            
-                            // 更新郵遞區號選擇器的 ID
-                            const oldId = $(this).find("[id^='twzipcode-']").attr("id");
-                            const newId = `twzipcode-${addressNumber}`;
-                            if (oldId !== newId) {
-                                $(this).find("[id^='twzipcode-']").attr("id", newId);
-                            }
-                        });
-                    }
-
-                    // 初始化時隱藏第一個地址的移除按鈕
-                    if ($(".address-item").length === 1) {
-                        $(".remove-address").hide();
-                    }
-
-                    // 頁面載入時檢查「未提供地址」狀態
-                    if ($('#not_address').is(':checked')) {
-                        $("input[name='addresses[]']").prop('required', false);
-                    }
-                });
+                }
             </script>
             <script>
                 function updateBranches() {

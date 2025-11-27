@@ -265,6 +265,9 @@
                                                         <a class="dropdown-item"
                                                             href="{{ route('visit.company.edit', $data->id) }}"><i
                                                                 class="mdi mdi-pencil me-2 text-muted font-18 vertical-middle"></i>編輯資料</a>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('visit.company.destroy', $data->id) }}"><i
+                                                                class="mdi mdi-delete me-2 text-muted font-18 vertical-middle"></i>刪除資料</a>
                                                     </div>
                                                 </div>
                                             </td>
