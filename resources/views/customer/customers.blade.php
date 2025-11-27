@@ -138,8 +138,12 @@
                                     @foreach ($customers as $key => $customer)
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
-                                            <td class="table-user"><img src="{{ asset('assets/images/users/user-4.jpg') }}"
-                                                    alt="table-user" class="me-2 rounded-circle">{{ $customer->name }}</td>
+                                            <td class="table-user">
+                                                {{ $customer->name }}
+                                                @if($customer->blacklist == 1)
+                                                    <span style="color: #dc3545; font-size: 1.5em; font-weight: bold;" title="黑名單">⚠️</span>
+                                                @endif
+                                            </td>
                                             <td>
 
                                                 @if (isset($customer->mobiles) && count($customer->mobiles) > 0)

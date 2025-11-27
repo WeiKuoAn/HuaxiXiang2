@@ -130,7 +130,7 @@
                                         <div id="address-container">
                                             @if(isset($customer->addresses) && count($customer->addresses))
                                                 @foreach ($customer->addresses as $i => $addr)
-                                                    <div class="address-item mb-3">
+                                                    <div class="address-item mb-3" data-county="{{ $addr->county ?? '' }}" data-district="{{ $addr->district ?? '' }}">
                                                         <div class="row">
                                                             <div class="col-12">
                                                                 <div class="d-flex justify-content-between align-items-center mb-2">
@@ -222,6 +222,18 @@
                                             <textarea class="form-control" rows="3" placeholder="" name="comment">{{ $customer->comment }}</textarea>
                                         </div>
                                     </div>
+
+                                    <div class="row">
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="blacklist" name="blacklist" value="1" 
+                                                    @if($customer->blacklist == 1) checked @endif>
+                                                <label class="form-check-label" for="blacklist">
+                                                    <span style="color: #dc3545; font-weight: bold;">🚫 黑名單</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div> <!-- end col-->
 
                             </div>
@@ -263,12 +275,16 @@
                 const twzipcodeId = `twzipcode-${addressNumber}`;
                 
                 if ($(this).find(`#${twzipcodeId}`).length > 0) {
+                    // 從地址資料中取得縣市和區
+                    const county = $(this).data('county') || '{{ $customer->county ?? "" }}';
+                    const district = $(this).data('district') || '{{ $customer->district ?? "" }}';
+                    
                     $(`#${twzipcodeId}`).twzipcode({
                         css: [" form-control", "mt-1 form-control", "mt-1 form-control"],
                         countyName: "county[]",
                         districtName: "district[]",
-                        countySel: '{{ $customer->county }}',
-                        districtSel: '{{ $customer->district }}',
+                        countySel: county,
+                        districtSel: district,
                     });
                 }
             });

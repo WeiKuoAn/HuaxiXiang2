@@ -59,14 +59,15 @@
                                     <div class="row">
                                         <label class="form-label">電話<span class="text-danger">*</span></label>
                                         <div id="phone-container">
-                                            @if(isset($customer->mobiles) && count($customer->mobiles) > 0)
+                                            @if (isset($customer->mobiles) && count($customer->mobiles) > 0)
                                                 @foreach ($customer->mobiles as $i => $mobile)
                                                     <div class="phone-item mb-3">
                                                         <div class="row">
                                                             <div class="col-12">
-                                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                <div
+                                                                    class="d-flex justify-content-between align-items-center mb-2">
                                                                     <span class="text-muted">電話 #{{ $i + 1 }}</span>
-                                                                    @if($mobile->is_primary)
+                                                                    @if ($mobile->is_primary)
                                                                         <span class="badge bg-primary">主要電話</span>
                                                                     @endif
                                                                 </div>
@@ -74,7 +75,8 @@
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-12">
-                                                                <input type="text" class="form-control" value="{{ $mobile->mobile }}" readonly>
+                                                                <input type="text" class="form-control"
+                                                                    value="{{ $mobile->mobile }}" readonly>
                                                             </div>
                                                         </div>
                                                         <hr class="mt-3 mb-0" style="border-color: #e9ecef; opacity: 0.5;">
@@ -84,7 +86,8 @@
                                                 <div class="phone-item mb-3">
                                                     <div class="row">
                                                         <div class="col-12">
-                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                            <div
+                                                                class="d-flex justify-content-between align-items-center mb-2">
                                                                 <span class="text-muted">電話 #1</span>
                                                                 <span class="badge bg-primary">主要電話</span>
                                                             </div>
@@ -92,7 +95,8 @@
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-12">
-                                                            <input type="text" class="form-control" value="{{ $customer->mobile }}" readonly>
+                                                            <input type="text" class="form-control"
+                                                                value="{{ $customer->mobile }}" readonly>
                                                         </div>
                                                     </div>
                                                     <hr class="mt-3 mb-0" style="border-color: #e9ecef; opacity: 0.5;">
@@ -104,14 +108,15 @@
                                     <div class="row">
                                         <label class="form-label">地址<span class="text-danger">*</span></label>
                                         <div id="address-container">
-                                            @if(isset($customer->addresses) && count($customer->addresses))
+                                            @if (isset($customer->addresses) && count($customer->addresses))
                                                 @foreach ($customer->addresses as $i => $addr)
                                                     <div class="address-item mb-3">
                                                         <div class="row">
                                                             <div class="col-12">
-                                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                <div
+                                                                    class="d-flex justify-content-between align-items-center mb-2">
                                                                     <span class="text-muted">地址 #{{ $i + 1 }}</span>
-                                                                    @if($addr->is_primary)
+                                                                    @if ($addr->is_primary)
                                                                         <span class="badge bg-primary">主要地址</span>
                                                                     @endif
                                                                 </div>
@@ -119,14 +124,16 @@
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-12">
-                                                                <div id="twzipcode-{{ $i + 1 }}" >
-                                                                    <div data-role="county" data-value="{{ $addr->county }}"></div>
+                                                                <div id="twzipcode-{{ $i + 1 }}">
+                                                                    <div data-role="county"
+                                                                        data-value="{{ $addr->county }}"></div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <div class="row mt-1">
                                                             <div class="col-12">
-                                                                <input type="text" class="form-control" value="{{ $addr->address }}" readonly>
+                                                                <input type="text" class="form-control"
+                                                                    value="{{ $addr->address }}" readonly>
                                                             </div>
                                                         </div>
                                                         <hr class="mt-3 mb-0" style="border-color: #e9ecef; opacity: 0.5;">
@@ -136,7 +143,8 @@
                                                 <div class="address-item mb-3">
                                                     <div class="row">
                                                         <div class="col-12">
-                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                            <div
+                                                                class="d-flex justify-content-between align-items-center mb-2">
                                                                 <span class="text-muted">地址 #1</span>
                                                                 <span class="badge bg-primary">主要地址</span>
                                                             </div>
@@ -144,14 +152,16 @@
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-12">
-                                                            <div id="twzipcode-1" >
-                                                                <div data-role="county" data-value="{{ $customer->county }}"></div>
+                                                            <div id="twzipcode-1">
+                                                                <div data-role="county"
+                                                                    data-value="{{ $customer->county }}"></div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="row mt-1">
                                                         <div class="col-12">
-                                                            <input type="text" class="form-control" value="{{ $customer->address }}" readonly>
+                                                            <input type="text" class="form-control"
+                                                                value="{{ $customer->address }}" readonly>
                                                         </div>
                                                     </div>
                                                     <hr class="mt-3 mb-0" style="border-color: #e9ecef; opacity: 0.5;">
@@ -160,21 +170,23 @@
                                                 <div class="address-item mb-3">
                                                     <div class="row">
                                                         <div class="col-12">
-                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                            <div
+                                                                class="d-flex justify-content-between align-items-center mb-2">
                                                                 <span class="text-muted">地址 #1</span>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-12">
-                                                            <div id="twzipcode-1" >
+                                                            <div id="twzipcode-1">
                                                                 <div data-role="county" data-value=""></div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="row mt-1">
                                                         <div class="col-12">
-                                                            <input type="text" class="form-control" value="未提供地址" readonly>
+                                                            <input type="text" class="form-control" value="未提供地址"
+                                                                readonly>
                                                         </div>
                                                     </div>
                                                     <hr class="mt-3 mb-0" style="border-color: #e9ecef; opacity: 0.5;">
@@ -186,8 +198,8 @@
                                     <div class="row">
                                         <label class="form-label">舊地址<span class="text-danger">*</span></label>
                                         <div class="mb-3 mt-1">
-                                            <input type="text" class="form-control" name="old-address" placeholder="輸入地址"
-                                                value="{{ $customer->address }}">
+                                            <input type="text" class="form-control" name="old-address"
+                                                placeholder="輸入地址" value="{{ $customer->address }}">
                                         </div>
                                     </div>
 
@@ -195,6 +207,19 @@
                                         <label class="form-label">備註</label>
                                         <div class="mb-3 mt-1">
                                             <textarea class="form-control" rows="3" placeholder="" name="comment">{{ $customer->comment }}</textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="blacklist"
+                                                    name="blacklist" value="1"
+                                                    @if ($customer->blacklist == 1) checked @endif>
+                                                <label class="form-check-label" for="blacklist">
+                                                    <span style="color: #dc3545; font-weight: bold;">🚫 黑名單</span>
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div> <!-- end col-->
@@ -236,11 +261,11 @@
             $(".address-item").each(function(index) {
                 const addressNumber = index + 1;
                 const twzipcodeId = `twzipcode-${addressNumber}`;
-                
+
                 if ($(this).find(`#${twzipcodeId}`).length > 0) {
                     const countyValue = $(this).find('[data-role="county"]').attr('data-value');
                     const districtValue = $(this).find('[data-role="district"]').attr('data-value');
-                    
+
                     $(`#${twzipcodeId}`).twzipcode({
                         zipcodeIntoDistrict: true,
                         css: [" form-control", "mt-1 form-control", "mt-1 form-control"],
