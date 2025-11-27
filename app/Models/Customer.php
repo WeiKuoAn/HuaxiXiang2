@@ -28,7 +28,8 @@ class Customer extends Model
         'visit_status',
         'contract_status',
         'comment',
-        'assigned_to'
+        'assigned_to',
+        'blacklist'
     ];
     public function group()
     {
