@@ -1496,6 +1496,7 @@ class VisitController extends Controller
                 '帳號',
                 '佣金',
                 '拜訪狀態',
+                '簽約狀態',
                 '拜訪次數',
                 '叫件次數',
                 '最近叫件日期',
@@ -1525,6 +1526,7 @@ class VisitController extends Controller
                     $accountNumber,
                     $data->commission == 1 ? '有' : '無',
                     $data->visit_status == 1 ? '有' : '無',
+                    $data->contract_status == 1 ? '有' : '無',
                     $data->visit_count,
                     $data->sale_count,
                     $data->recently_date ?: '-',
@@ -1779,37 +1781,66 @@ class VisitController extends Controller
                     }
                 }
             }
+
+            $contract_status = $request->contract_status;
+            if ($contract_status != 'null') {
+                if (isset($contract_status)) {
+                    $datas = $datas->where('contract_status', $contract_status);
+                }
+            }
+            $assigned_to = $request->assigned_to;
+            if ($assigned_to != 'null') {
+                if (isset($assigned_to)) {
+                    $datas = $datas->where('assigned_to', $assigned_to);
+                }
+            }
+            $seq = $request->seq;
+            $recently_date_sort = $request->recently_date_sort;
+
+            // 如果兩個排序都有選擇，優先使用叫件日期排序
+            if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
+                // 使用子查詢來排序叫件日期
+                $datas = $datas->orderByRaw('(
+                    SELECT MAX(sale_date) 
+                    FROM sale_company_commission 
+                    WHERE company_id = customer.id
+                ) ' . $recently_date_sort);
+            } elseif ($seq != 'null' && isset($seq)) {
+                $datas = $datas->orderby('created_at', $seq);
+            }
         }
 
-        $recently_date_sort = $request->recently_date_sort;
-        if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
-            $datas = $datas->orderByRaw('(
-                SELECT MAX(sale_date) 
-                FROM sale_company_commission 
-                WHERE company_id = customer.id
-            ) ' . $recently_date_sort);
+        // 如果沒有選擇任何排序，使用預設排序
+        if (!isset($request->seq) && !isset($request->recently_date_sort)) {
+            $datas = $datas->orderby('name', 'desc');
         }
 
-        $datas = $datas->get();
+        $datas = $datas->with('assigned_to_name')->get();
 
         $bankData = $this->getFlatBankData();
         foreach ($datas as $data) {
             $data->visit_count = Visit::where('customer_id', $data->id)->count();
-            $data->sale_count = SaleCompanyCommission::where('company_id', $data->id)->count();
-            $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
+
+            // 新增銀行/分行中文欄位
+            $data->bank_name = $this->getBankNameFromFlatJson($data->bank, $bankData);
+            $data->branch_name = $this->getBranchNameFromFlatJson($data->bank, $data->branch, $bankData);
+
+            // 叫件次數
+            $data->sale_count = SaleCompanyCommission::whereNotIn('type', ['self'])->where('company_id', $data->id)->count();
+            $data->recently_date = SaleCompanyCommission::whereNotIn('type', ['self'])->where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
 
             // 新增銀行/分行中文欄位（匯出用）
             if ($data->bank && $data->bank_number) {
-                $data->export_bank_name = $this->getBankNameFromFlatJson($data->bank, $bankData);
-                $data->export_branch_name = $this->getBranchNameFromFlatJson($data->bank, $data->branch, $bankData);
+                $data->export_bank_name = $data->bank_name;
+                $data->export_branch_name = $data->branch_name;
             } else {
                 $data->export_bank_name = '';
                 $data->export_branch_name = '';
             }
         }
 
-        // 生成 CSV 內容
-        $filename = '禮儀社列表_' . date('Y-m-d_H-i-s') . '.csv';
+        // 生成 CSV 內容（不使用套件）
+        $filename = '醫院列表_' . date('Y-m-d_H-i-s') . '.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -1838,10 +1869,13 @@ class VisitController extends Controller
                 '帳號',
                 '佣金',
                 '拜訪狀態',
+                '簽約狀態',
                 '拜訪次數',
                 '叫件次數',
                 '最近叫件日期',
-                '新增時間'
+                '新增時間',
+                '負責人員',
+                '新增人員'
             ]);
 
             // 寫入資料行
@@ -1865,10 +1899,13 @@ class VisitController extends Controller
                     $accountNumber,
                     $data->commission == 1 ? '有' : '無',
                     $data->visit_status == 1 ? '有' : '無',
+                    $data->contract_status == 1 ? '有' : '無',
                     $data->visit_count,
                     $data->sale_count,
                     $data->recently_date ?: '-',
-                    date('Y-m-d', strtotime($data->created_at))
+                    date('Y-m-d', strtotime($data->created_at)),
+                    $data->assigned_to_name->name ?? '-',
+                    $data->createdBy->name ?? '-'
                 ]);
             }
 
@@ -1931,37 +1968,66 @@ class VisitController extends Controller
                     }
                 }
             }
+
+            $contract_status = $request->contract_status;
+            if ($contract_status != 'null') {
+                if (isset($contract_status)) {
+                    $datas = $datas->where('contract_status', $contract_status);
+                }
+            }
+            $assigned_to = $request->assigned_to;
+            if ($assigned_to != 'null') {
+                if (isset($assigned_to)) {
+                    $datas = $datas->where('assigned_to', $assigned_to);
+                }
+            }
+            $seq = $request->seq;
+            $recently_date_sort = $request->recently_date_sort;
+
+            // 如果兩個排序都有選擇，優先使用叫件日期排序
+            if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
+                // 使用子查詢來排序叫件日期
+                $datas = $datas->orderByRaw('(
+                    SELECT MAX(sale_date) 
+                    FROM sale_company_commission 
+                    WHERE company_id = customer.id
+                ) ' . $recently_date_sort);
+            } elseif ($seq != 'null' && isset($seq)) {
+                $datas = $datas->orderby('created_at', $seq);
+            }
         }
 
-        $recently_date_sort = $request->recently_date_sort;
-        if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
-            $datas = $datas->orderByRaw('(
-                SELECT MAX(sale_date) 
-                FROM sale_company_commission 
-                WHERE company_id = customer.id
-            ) ' . $recently_date_sort);
+        // 如果沒有選擇任何排序，使用預設排序
+        if (!isset($request->seq) && !isset($request->recently_date_sort)) {
+            $datas = $datas->orderby('name', 'desc');
         }
 
-        $datas = $datas->get();
+        $datas = $datas->with('assigned_to_name')->get();
 
         $bankData = $this->getFlatBankData();
         foreach ($datas as $data) {
             $data->visit_count = Visit::where('customer_id', $data->id)->count();
-            $data->sale_count = SaleCompanyCommission::where('company_id', $data->id)->count();
-            $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
+
+            // 新增銀行/分行中文欄位
+            $data->bank_name = $this->getBankNameFromFlatJson($data->bank, $bankData);
+            $data->branch_name = $this->getBranchNameFromFlatJson($data->bank, $data->branch, $bankData);
+
+            // 叫件次數
+            $data->sale_count = SaleCompanyCommission::whereNotIn('type', ['self'])->where('company_id', $data->id)->count();
+            $data->recently_date = SaleCompanyCommission::whereNotIn('type', ['self'])->where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
 
             // 新增銀行/分行中文欄位（匯出用）
             if ($data->bank && $data->bank_number) {
-                $data->export_bank_name = $this->getBankNameFromFlatJson($data->bank, $bankData);
-                $data->export_branch_name = $this->getBranchNameFromFlatJson($data->bank, $data->branch, $bankData);
+                $data->export_bank_name = $data->bank_name;
+                $data->export_branch_name = $data->branch_name;
             } else {
                 $data->export_bank_name = '';
                 $data->export_branch_name = '';
             }
         }
 
-        // 生成 CSV 內容
-        $filename = '繁殖場列表_' . date('Y-m-d_H-i-s') . '.csv';
+        // 生成 CSV 內容（不使用套件）
+        $filename = '醫院列表_' . date('Y-m-d_H-i-s') . '.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -1990,10 +2056,13 @@ class VisitController extends Controller
                 '帳號',
                 '佣金',
                 '拜訪狀態',
+                '簽約狀態',
                 '拜訪次數',
                 '叫件次數',
                 '最近叫件日期',
-                '新增時間'
+                '新增時間',
+                '負責人員',
+                '新增人員'
             ]);
 
             // 寫入資料行
@@ -2017,10 +2086,13 @@ class VisitController extends Controller
                     $accountNumber,
                     $data->commission == 1 ? '有' : '無',
                     $data->visit_status == 1 ? '有' : '無',
+                    $data->contract_status == 1 ? '有' : '無',
                     $data->visit_count,
                     $data->sale_count,
                     $data->recently_date ?: '-',
-                    date('Y-m-d', strtotime($data->created_at))
+                    date('Y-m-d', strtotime($data->created_at)),
+                    $data->assigned_to_name->name ?? '-',
+                    $data->createdBy->name ?? '-'
                 ]);
             }
 
@@ -2083,37 +2155,66 @@ class VisitController extends Controller
                     }
                 }
             }
+
+            $contract_status = $request->contract_status;
+            if ($contract_status != 'null') {
+                if (isset($contract_status)) {
+                    $datas = $datas->where('contract_status', $contract_status);
+                }
+            }
+            $assigned_to = $request->assigned_to;
+            if ($assigned_to != 'null') {
+                if (isset($assigned_to)) {
+                    $datas = $datas->where('assigned_to', $assigned_to);
+                }
+            }
+            $seq = $request->seq;
+            $recently_date_sort = $request->recently_date_sort;
+
+            // 如果兩個排序都有選擇，優先使用叫件日期排序
+            if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
+                // 使用子查詢來排序叫件日期
+                $datas = $datas->orderByRaw('(
+                    SELECT MAX(sale_date) 
+                    FROM sale_company_commission 
+                    WHERE company_id = customer.id
+                ) ' . $recently_date_sort);
+            } elseif ($seq != 'null' && isset($seq)) {
+                $datas = $datas->orderby('created_at', $seq);
+            }
         }
 
-        $recently_date_sort = $request->recently_date_sort;
-        if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
-            $datas = $datas->orderByRaw('(
-                SELECT MAX(sale_date) 
-                FROM sale_company_commission 
-                WHERE company_id = customer.id
-            ) ' . $recently_date_sort);
+        // 如果沒有選擇任何排序，使用預設排序
+        if (!isset($request->seq) && !isset($request->recently_date_sort)) {
+            $datas = $datas->orderby('name', 'desc');
         }
 
-        $datas = $datas->get();
+        $datas = $datas->with('assigned_to_name')->get();
 
         $bankData = $this->getFlatBankData();
         foreach ($datas as $data) {
             $data->visit_count = Visit::where('customer_id', $data->id)->count();
-            $data->sale_count = SaleCompanyCommission::where('company_id', $data->id)->count();
-            $data->recently_date = SaleCompanyCommission::where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
+
+            // 新增銀行/分行中文欄位
+            $data->bank_name = $this->getBankNameFromFlatJson($data->bank, $bankData);
+            $data->branch_name = $this->getBranchNameFromFlatJson($data->bank, $data->branch, $bankData);
+
+            // 叫件次數
+            $data->sale_count = SaleCompanyCommission::whereNotIn('type', ['self'])->where('company_id', $data->id)->count();
+            $data->recently_date = SaleCompanyCommission::whereNotIn('type', ['self'])->where('company_id', $data->id)->orderby('sale_date', 'desc')->value('sale_date');
 
             // 新增銀行/分行中文欄位（匯出用）
             if ($data->bank && $data->bank_number) {
-                $data->export_bank_name = $this->getBankNameFromFlatJson($data->bank, $bankData);
-                $data->export_branch_name = $this->getBranchNameFromFlatJson($data->bank, $data->branch, $bankData);
+                $data->export_bank_name = $data->bank_name;
+                $data->export_branch_name = $data->branch_name;
             } else {
                 $data->export_bank_name = '';
                 $data->export_branch_name = '';
             }
         }
 
-        // 生成 CSV 內容
-        $filename = '狗園列表_' . date('Y-m-d_H-i-s') . '.csv';
+        // 生成 CSV 內容（不使用套件）
+        $filename = '醫院列表_' . date('Y-m-d_H-i-s') . '.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -2142,10 +2243,13 @@ class VisitController extends Controller
                 '帳號',
                 '佣金',
                 '拜訪狀態',
+                '簽約狀態',
                 '拜訪次數',
                 '叫件次數',
                 '最近叫件日期',
-                '新增時間'
+                '新增時間',
+                '負責人員',
+                '新增人員'
             ]);
 
             // 寫入資料行
@@ -2169,10 +2273,13 @@ class VisitController extends Controller
                     $accountNumber,
                     $data->commission == 1 ? '有' : '無',
                     $data->visit_status == 1 ? '有' : '無',
+                    $data->contract_status == 1 ? '有' : '無',
                     $data->visit_count,
                     $data->sale_count,
                     $data->recently_date ?: '-',
-                    date('Y-m-d', strtotime($data->created_at))
+                    date('Y-m-d', strtotime($data->created_at)),
+                    $data->assigned_to_name->name ?? '-',
+                    $data->createdBy->name ?? '-'
                 ]);
             }
 
@@ -2322,6 +2429,7 @@ class VisitController extends Controller
                 '帳號',
                 '佣金',
                 '拜訪狀態',
+                '簽約狀態',
                 '拜訪次數',
                 '叫件次數',
                 '最近叫件日期',
@@ -2351,6 +2459,7 @@ class VisitController extends Controller
                     $accountNumber,
                     $data->commission == 1 ? '有' : '無',
                     $data->visit_status == 1 ? '有' : '無',
+                    $data->contract_status == 1 ? '有' : '無',
                     $data->visit_count,
                     $data->sale_count,
                     $data->recently_date ?: '-',
@@ -2506,6 +2615,7 @@ class VisitController extends Controller
                 '帳號',
                 '佣金',
                 '拜訪狀態',
+                '簽約狀態',
                 '拜訪次數',
                 '叫件次數',
                 '最近叫件日期',
@@ -2535,6 +2645,7 @@ class VisitController extends Controller
                     $accountNumber,
                     $data->commission == 1 ? '有' : '無',
                     $data->visit_status == 1 ? '有' : '無',
+                    $data->contract_status == 1 ? '有' : '無',
                     $data->visit_count,
                     $data->sale_count,
                     $data->recently_date ?: '-',
