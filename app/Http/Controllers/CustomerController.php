@@ -286,6 +286,7 @@ class CustomerController extends Controller
         $customer->group_id = 1;
         $customer->created_up = Auth::user()->id;
         $customer->name = $request->name;
+        $customer->blacklist = $request->has('blacklist') ? 1 : 0;
 
         // 處理多個電話
         if ($request->not_mobile == 1) {
@@ -415,6 +416,7 @@ class CustomerController extends Controller
         $originalAddresses = $this->extractAddressesForHistory($customer->addresses);
         $customer->name = $request->name;
         $customer->comment = $request->comment;
+        $customer->blacklist = $request->has('blacklist') ? 1 : 0;
         if (isset($customer->group_id)) {
             $customer->group_id = $request->group_id;
         } else {
@@ -708,6 +710,7 @@ class CustomerController extends Controller
             'visit_status',
             'contract_status',
             'assigned_to',
+            'blacklist',
         ];
 
         $fieldChanges = [];
