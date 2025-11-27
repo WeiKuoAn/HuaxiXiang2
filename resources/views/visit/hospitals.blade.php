@@ -171,7 +171,6 @@
                                         <th>姓名</th>
                                         <th>電話</th>
                                         <th>匯款帳號</th>
-                                        <th>新增時間</th>
                                         <th>佣金</th>
                                         <th>拜訪</th>
                                         <th>簽約</th>
@@ -208,7 +207,6 @@
                                                     -
                                                 @endif
                                             </td>
-                                            <td>{{ date('Y-m-d', strtotime($data->created_at)) }}</td>
                                             <td>
                                                 @if ($data->commission == 1)
                                                     有

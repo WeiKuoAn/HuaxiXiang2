@@ -186,7 +186,17 @@
                                             <td>{{ $key + 1 }}</td>
                                             <td>{{ $data->name }}<br>
                                             </td>
-                                            <td>{{ $data->mobile }}</td>
+                                            <td>
+                                                @if (isset($data->mobiles) && count($data->mobiles) > 0)
+                                                    @foreach ($data->mobiles as $mobile)
+                                                        {{ $mobile->mobile }}<br>
+                                                    @endforeach
+                                                @else
+                                                    @if (!empty($data->mobile) && $data->mobile != '未提供電話')
+                                                        {{ $data->mobile }}
+                                                    @endif
+                                                @endif
+                                            </td>
                                             <td>
                                                 @if (isset($data->bank))
                                                     銀行：{{ $data->bank_name }}（{{ $data->bank }}）<br>
