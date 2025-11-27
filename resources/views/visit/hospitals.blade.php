@@ -171,10 +171,10 @@
                                         <th>姓名</th>
                                         <th>電話</th>
                                         <th>匯款帳號</th>
+                                        <th>負責人員</th>
                                         <th>佣金</th>
                                         <th>拜訪</th>
                                         <th>簽約</th>
-                                        <th>負責人員</th>
                                         <th>拜訪次數</th>
                                         <th>叫件次數</th>
                                         <th>最近叫件日期</th>
@@ -208,6 +208,13 @@
                                                 @endif
                                             </td>
                                             <td>
+                                                @if (isset($data->assigned_to_name))
+                                                    {{ $data->assigned_to_name->name }}
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td>
                                                 @if ($data->commission == 1)
                                                     有
                                                 @else
@@ -226,13 +233,6 @@
                                                     有
                                                 @else
                                                     無
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if (isset($data->assigned_to_name))
-                                                    {{ $data->assigned_to_name->name }}
-                                                @else
-                                                    -
                                                 @endif
                                             </td>
                                             <td>{{ $data->visit_count }}次</td>
