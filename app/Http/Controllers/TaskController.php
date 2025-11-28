@@ -287,6 +287,99 @@ class TaskController extends Controller
         return redirect()->route('task')->with('success', '任務已成功更新！');
     }
 
+    public function ajax_show($id)
+    {
+        $task = Task::with('items')->findOrFail($id);
+        
+        // 檢查權限：只有建立人可以編輯
+        if ($task->created_by != Auth::user()->id) {
+            return response()->json(['error' => '無權限編輯此待辦事項'], 403);
+        }
+        
+        return response()->json([
+            'task' => [
+                'id' => $task->id,
+                'title' => $task->title,
+                'description' => $task->description,
+                'start_date' => optional($task->start_date)->format('Y-m-d'),
+                'start_time' => optional($task->start_date)->format('H:i'),
+                'end_date' => optional($task->end_date)->format('Y-m-d'),
+                'end_time' => optional($task->end_date)->format('H:i'),
+                'status' => $task->status,
+                'assigned_to' => $task->items->map(function($item) {
+                    return $item->user_id === null ? '0' : $item->user_id;
+                })->toArray(),
+            ]
+        ]);
+    }
+
+    public function ajax_update($id, Request $request)
+    {
+        $task = Task::findOrFail($id);
+        
+        // 檢查權限：只有建立人可以編輯
+        if ($task->created_by != Auth::user()->id) {
+            return response()->json(['error' => '無權限編輯此待辦事項'], 403);
+        }
+        
+        $v = $request->validate([
+            'title'       => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'end_date'    => 'nullable|date|after_or_equal:'.$task->start_date->format('Y-m-d'),
+            'end_time'    => 'nullable|date_format:H:i',
+            'assigned_to' => 'nullable|array',
+            'assigned_to.*' => 'integer|in:0,' . implode(',', User::pluck('id')->toArray()),
+        ]);
+
+        $end = null;
+        if (!empty($v['end_date']) && !empty($v['end_time'])) {
+            $end = Carbon::createFromFormat(
+                'Y-m-d H:i',
+                $v['end_date'] . ' ' . $v['end_time']
+            );
+        }
+
+        // 更新 Task
+        $task->title = $v['title'];
+        $task->description = $v['description'] ?? null;
+        $task->end_date = $end;
+        $task->save();
+
+        // 處理指派人員
+        if ($request->has('assigned_to')) {
+            // 刪除現有的 TaskItem
+            $task->items()->delete();
+            
+            // 建立新的 TaskItem
+            $assignedToInput = $request->input('assigned_to');
+            $assignees = is_array($assignedToInput) ? $assignedToInput : (empty($assignedToInput) ? [] : [$assignedToInput]);
+            foreach ($assignees as $userId) {
+                if (!empty($userId) || $userId === '0') {
+                    TaskItem::create([
+                        'task_id' => $task->id,
+                        'user_id' => $userId === '0' ? null : $userId,
+                        'status' => 0, // 預設未完成
+                    ]);
+                }
+            }
+        }
+
+        $task->load('created_users');
+
+        return response()->json([
+            'success' => true,
+            'task' => [
+                'id' => $task->id,
+                'title' => $task->title,
+                'description' => $task->description,
+                'start_date' => optional($task->start_date)->timezone('Asia/Taipei')->format('Y-m-d H:i:s'),
+                'end_date' => optional($task->end_date)->timezone('Asia/Taipei')->format('Y-m-d H:i:s'),
+                'status' => $task->status,
+                'created_by_name' => $task->created_users ? $task->created_users->name : '',
+            ]
+        ]);
+    }
+
     public function delete($id)
     {
         $data = Task::with('items.user')->findOrFail($id);

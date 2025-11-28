@@ -202,7 +202,15 @@
                                             @php
                                                 $myItem = $task->items->where('user_id', Auth::id())->first();
                                                 $hasUnassignedItem = $task->items->where('user_id', null)->first();
+                                                $isCreator = Auth::user()->id == $task->created_by;
                                             @endphp
+                                            @if ($isCreator)
+                                                <button
+                                                    class="btn-sm btn btn-primary waves-effect waves-light mt-1 btn-edit-task"
+                                                    data-id="{{ $task->id }}">
+                                                    <i class="mdi mdi-pencil me-1"></i>編輯
+                                                </button>
+                                            @endif
                                             @if ($myItem)
                                                 @if ($myItem->status == 0)
                                                     <button
@@ -221,7 +229,7 @@
                                                 </button>
                                             @elseif($hasUnassignedItem && $hasUnassignedItem->status == 1)
                                                 <span class="badge bg-success">已完成</span>
-                                            @else
+                                            @elseif(!$isCreator)
                                                 <span class="text-muted">非指派人員</span>
                                             @endif
                                         </td>
@@ -449,16 +457,17 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">新增待辦</h5>
+                    <h5 class="modal-title" id="taskModalTitle">新增待辦</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="taskForm">
                         @csrf
+                        <input type="hidden" name="task_id" id="task_id" value="">
                         <div class="row">
                             <div class="col-md-12 mb-3">
                                 <label>待辦事項<span class="text-danger">*</span></label>
-                                <input type="text" name="title" class="form-control" required>
+                                <input type="text" name="title" id="task_title" class="form-control" required>
                             </div>
                             <input type="hidden" name="start_date" class="form-control" value="{{ date('Y-m-d') }}"
                                 required>
@@ -467,16 +476,16 @@
                                 <label>預計結束日期<span class="text-danger">*</span></label>
                                 <div class="row g-2">
                                     <div class="col-md">
-                                        <input type="date" name="end_date" class="form-control" required>
+                                        <input type="date" name="end_date" id="task_end_date" class="form-control" required>
                                     </div>
                                     <div class="col-md">
-                                        <input type="time" name="end_time" class="form-control" value="18:00">
+                                        <input type="time" name="end_time" id="task_end_time" class="form-control" value="18:00">
                                     </div>
                                 </div>
                             </div>
                             <div class="col-12 mb-3">
                                 <label>待辦事項說明</label>
-                                <textarea name="description" class="form-control" rows="4"></textarea>
+                                <textarea name="description" id="task_description" class="form-control" rows="4"></textarea>
                             </div>
                             <div class="col-md-12 mb-3 d-none">
                                 <label>狀態</label>
@@ -500,8 +509,8 @@
                     </form>
                 </div><!-- /.modal-body -->
                 <div class="modal-footer">
-                    <button type="submit" form="taskForm" class="btn btn-success waves-effect waves-light">
-                        <i class="fe-check-circle me-1"></i> 新增
+                    <button type="submit" form="taskForm" class="btn btn-success waves-effect waves-light" id="taskSubmitBtn">
+                        <i class="fe-check-circle me-1"></i> <span id="taskSubmitText">新增</span>
                     </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <i class="fe-x me-1"></i> 取消
@@ -548,30 +557,116 @@
                 // 後備方案：啟用原生多選提示
                 $('#assigned_to_select').attr('multiple', 'multiple');
             }
+            // 編輯按鈕點擊事件
+            $(document).on('click', '.btn-edit-task', function(e) {
+                e.preventDefault();
+                let taskId = $(this).data('id');
+                
+                // 載入待辦事項資料
+                $.ajax({
+                    url: "{{ route('task.ajax.edit', ':id') }}".replace(':id', taskId),
+                    type: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(res) {
+                        let task = res.task;
+                        
+                        // 填充表單
+                        $('#task_id').val(task.id);
+                        $('#task_title').val(task.title);
+                        $('#task_description').val(task.description || '');
+                        $('#task_end_date').val(task.end_date || '');
+                        $('#task_end_time').val(task.end_time || '18:00');
+                        
+                        // 設定指派人員
+                        let selectize = $('#assigned_to_select')[0].selectize;
+                        if (selectize) {
+                            selectize.clear();
+                            if (task.assigned_to && task.assigned_to.length > 0) {
+                                selectize.setValue(task.assigned_to);
+                            }
+                        } else {
+                            // 如果 Selectize 未初始化，使用原生方式
+                            $('#assigned_to_select').val(task.assigned_to || []);
+                        }
+                        
+                        // 更新 modal 標題和按鈕文字
+                        $('#taskModalTitle').text('編輯待辦');
+                        $('#taskSubmitText').text('更新');
+                        
+                        // 顯示 modal
+                        $('#taskModal').modal('show');
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 403) {
+                            alert('無權限編輯此待辦事項');
+                        } else {
+                            alert('載入資料失敗，請稍後再試。');
+                        }
+                    }
+                });
+            });
+            
+            // 新增按鈕點擊時重置表單
+            $('[data-bs-target="#taskModal"]').on('click', function() {
+                $('#taskForm')[0].reset();
+                $('#task_id').val('');
+                $('#taskModalTitle').text('新增待辦');
+                $('#taskSubmitText').text('新增');
+                
+                // 清除 Selectize 選擇
+                let selectize = $('#assigned_to_select')[0].selectize;
+                if (selectize) {
+                    selectize.clear();
+                } else {
+                    $('#assigned_to_select').val([]);
+                }
+            });
+            
             $('#taskForm').on('submit', function(e) {
                 e.preventDefault();
                 let $form = $(this);
+                let taskId = $('#task_id').val();
+                let url, method;
+                
+                if (taskId) {
+                    // 編輯模式
+                    url = "{{ route('task.ajax.edit.data', ':id') }}".replace(':id', taskId);
+                    method = 'POST';
+                } else {
+                    // 新增模式
+                    url = "{{ route('task.ajax.create.data') }}";
+                    method = 'POST';
+                }
+                
                 $.ajax({
-                    url: "{{ route('task.ajax.create.data') }}",
-                    type: 'POST',
+                    url: url,
+                    type: method,
                     data: $form.serialize(),
                     success: function(res) {
-                        // 建立成功後，重新載入頁面以顯示屬於自己的 TaskItem
+                        // 成功後，重新載入頁面
                         $('#taskModal').modal('hide');
                         $form[0].reset();
                         location.reload();
                     },
                     error: function(xhr) {
                         // 錯誤處理
-                        let errs = xhr.responseJSON.errors || {};
-                        $form.find('.is-invalid').removeClass('is-invalid');
-                        $form.find('.invalid-feedback').remove();
-                        $.each(errs, function(k, msgs) {
-                            let $inp = $form.find(`[name="${k}"]`);
-                            $inp.addClass('is-invalid');
-                            $inp.after(
-                                `<div class="invalid-feedback">${msgs[0]}</div>`);
-                        });
+                        let errs = xhr.responseJSON?.errors || {};
+                        let errorMsg = xhr.responseJSON?.error || '操作失敗，請稍後再試。';
+                        
+                        if (Object.keys(errs).length > 0) {
+                            $form.find('.is-invalid').removeClass('is-invalid');
+                            $form.find('.invalid-feedback').remove();
+                            $.each(errs, function(k, msgs) {
+                                let $inp = $form.find(`[name="${k}"]`);
+                                $inp.addClass('is-invalid');
+                                $inp.after(
+                                    `<div class="invalid-feedback">${msgs[0]}</div>`);
+                            });
+                        } else {
+                            alert(errorMsg);
+                        }
                     }
                 });
             });

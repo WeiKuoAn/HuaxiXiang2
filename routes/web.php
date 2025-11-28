@@ -837,6 +837,8 @@ Route::group(['prefix' => '/', 'middleware' => ['auth']], function () {
     Route::get('/task/create', [TaskController::class, 'create'])->name('task.create');
     Route::post('/task/create', [TaskController::class, 'store'])->name('task.create.data');
     Route::post('/task/ajax/create', [TaskController::class, 'ajax_store'])->name('task.ajax.create.data');
+    Route::get('/task/ajax/edit/{id}', [TaskController::class, 'ajax_show'])->name('task.ajax.edit');
+    Route::post('/task/ajax/edit/{id}', [TaskController::class, 'ajax_update'])->name('task.ajax.edit.data');
     Route::post('/task/check', [TaskController::class, 'check'])->name('task.create.check');
     Route::post('/task-item/complete', [TaskController::class, 'check'])->name('task.item.complete');
     Route::get('/task/edit/{id}', [TaskController::class, 'show'])->name('task.edit');
