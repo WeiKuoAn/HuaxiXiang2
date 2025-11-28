@@ -93,6 +93,21 @@
                         @endif
                         
                         @php
+                            // 方案價格顯示邏輯：個人(1)或團體(2)方案 + 派件單 + (一次付清/訂金)
+                            $shouldShowPlanPrice = false;
+                            if ($data->type_list == 'dispatch' && in_array($data->plan_id, [1, 2]) && in_array($data->pay_id, ['A', 'C'])) {
+                                $shouldShowPlanPrice = true;
+                            }
+                        @endphp
+                        
+                        @if($shouldShowPlanPrice)
+                        <div class="mb-3 col-md-4" id="modal_plan_price_field">
+                            <label for="plan_price" class="form-label">方案價格<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" value="{{ number_format($data->plan_price) }}" readonly>
+                        </div>
+                        @endif
+                        
+                        @php
                             // 套裝顯示邏輯：派件單 + (一次付清/尾款/追加) + 個別方案
                             $shouldShowSuit = false;
                             
