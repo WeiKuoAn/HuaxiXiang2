@@ -384,18 +384,18 @@ class VisitController extends Controller
             if ($assigned_to != 'null') {
                 if (isset($assigned_to)) {
                     $datas = $datas->where('assigned_to', $assigned_to);
-                }
+        }
             }
             $seq = $request->seq;
-            $recently_date_sort = $request->recently_date_sort;
+        $recently_date_sort = $request->recently_date_sort;
 
             // 如果兩個排序都有選擇，優先使用叫件日期排序
-            if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
-                $datas = $datas->orderByRaw('(
-                    SELECT MAX(sale_date) 
-                    FROM sale_company_commission 
-                    WHERE company_id = customer.id
-                ) ' . $recently_date_sort);
+        if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
+            $datas = $datas->orderByRaw('(
+                SELECT MAX(sale_date) 
+                FROM sale_company_commission 
+                WHERE company_id = customer.id
+            ) ' . $recently_date_sort);
             } elseif ($seq != 'null' && isset($seq)) {
                 $datas = $datas->orderby('created_at', $seq);
             }
@@ -507,18 +507,18 @@ class VisitController extends Controller
             if ($assigned_to != 'null') {
                 if (isset($assigned_to)) {
                     $datas = $datas->where('assigned_to', $assigned_to);
-                }
+        }
             }
             $seq = $request->seq;
-            $recently_date_sort = $request->recently_date_sort;
+        $recently_date_sort = $request->recently_date_sort;
 
             // 如果兩個排序都有選擇，優先使用叫件日期排序
-            if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
-                $datas = $datas->orderByRaw('(
-                    SELECT MAX(sale_date) 
-                    FROM sale_company_commission 
-                    WHERE company_id = customer.id
-                ) ' . $recently_date_sort);
+        if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
+            $datas = $datas->orderByRaw('(
+                SELECT MAX(sale_date) 
+                FROM sale_company_commission 
+                WHERE company_id = customer.id
+            ) ' . $recently_date_sort);
             } elseif ($seq != 'null' && isset($seq)) {
                 $datas = $datas->orderby('created_at', $seq);
             }
@@ -629,18 +629,18 @@ class VisitController extends Controller
             if ($assigned_to != 'null') {
                 if (isset($assigned_to)) {
                     $datas = $datas->where('assigned_to', $assigned_to);
-                }
+        }
             }
             $seq = $request->seq;
-            $recently_date_sort = $request->recently_date_sort;
+        $recently_date_sort = $request->recently_date_sort;
 
             // 如果兩個排序都有選擇，優先使用叫件日期排序
-            if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
-                $datas = $datas->orderByRaw('(
-                    SELECT MAX(sale_date) 
-                    FROM sale_company_commission 
-                    WHERE company_id = customer.id
-                ) ' . $recently_date_sort);
+        if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
+            $datas = $datas->orderByRaw('(
+                SELECT MAX(sale_date) 
+                FROM sale_company_commission 
+                WHERE company_id = customer.id
+            ) ' . $recently_date_sort);
             } elseif ($seq != 'null' && isset($seq)) {
                 $datas = $datas->orderby('created_at', $seq);
             }
@@ -751,18 +751,18 @@ class VisitController extends Controller
             if ($assigned_to != 'null') {
                 if (isset($assigned_to)) {
                     $datas = $datas->where('assigned_to', $assigned_to);
-                }
+        }
             }
             $seq = $request->seq;
-            $recently_date_sort = $request->recently_date_sort;
+        $recently_date_sort = $request->recently_date_sort;
 
             // 如果兩個排序都有選擇，優先使用叫件日期排序
-            if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
-                $datas = $datas->orderByRaw('(
-                    SELECT MAX(sale_date) 
-                    FROM sale_company_commission 
-                    WHERE company_id = customer.id
-                ) ' . $recently_date_sort);
+        if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
+            $datas = $datas->orderByRaw('(
+                SELECT MAX(sale_date) 
+                FROM sale_company_commission 
+                WHERE company_id = customer.id
+            ) ' . $recently_date_sort);
             } elseif ($seq != 'null' && isset($seq)) {
                 $datas = $datas->orderby('created_at', $seq);
             }
@@ -873,18 +873,18 @@ class VisitController extends Controller
             if ($assigned_to != 'null') {
                 if (isset($assigned_to)) {
                     $datas = $datas->where('assigned_to', $assigned_to);
-                }
+        }
             }
             $seq = $request->seq;
-            $recently_date_sort = $request->recently_date_sort;
+        $recently_date_sort = $request->recently_date_sort;
 
             // 如果兩個排序都有選擇，優先使用叫件日期排序
-            if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
-                $datas = $datas->orderByRaw('(
-                    SELECT MAX(sale_date) 
-                    FROM sale_company_commission 
-                    WHERE company_id = customer.id
-                ) ' . $recently_date_sort);
+        if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
+            $datas = $datas->orderByRaw('(
+                SELECT MAX(sale_date) 
+                FROM sale_company_commission 
+                WHERE company_id = customer.id
+            ) ' . $recently_date_sort);
             } elseif ($seq != 'null' && isset($seq)) {
                 $datas = $datas->orderby('created_at', $seq);
             }
@@ -995,7 +995,7 @@ class VisitController extends Controller
         $addresses = $request->input('addresses', []);
         $counties = $request->input('county', []);
         $districts = $request->input('district', []);
-
+        
         if ($request->not_mobile == 1) {  // 未提供電話
             $customer = new Customer;
             $customer->name = $request->name;
@@ -1206,9 +1206,9 @@ class VisitController extends Controller
         
         // 處理帳戶資訊：如果勾選「不提供帳戶」，則不儲存帳戶資訊
         if ($request->not_provide_bank != 1 && (!empty($request->bank) || !empty($request->branch) || !empty($request->bank_number))) {
-            $data->bank = $request->bank;
-            $data->branch = $request->branch;
-            $data->bank_number = $request->bank_number;
+        $data->bank = $request->bank;
+        $data->branch = $request->branch;
+        $data->bank_number = $request->bank_number;
         } else {
             $data->bank = null;
             $data->branch = null;
@@ -1932,16 +1932,16 @@ class VisitController extends Controller
                 }
             }
             $seq = $request->seq;
-            $recently_date_sort = $request->recently_date_sort;
+        $recently_date_sort = $request->recently_date_sort;
 
             // 如果兩個排序都有選擇，優先使用叫件日期排序
-            if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
+        if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
                 // 使用子查詢來排序叫件日期
-                $datas = $datas->orderByRaw('(
-                    SELECT MAX(sale_date) 
-                    FROM sale_company_commission 
-                    WHERE company_id = customer.id
-                ) ' . $recently_date_sort);
+            $datas = $datas->orderByRaw('(
+                SELECT MAX(sale_date) 
+                FROM sale_company_commission 
+                WHERE company_id = customer.id
+            ) ' . $recently_date_sort);
             } elseif ($seq != 'null' && isset($seq)) {
                 $datas = $datas->orderby('created_at', $seq);
             }
@@ -2119,16 +2119,16 @@ class VisitController extends Controller
                 }
             }
             $seq = $request->seq;
-            $recently_date_sort = $request->recently_date_sort;
+        $recently_date_sort = $request->recently_date_sort;
 
             // 如果兩個排序都有選擇，優先使用叫件日期排序
-            if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
+        if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
                 // 使用子查詢來排序叫件日期
-                $datas = $datas->orderByRaw('(
-                    SELECT MAX(sale_date) 
-                    FROM sale_company_commission 
-                    WHERE company_id = customer.id
-                ) ' . $recently_date_sort);
+            $datas = $datas->orderByRaw('(
+                SELECT MAX(sale_date) 
+                FROM sale_company_commission 
+                WHERE company_id = customer.id
+            ) ' . $recently_date_sort);
             } elseif ($seq != 'null' && isset($seq)) {
                 $datas = $datas->orderby('created_at', $seq);
             }
@@ -2492,16 +2492,16 @@ class VisitController extends Controller
                 }
             }
             $seq = $request->seq;
-            $recently_date_sort = $request->recently_date_sort;
+        $recently_date_sort = $request->recently_date_sort;
 
             // 如果兩個排序都有選擇，優先使用叫件日期排序
-            if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
+        if ($recently_date_sort != 'null' && isset($recently_date_sort)) {
                 // 使用子查詢來排序叫件日期
-                $datas = $datas->orderByRaw('(
-                    SELECT MAX(sale_date) 
-                    FROM sale_company_commission 
-                    WHERE company_id = customer.id
-                ) ' . $recently_date_sort);
+            $datas = $datas->orderByRaw('(
+                SELECT MAX(sale_date) 
+                FROM sale_company_commission 
+                WHERE company_id = customer.id
+            ) ' . $recently_date_sort);
             } elseif ($seq != 'null' && isset($seq)) {
                 $datas = $datas->orderby('created_at', $seq);
             }
