@@ -1834,6 +1834,15 @@
                     'gdpaper_id': $("#gdpaper_id_" + row_id).val()
                 },
                 success: function(data) {
+                    // 處理 JSON 回應
+                    var price;
+                    if (typeof data === 'object' && data !== null) {
+                        price = data.price || 0;
+                    } else {
+                        // 向後兼容：如果返回的是純文字（價格）
+                        price = parseFloat(data) || 0;
+                    }
+
                     var gdpaper_num = $("#gdpaper_num_" + row_id).val();
 
                     // 如果數量為空或 <= 0，預設設置為 1
@@ -1843,14 +1852,14 @@
                     }
 
                     // 計算金額並更新總金額欄位
-                    $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
+                    $("#gdpaper_total_" + row_id).val(gdpaper_num * price);
                     calculate_price();
 
                     // 監聽數量變化，動態更新金額
-                    $("#gdpaper_num_" + row_id).on('change', function() {
-                        gdpaper_num = $(this).val();
+                    $("#gdpaper_num_" + row_id).off('change').on('change', function() {
+                        gdpaper_num = $(this).val() || 0;
 
-                        $("#gdpaper_total_" + row_id).val(gdpaper_num * data); // 更新金額
+                        $("#gdpaper_total_" + row_id).val(gdpaper_num * price); // 更新金額
                         calculate_price();
                     });
                 }
@@ -1866,6 +1875,15 @@
                     'gdpaper_id': $("#gdpaper_id_" + row_id).val()
                 },
                 success: function(data) {
+                    // 處理 JSON 回應
+                    var price;
+                    if (typeof data === 'object' && data !== null) {
+                        price = data.price || 0;
+                    } else {
+                        // 向後兼容：如果返回的是純文字（價格）
+                        price = parseFloat(data) || 0;
+                    }
+
                     var gdpaper_num = $("#gdpaper_num_" + row_id).val();
 
                     // 防止數量為 0 或空值，設置最小值為 1
@@ -1875,14 +1893,14 @@
                     }
 
                     // 更新總金額
-                    $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
+                    $("#gdpaper_total_" + row_id).val(gdpaper_num * price);
                     calculate_price();
 
                     // 監聽數量變更事件，動態更新金額
-                    $("#gdpaper_num_" + row_id).on('change', function() {
-                        gdpaper_num = $(this).val();
+                    $("#gdpaper_num_" + row_id).off('change').on('change', function() {
+                        gdpaper_num = $(this).val() || 0;
 
-                        $("#gdpaper_total_" + row_id).val(gdpaper_num * data); // 更新總金額
+                        $("#gdpaper_total_" + row_id).val(gdpaper_num * price); // 更新總金額
                         calculate_price();
                     });
                 }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateSaleRequest;
+use App\Models\ComboProduct;
 use App\Models\CustGroup;
 use App\Models\Customer;
 use App\Models\Gdpaper;
@@ -27,6 +29,7 @@ use App\Models\Souvenir;
 use App\Models\SouvenirType;
 use App\Models\Suit;
 use App\Models\User;
+use App\Services\SaleService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -140,13 +143,46 @@ class SaleDataControllerNew extends Controller
     public function gdpaper_search(Request $request)
     {
         if ($request->ajax()) {
-            $output = '';
             $product = Product::where('id', $request->gdpaper_id)->first();
 
             if ($product) {
-                $output .= $product->price;
+                // 返回 JSON 格式，包含 price 和 type
+                return response()->json([
+                    'price' => $product->price,
+                    'type' => $product->type
+                ]);
             }
-            return Response($output);
+            return response()->json(['price' => 0, 'type' => '']);
+        }
+    }
+
+    /**
+     * 取得 combo_product 列表
+     */
+    public function combo_product_search(Request $request)
+    {
+        if ($request->ajax()) {
+            $product_id = $request->product_id;
+            $combo_products = ComboProduct::where('product_id', $product_id)
+                ->with('product_data')
+                ->get();
+
+            $comboData = [];
+            foreach ($combo_products as $combo) {
+                $product = $combo->product_data;
+                if ($product) {
+                    $comboData[] = [
+                        'combo_id' => $combo->id,
+                        'product_id' => $product->id,
+                        'product_name' => $product->name,
+                        'num' => $combo->num,
+                        'price' => $combo->price,
+                        'total_price' => $combo->price * $combo->num
+                    ];
+                }
+            }
+
+            return response()->json(['combo_products' => $comboData]);
         }
     }
 
@@ -400,6 +436,66 @@ class SaleDataControllerNew extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+    /**
+     * 優化版：使用 Service 層處理業務邏輯
+     */
+    public function store_gpt_optimized(CreateSaleRequest $request, SaleService $saleService)
+    {
+        try {
+            // 驗證單號是否重複
+            if ($saleService->isSaleOnDuplicate($request->sale_on)) {
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->withErrors(['sale_on' => '此單號已存在，請使用其他單號']);
+            }
+
+            // 使用 Service 創建業務單
+            $sale = $saleService->createSale($request->all());
+
+            // 建立 / 更新重要日期（佛道教且有往生日期時）
+            if (in_array($sale->religion, ['buddhism', 'taoism', 'buddhism_taoism']) && !empty($sale->death_date)) {
+                $dates = MemorialDate::calculateMemorialDates($sale->death_date, $sale->plan_id);
+                MemorialDate::updateOrCreate(
+                    ['sale_id' => $sale->id],
+                    array_merge($dates, [
+                        'sale_id' => $sale->id,
+                        'seventh_reserved' => false,
+                        'seventh_reserved_at' => null,
+                        'forty_ninth_reserved' => false,
+                        'forty_ninth_reserved_at' => null,
+                        'hundredth_reserved' => false,
+                        'hundredth_reserved_at' => null,
+                        'anniversary_reserved' => false,
+                        'anniversary_reserved_at' => null,
+                        'notes' => null
+                    ])
+                );
+            } else {
+                // 不適用時移除既有的重要日期記錄
+                MemorialDate::where('sale_id', $sale->id)->delete();
+            }
+
+            return redirect()
+                ->route('sale.create')
+                ->with('success', '業務單建立成功！單號：' . $sale->sale_on);
+        } catch (\Exception $e) {
+            \Log::error('創建業務單失敗: ' . $e->getMessage(), [
+                'request' => $request->all(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors(['error' => '建立業務單時發生錯誤，請稍後再試']);
+        }
+    }
+
+    /**
+     * 原始版本（保持向後兼容）
+     */
     public function store_gpt(Request $request)
     {
         // 使用正則表達式匹配No.後的數字(客戶)
@@ -559,50 +655,50 @@ class SaleDataControllerNew extends Controller
                     $prom->comment = $request->prom_extra_text[$key];
                     $prom->save();
 
-                // 這裡就能取得 $prom->id
-                // 如果有紀念品資料，這裡直接建立
-                if (
-                    isset($request->product_souvenir_types[$key]) ||
-                    isset($request->product_proms[$key])
-                ) {
-                    $souvenir = new SaleSouvenir();
-                    $souvenir->sale_id = $sale_id->id;
-                    $souvenir->sale_prom_id = $prom->id;  // 關鍵：這裡用剛剛新增的 Sale_prom id
-                    $souvenir->souvenir_type = $request->product_souvenir_types[$key];
-                    if (isset($request->product_proms[$key])) {
-                        $souvenir->product_name = $request->product_proms[$key];
-                    } else {
-                        $souvenir->product_name = $request->product_name[$key];
-                    }
-                    $souvenir->product_num = $request->product_num[$key];
+                    // 這裡就能取得 $prom->id
+                    // 如果有紀念品資料，這裡直接建立
+                    if (
+                        isset($request->product_souvenir_types[$key]) ||
+                        isset($request->product_proms[$key])
+                    ) {
+                        $souvenir = new SaleSouvenir();
+                        $souvenir->sale_id = $sale_id->id;
+                        $souvenir->sale_prom_id = $prom->id;  // 關鍵：這裡用剛剛新增的 Sale_prom id
+                        $souvenir->souvenir_type = $request->product_souvenir_types[$key];
+                        if (isset($request->product_proms[$key])) {
+                            $souvenir->product_name = $request->product_proms[$key];
+                        } else {
+                            $souvenir->product_name = $request->product_name[$key];
+                        }
+                        $souvenir->product_num = $request->product_num[$key];
 
-                    // 處理細項 ID
-                    if (isset($request->product_variants[$key]) && !empty($request->product_variants[$key])) {
-                        $souvenir->product_variant_id = $request->product_variants[$key];
-                    }
+                        // 處理細項 ID
+                        if (isset($request->product_variants[$key]) && !empty($request->product_variants[$key])) {
+                            $souvenir->product_variant_id = $request->product_variants[$key];
+                        }
 
-                    $souvenir->total = $request->prom_total[$key];
-                    $souvenir->comment = $request->product_comment[$key];
-                    $souvenir->save();
+                        $souvenir->total = $request->prom_total[$key];
+                        $souvenir->comment = $request->product_comment[$key];
+                        $souvenir->save();
+                    }
                 }
             }
-        }
-        } // 結束後續處理的 if 檢查
+        }  // 結束後續處理的 if 檢查
 
         // 檢查是否有金紙資料
         if ($request->gdpaper_ids && is_array($request->gdpaper_ids)) {
             foreach ($request->gdpaper_ids as $key => $gdpaper_id) {
-            if (isset($gdpaper_id)) {
-                $gdpaper = new Sale_gdpaper();
-                $gdpaper->sale_id = $sale_id->id;
-                $gdpaper->type_list = $request->type_list;
-                $gdpaper->gdpaper_id = $request->gdpaper_ids[$key];
-                $gdpaper->gdpaper_num = $request->gdpaper_num[$key];
-                $gdpaper->gdpaper_total = $request->gdpaper_total[$key];
-                $gdpaper->save();
+                if (isset($gdpaper_id)) {
+                    $gdpaper = new Sale_gdpaper();
+                    $gdpaper->sale_id = $sale_id->id;
+                    $gdpaper->type_list = $request->type_list;
+                    $gdpaper->gdpaper_id = $request->gdpaper_ids[$key];
+                    $gdpaper->gdpaper_num = $request->gdpaper_num[$key];
+                    $gdpaper->gdpaper_total = $request->gdpaper_total[$key];
+                    $gdpaper->save();
+                }
             }
-        }
-        } // 結束金紙的 if 檢查
+        }  // 結束金紙的 if 檢查
 
         // 業務單軌跡-新增
         $sale_history = new SaleHistory();
@@ -794,8 +890,8 @@ class SaleDataControllerNew extends Controller
     {
         $sales = Sale::where('status', 3);
         $payDatas = PayData::leftJoin('users', 'pay_data.user_id', '=', 'users.id')
-        ->whereNotIn('users.job_id', [1, 2, 7])  // 不抓老闆、工程師、行政經理
-        ->where('pay_data.status', 0);
+            ->whereNotIn('users.job_id', [1, 2, 7])  // 不抓老闆、工程師、行政經理
+            ->where('pay_data.status', 0);
         if ($request) {
             $after_date = $request->after_date;
             if ($after_date) {
@@ -831,7 +927,6 @@ class SaleDataControllerNew extends Controller
             $total += $sale->pay_price;
         }
 
-       
         $datas = [];
         foreach ($sales as $sale) {
             $query = Sale::where('status', 3)->where('user_id', $sale->user_id);
@@ -858,7 +953,7 @@ class SaleDataControllerNew extends Controller
 
             $datas[$sale->user_id]['price'] = $datas[$sale->user_id]['items']->sum('pay_price');
         }
-        
+
         foreach ($payDatas as $key => $payData) {
             $datas[$payData->user_id]['name'] = $payData->user_name->name;
             $datas[$payData->user_id]['pay_datas'] = PayData::where('user_id', $payData->user_id)
@@ -2229,9 +2324,8 @@ class SaleDataControllerNew extends Controller
             $selectedFields = [
                 '案件單類別', '單號', '專員', '日期', '客戶', '寶貝名',
                 '寵物品種', '公斤數', '方案', '方案價格', '案件來源', '套裝', '金紙', '金紙總賣價',
-                '安葬方式', '後續處理', '其他處理', '紀念品', '付款方式',
-                '實收價格', '狀態', '備註', '更改後方案',
-                '確認對帳人員', '確認對帳時間'
+                '安葬方式', '後續處理', '其他處理', '宗教信仰', '往生日期', '付款方式',
+                '實收價格', '狀態', '備註', '更改後方案', '確認對帳人員', '確認對帳時間'
             ];
         }
 
@@ -2510,6 +2604,42 @@ class SaleDataControllerNew extends Controller
                     if ($prom->prom_type == 'A') {
                         if (isset($prom->prom_id)) {
                             $text .= ($text == '' ? '' : "\r\n") . $prom->prom_name->name . '-' . number_format($prom->prom_total);
+                            
+                            // 如果有備註，加上備註
+                            if (!empty($prom->comment)) {
+                                $text .= '（' . $prom->comment . '）';
+                            }
+
+                            // 查找該後續處理項目對應的紀念品
+                            $sale_souvenir = SaleSouvenir::where('sale_id', $sale->id)
+                                ->where('sale_prom_id', $prom->id)
+                                ->first();
+
+                            if ($sale_souvenir) {
+                                $itemText = '';
+
+                                if ($sale_souvenir->souvenir_type != null) {
+                                    // 自訂商品：【type】-「紀念品品名」x「紀念品數量」
+                                    $souvenirType = SouvenirType::find($sale_souvenir->souvenir_type);
+                                    $typeName = $souvenirType ? $souvenirType->name : '無類型';
+                                    $productName = $sale_souvenir->product_name ?? '無';
+                                    $quantity = $sale_souvenir->product_num ?? '1';
+                                    $itemText = '【' . $typeName . '】-' . $productName . 'x' . $quantity;
+                                } else {
+                                    // 關聯商品：【「紀念品品名」-「紀念品細項」x「紀念品數量」】
+                                    $product = Product::find($sale_souvenir->product_name);
+                                    $productName = $product ? $product->name : '無';
+                                    $variantName = '';
+                                    if ($sale_souvenir->product_variant_id) {
+                                        $variant = ProductVariant::find($sale_souvenir->product_variant_id);
+                                        $variantName = $variant ? '-' . $variant->variant_name : '';
+                                    }
+                                    $quantity = $sale_souvenir->product_num ?? '1';
+                                    $itemText = '【' . $productName . $variantName . 'x' . $quantity . '】';
+                                }
+
+                                $text .= $itemText;
+                            }
                         } else {
                             $text = '無';
                         }
@@ -2522,12 +2652,51 @@ class SaleDataControllerNew extends Controller
                     if ($prom->prom_type == 'B') {
                         if (isset($prom->prom_id)) {
                             $text .= ($text == '' ? '' : "\r\n") . $prom->prom_name->name . '-' . number_format($prom->prom_total);
+                            
+                            // 如果有備註，加上備註
+                            if (!empty($prom->comment)) {
+                                $text .= '（' . $prom->comment . '）';
+                            }
+
+                            // 查找該後續處理項目對應的紀念品
+                            $sale_souvenir = SaleSouvenir::where('sale_id', $sale->id)
+                                ->where('sale_prom_id', $prom->id)
+                                ->first();
+
+                            if ($sale_souvenir) {
+                                $itemText = '';
+
+                                if ($sale_souvenir->souvenir_type != null) {
+                                    // 自訂商品：【type】-「紀念品品名」x「紀念品數量」
+                                    $souvenirType = SouvenirType::find($sale_souvenir->souvenir_type);
+                                    $typeName = $souvenirType ? $souvenirType->name : '無類型';
+                                    $productName = $sale_souvenir->product_name ?? '無';
+                                    $quantity = $sale_souvenir->product_num ?? '1';
+                                    $itemText = '【' . $typeName . '】-' . $productName . 'x' . $quantity;
+                                } else {
+                                    // 關聯商品：【「紀念品品名」-「紀念品細項」x「紀念品數量」】
+                                    $product = Product::find($sale_souvenir->product_name);
+                                    $productName = $product ? $product->name : '無';
+                                    $variantName = '';
+                                    if ($sale_souvenir->product_variant_id) {
+                                        $variant = ProductVariant::find($sale_souvenir->product_variant_id);
+                                        $variantName = $variant ? '-' . $variant->variant_name : '';
+                                    }
+                                    $quantity = $sale_souvenir->product_num ?? '1';
+                                    $itemText = '【' . $productName . $variantName . 'x' . $quantity . '】';
+                                }
+
+                                $text .= $itemText;
+                            }
                         } else {
                             $text = '無';
                         }
                     }
                 }
                 return $text;
+            case '宗教信仰':
+                return isset($sale->religion) ? $sale->getReligionNameAttribute() : '';
+
             case '其他處理':
                 $text = '';
                 foreach ($sale->proms as $prom) {
@@ -2540,59 +2709,8 @@ class SaleDataControllerNew extends Controller
                     }
                 }
                 return $text;
-            case '紀念品':
-                $text = '';
-                $sale_souvenirs = SaleSouvenir::where('sale_id', $sale->id)->get();
-                if ($sale_souvenirs->count() > 0) {
-                    foreach ($sale_souvenirs as $souvenir) {
-                        $itemText = '';
-
-                        if ($souvenir->souvenir_type != null) {
-                            // 自訂商品：【type】-「紀念品品名」x「紀念品數量」（備註：「紀念品備註」）
-                            // 取得類型名稱
-                            $souvenirType = SouvenirType::find($souvenir->souvenir_type);
-                            $typeName = $souvenirType ? $souvenirType->name : '無類型';
-
-                            // 取得品名
-                            $productName = $souvenir->product_name ?? '無';
-
-                            // 取得數量
-                            $quantity = $souvenir->product_num ?? '1';
-
-                            // 組合格式：【type】-「品名」x「數量」
-                            $itemText = '【' . $typeName . '】-' . $productName . 'x' . $quantity;
-                        } else {
-                            // 關聯商品：「紀念品品名」-「紀念品細項」x「紀念品數量」（備註：「紀念品備註」）
-                            // 取得品名
-                            $product = Product::find($souvenir->product_name);
-                            $productName = $product ? $product->name : '無';
-
-                            // 取得細項
-                            $variantName = '';
-                            if ($souvenir->product_variant_id) {
-                                $variant = ProductVariant::find($souvenir->product_variant_id);
-                                $variantName = $variant ? '-' . $variant->variant_name : '';
-                            }
-
-                            // 取得數量
-                            $quantity = $souvenir->product_num ?? '1';
-
-                            // 組合格式：「品名」-「細項」x「數量」
-                            $itemText = $productName . $variantName . 'x' . $quantity;
-                        }
-
-                        // 取得備註（兩種類型都要顯示）
-                        $comment = $souvenir->comment ?? '';
-                        if (!empty($comment)) {
-                            $itemText .= '（備註：' . $comment . '）';
-                        }
-
-                        $text .= ($text == '' ? '' : "\r\n") . $itemText;
-                    }
-                } else {
-                    $text = '無';
-                }
-                return $text;
+            case '往生日期':
+                return isset($sale->death_date) ? $sale->death_date : '';
             case '付款類別':
                 return isset($sale->pay_id) ? $sale->pay_type() : '';
             case '支付方式':
@@ -2771,5 +2889,29 @@ class SaleDataControllerNew extends Controller
             'users' => $users,
             'request' => $request
         ]);
+    }
+
+    public function create_gpt_product()
+    {
+        $sources = SaleSource::where('status', 'up')->orderby('seq', 'asc')->get();
+        $plans = Plan::where('status', 'up')->get();
+        $products = Product::where('status', 'up')->where('category_id', '1')->orderby('seq', 'asc')->orderby('price', 'desc')->get();
+        $customers = Customer::orderby('created_at', 'desc')->get();
+        $source_companys = Customer::whereIn('group_id', [2, 3, 4, 5, 6, 7])->get();
+        $suits = Suit::where('status', 'up')->get();
+        $souvenir_types = SouvenirType::where('status', 'up')->get();
+        $hospitals = Customer::whereIn('group_id', [2])->get();
+        $users = User::where('status', '0')->orderby('seq')->orderby('level')->get();
+        // dd($souvenirs);
+        return view('sale.create_gpt_product')
+            ->with('products', $products)
+            ->with('sources', $sources)
+            ->with('plans', $plans)
+            ->with('customers', $customers)
+            ->with('source_companys', $source_companys)
+            ->with('suits', $suits)
+            ->with('souvenir_types', $souvenir_types)
+            ->with('hospitals', $hospitals)
+            ->with('users', $users);
     }
 }

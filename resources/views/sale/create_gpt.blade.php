@@ -1972,22 +1972,31 @@
                     'gdpaper_id': $("#gdpaper_id_" + row_id).val()
                 },
                 success: function(data) {
+                    // 處理 JSON 回應
+                    var price;
+                    if (typeof data === 'object' && data !== null) {
+                        price = data.price || 0;
+                    } else {
+                        // 向後兼容：如果返回的是純文字（價格）
+                        price = parseFloat(data) || 0;
+                    }
+
                     var gdpaper_num = $("#gdpaper_num_" + row_id).val();
 
-                    // 如果數量為空，預設為 1gdpaper_num <= 0
+                    // 如果數量為空，預設為 1
                     if (!gdpaper_num) {
                         gdpaper_num = 1;
                         $("#gdpaper_num_" + row_id).val(gdpaper_num);
                     }
 
                     // 計算金額
-                    $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
+                    $("#gdpaper_total_" + row_id).val(gdpaper_num * price);
                     calculate_price();
 
                     // 監聽數量變化，重新計算總價
-                    $("#gdpaper_num_" + row_id).on('change', function() {
-                        gdpaper_num = $(this).val();
-                        $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
+                    $("#gdpaper_num_" + row_id).off('change').on('change', function() {
+                        gdpaper_num = $(this).val() || 0;
+                        $("#gdpaper_total_" + row_id).val(gdpaper_num * price);
                         calculate_price();
                     });
                 }
@@ -2004,26 +2013,31 @@
                     'gdpaper_id': $("#gdpaper_id_" + row_id).val()
                 },
                 success: function(data) {
+                    // 處理 JSON 回應
+                    var price;
+                    if (typeof data === 'object' && data !== null) {
+                        price = data.price || 0;
+                    } else {
+                        // 向後兼容：如果返回的是純文字（價格）
+                        price = parseFloat(data) || 0;
+                    }
+
                     var gdpaper_num = $("#gdpaper_num_" + row_id).val();
 
-                    // 防止數量為 0 或空值
-                    // if (!gdpaper_num) {
-                    //     gdpaper_num = 1;
-                    //     $("#gdpaper_num_" + row_id).val(gdpaper_num);
-                    // }
+                    // 防止數量為 0 或空值，設置最小值為 1
+                    if (!gdpaper_num) {
+                        gdpaper_num = 1;
+                        $("#gdpaper_num_" + row_id).val(gdpaper_num);
+                    }
 
                     // 計算總金額
-                    $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
+                    $("#gdpaper_total_" + row_id).val(gdpaper_num * price);
                     calculate_price();
 
                     // 更新數量變更事件
-                    $("#gdpaper_num_" + row_id).on('change', function() {
-                        gdpaper_num = $(this).val();
-                        // if (gdpaper_num <= 0) {
-                        //     gdpaper_num = 1; // 確保數量最小值為 1
-                        //     $(this).val(gdpaper_num);
-                        // }
-                        $("#gdpaper_total_" + row_id).val(gdpaper_num * data);
+                    $("#gdpaper_num_" + row_id).off('change').on('change', function() {
+                        gdpaper_num = $(this).val() || 0;
+                        $("#gdpaper_total_" + row_id).val(gdpaper_num * price);
                         calculate_price();
                     });
                 }

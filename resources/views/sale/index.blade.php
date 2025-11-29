@@ -806,8 +806,13 @@
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="export_fields[]"
-                                            value="紀念品" id="field_紀念品" checked>
-                                        <label class="form-check-label" for="field_紀念品">紀念品</label>
+                                            value="宗教信仰" id="field_宗教信仰" checked>
+                                        <label class="form-check-label" for="field_宗教信仰">宗教信仰</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="export_fields[]"
+                                            value="往生日期" id="field_往生日期" checked>
+                                        <label class="form-check-label" for="field_往生日期">往生日期</label>
                                     </div>
                                 </div>
 
